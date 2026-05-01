@@ -238,7 +238,7 @@ typedef uint64_t cuuint64_t;
 /**
  * CUDA API version number
  */
-#define CUDA_VERSION 12010
+#define CUDA_VERSION 12090
 
 #ifdef __cplusplus
 extern "C" {
@@ -3380,9 +3380,12 @@ typedef enum CUmemAccess_flags_enum {
  * Specifies the type of location
  */
 typedef enum CUmemLocationType_enum {
-    CU_MEM_LOCATION_TYPE_INVALID = 0x0,
-    CU_MEM_LOCATION_TYPE_DEVICE  = 0x1,  /**< Location is a device location, thus id is a device ordinal */
-    CU_MEM_LOCATION_TYPE_MAX     = 0x7FFFFFFF
+    CU_MEM_LOCATION_TYPE_INVALID    = 0x0,
+    CU_MEM_LOCATION_TYPE_DEVICE     = 0x1,  /**< Location is a device location, thus id is a device ordinal */
+    CU_MEM_LOCATION_TYPE_HOST       = 0x2,   /**< Location is host, id is ignored */
+    CU_MEM_LOCATION_TYPE_HOST_NUMA  = 0x3,  /**< Location is a host NUMA node, thus id is a host NUMA node id */
+    CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT = 0x4,  /**< Location is a host NUMA node of the current thread, id is ignored */
+    CU_MEM_LOCATION_TYPE_MAX        = 0x7FFFFFFF
 } CUmemLocationType;
 
 /**
@@ -6968,6 +6971,57 @@ CUresult CUDAAPI cuLibraryLoadData(CUlibrary *library, const void *code,
 CUresult CUDAAPI cuLibraryLoadFromFile(CUlibrary *library, const char *fileName,
                                        CUjit_option *jitOptions, void **jitOptionsValues, unsigned int numJitOptions,
                                        CUlibraryOption *libraryOptions, void **libraryOptionValues, unsigned int numLibraryOptions);
+
+typedef enum CUmemcpySrcAccessOrder_enum {
+    /**
+     * Default invalid.
+     */
+    CU_MEMCPY_SRC_ACCESS_ORDER_INVALID = 0x0,
+
+    /**
+     * Indicates that access to the source pointer must be in stream order.
+     */
+    CU_MEMCPY_SRC_ACCESS_ORDER_STREAM = 0x1,
+
+    /**
+     * Indicates that access to the source pointer can be out of stream order and
+     * all accesses must be complete before the API call returns. This flag is suited for
+     * ephemeral sources (ex., stack variables) when it's known that no prior operations
+     * in the stream can be accessing the memory and also that the lifetime of the memory
+     * is limited to the scope that the source variable was declared in. Specifying
+     * this flag allows the driver to optimize the copy and removes the need for the user
+     * to synchronize the stream after the API call.
+     */
+    CU_MEMCPY_SRC_ACCESS_ORDER_DURING_API_CALL = 0x2,
+
+    /**
+     * Indicates that access to the source pointer can be out of stream order and the accesses
+     * can happen even after the API call returns. This flag is suited for host pointers
+     * allocated outside CUDA (ex., via malloc) when it's known that no prior operations
+     * in the stream can be accessing the memory. Specifying this flag allows the driver
+     * to optimize the copy on certain platforms.
+     */
+    CU_MEMCPY_SRC_ACCESS_ORDER_ANY = 0x3,
+
+    CU_MEMCPY_SRC_ACCESS_ORDER_MAX = 0x7FFFFFFF
+}  CUmemcpySrcAccessOrder;
+
+/**
+ * Attributes specific to copies within a batch. For more details on usage see ::cuMemcpyBatchAsync.
+ */
+typedef struct CUmemcpyAttributes_st {
+    CUmemcpySrcAccessOrder srcAccessOrder;  /**< Source access ordering to be observed for copies with this attribute. */
+    CUmemLocation srcLocHint;               /**< Hint location for the source operand. Ignored when the pointers are not managed memory or memory allocated outside CUDA. */
+    CUmemLocation dstLocHint;               /**< Hint location for the destination operand. Ignored when the pointers are not managed memory or memory allocated outside CUDA. */
+    unsigned int flags;                     /**< Additional flags for copies with this attribute. See ::CUmemcpyFlags */
+} CUmemcpyAttributes_v1;
+typedef CUmemcpyAttributes_v1 CUmemcpyAttributes;
+
+CUresult cuLibraryGetKernelCount(unsigned int* count, CUlibrary lib);
+CUresult cuLibraryEnumerateKernels(CUkernel* kernels, unsigned int  numKernels, CUlibrary lib);
+CUresult cuKernelGetName(const char** name, CUkernel hfunc);
+CUresult cuKernelGetParamInfo(CUkernel kernel, size_t paramIndex, size_t* paramOffset, size_t* paramSize);
+CUresult cuMemcpyBatchAsync(CUdeviceptr* dsts, CUdeviceptr* srcs, size_t* sizes, size_t count, CUmemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, CUstream hStream);
 
 /**
  * \brief Unloads a library
