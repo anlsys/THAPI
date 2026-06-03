@@ -13,7 +13,7 @@ require 'yaml'
 # Don't complain about broken pipe
 Signal.trap('SIGPIPE', 'SYSTEM_DEFAULT')
 
-$options = { live: false }
+$options = { live: false}
 #CLI argument parser
 OptionParser.new do |opts|
   opts.banner = 'Usage: ze_validator [OPTIONS] trace_directory...'
@@ -26,10 +26,14 @@ OptionParser.new do |opts|
   opts.on('--live', 'Enable live processing of the trace') do
     $options[:live] = true
   end
+
+  # opts.on('--dpo','--disable-print-once', 'disables printing of ') do
+  #   $options[:print_once] = false
+  # end
 end.parse!
 
 module ZEModel
-
+  INIT_API_NAMES = ['zeInit', 'zeInitDrivers']
   class Object
     attr_reader :handle
 
@@ -298,7 +302,7 @@ module ZEModel
       @module_build_logs = {}
       @kernels = {}
       @memory_allocations = {}
-      @zeInitCalled = 0
+      #@initCalled = false
     end
 
     def objects(type)
@@ -329,7 +333,8 @@ class StateObject
     @ze_thread_safety = YAML::load_file(File.join(DATADIR, 'ze_thread_safety.yaml'))
     @entry_lambdas = Hash.new { |h, k| h[k] = [] }
     @exit_lambdas = Hash.new { |h, k| h[k] = [] }
-
+    @init_called = Hash.new { |h, k| h[k] = false } #pid : init called status
+    @printed_init_error = false
     # this is setting up entry_lambda and exit_lambda which are used by consume
     @ze_thread_safety.each { |api, objects|
       objects.each { |o|
@@ -409,15 +414,19 @@ class StateObject
     $stderr.puts "Level Zero Usage Error: on #{get_context_str(context)}: #{str}"
   end
 
-  def pring_crash_error(context, str)
+  def print_crash_error(context, str)
     $stderr.puts "Level Zero Crash Error: on #{get_context_str(context)}: #{str}"
   end
 
-  def print_deprecation_error(str,version, alternative)
+  def print_deprecation_warning(str,version, alternative)
     $stderr.puts "#{str} is deprecated since #{version}. Please use \'#{alternative}\' instead."
   end
 
-  def pring_leak_error(context, type, handle)
+  def print_api_not_called_first_error(api_before, api_after, additional_msg)
+    $stderr.puts "#{api_before} wasn't called before #{api_after}. #{additional_msg}"
+  end
+
+  def print_leak_error(context, type, handle)
     $stderr.puts "Level Zero Leak: on #{get_proc_context_str(context)}: #{type} #{get_handle_str(handle)}"
   end
 
@@ -457,7 +466,7 @@ class StateObject
         process.threads.each { |tid, thread|
           if thread.last_entry
             ctx = {'hostname' => hostname, 'vpid'=> pid, 'vtid' => tid, 'api' => thread.last_entry.name}
-            pring_crash_error(ctx, 'command did not finish execution') #typo?
+            print_crash_error(ctx, 'command did not finish execution') #typo?
             crash = true
           end
         }
@@ -479,7 +488,7 @@ class StateObject
             'memory_allocation',        
           ].each { |t|
             process.objects(t).each { |h, c|
-              pring_leak_error(ctx, t, h)
+              print_leak_error(ctx, t, h)
             }
           }
         }
@@ -487,6 +496,7 @@ class StateObject
     end
   end
 
+  #zeDriversInit or zeInit must be the first one to be called before any api calls
   def consume = lambda { |iterator, _|
         iterator.next_messages.each do |m|
           next unless m.type == :BT_MESSAGE_TYPE_EVENT
@@ -498,6 +508,16 @@ class StateObject
             defi = e.payload_field.value
             context['hostname'] = hostname
             context['api'] = m[1]
+            #below is checking if m[1] == zeInit || zeDriversInit
+            if ZEModel::INIT_API_NAMES.include?(m[1])
+              @init_called[context['vpid']] = true
+              puts "vpid = #{context['vpid']}"
+            end
+
+            if !@init_called[context['vpid']] && !@printed_init_error
+              self.print_api_not_called_first_error("zeDriversInit", m[1], "For pid = #{context['vpid']}")
+              @printed_init_error = true
+            end
 
             if  m[2] == 'entry'
               set_last_entry(context, defi)
@@ -536,7 +556,7 @@ $success_exit_lambdas['zeDriverGet'] = lambda { |state, ctx, defi|
 
 #only one instance of each driver will be initialized per process
 $success_exit_lambdas['zeInit'] = lambda { |state, ctx, defi|
-  state.print_deprecation_error("zeInit", "1.10", "zeInitDrivers")
+  state.print_deprecation_warning("zeInit", "1.10", "zeInitDrivers")
 }
 
 #TODO: warn about redundant kernel launches
