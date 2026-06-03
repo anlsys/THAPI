@@ -137,4 +137,5 @@ META_PARAMETERS = Hash::new { |h, k| h[k] = [] }
 PROLOGUES = Hash::new { |h, k| h[k] = [] }
 EPILOGUES = Hash::new { |h, k| h[k] = [] }
 
+#appending of prologues and epilogues happens later
 

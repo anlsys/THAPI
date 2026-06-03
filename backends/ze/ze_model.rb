@@ -14,7 +14,7 @@ end
 
 RESULT_NAME = "zeResult"
 
-$ze_api_yaml = YAML::load_file("ze_api.yaml")
+$ze_api_yaml = YAML::load_file("ze_api.yaml") #$var represents global var. @var Instance var, @@var class var, var local var, VAR constant
 $zet_api_yaml = YAML::load_file("zet_api.yaml")
 $zes_api_yaml = YAML::load_file("zes_api.yaml")
 $zel_api_yaml = YAML::load_file("zel_api.yaml")
@@ -35,11 +35,11 @@ zex_funcs_e = $zex_api["functions"]
 typedefs = $ze_api["typedefs"] + $zet_api["typedefs"] + $zes_api["typedefs"] + $zel_api["typedefs"] + $zex_api["typedefs"]
 structs = $ze_api["structs"] + $zet_api["structs"] + $zes_api["structs"] + $zel_api["structs"] + $zex_api["structs"]
 
-find_all_types(typedefs)
+find_all_types(typedefs) #yaml_ast.rb
 gen_struct_map(typedefs, structs)
 gen_ffi_type_map(typedefs)
 
-INIT_FUNCTIONS = /zeInit|zeLoaderInit/
+INIT_FUNCTIONS = /zeInit|zeLoaderInit/ #REGEX
 
 $struct_type_conversion_table = {
   "ZE_STRUCTURE_TYPE_IMAGE_MEMORY_PROPERTIES_EXP" => "ZE_STRUCTURE_TYPE_IMAGE_MEMORY_EXP_PROPERTIES",
@@ -123,6 +123,8 @@ ze_pointer_names += $zex_commands.collect { |c|
 }
 ZE_POINTER_NAMES = ze_pointer_names.to_h
 
+#Appends this code to zeDeviceGet wrapper, then thapi intercepts the call to zedeviceGet and replaces it with the wrapper
+#register_(epilogue|prologue) in command.rb
 register_epilogue "zeDeviceGet", <<EOF
   if (_do_state()) {
     if (_retval == ZE_RESULT_SUCCESS && phDevices && pCount) {
@@ -226,7 +228,7 @@ EOF
 memory_info_dump = lambda { |ptr_name|
   "_dump_memory_info(hCommandList, #{ptr_name})"
 }
-
+#memory info device,heap, etc. Only if paranoid memory tracking is enabled
 memory_info_prologue = lambda { |ptr_names|
   s = <<EOF
   if (_do_paranoid_memory_location &&
@@ -280,7 +282,7 @@ profiling_prologue = lambda { |event_name|
   }
 EOF
 }
-
+#event name is known from API Spec
 profiling_epilogue = lambda { |event_name|
   <<EOF
   if (_do_profile && #{event_name}) {
@@ -380,6 +382,8 @@ register_epilogue "zeKernelCreate", <<EOF
  }
 EOF
 
+#generates the dispatch table?
+#replaces the original function calls with the wrappers
 ($ze_commands + $zet_commands + $zes_commands + $zel_commands).select { |c|
   c.name.match(/(ze|zet|zes|zel)Get.*ProcAddrTable/)
 }.each { |c|
