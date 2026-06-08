@@ -176,18 +176,26 @@ module ZEModel
       @device = device
       @desc = desc
       @fences = {}
+      @valid_fences = Hash.new { |h, k| h[k] = true } #fences that have been reset or haven't been signaled
     end
   end
 
   class Fence < Object
+    @@INITIALIZED = 0 #for fence create or reset
+    @@IN_USE = 1
+    @@SIGNALED = 2 #signaled to the host
     @typename = 'fence'
     attr_reader :command_queue
     attr_reader :desc
+    attr_accessor :status
+    attr_accessor :command_queue_history
 
     def initialize(handle, command_queue, desc)
       super(handle)
       @command_queue = command_queue
       @desc = desc
+      @status = @@INITIALIZED 
+      @command_queue_history = []
     end
   end
 
@@ -329,6 +337,10 @@ class StateObject
   attr_reader :exit_lambdas
   
   def initialize()
+    #deprecated since: [[deprecated, newerAPI]]
+    @deprecations = { "1.10" => [["zeInit", "zeInitDrivers"], ["zeGetDriver", "zeInitDrivers"]]} #Move this to deprecated.json, and load it from there
+
+    # puts "#{deprecations}"
     @state = Hash.new { |h, k| h[k] = ZEModel::Node.new(k) }
     @ze_thread_safety = YAML::load_file(File.join(DATADIR, 'ze_thread_safety.yaml'))
     @entry_lambdas = Hash.new { |h, k| h[k] = [] }
@@ -361,6 +373,28 @@ class StateObject
       }
     }
 
+    @entry_lambdas["zeCommandQueueExecuteCommandLists"].push( lambda { |state, ctx, defi|
+                                                            fences = nil
+                                                            curr_fence = state.get_fence(state,ctx,defi)
+                                                            return unless curr_fence
+                                                            if curr_fence.status == ZEModel::Fence.class_variable_get(:@@SIGNALED)
+                                                              state.print_usage_error(ctx, "Used fence: #{get_handle_str(defi['hFence'])} twice without resetting it")
+                                                            elsif curr_fence.status == ZEModel::Fence.class_variable_get(:@@IN_USE)
+                                                              state.print_usage_error(ctx, "Used fence: #{get_handle_str(defi['hFence'])} twice on two or more commandQueues")
+                                                            end
+                                                            curr_fence.status = ZEModel::Fence.class_variable_get(:@@IN_USE)})
+
+    @entry_lambdas["zeFenceHostSynchronize"].push( lambda { |state, ctx, defi|
+                                                            fences = nil
+                                                            curr_fence = state.get_fence(state,ctx,defi)
+                                                            return unless curr_fence
+                                                            if curr_fence.status == ZEModel::Fence.class_variable_get(:@@SIGNALED)
+                                                              state.print_usage_error(ctx, "Used fence: #{get_handle_str(defi['hFence'])} twice without resetting it")
+                                                            end
+                                                              curr_fence.status = ZEModel::Fence.class_variable_get(:@@SIGNALED)})
+
+
+
   end
   # instance methods
   def get_last_entry(context)
@@ -382,7 +416,36 @@ class StateObject
     end
   end
 
-  def set_last_entry(context, defi)
+  
+  def get_fence(state,context,defi)
+    fences = nil
+    curr_fence = nil
+    if defi['hFence']
+      fences = state.find_objects(context, 'fence')
+      curr_fence = fences[defi['hFence']]
+    end
+    return unless fences && curr_fence
+    curr_fence
+  end 
+
+  # def set_fence_status(state, context, defi)
+    
+  #   if context['api'] == "zeCommandQueueExecuteCommandLists"
+  #     if curr_fence.status == ZEModel::Fence.class_variable_get(:@@SIGNALED)
+  #       state.print_usage_error(context, "Used fence: #{get_handle_str(defi['hFence'])} twice without resetting it")
+  #     elsif curr_fence.status == ZEModel::Fence.class_variable_get(:@@IN_USE)
+  #       state.print_usage_error(context, "Used fence: #{get_handle_str(defi['hFence'])} twice on two or more commandQueues")
+  #     end
+  #     curr_fence.status = ZEModel::Fence.class_variable_get(:@@IN_USE)
+  #   elsif context['api'] == "zeFenceHostSynchronize"
+  #     if curr_fence.status == ZEModel::Fence.class_variable_get(:@@SIGNALED)
+  #       state.print_usage_error(context, "Used fence: #{get_handle_str(defi['hFence'])} twice without resetting it")
+  #     end
+  #     curr_fence.status = ZEModel::Fence.class_variable_get(:@@SIGNALED)
+  #   end
+  # end
+
+  def set_last_entry(state, context, defi)
     get_thread(context).last_entry = ZEModel::ApiCall.new(context['api'], defi)
   end
   
@@ -439,7 +502,7 @@ class StateObject
   end
 
   def object_not_found(context, type, handle, sub_context = nil)
-    raise_internal_error(ctx, "event_pool #{get_handle_str(handle)} not found#{sub_context ? " in #{sub_context}" : ""}")
+    raise_internal_error(context, "event_pool #{get_handle_str(handle)} not found#{sub_context ? " in #{sub_context}" : ""}")
   end
 
   def find_param(context, name)
@@ -496,6 +559,10 @@ class StateObject
     end
   end
 
+  def check_deprecation(api_name)
+    ap
+  end
+
   #zeDriversInit or zeInit must be the first one to be called before any api calls
   def consume = lambda { |iterator, _|
         iterator.next_messages.each do |m|
@@ -508,6 +575,7 @@ class StateObject
             defi = e.payload_field.value
             context['hostname'] = hostname
             context['api'] = m[1]
+            # puts "defi = #{defi}"
             #below is checking if m[1] == zeInit || zeDriversInit
             if ZEModel::INIT_API_NAMES.include?(m[1])
               @init_called[context['vpid']] = true
@@ -520,7 +588,8 @@ class StateObject
             end
 
             if  m[2] == 'entry'
-              set_last_entry(context, defi)
+              set_last_entry(self, context, defi)
+              #set_fence_status(self,context,defi)
               @entry_lambdas[m[1]].each { |l|
                 l.call(self, context, defi)
               }
@@ -542,7 +611,7 @@ class StateObject
         end
       }
     
-  end
+end #end of StateObject
 
 $success_exit_lambdas = {}
 $error_exit_lambdas = {}
@@ -554,7 +623,8 @@ $success_exit_lambdas['zeDriverGet'] = lambda { |state, ctx, defi|
   }
 }
 
-#only one instance of each driver will be initialized per process
+#only one instance of each driver will be initialized per process <-- move this to here
+#Added deprecation features
 $success_exit_lambdas['zeInit'] = lambda { |state, ctx, defi|
   state.print_deprecation_warning("zeInit", "1.10", "zeInitDrivers")
 }
@@ -680,6 +750,19 @@ $success_exit_lambdas['zeCommandQueueCreate'] = lambda { |state, ctx, defi|
   context.command_queues[handle] = command_queues[handle]
 }
 
+
+# $success_exit_lambdas['zeCommandQueueExecuteCommandLists'] = lambda { |state, ctx, defi|
+#   command_queues = state.find_objects(ctx, 'command_queue')
+#   context = state.find_object(ctx, 'context', 'hContext')
+#   device = state.find_object(ctx, 'device', 'hDevice')
+#   desc_val = state.find_param(ctx, 'desc_val')
+#   desc = state.to_struct(desc_val, ZE::ZECommandQueueDesc)
+#   handle = defi['phCommandQueue_val']
+#   command_queues.valid_fences[handle]
+#   command_queues[handle] = ZEModel::CommandQueue.new(handle, context, device, desc)
+#   context.command_queues[handle] = command_queues[handle]
+# }
+
 $success_exit_lambdas['zeCommandQueueDestroy'] = lambda { |state, ctx, defi|
   command_queues = state.find_objects(ctx, 'command_queue')
   handle = state.find_param(ctx, 'hCommandQueue')
@@ -694,6 +777,8 @@ $success_exit_lambdas['zeCommandQueueDestroy'] = lambda { |state, ctx, defi|
   }
 }
 
+
+
 $success_exit_lambdas['zeFenceCreate'] = lambda { |state, ctx, defi|
   fences = state.find_objects(ctx, 'fence')
   command_queue = state.find_object(ctx, 'command_queue', 'hCommandQueue')
@@ -702,7 +787,17 @@ $success_exit_lambdas['zeFenceCreate'] = lambda { |state, ctx, defi|
   handle = defi['phFence_val']
   fence = ZEModel::Fence.new(handle, command_queue, desc)
   fences[handle] = fence
+  puts "fence handle = #{handle}"
   command_queue.fences[handle] = fence
+}
+
+$success_exit_lambdas['zeFenceHostSynchronize'] = lambda { |state, ctx, defi|
+  fences = state.find_objects(ctx, 'fence')
+  puts "fences? = #{defi}"
+}
+
+$success_exit_lambdas['zeFenceReset'] = lambda { |state, ctx, defi|
+  fences = state.find_objects(ctx, 'fence')
 }
 
 $success_exit_lambdas['zeFenceDestroy'] = lambda { |state, ctx, defi|
