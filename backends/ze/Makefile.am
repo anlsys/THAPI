@@ -100,7 +100,8 @@ EXTRA_DIST += \
 	ze_model.rb \
 	gen_babeltrace_ze_model.rb \
 	ze_validator_zemodel.rb \
-	ze_validator_function_exit_callbacks.rb 
+	ze_validator_function_entry_exit_callbacks.rb \
+	ze_validator_state_object.rb
 
 
 ZE_PROBES = $(ZE_NAMESPACES:=_tracepoints) $(ZE_STRUCTS_NAMESPACES:=_tracepoints)
@@ -247,7 +248,8 @@ data_DATA = \
 	babeltrace_zeprofiling_apis.txt \
 	ze_thread_safety.yaml \
 	ze_validator_zemodel.rb \
-	ze_validator_function_exit_callbacks.rb
+	ze_validator_function_entry_exit_callbacks.rb \
+	ze_validator_state_object.rb 
 
 xprof_utils.hpp: $(top_srcdir)/utils/xprof_utils.hpp
 	cp $< $@

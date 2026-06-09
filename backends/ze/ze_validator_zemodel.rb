@@ -165,6 +165,18 @@ module ZEModel
       @status = @@INITIALIZED 
       @command_queue_history = []
     end
+
+    #is it suitable to put this here?
+    def self.get_fence(state,context,defi)
+      fences = nil
+      curr_fence = nil
+      if defi['hFence']
+        fences = state.find_objects(context, 'fence')
+        curr_fence = fences[defi['hFence']]
+      end
+      return unless fences && curr_fence
+      curr_fence
+    end 
   end
 
   class CommandList < Object
