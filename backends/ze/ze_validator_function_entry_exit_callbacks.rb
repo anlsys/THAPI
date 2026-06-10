@@ -31,11 +31,9 @@ $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
     cmd_list = command_lists[cl]
     if cmd_list.status == ZEModel::CommandList.class_variable_get(:@@INITIALIZED)
       state.print_usage_error(ctx, "commandlist: #{state.get_handle_str(cl)} wasn't closed before executing on #{state.get_handle_str(defi['hCommandQueue'])}") 
-    
     elsif cmd_list.status == ZEModel::CommandList.class_variable_get(:@@DESTROYED)
       state.print_usage_error(ctx, "commandlist: #{state.get_handle_str(cl)} was already destroyed #{state.get_handle_str(defi['hCommandQueue'])}") 
     end
-     
   end
 
   return unless curr_fence
