@@ -5,6 +5,7 @@ require 'ze_validator_zemodel'
 require 'ze_validator_function_entry_exit_callbacks'
 require 'ze_validator_state_object'
 require 'yaml'
+require 'json'
 
 class StateObject
   attr_reader :state
@@ -13,6 +14,13 @@ class StateObject
   attr_reader :unlock_shared_object_on_exit
   
   def initialize()
+    @deprecated = JSON.parse(File.read(File.join(DATADIR, 'ze_deprecated.json')))
+
+    #add a third field to indicate whether the deprecation warning has been printed or not
+    @deprecated.each do |api, (version, replacement)|
+      @deprecated[api] = [version, replacement, false]
+    end
+
     @state = Hash.new { |h, k| h[k] = ZEModel::Node.new(k) }
     @ze_thread_safety = YAML::load_file(File.join(DATADIR, 'ze_thread_safety.yaml'))
     @lock_shared_object_on_entry = Hash.new { |h, k| h[k] = [] }
@@ -95,6 +103,17 @@ class StateObject
     "#{get_proc_context_str(context)} - #{get_api_context(context)}"
   end
 
+  def print_deprecation_warning(old_api)
+    if @deprecated.include?(old_api) and @deprecated[old_api][2]
+      deprecated_since = @deprecated[old_api][0]
+      new_api = @deprecated[old_api][1]
+      if deprecated_since == ""
+        puts "#{old_api} is deprecated. Please use #{new_api} instead."
+      else 
+        puts "#{old_api} is deprecated since #{deprecated_since}. Please use #{new_api} instead."
+      end
+    end
+  end
   def print_usage_error(context, str)
     $stderr.puts "Level Zero Usage Error: on #{get_context_str(context)}: #{str}"
   end
@@ -226,8 +245,10 @@ class StateObject
             defi = e.payload_field.value
             context['hostname'] = hostname
             context['api'] = m[1]
-			#zeDriversInit or zeInit must be the first one to be called before any api calls
+			      #zeDriversInit or zeInit must be the first one to be called before any api calls
             check_initialization(context,m)
+            #print the known deprecated APIs
+            print_deprecation_warning(m[1]) if @deprecated[m[1]]
             if  m[2] == 'entry'
               on_entry(m, hostname, context, defi)
             else

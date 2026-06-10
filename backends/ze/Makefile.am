@@ -247,6 +247,7 @@ data_DATA = \
 	ze_bindings_base.rb \
 	babeltrace_zeprofiling_apis.txt \
 	ze_thread_safety.yaml \
+	ze_deprecated.json \
 	ze_validator_zemodel.rb \
 	ze_validator_function_entry_exit_callbacks.rb \
 	ze_validator_state_object.rb 

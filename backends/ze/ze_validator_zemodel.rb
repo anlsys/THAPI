@@ -4,7 +4,7 @@ module ZEModel
   INIT_API_NAMES = ['zeInit', 'zeInitDrivers']
   class Object
     attr_reader :handle
-
+    attr_accessor :status
     def self.typename
       @typename
     end
@@ -12,6 +12,7 @@ module ZEModel
     def initialize(handle)
       @handle = handle
       @lock = nil
+      @status = -1
     end
 
     def lock(ctx)
@@ -155,7 +156,6 @@ module ZEModel
     @typename = 'fence'
     attr_reader :command_queue
     attr_reader :desc
-    attr_accessor :status
     attr_accessor :command_queue_history
 
     def initialize(handle, command_queue, desc)
@@ -185,6 +185,9 @@ module ZEModel
     attr_reader :device
     attr_reader :desc
     attr_reader :altdesc
+    @@INITIALIZED = 0 #created or being properly recycled
+    @@CLOSED = 1
+    @@DESTROYED = 2 
 
     def initialize(handle, context, device, desc, altdesc)
       super(handle)
@@ -192,6 +195,7 @@ module ZEModel
       @device = device
       @desc = desc
       @altdesc = altdesc
+      @status = @@INITIALIZED
     end
 
     def immediate?

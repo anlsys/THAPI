@@ -6,10 +6,38 @@ $on_successful_exit = {}
 $on_erroneous_exit = {}
 
 
+
+#when command queue is executed, the associated fence's status is set to IN_USE
+$upon_entry["zeCommandListClose"] = lambda { |state, ctx, defi|
+  command_lists = state.find_objects(ctx, 'command_list')
+  cmd_list = command_lists[defi['hCommandList']]
+  puts "cmdlist = #{defi['hCommandList']}"
+  cmd_list.status = ZEModel::CommandList.class_variable_get(:@@CLOSED)
+}
+
 #when command queue is executed, the associated fence's status is set to IN_USE
 $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
   fences = nil
   curr_fence = ZEModel::Fence.get_fence(state,ctx,defi)
+  puts "pclv = #{defi['phCommandLists_vals']}"
+  pclv = defi['phCommandLists_vals']
+
+  if pclv.nil? || pclv.empty?
+    state.print_usage_error(ctx, "No commandlist was chosen for: #{state.get_handle_str(defi['hCommandQueue'])}")
+  end 
+
+  command_lists = state.find_objects(ctx, 'command_list')
+  pclv.each do |cl|
+    cmd_list = command_lists[cl]
+    if cmd_list.status == ZEModel::CommandList.class_variable_get(:@@INITIALIZED)
+      state.print_usage_error(ctx, "commandlist: #{state.get_handle_str(cl)} wasn't closed before executing on #{state.get_handle_str(defi['hCommandQueue'])}") 
+    
+    elsif cmd_list.status == ZEModel::CommandList.class_variable_get(:@@DESTROYED)
+      state.print_usage_error(ctx, "commandlist: #{state.get_handle_str(cl)} was already destroyed #{state.get_handle_str(defi['hCommandQueue'])}") 
+    end
+     
+  end
+
   return unless curr_fence
   if curr_fence.status == ZEModel::Fence.class_variable_get(:@@SIGNALED)
     state.print_usage_error(ctx, "Used fence: #{state.get_handle_str(defi['hFence'])} twice without resetting it")
@@ -41,7 +69,7 @@ $upon_entry["zeFenceReset"] =  lambda { |state, ctx, defi|
 }
 
 
-
+#Set the driver for the current context
 $on_successful_exit['zeDriverGet'] = lambda { |state, ctx, defi|
   drivers = state.get_process(ctx).drivers
   defi['phDrivers_vals'].each { |h|
@@ -49,6 +77,7 @@ $on_successful_exit['zeDriverGet'] = lambda { |state, ctx, defi|
   }
 }
 
+#Set device
 $on_successful_exit['zeDeviceGet'] = lambda { |state, ctx, defi|
   devices = state.find_objects(ctx, 'device')
   driver = state.find_object(ctx, 'driver', 'hDriver')
