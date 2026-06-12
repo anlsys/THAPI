@@ -123,8 +123,13 @@ class StateObject
   end
 
 
-  def print_leak_error(context, type, handle)
-    $stderr.puts "Level Zero Leak: on #{get_proc_context_str(context)}: #{type} #{get_handle_str(handle)}"
+  
+  def print_leak_error(context, type, handle, memtypestr="")
+    if memtypestr.empty?
+      $stderr.puts "Level Zero Leak: on #{get_proc_context_str(context)}: #{type} #{get_handle_str(handle)}"
+    else
+      $stderr.puts "Level Zero Leak #{memtypestr}-memory: on #{get_proc_context_str(context)}: #{type} #{get_handle_str(handle)}"
+    end 
   end
 
   def raise_internal_error(context, str)
@@ -161,7 +166,7 @@ class StateObject
     @state.each { |hostname, node|
       node.processes.each { |pid, process|
         process.threads.each { |tid, thread|
-          if thread.last_entry
+          if thread.last_entry #because successful return from the call stack should have set this field to nil
             ctx = {'hostname' => hostname, 'vpid'=> pid, 'vtid' => tid, 'api' => thread.last_entry.name}
             print_crash_error(ctx, 'command did not finish execution') #typo?
             crash = true
@@ -170,6 +175,7 @@ class StateObject
       }
     }
 
+    #if !crash || true 
     unless crash && false
       @state.each { |hostname, node|
         node.processes.each { |pid, process|
@@ -182,10 +188,17 @@ class StateObject
             'module',
             'module_build_log',
             'kernel',
-            'memory_allocation',        
+            'memory_allocation',  #what type of memory allocation?      
           ].each { |t|
+            #objects that were created will be deleted upon successful exits. 
+            #So, only the ones that didn't get deleted will be reported
             process.objects(t).each { |h, c|
-              print_leak_error(ctx, t, h)
+              if t == 'memory_allocation'
+                #puts "mem alloc type = #{c.instance_variable_get(:@memtypestr)}"
+                print_leak_error(ctx, t, h, c.instance_variable_get(:@memtypestr))
+              else
+                print_leak_error(ctx, t, h) #it prints the type as well
+              end
             }
           }
         }

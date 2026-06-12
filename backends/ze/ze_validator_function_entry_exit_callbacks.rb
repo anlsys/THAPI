@@ -359,7 +359,7 @@ $on_successful_exit['zeKernelDestroy'] = lambda { |state, ctx, defi|
     state.object_not_found(ctx, 'kernel', handle, 'module')
   }
 }
-
+#The implementation of this (zeMemAllocDevice) function must be thread-safe
 $on_successful_exit['zeMemAllocDevice'] = lambda { |state, ctx, defi|
   # memory is associated with devices
   memory_allocations =  state.find_objects(ctx, 'memory_allocation')
@@ -367,7 +367,7 @@ $on_successful_exit['zeMemAllocDevice'] = lambda { |state, ctx, defi|
   device = state.find_object(ctx, 'device','hDevice')
   size = state.find_param(ctx,"size")
   handle = defi['pptr_val']
-  memory_allocation =  ZEModel::DeviceMemory.new(handle, context, size, device)
+  memory_allocation =  ZEModel::Memory.new(handle, context, size, device, "device")
   memory_allocations[handle] = memory_allocation
   device.memory_allocations[handle] = memory_allocation
 }
@@ -383,7 +383,7 @@ $on_successful_exit['zeMemAllocShared'] = lambda { |state, ctx, defi|
   # TODO: should add in code to add this mme allocation to all devices with that property
   size = state.find_param(ctx,"size")
   handle = defi['pptr_val']
-  memory_allocation =  ZEModel::DeviceMemory.new(handle, context, size, device)
+  memory_allocation =  ZEModel::Memory.new(handle, context, size, device)
   memory_allocations[handle] = memory_allocation
   device.memory_allocations[handle] = memory_allocation if device
 }
@@ -395,7 +395,7 @@ $on_successful_exit['zeMemAllocHost'] = lambda { |state, ctx, defi|
   context = state.find_object(ctx, 'context', 'hContext')
   size = state.find_param(ctx,"size")
   handle = defi['pptr_val']
-  memory_allocation =  ZEModel::DeviceMemory.new(handle, context, size, nil)
+  memory_allocation =  ZEModel::Memory.new(handle, context, size, nil, "host")
   memory_allocations[handle] = memory_allocation
 }
 
@@ -405,10 +405,11 @@ $on_successful_exit['zeMemFree'] = lambda { |state, ctx, defi|
   memory_allocation = memory_allocations.delete(handle) {
     state.object_not_found(ctx, 'memory_allocation', handle)
   }
-  dev = memory_allocation.device
-  if dev
-    dev.memory_allocations.delete(handle) {
+  
+  if memory_allocation
+    mem = memory_allocation.memtype
+    mem.memory_allocations.delete(handle) {
       state.object_not_found(ctx, 'memory_allocation', handle, 'device')
-    }
+    } if mem
   end
 }

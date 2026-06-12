@@ -40,6 +40,8 @@ module ZEModel
     end
   end
 
+  
+
   class Device < Object
     @typename = 'device'
     attr_reader :properties
@@ -53,6 +55,8 @@ module ZEModel
     end
   end
 
+  
+
   class SubDevice < Device
     attr_reader :parent
 
@@ -62,19 +66,41 @@ module ZEModel
     end
   end
 
-  class DeviceMemory < Object
+  #create memory object so that device, shared, host mem allocs can be differentiated
+  class Memory < Object
     @typename = 'memory_allocation'
     attr_reader :context
     attr_reader :size
-    attr_reader :device
+    attr_reader :memtype
 
-    def initialize(handle, context, size, device)
+    def initialize(handle, context, size, memtype, memtypestr="shared")
       super(handle)
       @context = context
       @size = size
-      @device = device
+      @memtype = memtype
+      @memtypestr = memtypestr
     end
   end
+
+
+  # No need to create DeviceMemory class. Just create Memory with the specified type (device,shared,host)
+  # class DeviceMemory < Object
+  #   @typename = 'memory_allocation_device'
+  #   attr_reader :context
+  #   attr_reader :size
+  #   attr_reader :device
+
+  #   def initialize(handle, context, size, device)
+  #     super(handle,context,size,device)
+  #     @context = context
+  #     @size = size
+  #     @device = device
+  #   end
+  # end
+
+  
+
+  
 
   class Context < Object
     @typename = 'context'
@@ -266,7 +292,6 @@ module ZEModel
   class Process
     attr_reader :vpid
     attr_reader :threads
-
     attr_reader :drivers
     attr_reader :devices
     attr_reader :contexts
