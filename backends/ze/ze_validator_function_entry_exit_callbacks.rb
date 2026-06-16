@@ -10,7 +10,7 @@ $upon_entry["zeCommandListAppendLaunchKernel"] = lambda { |state, ctx, defi|
   if cqg_ordinal != 0 #hardcoded for now, change it once the trace can output which ordinals are computes
     state.print_usage_error(ctx, "Launching kernel to a command list with Copy Ordinal: #{state.get_handle_str(defi['hCommandList'])}")
   end 
-  puts "defi = #{defi}"
+  #puts "defi = #{defi}"
 }
 
 #when command queue is executed, the associated fence's status is set to IN_USE
@@ -367,6 +367,28 @@ $on_successful_exit['zeKernelDestroy'] = lambda { |state, ctx, defi|
     state.object_not_found(ctx, 'kernel', handle, 'module')
   }
 }
+
+
+$upon_entry['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
+  src_ptr = defi['srcptr']
+  dst_ptr = defi['dstptr']
+  cpy_size = defi['size']
+  memory_allocations =  state.find_objects(ctx, 'memory_allocation')
+  dst_mem = memory_allocations[dst_ptr]
+  src_mem = memory_allocations[src_ptr]
+  puts "dst = #{dst_mem}, #{src_mem}"
+  if dst_mem && dst_mem.size < cpy_size
+      state.print_usage_error(ctx, "destination memory: #{dst_ptr} only has #{dst_mem.size} bytes allocated but zeCommandListAppendMemoryCopy is trying to copy #{cpy_size} bytes")
+  end 
+
+  if src_mem && src_mem.size < cpy_size
+     state.print_usage_error(ctx, "source memory: #{src_ptr} only has #{src_mem.size} bytes allocated but zeCommandListAppendMemoryCopy is trying to copy #{cpy_size} bytes")
+  end 
+  # puts "defi = #{defi}"
+}
+# $on_successful_exit['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
+#   puts "zclappendmemcopy called"
+# }
 #The implementation of this (zeMemAllocDevice) function must be thread-safe
 $on_successful_exit['zeMemAllocDevice'] = lambda { |state, ctx, defi|
   # memory is associated with devices
