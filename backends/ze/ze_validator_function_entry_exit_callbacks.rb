@@ -5,7 +5,13 @@ $upon_entry = {} #called to modify program state on entry
 $on_successful_exit = {}
 $on_erroneous_exit = {}
 
-
+$upon_entry["zeCommandListAppendLaunchKernel"] = lambda { |state, ctx, defi|
+  cqg_ordinal = defi['commandQueueGroupOrdinal']
+  if cqg_ordinal != 0 #hardcoded for now, change it once the trace can output which ordinals are computes
+    state.print_usage_error(ctx, "Launching kernel to a command list with Copy Ordinal: #{state.get_handle_str(defi['hCommandList'])}")
+  end 
+  puts "defi = #{defi}"
+}
 
 #when command queue is executed, the associated fence's status is set to IN_USE
 $upon_entry["zeCommandListClose"] = lambda { |state, ctx, defi|
@@ -188,6 +194,7 @@ $on_successful_exit['zeCommandQueueCreate'] = lambda { |state, ctx, defi|
   desc_val = state.find_param(ctx, 'desc_val')
   desc = state.to_struct(desc_val, ZE::ZECommandQueueDesc)
   handle = defi['phCommandQueue_val']
+  puts "desc = #{desc}"
   command_queues[handle] = ZEModel::CommandQueue.new(handle, context, device, desc)
   context.command_queues[handle] = command_queues[handle]
 }
@@ -242,6 +249,7 @@ $on_successful_exit['zeCommandListCreate'] = lambda { |state, ctx, defi|
   device = state.find_object(ctx, 'device', 'hDevice')
   desc_val = state.find_param(ctx, 'desc_val')
   desc = state.to_struct(desc_val, ZE::ZECommandListDesc)
+  puts "cmd_desc = #{desc}"
   handle = defi['phCommandList_val']
   command_lists[handle] = ZEModel::CommandList.new(handle, context, device, desc, nil)
   context.command_lists[handle] = command_lists[handle]
