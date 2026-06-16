@@ -35,7 +35,7 @@ zex_funcs_e = $zex_api['functions']
 typedefs = $ze_api['typedefs'] + $zet_api['typedefs'] + $zes_api['typedefs'] + $zel_api['typedefs'] + $zer_api['typedefs'] + $zex_api['typedefs']
 structs = $ze_api['structs'] + $zet_api['structs'] + $zes_api['structs'] + $zel_api['structs'] + $zer_api['structs'] + $zex_api['structs']
 
-find_all_types(typedefs)
+find_all_types(typedefs) #yaml_ast.rb
 gen_struct_map(typedefs, structs)
 gen_ffi_type_map(typedefs)
 
@@ -216,7 +216,7 @@ EOF
 memory_info_dump = lambda { |ptr_name|
   "_dump_memory_info(hCommandList, #{ptr_name})"
 }
-
+#memory info device,heap, etc. Only if paranoid memory tracking is enabled
 memory_info_prologue = lambda { |ptr_names|
   <<EOF
   if (_do_paranoid_memory_location &&
@@ -270,7 +270,7 @@ profiling_prologue = lambda { |event_name|
   }
 EOF
 }
-
+#event name is known from API Spec
 profiling_epilogue = lambda { |event_name|
   <<EOF
   if (_do_profile && #{event_name}) {
