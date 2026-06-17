@@ -110,7 +110,8 @@ EXTRA_DIST += \
 	gen_babeltrace_ze_model.rb \
 	ze_validator_zemodel.rb \
 	ze_validator_function_entry_exit_callbacks.rb \
-	ze_validator_state_object.rb
+	ze_validator_state_object.rb \
+	ze_deprecated.json
 
 
 ZE_PROBES = $(ZE_NAMESPACES:=_tracepoints) $(ZE_STRUCTS_NAMESPACES:=_tracepoints)
