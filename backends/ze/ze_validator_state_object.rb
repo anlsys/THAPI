@@ -34,10 +34,10 @@ class StateObject
                                     handle = defi[o.first]
                                     if handle.kind_of? Array
                                       handle.each { |h|
-                                        state.find_object(ctx, o.last, h).lock(ctx)
+                                        state.find_object(ctx, o.last, h).lock(state, ctx)
                                       }
                                     else
-                                      state.find_object(ctx, o.last, handle).lock(ctx)
+                                      state.find_object(ctx, o.last, handle).lock(state, ctx)
                                     end
                                   })
         @unlock_shared_object_on_exit[api].push( lambda { |state, ctx, defi|

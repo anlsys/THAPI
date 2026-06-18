@@ -15,9 +15,9 @@ module ZEModel
       @status = -1
     end
 
-    def lock(ctx)
+    def lock(state,ctx)
       if @lock 
-        StateObject::print_race_condition(ctx, @lock, self.class.typename, @handle)
+        state.print_race_condition(ctx, @lock, self.class.typename, @handle)
       else
         @lock = ctx
       end

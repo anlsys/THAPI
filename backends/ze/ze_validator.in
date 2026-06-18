@@ -16,8 +16,8 @@ require 'yaml'
 # Don't complain about broken pipe
 Signal.trap('SIGPIPE', 'SYSTEM_DEFAULT')
 
-$options = { live: false, print_once: true}
-#CLI argument parser
+$options = { live: false }
+
 OptionParser.new do |opts|
   opts.banner = 'Usage: ze_validator [OPTIONS] trace_directory...'
 
@@ -29,10 +29,6 @@ OptionParser.new do |opts|
   opts.on('--live', 'Enable live processing of the trace') do
     $options[:live] = true
   end
-
-  opts.on('--disable-print-once', "Disables printing once for API calls that are called frequently (experimental)") do
-    $options[:print_once] = false
-  end 
 end.parse!
 
 
