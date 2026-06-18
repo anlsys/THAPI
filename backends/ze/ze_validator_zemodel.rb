@@ -16,8 +16,8 @@ module ZEModel
     end
 
     def lock(ctx)
-      if @lock
-        print_race_condition(ctx, @lock, self.class.typename, @handle)
+      if @lock 
+        StateObject::print_race_condition(ctx, @lock, self.class.typename, @handle)
       else
         @lock = ctx
       end
@@ -150,11 +150,13 @@ module ZEModel
     @typename = 'event'
     attr_reader :event_pool
     attr_reader :desc
-
+    
     def initialize(handle, event_pool, desc)
       super(handle)
       @event_pool = event_pool
       @desc = desc
+      #event can have 2 states, not signaled or signaled
+      @signaled = false
     end
   end
 
@@ -306,8 +308,9 @@ module ZEModel
     def initialize(vpid)
       @vpid = vpid
       @threads = Hash.new { |h, k| h[k] = Thread.new(k) }
-      #can it model imports/exports??
+      #can it model memory imports/exports??
       @drivers = {}
+      @event_dependencies = {} #for detecting deadlocks 
       @devices = {}
       @contexts = {}
       @event_pools = {}

@@ -12,10 +12,11 @@ class StateObject
   attr_reader :ze_thread_safety
   attr_reader :lock_shared_object_on_entry
   attr_reader :unlock_shared_object_on_exit
-  
-  def initialize()
+  attr_accessor :print_tracker
+  def initialize(**opts)
     @deprecated = JSON.parse(File.read(File.join(DATADIR, 'ze_deprecated.json')))
-
+    @print_once = opts[:print_once]
+    @print_tracker = Hash.new { |h, k| h[k] = 0 }
     #add a third field to indicate whether the deprecation warning has been printed or not
     @deprecated.each do |api, (version, replacement)|
       @deprecated[api] = [version, replacement, false]

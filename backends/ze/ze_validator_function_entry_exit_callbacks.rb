@@ -2,12 +2,22 @@ require 'ze_validator_zemodel'
 require 'ze_library'
 
 $upon_entry = {} #called to modify program state on entry
-$on_successful_exit = {}
-$on_erroneous_exit = {}
+$on_successful_exit = {} #called upon seeing exit functions with a successful return code
+$on_erroneous_exit = {} #called upon seeing exit functions with a non-successful return code
 
+$upon_entry["zeCommandListAppendMemoryRangesBarrier"] = lambda{|state, ctx, defi |
+#This command blocks all following commands from 
+#beginning until the execution of the barrier completes.
+#The application must not call this function from 
+#simultaneous threads with the same command list handle.
+}
+#Checks for appending a kernel to a copy engine.
+#Compute ordinal is 0 on 1550 MAX GPUs but this is device specific.
 $upon_entry["zeCommandListAppendLaunchKernel"] = lambda { |state, ctx, defi|
   cqg_ordinal = defi['commandQueueGroupOrdinal']
-  if cqg_ordinal != 0 #hardcoded for now, change it once the trace can output which ordinals are computes
+  #hardcoded for now, change it once the trace can output which ordinals are computes
+  state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] += 1
+  if cqg_ordinal != 0 && state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] < 2
     state.print_usage_error(ctx, "Launching kernel to a command list with Copy Ordinal: #{state.get_handle_str(defi['hCommandList'])}")
   end 
   #puts "defi = #{defi}"
@@ -17,7 +27,7 @@ $upon_entry["zeCommandListAppendLaunchKernel"] = lambda { |state, ctx, defi|
 $upon_entry["zeCommandListClose"] = lambda { |state, ctx, defi|
   command_lists = state.find_objects(ctx, 'command_list')
   cmd_list = command_lists[defi['hCommandList']]
-  puts "cmdlist = #{defi['hCommandList']}"
+  #puts "cmdlist = #{defi['hCommandList']}"
   cmd_list.status = ZEModel::CommandList.class_variable_get(:@@CLOSED)
 }
 
@@ -25,13 +35,14 @@ $upon_entry["zeCommandListClose"] = lambda { |state, ctx, defi|
 $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
   fences = nil
   curr_fence = ZEModel::Fence.get_fence(state,ctx,defi)
-  puts "pclv = #{defi['phCommandLists_vals']}"
+  #puts "pclv = #{defi['phCommandLists_vals']}"
   pclv = defi['phCommandLists_vals']
 
   if pclv.nil? || pclv.empty?
     state.print_usage_error(ctx, "No commandlist was chosen for: #{state.get_handle_str(defi['hCommandQueue'])}")
   end 
 
+  #Check if command list was closed before executing it on the queue
   command_lists = state.find_objects(ctx, 'command_list')
   pclv.each do |cl|
     cmd_list = command_lists[cl]
@@ -42,6 +53,9 @@ $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
     end
   end
 
+  #Checks for misuse of fences. 
+  #Not a proper use of fence if it was already signaled, 
+  #or being used by other commandslist.
   return unless curr_fence
   if curr_fence.status == ZEModel::Fence.class_variable_get(:@@SIGNALED)
     state.print_usage_error(ctx, "Used fence: #{state.get_handle_str(defi['hFence'])} twice without resetting it")
@@ -51,7 +65,7 @@ $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
   curr_fence.status = ZEModel::Fence.class_variable_get(:@@IN_USE)
 }
 
-#When a fence signals the host, set the fence's status to 
+#When a fence signals the host, set the fence's status to signaled 
 $upon_entry["zeFenceHostSynchronize"] =  lambda { |state, ctx, defi|
   fences = nil
   curr_fence = ZEModel::Fence.get_fence(state,ctx,defi)
@@ -62,11 +76,11 @@ $upon_entry["zeFenceHostSynchronize"] =  lambda { |state, ctx, defi|
   curr_fence.status = ZEModel::Fence.class_variable_get(:@@SIGNALED)
 }
 
-#should a double reset be considered as a usage error
+#should a double reset be considered as a usage error?
 #Also, a fence can be shared throughout the threads and is modeled correctly (if you are wondering about whether the model treats fence associated with different thread-id differently).
 $upon_entry["zeFenceReset"] =  lambda { |state, ctx, defi|
   fences = nil
-  puts "fence ctx = #{ctx}"
+  #puts "fence ctx = #{ctx}"
   curr_fence = ZEModel::Fence.get_fence(state,ctx,defi)
   return unless curr_fence
   curr_fence.status = ZEModel::Fence.class_variable_get(:@@INITIALIZED)
@@ -194,7 +208,7 @@ $on_successful_exit['zeCommandQueueCreate'] = lambda { |state, ctx, defi|
   desc_val = state.find_param(ctx, 'desc_val')
   desc = state.to_struct(desc_val, ZE::ZECommandQueueDesc)
   handle = defi['phCommandQueue_val']
-  puts "desc = #{desc}"
+  #puts "desc = #{desc}"
   command_queues[handle] = ZEModel::CommandQueue.new(handle, context, device, desc)
   context.command_queues[handle] = command_queues[handle]
 }
@@ -249,7 +263,7 @@ $on_successful_exit['zeCommandListCreate'] = lambda { |state, ctx, defi|
   device = state.find_object(ctx, 'device', 'hDevice')
   desc_val = state.find_param(ctx, 'desc_val')
   desc = state.to_struct(desc_val, ZE::ZECommandListDesc)
-  puts "cmd_desc = #{desc}"
+  #puts "cmd_desc = #{desc}"
   handle = defi['phCommandList_val']
   command_lists[handle] = ZEModel::CommandList.new(handle, context, device, desc, nil)
   context.command_lists[handle] = command_lists[handle]
@@ -376,7 +390,7 @@ $upon_entry['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
   memory_allocations =  state.find_objects(ctx, 'memory_allocation')
   dst_mem = memory_allocations[dst_ptr]
   src_mem = memory_allocations[src_ptr]
-  puts "dst = #{dst_mem}, #{src_mem}"
+  #puts "dst = #{dst_mem}, #{src_mem}"
   if dst_mem && dst_mem.size < cpy_size
       state.print_usage_error(ctx, "destination memory: #{dst_ptr} only has #{dst_mem.size} bytes allocated but zeCommandListAppendMemoryCopy is trying to copy #{cpy_size} bytes")
   end 
