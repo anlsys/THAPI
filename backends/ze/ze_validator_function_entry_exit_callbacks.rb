@@ -5,12 +5,34 @@ $upon_entry = {} #called to modify program state on entry
 $on_successful_exit = {} #called upon seeing exit functions with a successful return code
 $on_erroneous_exit = {} #called upon seeing exit functions with a non-successful return code
 
+def check_group_property_queued(state, ctx, defi, device)
+  puts "device = #{device}"
+  unless device.cmd_queue_group_properties_queried
+    state.print_usage_error(ctx,"command queue group wasn't queried. Hardcoded group properties may break the code on different devices")   
+  end
+end
+ 
+#TODO
 $upon_entry["zeCommandListAppendMemoryRangesBarrier"] = lambda{|state, ctx, defi |
 #This command blocks all following commands from 
 #beginning until the execution of the barrier completes.
 #The application must not call this function from 
 #simultaneous threads with the same command list handle.
 }
+
+$upon_entry["zeDeviceGetProperties"] = lambda{|state, ctx, defi|
+  device_ptr = defi['hDevice']
+  devices = state.find_objects(ctx, 'device')
+  devices[device_ptr].property_fetched = true
+  #puts "stat: #{devices[device_ptr].property_fetched}"
+}
+$upon_entry["zeDeviceGetCommandQueueGroupProperties"] = lambda{|state, ctx, defi|
+  device_ptr = defi['hDevice']
+  devices = state.find_objects(ctx, 'device')
+  devices[device_ptr].cmd_queue_group_properties_queried = true
+}
+
+
 #Checks for appending a kernel to a copy engine.
 #Compute ordinal is 0 on 1550 MAX GPUs but this is device specific.
 $upon_entry["zeCommandListAppendLaunchKernel"] = lambda { |state, ctx, defi|
@@ -31,18 +53,37 @@ $upon_entry["zeCommandListClose"] = lambda { |state, ctx, defi|
   cmd_list.status = ZEModel::CommandList.class_variable_get(:@@CLOSED)
 }
 
-#when command queue is executed, the associated fence's status is set to IN_USE
-$upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
-  fences = nil
-  curr_fence = ZEModel::Fence.get_fence(state,ctx,defi)
-  #puts "pclv = #{defi['phCommandLists_vals']}"
-  pclv = defi['phCommandLists_vals']
+#TODO: check if reset or close was called before this if a different call with the same cmd list was observed previously
+$upon_entry["zeCommandListAppendLaunchCooperativeKernel"] = lambda { |state, ctx, defi|
+  command_lists = state.find_objects(ctx, 'command_list')
+  cmd_list = command_lists[defi['hCommandList']]
+  check_group_property_queued(stte,ctx,defi,cmd_list.device)
+}
 
+#Checks for misuse of fences. 
+#Not a proper use of fence if it was already signaled, 
+#or being used by other commandslist.
+def check_fence_misuse(state, ctx, defi)
+  curr_fence = ZEModel::Fence.get_fence(state,ctx,defi)
+  if curr_fence
+    if curr_fence.status == ZEModel::Fence.class_variable_get(:@@SIGNALED)
+      state.print_usage_error(ctx, "Used fence: #{state.get_handle_str(defi['hFence'])} twice without resetting it")
+    elsif curr_fence.status == ZEModel::Fence.class_variable_get(:@@IN_USE)
+      state.print_usage_error(ctx, "Used fence: #{state.get_handle_str(defi['hFence'])} twice on two or more commandQueues")
+    end
+    curr_fence.status = ZEModel::Fence.class_variable_get(:@@IN_USE)
+  end 
+end 
+
+def check_valid_command_list(state, ctx, defi)
+  pclv = defi['phCommandLists_vals']
   if pclv.nil? || pclv.empty?
     state.print_usage_error(ctx, "No commandlist was chosen for: #{state.get_handle_str(defi['hCommandQueue'])}")
   end 
+end 
 
-  #Check if command list was closed before executing it on the queue
+def check_command_list_closed(state, ctx, defi)
+  pclv = defi['phCommandLists_vals']
   command_lists = state.find_objects(ctx, 'command_list')
   pclv.each do |cl|
     cmd_list = command_lists[cl]
@@ -52,17 +93,21 @@ $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
       state.print_usage_error(ctx, "commandlist: #{state.get_handle_str(cl)} was already destroyed #{state.get_handle_str(defi['hCommandQueue'])}") 
     end
   end
+end
 
-  #Checks for misuse of fences. 
-  #Not a proper use of fence if it was already signaled, 
-  #or being used by other commandslist.
-  return unless curr_fence
-  if curr_fence.status == ZEModel::Fence.class_variable_get(:@@SIGNALED)
-    state.print_usage_error(ctx, "Used fence: #{state.get_handle_str(defi['hFence'])} twice without resetting it")
-  elsif curr_fence.status == ZEModel::Fence.class_variable_get(:@@IN_USE)
-    state.print_usage_error(ctx, "Used fence: #{state.get_handle_str(defi['hFence'])} twice on two or more commandQueues")
-  end
-  curr_fence.status = ZEModel::Fence.class_variable_get(:@@IN_USE)
+#when command queue is executed, the associated fence's status is set to IN_USE
+$upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
+  #check if command list is null
+  check_valid_command_list(state,ctx,defi)
+  #Check if command list was closed before executing it on the queue
+  check_command_list_closed(state, ctx, defi) #ignore if it is the first execute call
+  check_fence_misuse(state,ctx,defi)
+  
+  #check if the group property was hardcoded
+  command_queues = state.find_objects(ctx, 'command_queue')
+  command_queue = command_queues[defi['hCommandQueue']]
+  check_group_property_queued(state,ctx,defi,command_queue.device)
+
 }
 
 #When a fence signals the host, set the fence's status to signaled 
@@ -276,6 +321,7 @@ $on_successful_exit['zeCommandListCreateImmediate'] = lambda { |state, ctx, defi
   altdesc_val = state.find_param(ctx, 'altdesc_val')
   altdesc = state.to_struct(altdesc_val, ZE::ZECommandQueueDesc)
   handle = defi['phCommandList_val']
+  check_group_property_queued(state,ctx,defi,device)
   command_lists[handle] = ZEModel::CommandList.new(handle, context, device, nil, altdesc)
   context.command_lists[handle] = command_lists[handle]
 }
@@ -427,6 +473,9 @@ $on_successful_exit['zeMemAllocShared'] = lambda { |state, ctx, defi|
   # TODO: should add in code to add this mme allocation to all devices with that property
   size = state.find_param(ctx,"size")
   handle = defi['pptr_val']
+
+  
+
   memory_allocation =  ZEModel::Memory.new(handle, context, size, device)
   memory_allocations[handle] = memory_allocation
   device.memory_allocations[handle] = memory_allocation if device

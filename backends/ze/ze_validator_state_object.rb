@@ -115,6 +115,10 @@ class StateObject
       end
     end
   end
+  
+  def print_portability_error(context,str)
+    $stderr.puts "Level Zero Portability Error: on #{get_context_str(context)}: #{str}"
+  end
   def print_usage_error(context, str)
     $stderr.puts "Level Zero Usage Error: on #{get_context_str(context)}: #{str}"
   end

@@ -47,11 +47,14 @@ module ZEModel
     attr_reader :properties
     attr_reader :sub_devices
     attr_accessor :memory_allocations
-    
+    attr_accessor :property_fetched
+    attr_accessor :cmd_queue_group_properties_queried
     def initialize(handle)
       super
       @sub_devices = []
       @memory_allocations = {}
+      @property_fetched = false
+      @cmd_queue_group_properties_queried = false
     end
   end
 
@@ -213,6 +216,7 @@ module ZEModel
     attr_reader :device
     attr_reader :desc
     attr_reader :altdesc
+    attr_accessor :associated_command_queue
     @@INITIALIZED = 0 #created or being properly recycled
     @@CLOSED = 1
     @@DESTROYED = 2 
@@ -223,6 +227,7 @@ module ZEModel
       @device = device
       @desc = desc
       @altdesc = altdesc
+      @associated_command_queue = nil
       @status = @@INITIALIZED
     end
 
