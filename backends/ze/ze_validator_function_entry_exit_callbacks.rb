@@ -6,19 +6,12 @@ $on_successful_exit = {} #called upon seeing exit functions with a successful re
 $on_erroneous_exit = {} #called upon seeing exit functions with a non-successful return code
 
 def check_group_property_queued(state, ctx, defi, device)
-  puts "device = #{device}"
+  #puts "device = #{device}"
   unless device.cmd_queue_group_properties_queried
     state.print_usage_error(ctx,"command queue group wasn't queried. Hardcoded group properties may break the code on different devices")   
   end
 end
  
-#TODO
-$upon_entry["zeCommandListAppendMemoryRangesBarrier"] = lambda{|state, ctx, defi |
-#This command blocks all following commands from 
-#beginning until the execution of the barrier completes.
-#The application must not call this function from 
-#simultaneous threads with the same command list handle.
-}
 
 $upon_entry["zeDeviceGetProperties"] = lambda{|state, ctx, defi|
   device_ptr = defi['hDevice']
@@ -38,8 +31,9 @@ $upon_entry["zeDeviceGetCommandQueueGroupProperties"] = lambda{|state, ctx, defi
 $upon_entry["zeCommandListAppendLaunchKernel"] = lambda { |state, ctx, defi|
   cqg_ordinal = defi['commandQueueGroupOrdinal']
   #hardcoded for now, change it once the trace can output which ordinals are computes
-  state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] += 1
-  if cqg_ordinal != 0 && state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] < 2
+  
+  if cqg_ordinal != 0 && state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] == 0
+    state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] = 1
     state.print_usage_error(ctx, "Launching kernel to a command list with Copy Ordinal: #{state.get_handle_str(defi['hCommandList'])}")
   end 
   #puts "defi = #{defi}"
@@ -446,9 +440,22 @@ $upon_entry['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
   end 
   # puts "defi = #{defi}"
 }
-# $on_successful_exit['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
-#   puts "zclappendmemcopy called"
-# }
+
+def check_struct_stype_misuse(state,ctx,defi,expected_stype, observed_stype)
+  unless expected_stype == observed_stype
+    state.print_usage_error(ctx,"\nExpected stype of #{expected_stype}\nbut #{observed_stype} was observed.")
+  end 
+end
+
+$upon_entry['zeMemAllocDevice'] = lambda {|state, ctx, defi|
+  device_desc_val = defi['device_desc_val']
+  device_desc = state.to_struct(device_desc_val, ZE::ZEDeviceMemAllocDesc)
+  
+  if state.print_tracker["zeMemAllocDevice::StypeMisuse"] == 0
+    state.print_tracker["zeMemAllocDevice::StypeMisuse"] = 1
+    check_struct_stype_misuse(state,ctx,defi,:ZE_STRUCTURE_TYPE_DEVICE_MEM_ALLOC_DESC, device_desc[:stype].to_sym)
+  end
+}
 #The implementation of this (zeMemAllocDevice) function must be thread-safe
 $on_successful_exit['zeMemAllocDevice'] = lambda { |state, ctx, defi|
   # memory is associated with devices

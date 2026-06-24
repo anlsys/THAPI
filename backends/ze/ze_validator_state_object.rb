@@ -15,7 +15,7 @@ class StateObject
   attr_accessor :print_tracker
   def initialize(**opts)
     @deprecated = JSON.parse(File.read(File.join(DATADIR, 'ze_deprecated.json')))
-    @print_once = opts[:print_once]
+    #@print_once = opts[:print_once]
     @print_tracker = Hash.new { |h, k| h[k] = 0 }
     #add a third field to indicate whether the deprecation warning has been printed or not
     @deprecated.each do |api, (version, replacement)|
