@@ -16,7 +16,7 @@ require 'yaml'
 # Don't complain about broken pipe
 Signal.trap('SIGPIPE', 'SYSTEM_DEFAULT')
 
-$options = { live: false }
+$options = { live: false, device_agnostic: true, performance: true }
 
 OptionParser.new do |opts|
   opts.banner = 'Usage: ze_validator [OPTIONS] trace_directory...'
@@ -28,6 +28,14 @@ OptionParser.new do |opts|
 
   opts.on('--live', 'Enable live processing of the trace') do
     $options[:live] = true
+  end
+
+  opts.on('--disable-dagn', 'Disables device agnostic semantic misuse checking') do
+    $options[:device_agnostic] = false
+  end
+
+  opts.on('--disable-performance', 'Disables reporting of API usages that results in downgrade of performance') do
+    $options[:performance] = false
   end
 end.parse!
 
@@ -90,7 +98,8 @@ end
 # only executive this code if we launch this as the main
 # script. if it's just included with "require" we just want access to the functions.
 if __FILE__ == $0
-  sink_obj = StateObject.new()
+  sink_obj = StateObject.new(device_agnostic: $options[:device_agnostic], 
+                             performance: $options[:performance])
   ARGV.uniq!
   source_location = ARGV
   build_and_run_graph(source_location, sink_obj)

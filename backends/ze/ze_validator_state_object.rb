@@ -13,6 +13,8 @@ class StateObject
   attr_reader :lock_shared_object_on_entry
   attr_reader :unlock_shared_object_on_exit
   attr_accessor :print_tracker
+  attr_accessor :device_agnostic
+  attr_accessor :performance
   def initialize(**opts)
     @deprecated = JSON.parse(File.read(File.join(DATADIR, 'ze_deprecated.json')))
     #@print_once = opts[:print_once]
@@ -21,7 +23,8 @@ class StateObject
     @deprecated.each do |api, (version, replacement)|
       @deprecated[api] = [version, replacement, false]
     end
-
+    @performance = opts[:performance]
+    @device_agnostic = opts[:device_agnostic]
     @state = Hash.new { |h, k| h[k] = ZEModel::Node.new(k) }
     @ze_thread_safety = YAML::load_file(File.join(DATADIR, 'ze_thread_safety.yaml'))
     @lock_shared_object_on_entry = Hash.new { |h, k| h[k] = [] }
@@ -117,23 +120,26 @@ class StateObject
   end
   
   def print_portability_error(context,str)
-    $stderr.puts "Level Zero Portability Error: on #{get_context_str(context)}: #{str}"
+    $stderr.puts "Level Zero Portability Error: on #{get_context_str(context)}: #{str}\n\n"
   end
+  def print_performance_issue(context,str)
+     $stderr.puts "Level Zero Performance Issue: on #{get_context_str(context)}: #{str}\n\n"
+  end 
   def print_usage_error(context, str)
-    $stderr.puts "Level Zero Usage Error: on #{get_context_str(context)}: #{str}"
+    $stderr.puts "Level Zero Usage Error: on #{get_context_str(context)}: #{str}\n\n"
   end
 
   def print_crash_error(context, str)
-    $stderr.puts "Level Zero Crash Error: on #{get_context_str(context)}: #{str}"
+    $stderr.puts "Level Zero Crash Error: on #{get_context_str(context)}: #{str}\n\n"
   end
 
 
   
   def print_leak_error(context, type, handle, memtypestr="")
     if memtypestr.empty?
-      $stderr.puts "Level Zero Leak: on #{get_proc_context_str(context)}: #{type} #{get_handle_str(handle)}"
+      $stderr.puts "Level Zero Leak: on #{get_proc_context_str(context)}: #{type} #{get_handle_str(handle)}\n\n"
     else
-      $stderr.puts "Level Zero Leak #{memtypestr}-memory: on #{get_proc_context_str(context)}: #{type} #{get_handle_str(handle)}"
+      $stderr.puts "Level Zero Leak #{memtypestr}-memory: on #{get_proc_context_str(context)}: #{type} #{get_handle_str(handle)}\n\n"
     end 
   end
 

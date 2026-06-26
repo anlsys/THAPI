@@ -11,7 +11,40 @@ def check_group_property_queued(state, ctx, defi, device)
     state.print_usage_error(ctx,"command queue group wasn't queried. Hardcoded group properties may break the code on different devices")   
   end
 end
- 
+
+
+def check_memory_residency(state,ctx,defi,api_name)
+  if state.device_agnostic || state.performance
+    dst_ptr = defi['dstptr']
+    src_ptr = defi['srcptr']
+    memory_allocations =  state.find_objects(ctx, 'memory_allocation')
+    dst_mem = memory_allocations[dst_ptr]
+    src_mem = memory_allocations[src_ptr]
+    # puts "dst_mem = #{dst_mem}"
+    # puts "src_mem = #{src_mem}"
+
+    if dst_mem && dst_mem.memtypestr == "device" && !dst_mem.resident
+      if state.performance
+        state.print_performance_issue(ctx, "ptr #{state.get_handle_str(defi['dstptr'])} might not be resident. Call zeContextMakeMemoryResident or zeContextMakeImageResident before #{api_name}")
+      end
+      if state.device_agnostic 
+        state.print_usage_error(ctx, "ptr #{state.get_handle_str(defi['dstptr'])} might not be resident. Call zeContextMakeMemoryResident or zeContextMakeImageResident before #{api_name}")   
+      end
+    elsif src_mem && src_mem.memtypestr == "device" && !src_mem.resident
+      if state.performance
+        state.print_performance_issue(ctx, "ptr #{state.get_handle_str(defi['srcptr'])} might not be resident. Call zeContextMakeMemoryResident or zeContextMakeImageResident before #{api_name}") 
+      end
+      if state.device_agnostic
+        state.print_usage_error(ctx, "ptr #{state.get_handle_str(defi['srcptr'])} might not be resident. Call zeContextMakeMemoryResident or zeContextMakeImageResident before #{api_name}") 
+      end 
+    end 
+  end
+end
+
+
+$upon_entry["zeCommandListAppendMemoryCopyRegion"] = lambda{|state, ctx, defi|
+  check_memory_residency(state,ctx,defi, "zeCommandListAppendMemoryCopyRegion")
+}
 
 $upon_entry["zeDeviceGetProperties"] = lambda{|state, ctx, defi|
   device_ptr = defi['hDevice']
@@ -25,18 +58,28 @@ $upon_entry["zeDeviceGetCommandQueueGroupProperties"] = lambda{|state, ctx, defi
   devices[device_ptr].cmd_queue_group_properties_queried = true
 }
 
-
-#Checks for appending a kernel to a copy engine.
-#Compute ordinal is 0 on 1550 MAX GPUs but this is device specific.
-$upon_entry["zeCommandListAppendLaunchKernel"] = lambda { |state, ctx, defi|
+def check_valid_ordinal(state, ctx, defi)
   cqg_ordinal = defi['commandQueueGroupOrdinal']
   #hardcoded for now, change it once the trace can output which ordinals are computes
-  
   if cqg_ordinal != 0 && state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] == 0
     state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] = 1
     state.print_usage_error(ctx, "Launching kernel to a command list with Copy Ordinal: #{state.get_handle_str(defi['hCommandList'])}")
   end 
-  #puts "defi = #{defi}"
+end
+
+def check_kernel_created(state, ctx, defi)
+  kernels = state.find_objects(ctx, 'kernel')
+  kernel_handle = defi['hKernel']
+  unless kernels[kernel_handle]
+    state.print_usage_error(ctx, "kernel: #{state.get_handle_str(kernel_handle)} wasn't created. Consider calling zeKernelCreate")
+  end 
+end
+
+#Checks for appending a kernel to a copy engine.
+#Compute ordinal is 0 on 1550 MAX GPUs but this is device specific.
+$upon_entry["zeCommandListAppendLaunchKernel"] = lambda { |state, ctx, defi|
+  check_valid_ordinal(state,ctx,defi)
+  check_kernel_created(state,ctx,defi)
 }
 
 #when command queue is executed, the associated fence's status is set to IN_USE
@@ -89,6 +132,10 @@ def check_command_list_closed(state, ctx, defi)
   end
 end
 
+$on_exit["zeCommandQueueExecuteCommandLists"] = lambda {|state,ctx,defi|
+  
+}
+
 #when command queue is executed, the associated fence's status is set to IN_USE
 $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
   #check if command list is null
@@ -96,11 +143,11 @@ $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
   #Check if command list was closed before executing it on the queue
   check_command_list_closed(state, ctx, defi) #ignore if it is the first execute call
   check_fence_misuse(state,ctx,defi)
-  
   #check if the group property was hardcoded
   command_queues = state.find_objects(ctx, 'command_queue')
   command_queue = command_queues[defi['hCommandQueue']]
   check_group_property_queued(state,ctx,defi,command_queue.device)
+
 
 }
 
@@ -422,8 +469,7 @@ $on_successful_exit['zeKernelDestroy'] = lambda { |state, ctx, defi|
   }
 }
 
-
-$upon_entry['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
+def check_oob_memory_copy(state,ctx,defi)
   src_ptr = defi['srcptr']
   dst_ptr = defi['dstptr']
   cpy_size = defi['size']
@@ -438,13 +484,16 @@ $upon_entry['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
   if src_mem && src_mem.size < cpy_size
      state.print_usage_error(ctx, "source memory: #{src_ptr} only has #{src_mem.size} bytes allocated but zeCommandListAppendMemoryCopy is trying to copy #{cpy_size} bytes")
   end 
-  # puts "defi = #{defi}"
+end
+
+$upon_entry['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
+  check_oob_memory_copy(state,ctx,defi)
 }
 
 def check_struct_stype_misuse(state,ctx,defi,expected_stype, observed_stype)
-  unless expected_stype == observed_stype
-    state.print_usage_error(ctx,"\nExpected stype of #{expected_stype}\nbut #{observed_stype} was observed.")
-  end 
+  if state.device_agnostic && expected_stype != observed_stype
+      state.print_usage_error(ctx,"\nExpected stype of #{expected_stype}\nbut #{observed_stype} was observed.")
+  end
 end
 
 $upon_entry['zeMemAllocDevice'] = lambda {|state, ctx, defi|
@@ -507,7 +556,7 @@ $on_successful_exit['zeMemFree'] = lambda { |state, ctx, defi|
   }
   
   if memory_allocation
-    mem = memory_allocation.memtype
+    mem = memory_allocation.owned_by
     mem.memory_allocations.delete(handle) {
       state.object_not_found(ctx, 'memory_allocation', handle, 'device')
     } if mem

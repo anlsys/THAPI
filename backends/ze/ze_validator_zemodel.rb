@@ -74,14 +74,23 @@ module ZEModel
     @typename = 'memory_allocation'
     attr_reader :context
     attr_reader :size
-    attr_reader :memtype
+    attr_reader :owned_by
+    attr_accessor :resident
+    attr_accessor :memtypestr
 
-    def initialize(handle, context, size, memtype, memtypestr="shared")
+    def initialize(handle, context, size, owned_by, memtypestr="shared")
       super(handle)
       @context = context
       @size = size
-      @memtype = memtype
+      @owned_by = owned_by
       @memtypestr = memtypestr
+      
+      #for device memory.
+      if memtypestr == "device"
+        @resident = false
+      else
+        @resident = true
+      end
     end
   end
 
