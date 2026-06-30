@@ -62,7 +62,6 @@ module ZEModel
 
   class SubDevice < Device
     attr_reader :parent
-
     def initialize(handle, parent)
       @parent = parent
       super(handle)
@@ -226,6 +225,8 @@ module ZEModel
     attr_reader :desc
     attr_reader :altdesc
     attr_accessor :associated_command_queue
+    attr_accessor :immediate
+    attr_accessor :associated_ordinal
     @@INITIALIZED = 0 #created or being properly recycled
     @@CLOSED = 1
     @@DESTROYED = 2 
@@ -238,6 +239,8 @@ module ZEModel
       @altdesc = altdesc
       @associated_command_queue = nil
       @status = @@INITIALIZED
+      @immediate = false
+      @associated_ordinal = 0
     end
 
     def immediate?

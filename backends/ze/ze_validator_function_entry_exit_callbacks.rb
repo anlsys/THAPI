@@ -58,8 +58,7 @@ $upon_entry["zeDeviceGetCommandQueueGroupProperties"] = lambda{|state, ctx, defi
   devices[device_ptr].cmd_queue_group_properties_queried = true
 }
 
-def check_valid_ordinal(state, ctx, defi)
-  cqg_ordinal = defi['commandQueueGroupOrdinal']
+def check_valid_ordinal(state, ctx, defi, cqg_ordinal)
   #hardcoded for now, change it once the trace can output which ordinals are computes
   if cqg_ordinal != 0 && state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] == 0
     state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] = 1
@@ -75,10 +74,13 @@ def check_kernel_created(state, ctx, defi)
   end 
 end
 
+
+
 #Checks for appending a kernel to a copy engine.
 #Compute ordinal is 0 on 1550 MAX GPUs but this is device specific.
 $upon_entry["zeCommandListAppendLaunchKernel"] = lambda { |state, ctx, defi|
-  check_valid_ordinal(state,ctx,defi)
+  cqg_ordinal = defi['commandQueueGroupOrdinal']
+  check_valid_ordinal(state,ctx,defi,cqg_ordinal)
   check_kernel_created(state,ctx,defi)
 }
 
@@ -113,10 +115,16 @@ def check_fence_misuse(state, ctx, defi)
 end 
 
 def check_valid_command_list(state, ctx, defi)
+  
+  #check if commanlist is not null
   pclv = defi['phCommandLists_vals']
   if pclv.nil? || pclv.empty?
     state.print_usage_error(ctx, "No commandlist was chosen for: #{state.get_handle_str(defi['hCommandQueue'])}")
   end 
+  #command list must not be immediate
+  if pclv.immediate
+    state.print_usage_error(ctx, "Immediate Command List was chosen for the Command Queue: #{state.get_handle_str(defi['hCommandQueue'])}")
+  end
 end 
 
 def check_command_list_closed(state, ctx, defi)
@@ -132,9 +140,8 @@ def check_command_list_closed(state, ctx, defi)
   end
 end
 
-$on_exit["zeCommandQueueExecuteCommandLists"] = lambda {|state,ctx,defi|
-  
-}
+
+
 
 #when command queue is executed, the associated fence's status is set to IN_USE
 $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
@@ -176,26 +183,38 @@ $upon_entry["zeFenceReset"] =  lambda { |state, ctx, defi|
 #Set the driver for the current context
 $on_successful_exit['zeDriverGet'] = lambda { |state, ctx, defi|
   drivers = state.get_process(ctx).drivers
+  puts "defi = #{defi}"
   defi['phDrivers_vals'].each { |h|
     drivers[h] = ZEModel::Driver.new(h) unless drivers[h]
   }
+  puts "drivers = #{drivers}"
 }
 
 #Set device
 $on_successful_exit['zeDeviceGet'] = lambda { |state, ctx, defi|
   devices = state.find_objects(ctx, 'device')
   driver = state.find_object(ctx, 'driver', 'hDriver')
-  defi['phDevices_vals'].each { |h|
-    unless devices[h]
-      devices[h] = ZEModel::Device.new(h)
-      driver.devices.push devices[h]
-    end
-  }
+  if driver
+    defi['phDevices_vals'].each { |h|
+      unless devices[h]
+        devices[h] = ZEModel::Device.new(h)
+        driver.devices.push devices[h]
+      end
+    }
+  end
+}
+
+$upon_entry['ze_thapi_extra_info_p2p_entry'] = lambda {|state, ctx, defi|
+  puts "detected! defi = #{defi}"
+  puts "detected! state = #{state}"
+  puts "detected! ctx = #{ctx}"
 }
 
 $on_successful_exit['zeDeviceGetSubDevices'] = lambda { |state, ctx, defi|
   devices = state.find_objects(ctx, 'device')
-  device = state.find_object(ctx, 'device', 'hDevice')
+  # Same reason as zeDeviceGet above: read hDevice directly from the exit
+  # payload to avoid last_entry clobber from nested calls.
+  device = devices[defi['hDevice']]
   defi['phSubdevices_vals'].each { |h|
     unless devices[h]
       devices[h] = ZEModel::SubDevice.new(h, device)
@@ -364,6 +383,8 @@ $on_successful_exit['zeCommandListCreateImmediate'] = lambda { |state, ctx, defi
   handle = defi['phCommandList_val']
   check_group_property_queued(state,ctx,defi,device)
   command_lists[handle] = ZEModel::CommandList.new(handle, context, device, nil, altdesc)
+  command_lists[handle].immediate = true
+  command_list[handle].associated_ordinal = altdesc.ordinal
   context.command_lists[handle] = command_lists[handle]
 }
 
