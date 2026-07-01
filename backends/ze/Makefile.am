@@ -110,6 +110,7 @@ EXTRA_DIST += \
 	gen_babeltrace_ze_model.rb \
 	ze_validator_zemodel.rb \
 	ze_validator_function_entry_exit_callbacks.rb \
+	ze_validator_entry_exit_helpers.rb \
 	ze_validator_state_object.rb \
 	ze_deprecated.json 
 
@@ -260,6 +261,7 @@ data_DATA = \
 	ze_deprecated.json \
 	ze_validator_zemodel.rb \
 	ze_validator_function_entry_exit_callbacks.rb \
+	ze_validator_entry_exit_helpers.rb \
 	ze_validator_state_object.rb 
 
 xprof_utils.hpp: $(top_srcdir)/utils/xprof_utils.hpp

@@ -76,14 +76,15 @@ module ZEModel
     attr_reader :owned_by
     attr_accessor :resident
     attr_accessor :memtypestr
-
+    attr_accessor :base
     def initialize(handle, context, size, owned_by, memtypestr="shared")
       super(handle)
       @context = context
       @size = size
       @owned_by = owned_by
       @memtypestr = memtypestr
-      
+      @base = handle
+      #puts "size = #{size}, handle = #{handle}, handle+size=#{handle + size}"
       #for device memory.
       if memtypestr == "device"
         @resident = false

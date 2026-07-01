@@ -1,3 +1,4 @@
+require 'ze_validator_entry_exit_helpers'
 require 'ze_validator_zemodel'
 require 'ze_library'
 
@@ -5,76 +6,61 @@ $upon_entry = {} #called to modify program state on entry
 $on_successful_exit = {} #called upon seeing exit functions with a successful return code
 $on_erroneous_exit = {} #called upon seeing exit functions with a non-successful return code
 
-def check_group_property_queued(state, ctx, defi, device)
-  #puts "device = #{device}"
-  unless device.cmd_queue_group_properties_queried
-    state.print_usage_error(ctx,"command queue group wasn't queried. Hardcoded group properties may break the code on different devices")   
-  end
-end
+#What happens if we try to evict memory that wasn't allocated?
+#UB if a device is currently referring to the memory?
+$upon_entry["zeContextEvictMemory"] = lambda{|state, ctx, defi|
+  mem_addr = defi['ptr']
+  memory_allocations =  state.find_objects(ctx, 'memory_allocation')
+  mem = memory_allocations[mem_addr]
+  mem.resident = false
+}
 
+$on_successful_exit["zeContextEvictMemory"] = lambda{|state, ctx, defi|
+  mem_addr = defi['ptr']
+  memory_allocations =  state.find_objects(ctx, 'memory_allocation')
+  mem = memory_allocations[mem_addr]
+  mem.resident = false
+}
 
-def check_memory_residency(state,ctx,defi,api_name)
-  if state.device_agnostic || state.performance
-    dst_ptr = defi['dstptr']
-    src_ptr = defi['srcptr']
-    memory_allocations =  state.find_objects(ctx, 'memory_allocation')
-    dst_mem = memory_allocations[dst_ptr]
-    src_mem = memory_allocations[src_ptr]
-    # puts "dst_mem = #{dst_mem}"
-    # puts "src_mem = #{src_mem}"
-
-    if dst_mem && dst_mem.memtypestr == "device" && !dst_mem.resident
-      if state.performance
-        state.print_performance_issue(ctx, "ptr #{state.get_handle_str(defi['dstptr'])} might not be resident. Call zeContextMakeMemoryResident or zeContextMakeImageResident before #{api_name}")
-      end
-      if state.device_agnostic 
-        state.print_usage_error(ctx, "ptr #{state.get_handle_str(defi['dstptr'])} might not be resident. Call zeContextMakeMemoryResident or zeContextMakeImageResident before #{api_name}")   
-      end
-    elsif src_mem && src_mem.memtypestr == "device" && !src_mem.resident
-      if state.performance
-        state.print_performance_issue(ctx, "ptr #{state.get_handle_str(defi['srcptr'])} might not be resident. Call zeContextMakeMemoryResident or zeContextMakeImageResident before #{api_name}") 
-      end
-      if state.device_agnostic
-        state.print_usage_error(ctx, "ptr #{state.get_handle_str(defi['srcptr'])} might not be resident. Call zeContextMakeMemoryResident or zeContextMakeImageResident before #{api_name}") 
-      end 
-    end 
-  end
-end
-
+#Check whether that memory is accessible by device?
+$upon_entry["zeContextMakeMemoryResident"] = lambda {|state, ctx, defi|
+  mem_addr = defi['ptr']
+  memory_allocations =  state.find_objects(ctx, 'memory_allocation')
+  mem = memory_allocations[mem_addr]
+  mem.resident = true #Does the driver automatically evict memory if the virtual mem exceeds the physical mem?
+}
 
 $upon_entry["zeCommandListAppendMemoryCopyRegion"] = lambda{|state, ctx, defi|
-  check_memory_residency(state,ctx,defi, "zeCommandListAppendMemoryCopyRegion")
+  #src cannot become a dst from another simultaneous thread
+  #dst cannot become a src from another simultaneous thread and also a dst
+  dst_ptr = defi['dstptr']
+  src_ptr = defi['srcptr']
+  record_copy_over(state,ctx,src_ptr,dst_ptr)
+  check_memory_residency(state,ctx,defi,src_ptr,dst_ptr,"zeCommandListAppendMemoryCopyRegion")
+  check_copy_over_data_race(state,ctx,defi,src_ptr,dst_ptr)
+}
+
+#remove the elements from state.memory_in_transit
+$on_successful_exit["zeCommandListAppendMemoryCopyRegion"] = lambda{|state, ctx, defi|
+  memory_allocations =  state.find_objects(ctx, 'memory_allocation')
+  context = state.find_object(ctx, 'context', 'hContext')
+  device = state.find_object(ctx, 'device','hDevice')
+  size = state.find_param(ctx,"size")
+  handle = defi['pptr_val']
+  
 }
 
 $upon_entry["zeDeviceGetProperties"] = lambda{|state, ctx, defi|
   device_ptr = defi['hDevice']
   devices = state.find_objects(ctx, 'device')
   devices[device_ptr].property_fetched = true
-  #puts "stat: #{devices[device_ptr].property_fetched}"
 }
+
 $upon_entry["zeDeviceGetCommandQueueGroupProperties"] = lambda{|state, ctx, defi|
   device_ptr = defi['hDevice']
   devices = state.find_objects(ctx, 'device')
   devices[device_ptr].cmd_queue_group_properties_queried = true
 }
-
-def check_valid_ordinal(state, ctx, defi, cqg_ordinal)
-  #hardcoded for now, change it once the trace can output which ordinals are computes
-  if cqg_ordinal != 0 && state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] == 0
-    state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] = 1
-    state.print_usage_error(ctx, "Launching kernel to a command list with Copy Ordinal: #{state.get_handle_str(defi['hCommandList'])}")
-  end 
-end
-
-def check_kernel_created(state, ctx, defi)
-  kernels = state.find_objects(ctx, 'kernel')
-  kernel_handle = defi['hKernel']
-  unless kernels[kernel_handle]
-    state.print_usage_error(ctx, "kernel: #{state.get_handle_str(kernel_handle)} wasn't created. Consider calling zeKernelCreate")
-  end 
-end
-
-
 
 #Checks for appending a kernel to a copy engine.
 #Compute ordinal is 0 on 1550 MAX GPUs but this is device specific.
@@ -99,50 +85,6 @@ $upon_entry["zeCommandListAppendLaunchCooperativeKernel"] = lambda { |state, ctx
   check_group_property_queued(stte,ctx,defi,cmd_list.device)
 }
 
-#Checks for misuse of fences. 
-#Not a proper use of fence if it was already signaled, 
-#or being used by other commandslist.
-def check_fence_misuse(state, ctx, defi)
-  curr_fence = ZEModel::Fence.get_fence(state,ctx,defi)
-  if curr_fence
-    if curr_fence.status == ZEModel::Fence.class_variable_get(:@@SIGNALED)
-      state.print_usage_error(ctx, "Used fence: #{state.get_handle_str(defi['hFence'])} twice without resetting it")
-    elsif curr_fence.status == ZEModel::Fence.class_variable_get(:@@IN_USE)
-      state.print_usage_error(ctx, "Used fence: #{state.get_handle_str(defi['hFence'])} twice on two or more commandQueues")
-    end
-    curr_fence.status = ZEModel::Fence.class_variable_get(:@@IN_USE)
-  end 
-end 
-
-def check_valid_command_list(state, ctx, defi)
-  
-  #check if commanlist is not null
-  pclv = defi['phCommandLists_vals']
-  if pclv.nil? || pclv.empty?
-    state.print_usage_error(ctx, "No commandlist was chosen for: #{state.get_handle_str(defi['hCommandQueue'])}")
-  end 
-  #command list must not be immediate
-  if pclv.immediate
-    state.print_usage_error(ctx, "Immediate Command List was chosen for the Command Queue: #{state.get_handle_str(defi['hCommandQueue'])}")
-  end
-end 
-
-def check_command_list_closed(state, ctx, defi)
-  pclv = defi['phCommandLists_vals']
-  command_lists = state.find_objects(ctx, 'command_list')
-  pclv.each do |cl|
-    cmd_list = command_lists[cl]
-    if cmd_list.status == ZEModel::CommandList.class_variable_get(:@@INITIALIZED)
-      state.print_usage_error(ctx, "commandlist: #{state.get_handle_str(cl)} wasn't closed before executing on #{state.get_handle_str(defi['hCommandQueue'])}") 
-    elsif cmd_list.status == ZEModel::CommandList.class_variable_get(:@@DESTROYED)
-      state.print_usage_error(ctx, "commandlist: #{state.get_handle_str(cl)} was already destroyed #{state.get_handle_str(defi['hCommandQueue'])}") 
-    end
-  end
-end
-
-
-
-
 #when command queue is executed, the associated fence's status is set to IN_USE
 $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
   #check if command list is null
@@ -154,8 +96,6 @@ $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
   command_queues = state.find_objects(ctx, 'command_queue')
   command_queue = command_queues[defi['hCommandQueue']]
   check_group_property_queued(state,ctx,defi,command_queue.device)
-
-
 }
 
 #When a fence signals the host, set the fence's status to signaled 
@@ -179,15 +119,14 @@ $upon_entry["zeFenceReset"] =  lambda { |state, ctx, defi|
   curr_fence.status = ZEModel::Fence.class_variable_get(:@@INITIALIZED)
 }
 
-
 #Set the driver for the current context
 $on_successful_exit['zeDriverGet'] = lambda { |state, ctx, defi|
   drivers = state.get_process(ctx).drivers
-  puts "defi = #{defi}"
+  #puts "defi = #{defi}"
   defi['phDrivers_vals'].each { |h|
     drivers[h] = ZEModel::Driver.new(h) unless drivers[h]
   }
-  puts "drivers = #{drivers}"
+  #puts "drivers = #{drivers}"
 }
 
 #Set device
@@ -205,9 +144,9 @@ $on_successful_exit['zeDeviceGet'] = lambda { |state, ctx, defi|
 }
 
 $upon_entry['ze_thapi_extra_info_p2p_entry'] = lambda {|state, ctx, defi|
-  puts "detected! defi = #{defi}"
-  puts "detected! state = #{state}"
-  puts "detected! ctx = #{ctx}"
+  #puts "detected! defi = #{defi}"
+  #puts "detected! state = #{state}"
+  #puts "detected! ctx = #{ctx}"
 }
 
 $on_successful_exit['zeDeviceGetSubDevices'] = lambda { |state, ctx, defi|
@@ -332,8 +271,6 @@ $on_successful_exit['zeCommandQueueDestroy'] = lambda { |state, ctx, defi|
   }
 }
 
-
-
 $on_successful_exit['zeFenceCreate'] = lambda { |state, ctx, defi|
   fences = state.find_objects(ctx, 'fence')
   command_queue = state.find_object(ctx, 'command_queue', 'hCommandQueue')
@@ -344,7 +281,6 @@ $on_successful_exit['zeFenceCreate'] = lambda { |state, ctx, defi|
   fences[handle] = fence
   command_queue.fences[handle] = fence
 }
-
 
 $on_successful_exit['zeFenceReset'] = lambda { |state, ctx, defi|
   fences = state.find_objects(ctx, 'fence')
@@ -383,7 +319,7 @@ $on_successful_exit['zeCommandListCreateImmediate'] = lambda { |state, ctx, defi
   handle = defi['phCommandList_val']
   check_group_property_queued(state,ctx,defi,device)
   command_lists[handle] = ZEModel::CommandList.new(handle, context, device, nil, altdesc)
-  command_lists[handle].immediate = true
+  command_lists[handle].immediate = true #immdediate command lists cannot be passed to the execute command lists
   command_list[handle].associated_ordinal = altdesc.ordinal
   context.command_lists[handle] = command_lists[handle]
 }
@@ -467,6 +403,10 @@ $on_successful_exit['zeModuleBuildLogDestroy'] = lambda { |state, ctx, defi|
   end
 }
 
+$upon_entry['zeKernelCreate'] = lambda {|state, ctx, defi|
+  check_valid_module(state,ctx, defi)
+}
+
 $on_successful_exit['zeKernelCreate'] = lambda { |state, ctx, defi|
   kernels = state.find_objects(ctx, 'kernel')
   mod = state.find_object(ctx, 'module', 'hModule')
@@ -490,32 +430,9 @@ $on_successful_exit['zeKernelDestroy'] = lambda { |state, ctx, defi|
   }
 }
 
-def check_oob_memory_copy(state,ctx,defi)
-  src_ptr = defi['srcptr']
-  dst_ptr = defi['dstptr']
-  cpy_size = defi['size']
-  memory_allocations =  state.find_objects(ctx, 'memory_allocation')
-  dst_mem = memory_allocations[dst_ptr]
-  src_mem = memory_allocations[src_ptr]
-  #puts "dst = #{dst_mem}, #{src_mem}"
-  if dst_mem && dst_mem.size < cpy_size
-      state.print_usage_error(ctx, "destination memory: #{dst_ptr} only has #{dst_mem.size} bytes allocated but zeCommandListAppendMemoryCopy is trying to copy #{cpy_size} bytes")
-  end 
-
-  if src_mem && src_mem.size < cpy_size
-     state.print_usage_error(ctx, "source memory: #{src_ptr} only has #{src_mem.size} bytes allocated but zeCommandListAppendMemoryCopy is trying to copy #{cpy_size} bytes")
-  end 
-end
-
 $upon_entry['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
   check_oob_memory_copy(state,ctx,defi)
 }
-
-def check_struct_stype_misuse(state,ctx,defi,expected_stype, observed_stype)
-  if state.device_agnostic && expected_stype != observed_stype
-      state.print_usage_error(ctx,"\nExpected stype of #{expected_stype}\nbut #{observed_stype} was observed.")
-  end
-end
 
 $upon_entry['zeMemAllocDevice'] = lambda {|state, ctx, defi|
   device_desc_val = defi['device_desc_val']
@@ -526,6 +443,7 @@ $upon_entry['zeMemAllocDevice'] = lambda {|state, ctx, defi|
     check_struct_stype_misuse(state,ctx,defi,:ZE_STRUCTURE_TYPE_DEVICE_MEM_ALLOC_DESC, device_desc[:stype].to_sym)
   end
 }
+
 #The implementation of this (zeMemAllocDevice) function must be thread-safe
 $on_successful_exit['zeMemAllocDevice'] = lambda { |state, ctx, defi|
   # memory is associated with devices
@@ -537,6 +455,13 @@ $on_successful_exit['zeMemAllocDevice'] = lambda { |state, ctx, defi|
   memory_allocation =  ZEModel::Memory.new(handle, context, size, device, "device")
   memory_allocations[handle] = memory_allocation
   device.memory_allocations[handle] = memory_allocation
+}
+#remove the transit info when the copy region returns
+$on_successful_exit["zeCommandListAppendMemoryCopyRegion"] = lambda { |state, ctx, defi|
+  src_ptr = state.find_param(ctx,"srcptr")
+  dst_ptr = state.find_param(ctx,"dstptr")
+  state.memory_in_transit[ctx['vpid']] -= [[src_ptr, "src"]]
+  state.memory_in_transit[ctx['vpid']] -= [[dst_ptr, "dst"]]
 }
 
 $on_successful_exit['zeMemAllocShared'] = lambda { |state, ctx, defi|
@@ -550,9 +475,6 @@ $on_successful_exit['zeMemAllocShared'] = lambda { |state, ctx, defi|
   # TODO: should add in code to add this mme allocation to all devices with that property
   size = state.find_param(ctx,"size")
   handle = defi['pptr_val']
-
-  
-
   memory_allocation =  ZEModel::Memory.new(handle, context, size, device)
   memory_allocations[handle] = memory_allocation
   device.memory_allocations[handle] = memory_allocation if device
@@ -575,7 +497,6 @@ $on_successful_exit['zeMemFree'] = lambda { |state, ctx, defi|
   memory_allocation = memory_allocations.delete(handle) {
     state.object_not_found(ctx, 'memory_allocation', handle)
   }
-  
   if memory_allocation
     mem = memory_allocation.owned_by
     mem.memory_allocations.delete(handle) {

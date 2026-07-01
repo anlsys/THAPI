@@ -15,6 +15,7 @@ class StateObject
   attr_accessor :print_tracker
   attr_accessor :device_agnostic
   attr_accessor :performance
+  attr_accessor :memory_in_transit
   def initialize(**opts)
     @deprecated = JSON.parse(File.read(File.join(DATADIR, 'ze_deprecated.json')))
     #@print_once = opts[:print_once]
@@ -30,6 +31,7 @@ class StateObject
     @lock_shared_object_on_entry = Hash.new { |h, k| h[k] = [] }
     @unlock_shared_object_on_exit = Hash.new { |h, k| h[k] = [] }
     @init_called = Hash.new { |h, k| h[k] = false } #pid : init called status
+    @memory_in_transit = Hash.new {|h,k| h[k] = []} #pid : [[mem, (src|dst)]] list of memories being transferred
     @printed_init_error = false
     @ze_thread_safety.each { |api, objects|
       objects.each { |o|
