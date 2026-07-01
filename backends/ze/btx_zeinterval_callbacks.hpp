@@ -55,7 +55,9 @@ using btx_kernel_group_size_t = std::tuple<uint32_t, uint32_t, uint32_t>;
 using btx_kernel_desct_t =
     std::tuple<std::string /*ze_kernel_desc_t*/, ze_kernel_properties_t, btx_kernel_group_size_t>;
 
-enum class btx_event_t { TRAFFIC, KERNEL, OTHER };
+// SIGNAL = zeCommandListAppendSignalEvent. Ring entry is created so state
+// stays consistent, but filtered out of the device tally (no GPU work).
+enum class btx_event_t { TRAFFIC, KERNEL, SIGNAL, OTHER };
 using btx_additional_info_traffic_t = std::tuple<int64_t /*ts*/, size_t /*size*/>;
 using btx_additional_info_kernel_t = std::string /*metadata*/;
 using btx_additional_info =
@@ -93,7 +95,18 @@ struct data_s {
   std::unordered_map<hp_command_queue_t, ze_command_queue_desc_t> commandQueueToDesc;
 
   std::unordered_map<hpt_t, btx_launch_desc_t> threadToLastLaunchInfo;
-  std::unordered_map<hp_event_t, btx_event_desct_t> eventToBtxDesct;
+
+  /* Per-event metadata ring. An hEvent can be the signal event of N
+   * Appends in one build phase, and the cl can be resubmitted M times,
+   * yielding M*N result events. We store the N Appends as a vector and
+   * advance `cursor` per result, wrapping at the end. A new push that
+   * arrives after the cursor advanced indicates a new build phase —
+   * we clear and start over so the ring tracks only the current phase. */
+  struct event_ring_t {
+    std::vector<btx_event_desct_t> entries;
+    size_t cursor = 0;
+  };
+  std::unordered_map<hp_event_t, event_ring_t> eventToBtxDesct;
   // Require for non IMM
   std::unordered_map<hp_command_list_t, std::unordered_set<ze_event_handle_t>> commandListToEvents;
 

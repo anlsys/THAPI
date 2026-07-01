@@ -39,7 +39,11 @@ find_all_types(typedefs) #yaml_ast.rb
 gen_struct_map(typedefs, structs)
 gen_ffi_type_map(typedefs)
 
-INIT_FUNCTIONS = /zeInit|zeLoaderInit|zeInitDrivers/
+# zesInit is included here so that a pure-Sysman program (one that only calls
+# zesInit, never zeInit) still triggers the tracer initialization.
+# Ideally we would split this into INIT_ZE_FUNCTIONS / INIT_ZES_FUNCTIONS
+# so each namespace initializes its own symbols.
+INIT_FUNCTIONS = /zeInit|zeLoaderInit|zeInitDrivers|zesInit/
 
 $struct_type_conversion_table = {
   'ZE_STRUCTURE_TYPE_IMAGE_MEMORY_PROPERTIES_EXP' => 'ZE_STRUCTURE_TYPE_IMAGE_MEMORY_EXP_PROPERTIES',
@@ -139,39 +143,107 @@ ZE_POINTER_NAMES = ze_pointer_names.to_h
 
 register_epilogue 'zeCommandListCreate', <<EOF
   if (_do_state()) {
-    if (_retval == ZE_RESULT_SUCCESS && phCommandList && *phCommandList) {
-      _on_create_command_list(*phCommandList, 0);
+    if (_retval == ZE_RESULT_SUCCESS && phCommandList && *phCommandList && desc) {
+      int _io = (desc->flags & ZE_COMMAND_LIST_FLAG_IN_ORDER) ? 1 : 0;
+      _on_create_command_list(*phCommandList, hDevice, desc->commandQueueGroupOrdinal,
+                              /*immediate=*/0, _io);
     }
   }
 EOF
 
 register_epilogue 'zeCommandListCreateImmediate', <<EOF
   if (_do_state()) {
-    if (_retval == ZE_RESULT_SUCCESS && phCommandList && *phCommandList) {
-      _on_create_command_list(*phCommandList, 1);
+    if (_retval == ZE_RESULT_SUCCESS && phCommandList && *phCommandList && altdesc) {
+      int _io = (altdesc->flags & ZE_COMMAND_QUEUE_FLAG_IN_ORDER) ? 1 : 0;
+      _on_create_command_list(*phCommandList, hDevice, altdesc->ordinal,
+                              /*immediate=*/1, _io);
     }
   }
 EOF
 
+# Reset hook: the L0 spec
+# (https://oneapi-src.github.io/level-zero-spec/level-zero/latest/core/api.html#zecommandlistreset)
+# says the user must have synchronized first, so our slots are drained — but
+# for a REGULAR cl "drained" is not "reclaimed" (_slot_release is a no-op for
+# regular cls; their inj is baked into the cl body for reuse across Executes).
+# Reset wipes that body, so we reclaim the slots/chunks/events now. Without it
+# the stale slots are re-published on the next Execute (over-count) and chunks
+# leak. The cl stays registered, empty for reuse.
 register_epilogue 'zeCommandListReset', <<EOF
-  if (_do_profile && hCommandList)
+  if (_do_profile && _retval == ZE_RESULT_SUCCESS && hCommandList)
     _on_reset_command_list(hCommandList);
 EOF
 
+# Destroy hook: the same spec rule applies for the GPU side (no in-flight
+# work on the cl), but we still need to clean up OUR host-side state —
+# slot/slab chunks, per-slot waits, and tracer-owned events that haven't
+# already gone back to the pool. Otherwise every cl create/destroy cycle
+# leaks all of the above.
 register_epilogue 'zeCommandListDestroy', <<EOF
-  if (_do_state()) {
-    if (_retval == ZE_RESULT_SUCCESS && hCommandList) {
-      _on_destroy_command_list(hCommandList);
-    }
-  }
+  if (_do_profile && _retval == ZE_RESULT_SUCCESS && hCommandList)
+    _on_destroy_command_list(hCommandList);
 EOF
 
+# zeContextDestroy prologue: tear down our own L0 objects that live
+# inside this context (shadow cls, per-ctx event pools/events) BEFORE the
+# user destroys the context. The L0 spec says the user has ensured the
+# device is no longer referencing the context, so all user-side cls/events
+# are already done — we just need to not leak our allocations.
+register_prologue 'zeContextDestroy', <<EOF
+  if (_do_profile && hContext)
+    _on_destroy_context(hContext);
+EOF
+
+# Epilogue runs after L0's actual submission has returned. ALL the
+# tracer's bookkeeping for Execute happens here (no prologue) so that
+# concurrent Executes / Syncs from other threads observe in_flight_q
+# atomically — the force-sync-prior + Append-Query + claim-in_flight_q
+# are one critical section.
+#
+# The Append-Query specifically MUST run after L0 submit, not before:
+# the shadow cl can share the engine with the user cl, and a pending
+# shadow Query op holds the engine, deadlocking the user cl.
 register_epilogue 'zeCommandQueueExecuteCommandLists', <<EOF
-  if (_do_profile) {
-    if (_retval == ZE_RESULT_SUCCESS && numCommandLists > 0) {
-      _on_execute_command_lists(numCommandLists, phCommandLists);
-    }
-  }
+  if (_do_profile && _retval == ZE_RESULT_SUCCESS && numCommandLists > 0 && phCommandLists)
+    _on_execute_command_lists_epilogue(hCommandQueue, hFence, numCommandLists, phCommandLists);
+EOF
+
+# Sync hooks: walk dependency edges from the synced anchor and drain
+# everything reachable. Each sync API has a different anchor.
+register_epilogue 'zeCommandQueueSynchronize', <<EOF
+  if (_do_profile && _retval == ZE_RESULT_SUCCESS)
+    _on_sync(_ZE_SYNC_QUEUE, hCommandQueue);
+EOF
+
+register_epilogue 'zeEventHostSynchronize', <<EOF
+  if (_do_profile && _retval == ZE_RESULT_SUCCESS && hEvent)
+    _on_sync(_ZE_SYNC_EVENT, hEvent);
+EOF
+
+register_epilogue 'zeCommandListHostSynchronize', <<EOF
+  if (_do_profile && _retval == ZE_RESULT_SUCCESS && hCommandList)
+    _on_sync(_ZE_SYNC_CL, hCommandList);
+EOF
+
+# The Append prologue swaps the user's signal event for our injected event, so
+# the user's own event ends up carrying the QKT/barrier op timing, not the
+# kernel's. If the user queries their event's kernel timestamp themselves,
+# serve back the kernel result we stashed at drain so they see kernel timing.
+register_epilogue 'zeEventQueryKernelTimestamp', <<EOF
+  if (_do_profile && hEvent && dstptr &&
+      _on_query_kernel_timestamp(hEvent, dstptr))
+    _retval = ZE_RESULT_SUCCESS;
+EOF
+
+# Fence sync: the fence the user passed to Execute is stamped onto each cl
+# (in_flight_fence), so a fence wait drains exactly the cls that Execute
+# submitted. zeFenceQueryStatus is NOT hooked: it's a non-blocking poll, so
+# a SUCCESS return means the work is done but we can't assume the user is
+# finished issuing — draining there could race a still-building reuse. The
+# blocking zeFenceHostSynchronize is the safe anchor.
+register_epilogue 'zeFenceHostSynchronize', <<EOF
+  if (_do_profile && _retval == ZE_RESULT_SUCCESS && hFence)
+    _on_sync(_ZE_SYNC_FENCE, hFence);
 EOF
 
 register_prologue 'zeEventPoolCreate', <<EOF
@@ -194,22 +266,14 @@ register_prologue 'zeEventCreate', <<EOF
   }
 EOF
 
-register_prologue 'zeEventDestroy', <<EOF
-  if (_do_profile && hEvent) {
+# Evict our per-event state once the destroy SUCCEEDS: the driver recycles
+# handle addresses, so a fresh event can reuse this one's. Without eviction the
+# new event inherits the dead one's stashed kernel timing and a dangling latest-
+# signaled slot pointer. Epilogue gated on _retval — a failed destroy (e.g. a bad
+# handle) leaves the event alive, its address can't be recycled, data must stay.
+register_epilogue 'zeEventDestroy', <<EOF
+  if (_do_profile && _retval == ZE_RESULT_SUCCESS && hEvent)
     _on_destroy_event(hEvent);
-  }
-EOF
-
-register_prologue 'zeEventHostReset', <<EOF
-  if (_do_profile && hEvent) {
-    _on_reset_event(hEvent);
-  }
-EOF
-
-register_epilogue 'zeContextDestroy', <<EOF
-  if (_do_profile && hContext) {
-    _on_destroy_context(hContext);
-  }
 EOF
 
 # Emit device_peer_access tracepoints after the loader hands back the driver
@@ -272,28 +336,49 @@ register_prologue 'zeCommandListAppendImageCopyFromMemoryExt', memory_info_prolo
 # WARNING: there seems to be no way to profile if
 # zeCommandListAppendEventReset is used or at least
 # not very cleanly is used....
+# Universal scheme (see project_ze_universal_scheme):
+#   prologue: always inject _ewrapper. Save user's signal (may be NULL).
+#             Swap user's signal -> our injected event.
+#   epilogue: on success, call _universal_record_append which inserts
+#             a QueryKernelTimestamps(wait=inj, signal=user_sig) into
+#             the cmdlist and records the slot for drain.
+#             The event_profiling tracepoint is attributed to the
+#             user's original signal (or inj when user passed NULL).
+#   on sync (queue/event/fence/cl-host): drain the slabs.
 profiling_prologue = lambda { |event_name|
   <<EOF
+  ze_event_handle_t _user_signal = #{event_name};
   struct _ze_event_h * _ewrapper = NULL;
-  if (_do_profile && !#{event_name}) {
-    _ewrapper = _get_profiling_event(hCommandList);
-    if (_ewrapper)
-      #{event_name} = _ewrapper->event;
+  /* Fetched once per profiled Append and threaded to both
+   * _get_profiling_event (prologue) and _universal_record_append (epilogue)
+   * so the tracer issues exactly one zeCommandListGetContextHandle per
+   * Append instead of three. */
+  ze_context_handle_t _ctx = NULL;
+  if (_do_profile) {
+    if (ZE_COMMAND_LIST_GET_CONTEXT_HANDLE_PTR(hCommandList, &_ctx) == ZE_RESULT_SUCCESS && _ctx) {
+      pthread_mutex_lock(&_ze_state_mutex);
+      _ewrapper = _get_profiling_event(_ctx);
+      pthread_mutex_unlock(&_ze_state_mutex);
+      if (_ewrapper)
+        #{event_name} = _ewrapper->event;
+    }
+    /* If injection failed, fall through with the user's signal unchanged;
+     * we won't be able to time this Append, but it still runs. */
   }
 EOF
 }
 #event name is known from API Spec
 profiling_epilogue = lambda { |event_name|
   <<EOF
-  if (_do_profile && #{event_name}) {
+  if (_do_profile && _ewrapper) {
     if (_retval == ZE_RESULT_SUCCESS) {
-      if (_ewrapper)
-        _register_our_event(_ewrapper, hCommandList);
-      else
-        _register_user_event(#{event_name}, hCommandList);
-      tracepoint(lttng_ust_ze_profiling, event_profiling, #{event_name});
-    } else if (_ewrapper)
-      PUT_ZE_EVENT(_ewrapper);
+      ze_event_handle_t _attr = _user_signal ? _user_signal : _ewrapper->event;
+      _universal_record_append(hCommandList, _ctx, _ewrapper, _user_signal,
+                               #{waits_expr}, #{n_waits_expr});
+      tracepoint(lttng_ust_ze_profiling, event_profiling, _attr);
+    } else {
+      _put_ze_event(_ewrapper);
+    }
   }
 EOF
 }
@@ -331,7 +416,7 @@ end
 
 ['zeCommandListAppendSignalEvent'].each do |c|
   register_prologue c, profiling_prologue.call('hEvent')
-  register_epilogue c, profiling_epilogue.call('hEvent')
+  register_epilogue c, profiling_epilogue.call('hEvent', 'NULL', '0')
 end
 
 # WARNING

@@ -8,6 +8,7 @@ puts <<~EOF
     #include <dlfcn.h>
     #include <stdio.h>
     #include <stdlib.h>
+    #include <alloca.h>
     #include <unistd.h>
     #include <string.h>
     #include <pthread.h>
@@ -228,7 +229,10 @@ normal_wrapper = lambda { |c, provider, types|
     puts <<EOF
   _init_tracer();
 EOF
-    if c.name == 'zeInit'
+    # _init_tracer_dump() calls the real zeInit (ZE_INIT_PTR) and dumps device
+    # properties. zesInit piggybacks on it so a pure-Sysman program (no zeInit)
+    # still initializes the ze backend it depends on.
+    if %w[zeInit zesInit].include?(c.name)
       puts <<EOF
   _init_tracer_dump();
 EOF
