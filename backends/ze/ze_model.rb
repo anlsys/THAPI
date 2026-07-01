@@ -212,6 +212,18 @@ register_epilogue 'zeContextDestroy', <<EOF
   }
 EOF
 
+# Emit device_peer_access tracepoints after the loader hands back the driver
+# list. Guarded on phDrivers so the count-only invocation (phDrivers == NULL)
+# doesn't trigger a dump.
+p2p_epilogue = <<EOF
+  if (_retval == ZE_RESULT_SUCCESS && phDrivers && pCount &&
+      tracepoint_enabled(lttng_ust_ze_properties, zeMetadata_device_peer_access)) {
+    _dump_p2p_all_drivers(*pCount, phDrivers);
+  }
+EOF
+register_epilogue 'zeDriverGet',   p2p_epilogue
+register_epilogue 'zeInitDrivers', p2p_epilogue
+
 # Dump memory info if required
 memory_info_dump = lambda { |ptr_name|
   "_dump_memory_info(hCommandList, #{ptr_name})"

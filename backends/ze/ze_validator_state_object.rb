@@ -16,6 +16,7 @@ class StateObject
   attr_accessor :device_agnostic
   attr_accessor :performance
   attr_accessor :memory_in_transit
+  attr_accessor :p2p_info
   def initialize(**opts)
     @deprecated = JSON.parse(File.read(File.join(DATADIR, 'ze_deprecated.json')))
     #@print_once = opts[:print_once]
@@ -32,6 +33,7 @@ class StateObject
     @unlock_shared_object_on_exit = Hash.new { |h, k| h[k] = [] }
     @init_called = Hash.new { |h, k| h[k] = false } #pid : init called status
     @memory_in_transit = Hash.new {|h,k| h[k] = []} #pid : [[mem, (src|dst)]] list of memories being transferred
+    @p2p_info = Hash.new{|h,k| h[k] = {}} #deviceptr: [deviceptr1, deviceptr2]
     @printed_init_error = false
     @ze_thread_safety.each { |api, objects|
       objects.each { |o|
@@ -231,6 +233,14 @@ class StateObject
 	end
   end
 
+  def collect_meta_data(m,hostname,context,defi)
+    #puts "meta = #{m[1]}"
+    l = $on_metadata_event[m[1]]
+    #puts "meta_registered"
+    l.call(self,context,defi) if l
+    #puts "meta_called"
+  end
+
   def on_entry(m,hostname, context,defi)
     set_last_entry(self, context, defi) #sets the per-thread callstack of the APIs
       @lock_shared_object_on_entry[m[1]].each { |l|
@@ -242,30 +252,36 @@ class StateObject
   end
 
   def on_exit(m,hostname,context,defi)
-	#unlock the shared object if the api name matches the predefined in ze_thread_safety.yaml
-	@unlock_shared_object_on_exit[m[1]].reverse_each { |l|
-		l.call(self, context, defi)
-	}
+    #unlock the shared object if the api name matches the predefined in ze_thread_safety.yaml
+    @unlock_shared_object_on_exit[m[1]].reverse_each { |l|
+      l.call(self, context, defi)
+    }
 
-	#check if the return code indicates successful return from the API call
-	if validate_result(defi)
-		l = $on_successful_exit[m[1]]
-		l.call(self, context, defi) if l
-	else
-		l = $on_erroneous_exit[m[1]]
-		l.call(self, context, defi) if l
-	end
+    #check if the return code indicates successful return from the API call
+    if validate_result(defi)
+      l = $on_successful_exit[m[1]]
+      l.call(self, context, defi) if l
+    else
+      l = $on_erroneous_exit[m[1]]
+      l.call(self, context, defi) if l
+    end
 
-	check_last_entry(context)  #When we return from _exit, we need to see what we saw in _entry for the current thread_id
-	reset_last_entry(context)  #Reset the callstack for current thread_id
+    check_last_entry(context)  #When we return from _exit, we need to see what we saw in _entry for the current thread_id
+    reset_last_entry(context)  #Reset the callstack for current thread_id
   end
 
   def consume = lambda { |iterator, _|
         iterator.next_messages.each do |m|
           next unless m.type == :BT_MESSAGE_TYPE_EVENT
           e = m.event
-          m = e.name.match(/:(z.*)_(entry|exit)/)
-          if m
+          event = e.name.match(/:(z.*)_(entry|exit)/)
+          meta = e.name.match(/:(zeMetadata_\w+)/)
+          if event || meta
+            if event
+              m = event
+            else
+              m = meta
+            end
             hostname = e.stream.trace.get_environment_entry_value_by_name('hostname').value
             context = e.get_common_context_field.value
             defi = e.payload_field.value
@@ -275,10 +291,13 @@ class StateObject
             check_initialization(context,m)
             #print the known deprecated APIs
             print_deprecation_warning(m[1]) if @deprecated[m[1]]
-            if  m[2] == 'entry'
+            
+            if event && m[2] == 'entry'
               on_entry(m, hostname, context, defi)
-            else
+            elsif event && m[2] == 'exit'
               on_exit(m, hostname, context, defi)
+            elsif meta 
+              collect_meta_data(m,hostname,context,defi)
             end
           end
         end

@@ -5,6 +5,19 @@ require 'ze_library'
 $upon_entry = {} #called to modify program state on entry
 $on_successful_exit = {} #called upon seeing exit functions with a successful return code
 $on_erroneous_exit = {} #called upon seeing exit functions with a non-successful return code
+$on_metadata_event = {} #called upon when zeMetadata_* is called
+
+$on_metadata_event["zeMetadata_device_peer_access"] = lambda{|state, ctx, defi|
+  accessibility = defi['canAccess']
+  device1_ptr = defi['hDevice']
+  device2_ptr = defi['hPeerDevice']
+  if device1_ptr != device2_ptr
+    state.p2p_info[device1_ptr][device2_ptr] = true
+    state.p2p_info[device2_ptr][device1_ptr] = true
+  end
+  #puts "p2pinfo = #{state.p2p_info}"
+}
+
 
 #What happens if we try to evict memory that wasn't allocated?
 #UB if a device is currently referring to the memory?
@@ -270,10 +283,6 @@ $on_successful_exit['zeFenceCreate'] = lambda { |state, ctx, defi|
   fence = ZEModel::Fence.new(handle, command_queue, desc)
   fences[handle] = fence
   command_queue.fences[handle] = fence
-}
-
-$on_successful_exit['zeFenceReset'] = lambda { |state, ctx, defi|
-  fences = state.find_objects(ctx, 'fence')
 }
 
 $on_successful_exit['zeFenceDestroy'] = lambda { |state, ctx, defi|

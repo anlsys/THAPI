@@ -594,6 +594,71 @@ static void _dump_driver_device_properties(ze_driver_handle_t hDriver) {
   }
 }
 
+/* Emit a device_peer_access tracepoint for every ordered (src, peer) pair
+ * across a driver's devices and their sub-devices. A device is never paired
+ * with itself, but sub-devices of the same parent are paired with each other
+ * and with other parents' sub-devices. */
+static void _dump_driver_p2p(ze_driver_handle_t hDriver) {
+  if (!tracepoint_enabled(lttng_ust_ze_properties, zeMetadata_device_peer_access))
+    return;
+
+  uint32_t deviceCount = 0;
+  if (ZE_DEVICE_GET_PTR(hDriver, &deviceCount, NULL) != ZE_RESULT_SUCCESS || deviceCount == 0)
+    return;
+  ze_device_handle_t *phDevices =
+      (ze_device_handle_t *)alloca(deviceCount * sizeof(ze_device_handle_t));
+  if (ZE_DEVICE_GET_PTR(hDriver, &deviceCount, phDevices) != ZE_RESULT_SUCCESS)
+    return;
+
+  /* First pass: count the flat total (devices + all sub-devices) so we can
+   * allocate a single flat handle array. */
+  uint32_t totalCount = deviceCount;
+  for (uint32_t i = 0; i < deviceCount; i++) {
+    uint32_t subCount = 0;
+    if (ZE_DEVICE_GET_SUB_DEVICES_PTR(phDevices[i], &subCount, NULL) == ZE_RESULT_SUCCESS)
+      totalCount += subCount;
+  }
+
+  ze_device_handle_t *phAll =
+      (ze_device_handle_t *)alloca(totalCount * sizeof(ze_device_handle_t));
+  uint32_t idx = 0;
+  for (uint32_t i = 0; i < deviceCount; i++) {
+    phAll[idx++] = phDevices[i];
+    uint32_t subCount = 0;
+    if (ZE_DEVICE_GET_SUB_DEVICES_PTR(phDevices[i], &subCount, NULL) != ZE_RESULT_SUCCESS ||
+        subCount == 0)
+      continue;
+    if (ZE_DEVICE_GET_SUB_DEVICES_PTR(phDevices[i], &subCount, phAll + idx) != ZE_RESULT_SUCCESS)
+      continue;
+    idx += subCount;
+  }
+  totalCount = idx;
+
+  for (uint32_t i = 0; i < totalCount; i++) {
+    for (uint32_t j = 0; j < totalCount; j++) {
+      if (i == j)
+        continue;
+      ze_bool_t canAccess = 0;
+      if (ZE_DEVICE_CAN_ACCESS_PEER_PTR(phAll[i], phAll[j], &canAccess) != ZE_RESULT_SUCCESS)
+        continue;
+      ze_device_p2p_properties_t props = {0};
+      props.stype = ZE_STRUCTURE_TYPE_DEVICE_P2P_PROPERTIES;
+      props.pNext = NULL;
+      if (ZE_DEVICE_GET_P2PPROPERTIES_PTR(phAll[i], phAll[j], &props) != ZE_RESULT_SUCCESS)
+        continue;
+      do_tracepoint(lttng_ust_ze_properties, zeMetadata_device_peer_access, hDriver, phAll[i], phAll[j],
+                    canAccess, &props);
+    }
+  }
+}
+
+static void _dump_p2p_all_drivers(uint32_t driverCount, ze_driver_handle_t *phDrivers) {
+  if (!tracepoint_enabled(lttng_ust_ze_properties, zeMetadata_device_peer_access))
+    return;
+  for (uint32_t i = 0; i < driverCount; i++)
+    _dump_driver_p2p(phDrivers[i]);
+}
+
 static void _dump_kernel_properties(ze_kernel_handle_t hKernel) {
   ze_kernel_properties_t kernelProperties;
   kernelProperties.stype = ZE_STRUCTURE_TYPE_KERNEL_PROPERTIES;

@@ -49,6 +49,8 @@ module ZEModel
     attr_accessor :memory_allocations
     attr_accessor :property_fetched
     attr_accessor :cmd_queue_group_properties_queried
+    #attr_accessor :p2p_list
+
     def initialize(handle)
       super
       @sub_devices = []
