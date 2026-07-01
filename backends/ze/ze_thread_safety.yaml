@@ -1,0 +1,99 @@
+---
+zeContextDestroy:
+ - [hContext, context]
+zeCommandQueueDestroy:
+ - [hCommandQueue, command_queue]
+zeCommandListDestroy:
+ - [hCommandList, command_list]
+zeCommandListClose:
+ - [hCommandList, command_list]
+zeCommandListReset:
+ - [hCommandList, command_list]
+zeCommandListAppendWriteGlobalTimestamp:
+ - [hCommandList, command_list]
+zeCommandListAppendLaunchKernel:
+ - [hKernel, kernel]
+zeCommandListAppendBarrier:
+ - [hCommandList, command_list]
+zeCommandListAppendMemoryRangesBarrier:
+ - [hCommandList, command_list]
+zeCommandListAppendMemoryCopy:
+ - [hCommandList, command_list]
+zeCommandListAppendMemoryCopyWithParameters:
+ - [hCommandList, command_list]
+zeCommandListAppendMemoryFill:
+ - [hCommandList, command_list]
+zeCommandListAppendMemoryFillWithParameters:
+ - [hCommandList, command_list]
+zeCommandListAppendMemoryCopyRegion:
+ - [hCommandList, command_list]
+zeCommandListAppendMemoryCopyFromContext:
+ - [hCommandList, command_list]
+zeCommandListAppendImageCopy:
+ - [hCommandList, command_list]
+zeCommandListAppendImageCopyRegion:
+ - [hCommandList, command_list]
+zeCommandListAppendImageCopyToMemory:
+ - [hCommandList, command_list]
+zeCommandListAppendImageCopyFromMemory:
+ - [hCommandList, command_list]
+zeCommandListAppendImageCopyToMemoryExt:
+ - [hCommandList, command_list]
+zeCommandListAppendImageCopyFromMemoryExt:
+ - [hCommandList, command_list]
+zeCommandListAppendMemoryPrefetch:
+ - [hCommandList, command_list]
+zeCommandListAppendMemAdvise:
+ - [hCommandList, command_list]
+zeCommandListAppendSignalEvent:
+ - [hCommandList, command_list]
+zeCommandListAppendWaitOnEvents:
+ - [hCommandList, command_list]
+zeCommandListAppendEventReset:
+ - [hCommandList, command_list]
+zeCommandListAppendQueryKernelTimestamps:
+ - [hCommandList, command_list]
+zeCommandListUpdateMutableCommandsExp:
+ - [hCommandList, command_list]
+zeCommandListUpdateMutableCommandSignalEventExp:
+ - [hCommandList, command_list]
+zeCommandListUpdateMutableCommandWaitEventsExp:
+ - [hCommandList, command_list]
+zeCommandListUpdateMutableCommandKernelsExp:
+ - [hCommandList, command_list]
+zeRTASBuilderCommandListAppendCopyExt:
+ - [hCommandList, command_list]
+zeKernelDestroy:
+ - [hKernel, kernel]
+zeKernelSetGroupSize:
+ - [hKernel, kernel]
+zeKernelSetArgumentValue:
+ - [hKernel, kernel]
+zeKernelSetCacheConfig:
+ - [hKernel, kernel]
+zeKernelSetGlobalOffsetExp:
+ - [hKernel, kernel]
+zeKernelSchedulingHintExp:
+ - [hKernel, kernel]
+zeEventPoolDestroy:
+ - [hEventPool, event_pool]
+zeEventCreate:
+ - [hEventPool, event_pool]
+zeEventPoolCloseIpcHandle:
+ - [hEventPool, event_pool]
+zeEventDestroy:
+ - [hEvent, event]
+zeFenceDestroy:
+ - [hFence, fence]
+zeModuleDestroy:
+ - [hModule, module]
+zeModuleBuildLogDestroy:
+ - [hModuleBuildLog, module_build_log]
+zeMemFree:
+ - [ptr, memory_allocation]
+zeMemFreeExt:
+ - [ptr_val, memory_allocation]
+zeMemCloseIpcHandle:
+ - [ptr_val, memory_allocation]
+zeMemSetAtomicAccessAttributeExp:
+ - [ptr_val, memory_allocation]
