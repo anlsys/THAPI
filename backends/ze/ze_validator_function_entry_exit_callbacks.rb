@@ -37,18 +37,9 @@ $upon_entry["zeCommandListAppendMemoryCopyRegion"] = lambda{|state, ctx, defi|
   src_ptr = defi['srcptr']
   record_copy_over(state,ctx,src_ptr,dst_ptr)
   check_memory_residency(state,ctx,defi,src_ptr,dst_ptr,"zeCommandListAppendMemoryCopyRegion")
-  check_copy_over_data_race(state,ctx,defi,src_ptr,dst_ptr)
+  check_copy_over_data_race(state,ctx,src_ptr,dst_ptr)
 }
 
-#remove the elements from state.memory_in_transit
-$on_successful_exit["zeCommandListAppendMemoryCopyRegion"] = lambda{|state, ctx, defi|
-  memory_allocations =  state.find_objects(ctx, 'memory_allocation')
-  context = state.find_object(ctx, 'context', 'hContext')
-  device = state.find_object(ctx, 'device','hDevice')
-  size = state.find_param(ctx,"size")
-  handle = defi['pptr_val']
-  
-}
 
 $upon_entry["zeDeviceGetProperties"] = lambda{|state, ctx, defi|
   device_ptr = defi['hDevice']
@@ -82,7 +73,7 @@ $upon_entry["zeCommandListClose"] = lambda { |state, ctx, defi|
 $upon_entry["zeCommandListAppendLaunchCooperativeKernel"] = lambda { |state, ctx, defi|
   command_lists = state.find_objects(ctx, 'command_list')
   cmd_list = command_lists[defi['hCommandList']]
-  check_group_property_queued(stte,ctx,defi,cmd_list.device)
+  check_group_property_queued(stte,ctx,cmd_list.device)
 }
 
 #when command queue is executed, the associated fence's status is set to IN_USE
@@ -95,12 +86,11 @@ $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
   #check if the group property was hardcoded
   command_queues = state.find_objects(ctx, 'command_queue')
   command_queue = command_queues[defi['hCommandQueue']]
-  check_group_property_queued(state,ctx,defi,command_queue.device)
+  check_group_property_queued(state,ctx,command_queue.device)
 }
 
 #When a fence signals the host, set the fence's status to signaled 
 $upon_entry["zeFenceHostSynchronize"] =  lambda { |state, ctx, defi|
-  fences = nil
   curr_fence = ZEModel::Fence.get_fence(state,ctx,defi)
   return unless curr_fence
   if curr_fence.status == ZEModel::Fence.class_variable_get(:@@SIGNALED)
@@ -317,7 +307,7 @@ $on_successful_exit['zeCommandListCreateImmediate'] = lambda { |state, ctx, defi
   altdesc_val = state.find_param(ctx, 'altdesc_val')
   altdesc = state.to_struct(altdesc_val, ZE::ZECommandQueueDesc)
   handle = defi['phCommandList_val']
-  check_group_property_queued(state,ctx,defi,device)
+  check_group_property_queued(state,ctx,device)
   command_lists[handle] = ZEModel::CommandList.new(handle, context, device, nil, altdesc)
   command_lists[handle].immediate = true #immdediate command lists cannot be passed to the execute command lists
   command_list[handle].associated_ordinal = altdesc.ordinal
@@ -440,7 +430,7 @@ $upon_entry['zeMemAllocDevice'] = lambda {|state, ctx, defi|
   
   if state.print_tracker["zeMemAllocDevice::StypeMisuse"] == 0
     state.print_tracker["zeMemAllocDevice::StypeMisuse"] = 1
-    check_struct_stype_misuse(state,ctx,defi,:ZE_STRUCTURE_TYPE_DEVICE_MEM_ALLOC_DESC, device_desc[:stype].to_sym)
+    check_struct_stype_misuse(state,ctx,:ZE_STRUCTURE_TYPE_DEVICE_MEM_ALLOC_DESC, device_desc[:stype].to_sym)
   end
 }
 
@@ -456,6 +446,7 @@ $on_successful_exit['zeMemAllocDevice'] = lambda { |state, ctx, defi|
   memory_allocations[handle] = memory_allocation
   device.memory_allocations[handle] = memory_allocation
 }
+
 #remove the transit info when the copy region returns
 $on_successful_exit["zeCommandListAppendMemoryCopyRegion"] = lambda { |state, ctx, defi|
   src_ptr = state.find_param(ctx,"srcptr")
