@@ -3,7 +3,8 @@ require 'ze_library'
 
 def check_group_property_queued(state, ctx, defi, device)
   #puts "device = #{device}"
-  unless device.cmd_queue_group_properties_queried
+  if !(device.cmd_queue_group_properties_queried) && state.print_tracker["check_group_property"] == 0
+    state.print_tracker["check_group_property"] = 1
     state.print_usage_error(ctx,"command queue group wasn't queried. Hardcoded group properties may break the code on different devices")   
   end
 end
@@ -36,7 +37,13 @@ def check_valid_ordinal(state, ctx, defi, cqg_ordinal)
   #hardcoded for now, change it once the trace can output which ordinals are computes
   if cqg_ordinal != 0 && state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] == 0
     state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] = 1
-    state.print_usage_error(ctx, "Launching kernel to a command list with Copy Ordinal: #{state.get_handle_str(defi['hCommandList'])}")
+    kernels = state.find_objects(ctx, 'kernel')
+    kernel = kernels[defi['hKernel']]
+    kernel_name = "UNKNOWN"
+    if kernel
+      kernel_name = kernel.name
+    end 
+    state.print_usage_error(ctx, "Launching kernel (#{kernel_name}) to a command list with Copy Ordinal: #{state.get_handle_str(defi['hCommandList'])}")
   end 
 end
 

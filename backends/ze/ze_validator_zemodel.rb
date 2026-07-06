@@ -283,11 +283,13 @@ module ZEModel
     @typename = 'kernel'
     attr_reader :module
     attr_reader :desc
+    attr_reader :name
 
-    def initialize(handle, mod, desc)
+    def initialize(handle, mod, desc, name)
       super(handle)
       @module = mod
       @desc = desc
+      @name = name
     end
   end
 

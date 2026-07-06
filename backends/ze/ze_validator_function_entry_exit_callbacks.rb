@@ -79,6 +79,7 @@ $upon_entry["zeDeviceGetCommandQueueGroupProperties"] = lambda{|state, ctx, defi
 #Compute ordinal is 0 on 1550 MAX GPUs but this is device specific.
 $upon_entry["zeCommandListAppendLaunchKernel"] = lambda { |state, ctx, defi|
   cqg_ordinal = defi['commandQueueGroupOrdinal']
+  #puts "#{defi}"
   check_valid_ordinal(state,ctx,defi,cqg_ordinal)
   check_kernel_created(state,ctx,defi)
 }
@@ -87,7 +88,6 @@ $upon_entry["zeCommandListAppendLaunchKernel"] = lambda { |state, ctx, defi|
 $upon_entry["zeCommandListClose"] = lambda { |state, ctx, defi|
   command_lists = state.find_objects(ctx, 'command_list')
   cmd_list = command_lists[defi['hCommandList']]
-  #puts "cmdlist = #{defi['hCommandList']}"
   cmd_list.status = ZEModel::CommandList.class_variable_get(:@@CLOSED)
 }
 
@@ -126,7 +126,6 @@ $upon_entry["zeFenceHostSynchronize"] =  lambda { |state, ctx, defi|
 #Also, a fence can be shared throughout the threads and is modeled correctly (if you are wondering about whether the model treats fence associated with different thread-id differently).
 $upon_entry["zeFenceReset"] =  lambda { |state, ctx, defi|
   fences = nil
-  #puts "fence ctx = #{ctx}"
   curr_fence = ZEModel::Fence.get_fence(state,ctx,defi)
   return unless curr_fence
   curr_fence.status = ZEModel::Fence.class_variable_get(:@@INITIALIZED)
@@ -135,11 +134,9 @@ $upon_entry["zeFenceReset"] =  lambda { |state, ctx, defi|
 #Set the driver for the current context
 $on_successful_exit['zeDriverGet'] = lambda { |state, ctx, defi|
   drivers = state.get_process(ctx).drivers
-  #puts "defi = #{defi}"
   defi['phDrivers_vals'].each { |h|
     drivers[h] = ZEModel::Driver.new(h) unless drivers[h]
   }
-  #puts "drivers = #{drivers}"
 }
 
 #Set device
@@ -164,9 +161,7 @@ $upon_entry['ze_thapi_extra_info_p2p_entry'] = lambda {|state, ctx, defi|
 
 $on_successful_exit['zeDeviceGetSubDevices'] = lambda { |state, ctx, defi|
   devices = state.find_objects(ctx, 'device')
-  # Same reason as zeDeviceGet above: read hDevice directly from the exit
-  # payload to avoid last_entry clobber from nested calls.
-  device = devices[defi['hDevice']]
+  device = state.find_object(ctx, 'device', 'hDevice')
   defi['phSubdevices_vals'].each { |h|
     unless devices[h]
       devices[h] = ZEModel::SubDevice.new(h, device)
@@ -265,7 +260,6 @@ $on_successful_exit['zeCommandQueueCreate'] = lambda { |state, ctx, defi|
   desc_val = state.find_param(ctx, 'desc_val')
   desc = state.to_struct(desc_val, ZE::ZECommandQueueDesc)
   handle = defi['phCommandQueue_val']
-  #puts "desc = #{desc}"
   command_queues[handle] = ZEModel::CommandQueue.new(handle, context, device, desc)
   context.command_queues[handle] = command_queues[handle]
 }
@@ -313,7 +307,6 @@ $on_successful_exit['zeCommandListCreate'] = lambda { |state, ctx, defi|
   device = state.find_object(ctx, 'device', 'hDevice')
   desc_val = state.find_param(ctx, 'desc_val')
   desc = state.to_struct(desc_val, ZE::ZECommandListDesc)
-  #puts "cmd_desc = #{desc}"
   handle = defi['phCommandList_val']
   command_lists[handle] = ZEModel::CommandList.new(handle, context, device, desc, nil)
   context.command_lists[handle] = command_lists[handle]
@@ -329,7 +322,8 @@ $on_successful_exit['zeCommandListCreateImmediate'] = lambda { |state, ctx, defi
   check_group_property_queued(state,ctx,defi,device)
   command_lists[handle] = ZEModel::CommandList.new(handle, context, device, nil, altdesc)
   command_lists[handle].immediate = true #immdediate command lists cannot be passed to the execute command lists
-  command_list[handle].associated_ordinal = altdesc.ordinal
+  #puts "altdesc = #{altdesc}"
+  command_lists[handle].associated_ordinal = altdesc[:ordinal]
   context.command_lists[handle] = command_lists[handle]
 }
 
@@ -422,7 +416,9 @@ $on_successful_exit['zeKernelCreate'] = lambda { |state, ctx, defi|
   desc_val = state.find_param(ctx, 'desc_val')
   desc = state.to_struct(desc_val, ZE::ZEKernelDesc)
   handle = defi['phKernel_val']
-  kernel = ZEModel::Kernel.new(handle, mod, desc)
+  kernelName = state.find_param(ctx, 'desc__pKernelName_val')
+  kernel = ZEModel::Kernel.new(handle, mod, desc, kernelName)
+  #puts "kernelName = #{state.find_param(ctx, 'desc__pKernelName_val')}"
   kernels[handle] = kernel
   mod.kernels[handle] = kernel
 }
