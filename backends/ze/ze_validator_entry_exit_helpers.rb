@@ -35,7 +35,7 @@ end
 
 def check_valid_ordinal(state, ctx, defi, cqg_ordinal)
   #hardcoded for now, change it once the trace can output which ordinals are computes
-  if cqg_ordinal != 0 && state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] == 0
+  if cqg_ordinal == 1 && state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] == 0
     state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] = 1
     kernels = state.find_objects(ctx, 'kernel')
     kernel = kernels[defi['hKernel']]

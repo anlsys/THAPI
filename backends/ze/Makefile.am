@@ -2,18 +2,15 @@
 
 if STRICT
   # We disable `nonnull`  check due to
-  #  .//ze_tracepoints.h: In function 'lttng_ust__event_get_size__lttng_ust_ze___zeModuleCreate_entry':
+  #  ././ze_tracepoints.h: In function 'lttng_ust__event_get_size__lttng_ust_ze___zeModuleCreate_entry':
   # [...]/lttng/ust-tracepoint-event.h:578:17: error: argument 1 null where non-null expected [-Werror=nonnull]
   # 578 |                 strlen((_src) ? (_src) : LTTNG_UST__NULL_STRING) + 1;
-  # We disable `extern-c-compat` check due to
-  # ./layers/zel_tracing_register_cb.h:2729:9: error: empty struct has size 0 in C, size 1 in C++ [-Werror,-Wextern-c-compat]
-  #2729 | typedef struct _zer_get_default_context_params_t
-  #    |         ^
-  #1 error generated.
-  WERROR = -Werror -Wno-error=nonnull 
+  WERROR = -Werror -Wno-error=nonnull
+else
+  WERROR =
 endif
 
-ZE_NAMESPACES = ze zet zes zel zex # zer
+ZE_NAMESPACES = ze zet zes zel zex
 ZE_STRUCTS_NAMESPACES = $(ZE_NAMESPACES:=_structs)
 
 ZE_HDR_ROOT = \
@@ -26,16 +23,13 @@ ZE_HDR_ROOT = \
 	zet_api.h \
 	zet_ddi.h \
 	zet_ddi_ver.h \
-        #zer_api.h \
-        #zer_ddi.h \
-        #zer_ddi_ver.h \
 	zex_api.h \
+	loader/ze_loader_api.h \
 	layers/zel_tracing_api.h \
 	layers/zel_tracing_ddi.h \
 	layers/zel_tracing_ddi_ver.h \
 	layers/zel_tracing_register_cb.h \
-	loader/ze_loader.h \
-	loader/ze_loader_api.h
+	loader/ze_loader.h
 
 ZE_HDR = $(ZE_HDR_ROOT:%=$(srcdir)/include/%)
 MODIFIED_ZE_HDR = $(ZE_HDR_ROOT:%=modified_include/%)
@@ -73,19 +67,16 @@ EXTRA_DIST += \
 	$(srcdir)/include \
 	headers.patch
 
-ZE_EXTRACT_H = $(ZE_NAMESPACES:%=extract/%_api.h)
-EXTRA_DIST += $(ZE_EXTRACT_H)
-
 ZE_EXTRACTED = $(ZE_NAMESPACES:=_api.yaml)
 
-# Will be evaluated to `ze`, `zes`, etc. We overwrite for `zel`
-H2YAML_FILTER = --filter-header $*
-zel_api.yaml: H2YAML_FILTER = --filter-header "zel|ze_loader"
-
-$(ZE_EXTRACTED): %_api.yaml: $(srcdir)/extract/%_api.h $(MODIFIED_ZE_HDR)
-	h2yaml --compat-cast-to-yaml -Wc,-Imodified_include/ $(H2YAML_FILTER) $< > $@
+$(ZE_EXTRACTED): %_api.yaml: $(srcdir)/extract_%.rb $(MODIFIED_ZE_HDR) $(srcdir)/extract_base.rb
+	ENABLE_CLANG_PARSER=$(ENABLE_CLANG_PARSER) $(RUBY) $<
 
 CLEANFILES += $(ZE_EXTRACTED)
+
+EXTRA_DIST += \
+	extract_base.rb \
+	$(ZE_NAMESPACES:%=extract_%.rb)
 
 ML_FILES = \
 	$(ZE_NAMESPACES:=_meta_parameters.yaml) \
@@ -163,10 +154,10 @@ nodist_libZESampling_la_SOURCES = \
 	$(ZE_PROBES_INCL) \
 	$(ZE_STATIC_PROBES_INCL)
 
-libZESampling_la_CPPFLAGS = -I$(top_srcdir)/utils -I$(top_srcdir)/utils/include -I$(top_srcdir)/sampling -I./modified_include -I./
+libZESampling_la_CPPFLAGS = -I$(top_srcdir)/utils -I$(top_srcdir)/utils/include -I$(top_srcdir)/sampling -I$(top_srcdir)/backends/ze/include -I./
 libZESampling_la_CFLAGS = -Wall -Wextra $(WERROR) $(LTTNG_UST_CFLAGS)
 libZESampling_la_LDFLAGS = -avoid-version -module
-libZESampling_la_LIBADD = $(top_builddir)/sampling/libThapiSampling.la libzetracepoints.la -ldl $(LTTNG_UST_LIBS)
+libZESampling_la_LIBADD =  $(top_builddir)/sampling/libThapiSampling.la libzetracepoints.la -ldl $(LTTNG_UST_LIBS)
 
 tracer_ze.c: $(srcdir)/gen_ze.rb $(srcdir)/tracer_ze_helpers.include.c $(srcdir)/ze.h.include $(ZE_MODEL) $(ZE_PROBES_INCL) $(ZE_STATIC_PROBES_INCL)
 	SRC_DIR=$(srcdir) $(RUBY) $< > $@
@@ -189,7 +180,7 @@ nodist_libzetracepoints_la_SOURCES = \
 	$(ZE_PROBES_SRC) \
 	$(ZE_STATIC_PROBES_SRC)
 
-libzetracepoints_la_CPPFLAGS = -I$(top_srcdir)/utils -I$(top_srcdir)/utils/include -I./modified_include -I./
+libzetracepoints_la_CPPFLAGS = -I$(top_srcdir)/utils -I$(top_srcdir)/utils/include -I$(srcdir)/include -I./
 libzetracepoints_la_CFLAGS = -fPIC -Wall -Wextra -Wno-unused-parameter -Wno-type-limits -Wno-sign-compare $(WERROR) $(LTTNG_UST_CFLAGS)
 libzetracepoints_la_LDFLAGS = $(LTTNG_UST_LIBS)
 
@@ -204,7 +195,7 @@ nodist_libze_loader_la_SOURCES = \
 	$(ZE_STATIC_PROBES_INCL) \
 	tracer_ze.c
 
-libze_loader_la_CPPFLAGS = -I$(top_srcdir)/utils -I$(top_srcdir)/utils/include -I./modified_include -I$(top_srcdir)/utils -I./
+libze_loader_la_CPPFLAGS = -I$(top_srcdir)/utils -I$(top_srcdir)/utils/include -I$(srcdir)/include -I$(top_srcdir)/utils -I./
 libze_loader_la_CFLAGS = -Wall -Wextra $(WERROR) $(LIBFFI_CFLAGS) $(LTTNG_UST_CFLAGS)
 libze_loader_la_LDFLAGS = $(LTTNG_UST_LIBS) -ldl -lpthread $(LIBFFI_LIBS)
 libze_loader_la_LDFLAGS += -version-info 1:0:0
@@ -262,7 +253,7 @@ data_DATA = \
 	ze_validator_zemodel.rb \
 	ze_validator_function_entry_exit_callbacks.rb \
 	ze_validator_entry_exit_helpers.rb \
-	ze_validator_state_object.rb 
+	ze_validator_state_object.rb
 
 xprof_utils.hpp: $(top_srcdir)/utils/xprof_utils.hpp
 	cp $< $@
@@ -282,7 +273,7 @@ libZEInterval_la_SOURCES = \
 	btx_zeinterval_callbacks.cpp \
 	btx_zeinterval_callbacks.hpp
 
-libZEInterval_la_CPPFLAGS = -I$(top_srcdir)/utils -I$(top_srcdir)/utils/include -I./modified_include -I./ -I./btx_filter_ze
+libZEInterval_la_CPPFLAGS = -I$(top_srcdir)/utils -I$(top_srcdir)/utils/include -I$(srcdir)/include -I./ -I./btx_filter_ze
 libZEInterval_la_CFLAGS = -Wall -Wextra -Wno-unused-parameter $(WERROR) $(BABELTRACE2_CFLAGS)
 libZEInterval_la_CXXFLAGS = -std=c++17 -Wall -Wextra -Wno-unused-parameter $(WERROR) $(BABELTRACE2_CFLAGS)
 libZEInterval_la_LDFLAGS = $(BABELTRACE2_LIBS) -avoid-version -module
@@ -291,12 +282,9 @@ TRACE_COMMON = \
 	tests/interval_profiling_normal.thapi_text_pretty \
 	tests/interval_profiling_multithread.thapi_text_pretty \
 	tests/interval_profiling_API_call.thapi_text_pretty \
+	tests/interval_profiling_fast.thapi_text_pretty \
 	tests/interval_profiling_interleave_process.thapi_text_pretty \
-	tests/interval_profiling_ignore.thapi_text_pretty \
-	tests/interval_profiling_shared_event.thapi_text_pretty \
-	tests/interval_profiling_resubmit_event.thapi_text_pretty \
-	tests/interval_profiling_shared_event_resubmit.thapi_text_pretty \
-	tests/interval_profiling_shared_event_xphase.thapi_text_pretty
+	tests/interval_profiling_ignore.thapi_text_pretty
 
 BTX_ZE_GENERATED_SOURCE_TEST = \
         btx_source_ze_test/metababel/metababel.h \
@@ -307,11 +295,11 @@ BTX_ZE_GENERATED_SOURCE_TEST = \
         btx_source_ze_test/btx_main.c
 
 $(BTX_ZE_GENERATED_SOURCE_TEST) &: btx_ze_model.yaml
-	$(METABABEL) -d btx_ze_model.yaml -t SOURCE -o btx_source_ze_test -p zetest -c test -i ze.h.include
+	$(METABABEL) -d btx_ze_model.yaml -t SOURCE  -o btx_source_ze_test -p zetest -c test  -i ze.h.include
 
 noinst_LTLIBRARIES += libtestzesource.la
 nodist_libtestzesource_la_SOURCES = $(BTX_ZE_GENERATED_SOURCE_TEST)
-libtestzesource_la_CPPFLAGS = -I$(top_srcdir)/utils -I$(top_srcdir)/utils/include -I./modified_include -I./btx_source_ze_test/
+libtestzesource_la_CPPFLAGS = -I$(top_srcdir)/utils -I$(top_srcdir)/utils/include -I$(srcdir)/include -I./btx_source_ze_test/
 libtestzesource_la_CFLAGS = -fPIC -Wall -Wextra -Wno-unused-parameter $(WERROR) $(BABELTRACE2_CFLAGS)
 
 TRACE_OUT = $(TRACE_COMMON:.thapi_text_pretty=.bt_text_pretty)
