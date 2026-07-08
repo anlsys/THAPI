@@ -1,9 +1,10 @@
 require 'ze_validator_zemodel'
 require 'ze_library'
 
-def check_group_property_queued(state, ctx, device)
+def check_group_property_queued(state, ctx, defi, device)
   #puts "device = #{device}"
-  unless device.cmd_queue_group_properties_queried
+  if !(device.cmd_queue_group_properties_queried) && state.print_tracker["check_group_property"] == 0
+    state.print_tracker["check_group_property"] = 1
     state.print_usage_error(ctx,"command queue group wasn't queried. Hardcoded group properties may break the code on different devices")   
   end
 end
@@ -34,9 +35,15 @@ end
 
 def check_valid_ordinal(state, ctx, defi, cqg_ordinal)
   #hardcoded for now, change it once the trace can output which ordinals are computes
-  if cqg_ordinal != 0 && state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] == 0
+  if cqg_ordinal == 1 && state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] == 0
     state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] = 1
-    state.print_usage_error(ctx, "Launching kernel to a command list with Copy Ordinal: #{state.get_handle_str(defi['hCommandList'])}")
+    kernels = state.find_objects(ctx, 'kernel')
+    kernel = kernels[defi['hKernel']]
+    kernel_name = "UNKNOWN"
+    if kernel
+      kernel_name = kernel.name
+    end 
+    state.print_usage_error(ctx, "Launching kernel (#{kernel_name}) to a command list with Copy Ordinal: #{state.get_handle_str(defi['hCommandList'])}")
   end 
 end
 
@@ -89,7 +96,7 @@ def get_memory_overlap(mem1, mem2)
 		elsif mem2.base <= mem1.base && mem1.base <= mem2.base + mem2.size
       overlap << mem1.base
       overlap << [mem2.base+mem2.size, mem1.base+mem1.size].min
-	  end
+		end
   end
 	overlap
 end
@@ -103,7 +110,7 @@ def record_copy_over(state,ctx,ptr1,ptr2)
   end
 end
 
-def check_copy_over_data_race(state,ctx,src_ptr,dst_ptr)
+def check_copy_over_data_race(state,ctx,defi,src_ptr,dst_ptr)
 	memory_allocations =  state.find_objects(ctx, 'memory_allocation')
 	src = memory_allocations[src_ptr]
 	dst = memory_allocations[dst_ptr]
@@ -160,7 +167,7 @@ def check_oob_memory_copy(state,ctx,defi)
   end 
 end
 
-def check_struct_stype_misuse(state,ctx,expected_stype, observed_stype)
+def check_struct_stype_misuse(state,ctx,defi,expected_stype, observed_stype)
   if state.device_agnostic && expected_stype != observed_stype
       state.print_usage_error(ctx,"\nExpected stype of #{expected_stype}\nbut #{observed_stype} was observed.")
   end

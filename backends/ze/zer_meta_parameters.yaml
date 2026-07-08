@@ -1,4 +1,0 @@
----
-meta_parameters:
-  zerGetLastErrorDescription:
-    - [ OutPtrString, ppString]
