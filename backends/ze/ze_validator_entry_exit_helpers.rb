@@ -1,6 +1,19 @@
 require 'ze_validator_zemodel'
 require 'ze_library'
 
+def check_valid_index_for_ordinal(state,ctx,queue_handle,ordinal,index)
+  #puts "entered"
+  if state.device_properties
+    command_queue_prop = state.device_properties["devices"][0]["command_queue_groups"]
+    command_queue_prop.each do |prop|
+      if prop["ordinal"] == ordinal && (index >= prop["numQueues"] || index < 0)#oob index results in segfault
+        state.print_usage_error(ctx, "command queue (#{state.get_handle_str(queue_handle)}) with ordinal = #{ordinal} was created " + 
+                                     "with index = #{index}. Index value should be: 0<= index < #{prop["numQueues"]}")
+      end 
+    end 
+  end
+end
+
 def check_group_property_queued(state, ctx, defi, device)
   #puts "device = #{device}"
   if !(device.cmd_queue_group_properties_queried) && state.print_tracker["check_group_property"] == 0

@@ -100,7 +100,9 @@ $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
   #check if the group property was hardcoded
   command_queues = state.find_objects(ctx, 'command_queue')
   command_queue = command_queues[defi['hCommandQueue']]
-  check_group_property_queued(state,ctx,defi,command_queue.device)
+  if command_queue
+    check_group_property_queued(state,ctx,defi,command_queue.device)
+  end
 }
 
 #When a fence signals the host, set the fence's status to signaled 
@@ -242,15 +244,23 @@ $on_successful_exit['zeEventDestroy'] = lambda { |state, ctx, defi|
 }
 
 $on_successful_exit['zeCommandQueueCreate'] = lambda { |state, ctx, defi|
+  #puts "create"
   command_queues = state.find_objects(ctx, 'command_queue')
   context = state.find_object(ctx, 'context', 'hContext')
   device = state.find_object(ctx, 'device', 'hDevice')
   desc_val = state.find_param(ctx, 'desc_val')
   desc = state.to_struct(desc_val, ZE::ZECommandQueueDesc)
   handle = defi['phCommandQueue_val']
-  #puts "ordinal = #{desc[:ordinal]}"
   command_queues[handle] = ZEModel::CommandQueue.new(handle, context, device, desc)
   context.command_queues[handle] = command_queues[handle]
+  #check_valid_index_for_ordinal(state,ctx,handle,desc[:ordinal],desc[:index])
+}
+
+$on_erroneous_exit['zeCommandQueueCreate'] = lambda { |state, ctx, defi|
+  desc_val = state.find_param(ctx, 'desc_val')
+  desc = state.to_struct(desc_val, ZE::ZECommandQueueDesc)
+  handle = state.find_param(ctx, 'phCommandQueue')
+  check_valid_index_for_ordinal(state,ctx,handle,desc[:ordinal],desc[:index])
 }
 
 $on_successful_exit['zeCommandQueueDestroy'] = lambda { |state, ctx, defi|
