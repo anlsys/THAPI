@@ -5,18 +5,7 @@ require 'ze_library'
 $upon_entry = {} #called to modify program state on entry
 $on_successful_exit = {} #called upon seeing exit functions with a successful return code
 $on_erroneous_exit = {} #called upon seeing exit functions with a non-successful return code
-$on_metadata_event = {} #called upon when zeMetadata_* is called
 
-$on_metadata_event["zeMetadata_device_peer_access"] = lambda{|state, ctx, defi|
-  accessibility = defi['canAccess']
-  device1_ptr = defi['hDevice']
-  device2_ptr = defi['hPeerDevice']
-  if device1_ptr != device2_ptr
-    state.p2p_info[device1_ptr][device2_ptr] = true
-    state.p2p_info[device2_ptr][device1_ptr] = true
-  end
-  #puts "p2pinfo = #{state.p2p_info}"
-}
 
 
 #What happens if we try to evict memory that wasn't allocated?
@@ -156,11 +145,7 @@ $on_successful_exit['zeDeviceGet'] = lambda { |state, ctx, defi|
   end
 }
 
-$upon_entry['ze_thapi_extra_info_p2p_entry'] = lambda {|state, ctx, defi|
-  #puts "detected! defi = #{defi}"
-  #puts "detected! state = #{state}"
-  #puts "detected! ctx = #{ctx}"
-}
+
 
 $on_successful_exit['zeDeviceGetSubDevices'] = lambda { |state, ctx, defi|
   devices = state.find_objects(ctx, 'device')

@@ -16,12 +16,18 @@ class StateObject
   attr_accessor :device_agnostic
   attr_accessor :performance
   attr_accessor :memory_in_transit
-  attr_accessor :p2p_info
+  attr_reader :device_properties
   def initialize(**opts)
     @deprecated = JSON.parse(File.read(File.join(DATADIR, 'ze_deprecated.json')))
-    #@print_once = opts[:print_once]
+    # Per-device command queue group topology (ordinal -> engine type + numQueues),
+    # generated on a real device by the ze_device_property helper binary and
+    # installed alongside the other data files. Loaded if present; validation that
+    # does not depend on it still runs when the file is absent.
+    @device_properties = load_device_properties
+    
+    #for supressing redundant error outputs
     @print_tracker = Hash.new { |h, k| h[k] = 0 }
-    #add a third field to indicate whether the deprecation warning has been printed or not
+    
     @deprecated.each do |api, (version, replacement)|
       @deprecated[api] = [version, replacement, false]
     end
@@ -33,7 +39,7 @@ class StateObject
     @unlock_shared_object_on_exit = Hash.new { |h, k| h[k] = [] }
     @init_called = Hash.new { |h, k| h[k] = false } #pid : init called status
     @memory_in_transit = Hash.new {|h,k| h[k] = []} #pid : [[mem, (src|dst)]] list of memories being transferred
-    @p2p_info = Hash.new{|h,k| h[k] = {}} #deviceptr: [deviceptr1, deviceptr2]
+    
     @printed_init_error = false
     @ze_thread_safety.each { |api, objects|
       objects.each { |o|
@@ -62,7 +68,32 @@ class StateObject
 
   end
 
-  
+  # Reads ze_device_property.json from DATADIR. Returns the parsed hash, or nil
+  # if the file is missing or unparseable so the validator degrades gracefully.
+  def load_device_properties
+    path = File.join(DATADIR, 'ze_device_property.json')
+    return nil unless File.file?(path)
+    JSON.parse(File.read(path))
+  rescue JSON::ParserError => e
+    $stderr.puts "Warning: could not parse #{path}: #{e.message}"
+    nil
+  end
+
+  # Look up a command queue group by ordinal. Without a device index it returns
+  # the matching group from the first device (sufficient for homogeneous nodes).
+  # Returns a hash like {"ordinal"=>1, "type"=>"copy", "numQueues"=>8} or nil.
+  def command_queue_group(ordinal, device_index: nil)
+    return nil unless @device_properties
+    devices = @device_properties['devices'] || []
+    devices = devices.select { |d| d['device_index'] == device_index } if device_index
+    devices.each do |dev|
+      group = (dev['command_queue_groups'] || []).find { |g| g['ordinal'] == ordinal }
+      return group if group
+    end
+    nil
+  end
+
+
   def get_last_entry(context)
     @state[context['hostname']].processes[context['vpid']].threads[context['vtid']].last_entry
   end
@@ -233,13 +264,6 @@ class StateObject
 	end
   end
 
-  def collect_meta_data(m,hostname,context,defi)
-    #puts "meta = #{m[1]}"
-    l = $on_metadata_event[m[1]]
-    #puts "meta_registered"
-    l.call(self,context,defi) if l
-    #puts "meta_called"
-  end
 
   def on_entry(m,hostname, context,defi)
     set_last_entry(self, context, defi) #sets the per-thread callstack of the APIs
@@ -274,14 +298,8 @@ class StateObject
         iterator.next_messages.each do |m|
           next unless m.type == :BT_MESSAGE_TYPE_EVENT
           e = m.event
-          event = e.name.match(/:(z.*)_(entry|exit)/)
-          meta = e.name.match(/:(zeMetadata_\w+)/)
-          if event || meta
-            if event
-              m = event
-            else
-              m = meta
-            end
+          m = e.name.match(/:(z.*)_(entry|exit)/)
+          if m
             hostname = e.stream.trace.get_environment_entry_value_by_name('hostname').value
             context = e.get_common_context_field.value
             defi = e.payload_field.value
@@ -292,12 +310,10 @@ class StateObject
             #print the known deprecated APIs
             print_deprecation_warning(m[1]) if @deprecated[m[1]]
             
-            if event && m[2] == 'entry'
+            if m[2] == 'entry'
               on_entry(m, hostname, context, defi)
-            elsif event && m[2] == 'exit'
+            elsif m[2] == 'exit'
               on_exit(m, hostname, context, defi)
-            elsif meta 
-              collect_meta_data(m,hostname,context,defi)
             end
           end
         end

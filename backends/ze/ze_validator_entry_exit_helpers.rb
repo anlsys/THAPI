@@ -34,9 +34,24 @@ def check_memory_residency(state,ctx,defi,src_ptr, dst_ptr, api_name)
 end
 
 def check_valid_ordinal(state, ctx, defi, cqg_ordinal)
-  #hardcoded for now, change it once the trace can output which ordinals are computes
-  if cqg_ordinal == 1 #&& state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] == 0
-    #state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] = 1
+  copy_only_ords = []
+  if state.device_properties
+    command_queue_prop = state.device_properties["devices"][0]["command_queue_groups"]
+    command_queue_prop.each do |prop|
+      if prop["type"] == "copy"
+        copy_only_ords << prop["ordinal"]
+        #puts "appended #{prop["ordinal"]}"
+      end 
+    end 
+  else
+    #hardcoded if the device property json wasn't generated
+    copy_only_ords << 1
+    copy_only_ords << 2
+  end 
+
+  
+  if copy_only_ords.include?(cqg_ordinal) && state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] == 0
+    state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] = 1
     kernels = state.find_objects(ctx, 'kernel')
     kernel = kernels[defi['hKernel']]
     kernel_name = "UNKNOWN"
