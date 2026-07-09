@@ -78,8 +78,11 @@ $upon_entry["zeDeviceGetCommandQueueGroupProperties"] = lambda{|state, ctx, defi
 #Checks for appending a kernel to a copy engine.
 #Compute ordinal is 0 on 1550 MAX GPUs but this is device specific.
 $upon_entry["zeCommandListAppendLaunchKernel"] = lambda { |state, ctx, defi|
-  cqg_ordinal = defi['commandQueueGroupOrdinal']
-  #puts "#{defi}"
+  #Retrieve the compute ordinal from the command list
+  command_lists = state.find_objects(ctx, 'command_list')
+  cmd_list = command_lists[defi['hCommandList']]
+  cqg_ordinal = cmd_list.desc[:commandQueueGroupOrdinal]
+  #puts "cqg_ordinal = #{cqg_ordinal}"
   check_valid_ordinal(state,ctx,defi,cqg_ordinal)
   check_kernel_created(state,ctx,defi)
 }
@@ -260,6 +263,7 @@ $on_successful_exit['zeCommandQueueCreate'] = lambda { |state, ctx, defi|
   desc_val = state.find_param(ctx, 'desc_val')
   desc = state.to_struct(desc_val, ZE::ZECommandQueueDesc)
   handle = defi['phCommandQueue_val']
+  #puts "ordinal = #{desc[:ordinal]}"
   command_queues[handle] = ZEModel::CommandQueue.new(handle, context, device, desc)
   context.command_queues[handle] = command_queues[handle]
 }

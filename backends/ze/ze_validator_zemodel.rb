@@ -230,6 +230,7 @@ module ZEModel
     attr_accessor :associated_command_queue
     attr_accessor :immediate
     attr_accessor :associated_ordinal
+    
     @@INITIALIZED = 0 #created or being properly recycled
     @@CLOSED = 1
     @@DESTROYED = 2 
