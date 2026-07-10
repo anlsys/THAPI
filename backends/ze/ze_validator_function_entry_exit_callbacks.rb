@@ -70,8 +70,14 @@ $upon_entry["zeCommandListAppendLaunchKernel"] = lambda { |state, ctx, defi|
   #Retrieve the compute ordinal from the command list
   command_lists = state.find_objects(ctx, 'command_list')
   cmd_list = command_lists[defi['hCommandList']]
-  cqg_ordinal = cmd_list.desc[:commandQueueGroupOrdinal]
-  #puts "cqg_ordinal = #{cqg_ordinal}"
+  cqg_ordinal = 0
+  if cmd_list.desc 
+    cqg_ordinal = cmd_list.desc[:commandQueueGroupOrdinal]
+  elsif cmd_list.altdesc
+    cqg_ordinal =  cmd_list.altdesc[:ordinal]
+  else
+    state.raise_internal_error(ctx, "No valid ordinal could be retrieved within the validator.") 
+  end 
   check_valid_ordinal(state,ctx,defi,cqg_ordinal)
   check_kernel_created(state,ctx,defi)
 }
@@ -99,10 +105,21 @@ $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
   check_fence_misuse(state,ctx,defi)
   #check if the group property was hardcoded
   command_queues = state.find_objects(ctx, 'command_queue')
+  command_lists = state.find_objects(ctx, 'command_list')
   command_queue = command_queues[defi['hCommandQueue']]
+  command_list_handles = defi['phCommandLists_vals']
+  #puts "defi = #{defi}"
+  fences = state.find_objects(ctx, 'fence')
+  fence = fences[defi['hFence']]
   if command_queue
     check_group_property_queued(state,ctx,defi,command_queue.device)
-  end
+    command_list_handles.each do |command_list|
+      check_list_and_queue_have_matching_context(state,ctx,defi,command_lists[command_list],command_queue)
+      check_list_and_fence_have_matching_context(state,ctx,defi,command_lists[command_list],fence)
+    end
+  else
+    state.raise_internal_error(ctx, "No command queue was found")
+  end 
 }
 
 #When a fence signals the host, set the fence's status to signaled 
@@ -244,7 +261,6 @@ $on_successful_exit['zeEventDestroy'] = lambda { |state, ctx, defi|
 }
 
 $on_successful_exit['zeCommandQueueCreate'] = lambda { |state, ctx, defi|
-  #puts "create"
   command_queues = state.find_objects(ctx, 'command_queue')
   context = state.find_object(ctx, 'context', 'hContext')
   device = state.find_object(ctx, 'device', 'hDevice')
@@ -321,7 +337,6 @@ $on_successful_exit['zeCommandListCreateImmediate'] = lambda { |state, ctx, defi
   check_group_property_queued(state,ctx,defi,device)
   command_lists[handle] = ZEModel::CommandList.new(handle, context, device, nil, altdesc)
   command_lists[handle].immediate = true #immdediate command lists cannot be passed to the execute command lists
-  #puts "altdesc = #{altdesc}"
   command_lists[handle].associated_ordinal = altdesc[:ordinal]
   context.command_lists[handle] = command_lists[handle]
 }
@@ -417,7 +432,6 @@ $on_successful_exit['zeKernelCreate'] = lambda { |state, ctx, defi|
   handle = defi['phKernel_val']
   kernelName = state.find_param(ctx, 'desc__pKernelName_val')
   kernel = ZEModel::Kernel.new(handle, mod, desc, kernelName)
-  #puts "kernelName = #{state.find_param(ctx, 'desc__pKernelName_val')}"
   kernels[handle] = kernel
   mod.kernels[handle] = kernel
 }

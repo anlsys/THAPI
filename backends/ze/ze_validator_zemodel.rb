@@ -198,14 +198,13 @@ module ZEModel
     @typename = 'fence'
     attr_reader :command_queue
     attr_reader :desc
-    attr_accessor :command_queue_history
+    
 
     def initialize(handle, command_queue, desc)
       super(handle)
       @command_queue = command_queue
       @desc = desc
-      @status = @@INITIALIZED 
-      @command_queue_history = []
+      @status = @@INITIALIZED
     end
 
     #is it suitable to put this here?

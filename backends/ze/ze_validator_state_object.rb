@@ -286,6 +286,7 @@ class StateObject
       l = $on_successful_exit[m[1]] #This might be a problem for tracking erroneous exits.
       l.call(self, context, defi) if l
     else
+      #puts "failed: #{m[1]}"
       l = $on_erroneous_exit[m[1]]
       l.call(self, context, defi) if l
     end
@@ -313,7 +314,7 @@ class StateObject
             if m[2] == 'entry'
               on_entry(m, hostname, context, defi)
             elsif m[2] == 'exit'
-              puts "#{m[1]}"
+              #puts "#{m[1]}"
               on_exit(m, hostname, context, defi)
             end
           end

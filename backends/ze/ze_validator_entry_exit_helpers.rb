@@ -57,7 +57,7 @@ def check_valid_ordinal(state, ctx, defi, cqg_ordinal)
       end 
     end 
   else
-    #hardcoded if the device property json wasn't generated
+    #hardcode if the device property json wasn't generated
     copy_only_ords << 1
     copy_only_ords << 2
   end 
@@ -175,6 +175,18 @@ end
 def check_valid_module(state,ctx,defi)
   if defi['hModule'] == 0
     state.print_usage_error(ctx, "Improper hModule was handed")
+  end
+end
+def check_list_and_fence_have_matching_context(state,ctx,defi,cmd_list,fence)
+  unless fence && cmd_list && fence.command_queue &&
+         cmd_list.context == fence.command_queue.context
+    state.print_usage_error(ctx, "Mismatching context between command list #{state.get_handle_str(cmd_list.handle)} and fence #{state.get_handle_str(fence.handle)}")
+  end
+end
+
+def check_list_and_queue_have_matching_context(state,ctx,defi,cmd_list, cmd_queue)
+  unless cmd_queue && cmd_list && cmd_list.context == cmd_queue.context 
+    state.print_usage_error(ctx, "Mismatching context between command queue #{state.get_handle_str(cmd_queue.handle)} and command list #{state.get_handle_str(cmd_list.handle)}")
   end
 end
 
