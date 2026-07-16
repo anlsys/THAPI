@@ -16,7 +16,7 @@ module ZEModel
     end
 
     def lock(state,ctx)
-      if @lock 
+      if @lock
         state.print_race_condition(ctx, @lock, self.class.typename, @handle)
       else
         @lock = ctx
@@ -29,7 +29,7 @@ module ZEModel
       end
     end
   end
-  # 'A < B' means A inherits from B 
+  # 'A < B' means A inherits from B
   class Driver < Object
     @typename = 'driver'
     attr_reader :devices
@@ -40,7 +40,7 @@ module ZEModel
     end
   end
 
-  
+
 
   class Device < Object
     @typename = 'device'
@@ -60,7 +60,7 @@ module ZEModel
     end
   end
 
-  
+
 
   class SubDevice < Device
     attr_reader :parent
@@ -112,9 +112,9 @@ module ZEModel
   #   end
   # end
 
-  
 
-  
+
+
 
   class Context < Object
     @typename = 'context'
@@ -164,13 +164,53 @@ module ZEModel
     @typename = 'event'
     attr_reader :event_pool
     attr_reader :desc
-    
+    attr_accessor :signaled
+    # ADDED: richer event state so we can model Level Zero event semantics.
+    #   signaled_by - api-context string of whoever last signaled this event
+    #                 (used only for diagnostic messages).
+    #   observed    - whether the host has observed the signaled state since the
+    #                 last signal (via zeEventHostSynchronize / a successful
+    #                 zeEventQueryStatus / a device-wide synchronize). This lets
+    #                 us tell a genuine concurrent double-signal (signaled but
+    #                 never consumed) from a reuse-without-reset (signaled,
+    #                 consumed by the host, then signaled again with no reset).
+    attr_reader :signaled_by
+    attr_reader :observed
+
     def initialize(handle, event_pool, desc)
       super(handle)
       @event_pool = event_pool
       @desc = desc
       #event can have 2 states, not signaled or signaled
       @signaled = false
+      @signaled_by = nil
+      @observed = false
+    end
+
+    # ADDED: move the event to the signaled state. `by` records who signaled it
+    # (for messages). A fresh signal has not yet been observed by the host.
+    def signal(by = nil)
+      @signaled = true
+      @signaled_by = by
+      @observed = false
+    end
+
+    # ADDED: zeEventHostReset / zeCommandListAppendEventReset return the event to
+    # the unsignaled state so it can be reused as a dependency again.
+    def reset
+      @signaled = false
+      @signaled_by = nil
+      @observed = false
+    end
+
+    # ADDED: record that the host observed the signaled state. Distinguishes a
+    # later reuse-without-reset from a concurrent double-signal.
+    def observe
+      @observed = true
+    end
+
+    def signaled?
+      @signaled
     end
   end
 
@@ -192,32 +232,25 @@ module ZEModel
   end
 
   class Fence < Object
-    @@INITIALIZED = 0 #for fence create or reset
-    @@IN_USE = 1
-    @@SIGNALED = 2 #signaled to the host
     @typename = 'fence'
     attr_reader :command_queue
     attr_reader :desc
-    
+    attr_accessor :status
+    attr_reader :not_signaled
+    attr_reader :in_use
+    attr_reader :signaled
+
 
     def initialize(handle, command_queue, desc)
       super(handle)
       @command_queue = command_queue
       @desc = desc
-      @status = @@INITIALIZED
+      @not_signaled = 0
+      @in_use = 1
+      @signaled = 2
+      @status = @not_signaled
     end
 
-    #is it suitable to put this here?
-    def self.get_fence(state,context,defi)
-      fences = nil
-      curr_fence = nil
-      if defi['hFence']
-        fences = state.find_objects(context, 'fence')
-        curr_fence = fences[defi['hFence']]
-      end
-      return unless fences && curr_fence
-      curr_fence
-    end 
   end
 
   class CommandList < Object
@@ -229,10 +262,16 @@ module ZEModel
     attr_accessor :associated_command_queue
     attr_accessor :immediate
     attr_accessor :associated_ordinal
-    
+    #[[ApiCall, api_ctx]...] to access the history of list append
+    attr_accessor :api_calls
+    # ADDED: ordered list of RecordedOp appended to this command list. It is
+    # replayed when the list is executed on a queue, so that checks depending on
+    # event completion (out-of-bounds copy, event-signal reuse) run at the point
+    # the op would actually execute -- not at append or execute time.
+    attr_accessor :ops
     @@INITIALIZED = 0 #created or being properly recycled
     @@CLOSED = 1
-    @@DESTROYED = 2 
+    @@DESTROYED = 2
 
     def initialize(handle, context, device, desc, altdesc)
       super(handle)
@@ -244,10 +283,80 @@ module ZEModel
       @status = @@INITIALIZED
       @immediate = false
       @associated_ordinal = 0
+      @api_calls = []
+      @ops = [] # ADDED
     end
 
     def immediate?
       return !desc
+    end
+  end
+
+  # ADDED: A single operation recorded when it is appended to a command list. It
+  # snapshots everything the deferred checks need, because the trace's per-call
+  # context (find_param) is gone by the time the op is replayed at execute time.
+  #   kind   - :copy, :wait, :signal, :reset, :barrier, :launch
+  #   signal - handle of the completion event this op signals (nil/0 if none)
+  #   waits  - event handles that must be signaled before this op can execute
+  #   params - kind-specific data (copy: api/dst/src/size; reset: reset_handle)
+  #   api    - the ZE API that appended this op (for diagnostics)
+  class RecordedOp
+    attr_reader :kind
+    attr_reader :signal
+    attr_reader :waits
+    attr_reader :params
+    attr_reader :api
+
+    def initialize(kind, signal: 0, waits: [], params: {}, api: nil)
+      @kind = kind
+      #normalize a null (0) signal handle to nil so "does this op signal?" is a
+      #simple truthiness test
+      @signal = (signal && signal != 0) ? signal : nil
+      @waits = waits || []
+      @params = params
+      @api = api || params[:api]
+    end
+  end
+
+  # ADDED: One deferred-execution unit -- a single submitted command list whose
+  # recorded ops are replayed cooperatively by the (non-concurrent) scheduler in
+  # StateObject. Instead of a Ruby Fiber, execution state is an explicit integer
+  # cursor into `ops`: the scheduler advances the cursor past every op whose
+  # waits are satisfied, and leaves it parked on the first op that is still
+  # blocked. `blocked_on` / `pending_signals` are the metadata the deadlock
+  # detector uses to build a wait-for graph across units.
+  #   ops             - snapshot (dup) of the list's ops for this execution
+  #   context         - trace context captured at submit time
+  #   label           - human label for messages (e.g. "command_list 0x..")
+  #   cursor          - index of the next op to execute
+  #   blocked_on      - event handles the current op is waiting for (or [])
+  #   pending_signals - events this unit may still signal before it finishes
+  class DeferredUnit
+    attr_reader :ops
+    attr_reader :context
+    attr_reader :label
+    attr_accessor :cursor
+    attr_accessor :blocked_on
+    attr_accessor :pending_signals
+
+    def initialize(ops, context, label)
+      @ops = ops
+      @context = context
+      @label = label
+      @cursor = 0
+      @blocked_on = []
+      #every event this unit will eventually signal, for the wait-for graph
+      @pending_signals = ops.map { |op| op.signal }.compact
+    end
+
+    # true once every op has executed
+    def done?
+      @cursor >= @ops.size
+    end
+
+    # the op the cursor currently points at (nil when done)
+    def current_op
+      @ops[@cursor]
     end
   end
 
@@ -305,11 +414,23 @@ module ZEModel
 
   class Thread
     attr_reader :vtid
-    attr_accessor :last_entry
+    # CHANGED: was a single `last_entry` slot, which broke when a traced API
+    # internally calls another traced API on the same thread (e.g.
+    # zelLoaderDriverCheck calls zeInit): the inner entry clobbered the outer
+    # frame and the outer _exit then failed check_last_entry. Modeling it as a
+    # stack lets nested calls push/pop correctly; the top of stack is the
+    # currently-executing call.
+    attr_reader :call_stack
 
     def initialize(vtid)
       @vtid = vtid
-      @last_entry = nil
+      @call_stack = []
+    end
+
+    # the innermost in-flight ApiCall, or nil if the thread has none.
+    # Kept as `last_entry` so existing callers (find_param, etc.) are unchanged.
+    def last_entry
+      @call_stack.last
     end
   end
 
@@ -332,7 +453,7 @@ module ZEModel
       @threads = Hash.new { |h, k| h[k] = Thread.new(k) }
       #can it model memory imports/exports??
       @drivers = {}
-      @event_dependencies = {} #for detecting deadlocks 
+      @event_dependencies = {} #for detecting deadlocks
       @devices = {}
       @contexts = {}
       @event_pools = {}
