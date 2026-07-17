@@ -75,16 +75,25 @@ def check_fence_misuse(state, ctx, defi)
   end
 end
 
-def check_valid_command_list(state, ctx, defi)
-  command_queue_handle = defi['hCommandQueue']
+def check_valid_command_queue(state,ctx,defi, cmd_queues, cmd_queue_ptr)
+  cmd_queue = cmd_queues[cmd_queue_ptr]
+  unless cmd_queue 
+    state.print_usage_error(ctx, "Invalid commandQueue (#{state.get_handle_str(cmd_queue_ptr)}) was handed to zeCommandQueueExecuteCommandLists")
+  end
+
+end
+
+def check_valid_command_lists(state, ctx, defi)
   command_lists = defi['phCommandLists_vals']
   known_command_lists = state.find_objects(ctx, 'command_list')
   if command_lists.nil? || command_lists.empty?
-    state.print_usage_error(ctx, "No commandlist was chosen for: #{state.get_handle_str(command_queue_handle)}")
+    state.print_usage_error(ctx, "No valid commandlist was chosen at zeCommandQueueExecuteCommandLists")
   end
 
   command_lists.each do |command_list_handle|
-    if known_command_lists[command_list_handle] && known_command_lists[command_list_handle].immediate
+    if !(known_command_lists[command_list_handle])
+      state.print_usage_error(ctx, "Invalid commandlist (#{command_list_handle}) was handed to zeCommandQueueExecuteCommandLists")
+    elsif known_command_lists[command_list_handle] && known_command_lists[command_list_handle].immediate
         state.print_usage_error(ctx, "Immediate Command List was chosen for the Command Queue: #{state.get_handle_str(command_queue_handle)}")
     end
   end
@@ -194,6 +203,17 @@ def check_list_and_fence_have_matching_context(state,ctx,defi,cmd_list,fence)
   end
 end
 
+def check_fence_and_queue_compatibility(state,ctx,defi,cmd_queue,fence)
+  if fence 
+    unless cmd_queue && cmd_queue == fence.command_queue
+      queue_handle = cmd_queue ? state.get_handle_str(cmd_queue.handle) : "nullptr"
+      fence_handle = fence
+      state.print_usage_error(ctx, "Associated command queue (#{state.get_handle_str(fence.command_queue)}) of fence #{fence_handle} " +
+                                   "is different from the one that was provided #{queue_handle}")
+    end
+  end
+end
+
 def check_list_and_queue_have_matching_context(state,ctx,defi,cmd_list, cmd_queue)
   unless cmd_queue && cmd_list && cmd_list.context == cmd_queue.context
     queue_handle = cmd_queue ? state.get_handle_str(cmd_queue.handle) : "nullptr"
@@ -237,6 +257,13 @@ def check_oob_copy(state, ctx, params)
   allocations = state.find_objects(ctx, 'memory_allocation')
   check_copy_endpoint(state, ctx, allocations, params[:dst], size, api, 'destination')
   check_copy_endpoint(state, ctx, allocations, params[:src], size, api, 'source')
+end
+
+def check_ptrs_have_same_context(state,ctx,params)
+  allocations = state.find_objects(ctx, 'memory_allocation')
+  if allocations[params[:dst]] && allocations[params[:dst]] && (allocations[params[:dst]].context != allocations[params[:src]].context)
+    
+  end
 end
 
 # ADDED: detect misuse of an event that is signaled while already signaled, with

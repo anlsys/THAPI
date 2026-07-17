@@ -207,16 +207,17 @@ $on_successful_exit['zeCommandListHostSynchronize'] = lambda { |state, ctx, defi
 }
 
 $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
-  #check if command list is null
-  check_valid_command_list(state,ctx,defi)
+  command_queues = state.find_objects(ctx, 'command_queue')
+  command_queue_handle = defi['hCommandQueue']
+  command_queue = command_queues[command_queue_handle]
+
+  #check if any command list is null
+  check_valid_command_lists(state,ctx,defi)
+  check_valid_command_queue(state,ctx,defi,command_queues,command_queue_handle)
   #Check if command list was closed before executing it on the queue
   #ignore if it is the first execute call
   check_command_list_closed(state, ctx, defi)
   check_fence_misuse(state,ctx,defi)
-
-  command_queues = state.find_objects(ctx, 'command_queue')
-  command_queue_handle = defi['hCommandQueue']
-  command_queue = command_queues[command_queue_handle]
 
   known_command_lists = state.find_objects(ctx, 'command_list')
   # CHANGED: was `state.find_objects(ctx, 'phCommandLists_vals')` -- that is not
@@ -233,6 +234,7 @@ $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
 
   if command_queue
     check_group_property_queued(state,ctx,defi,command_queue.device)
+    check_fence_and_queue_compatibility(state,ctx,defi,command_queue,fence)
     command_list_handles.each do |command_list_handle|
       check_list_and_queue_have_matching_context(state,ctx,defi,known_command_lists[command_list_handle],command_queue)
       check_list_and_fence_have_matching_context(state,ctx,defi,known_command_lists[command_list_handle],fence)
