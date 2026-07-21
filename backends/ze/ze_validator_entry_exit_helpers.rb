@@ -308,6 +308,20 @@ def check_use_after_free(state, ctx, params)
   check_uaf_endpoint(state, ctx, live, freed, params[:src], api, 'source')
 end
 
+# ADDED: append-time UAF check that RESPECTS the op's own wait events. A copy
+# does not touch memory until its wait events are signaled: an immediate append
+# executes only once its waits are satisfied, and a recorded (regular-list)
+# append executes later still. So render a verdict at append entry only when the
+# waits are already satisfied (empty waits count as satisfied). If the waits are
+# still unmet, the copy has not accessed memory yet -- leave it to the deferred
+# scheduler (run_deferred_op), which re-checks at the exact point the copy
+# becomes runnable. This keeps the crash-safety benefit for the common
+# no-wait / ready case while staying event-aware for gated copies.
+def check_use_after_free_on_append(state, ctx, params, waits)
+  return unless state.waits_satisfied?(ctx, waits)
+  check_use_after_free(state, ctx, params)
+end
+
 # ADDED: true if [a, a+asize) and [b, b+bsize) overlap.
 def ranges_overlap?(a, asize, b, bsize)
   return false unless a && b && asize && bsize

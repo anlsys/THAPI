@@ -107,15 +107,17 @@ $on_successful_exit["zeCommandListAppendLaunchCooperativeKernel"] = lambda { |st
 # Entry callbacks read input params directly from defi. This runs the same UAF
 # check against the freed registry before the (possibly fatal) append.
 $upon_entry['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
-  check_use_after_free(state, ctx, { api: 'zeCommandListAppendMemoryCopy',
-                                     dst: defi['dstptr'], src: defi['srcptr'],
-                                     size: defi['size'] })
+  check_use_after_free_on_append(state, ctx,
+    { api: 'zeCommandListAppendMemoryCopy',
+      dst: defi['dstptr'], src: defi['srcptr'], size: defi['size'] },
+    wait_event_handles(state, ctx))
 }
 
 $upon_entry['zeCommandListAppendMemoryFill'] = lambda { |state, ctx, defi|
-  check_use_after_free(state, ctx, { api: 'zeCommandListAppendMemoryFill',
-                                     dst: defi['ptr'], src: nil,
-                                     size: defi['size'] })
+  check_use_after_free_on_append(state, ctx,
+    { api: 'zeCommandListAppendMemoryFill',
+      dst: defi['ptr'], src: nil, size: defi['size'] },
+    wait_event_handles(state, ctx))
 }
 
 $on_successful_exit['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
@@ -689,25 +691,44 @@ $on_successful_exit['zeMemAllocHost'] = lambda { |state, ctx, defi|
   memory_allocations[handle] = memory_allocation
 }
 
-$on_successful_exit['zeMemFree'] = lambda { |state, ctx, defi|
-  memory_allocations =  state.find_objects(ctx, 'memory_allocation')
-  handle = state.find_param(ctx, "ptr")
+# CHANGED: apply the free at ENTRY, not exit. On the program timeline the app
+# relinquishes the buffer at the call to zeMemFree; nothing after that call may
+# touch it. Applying the free at _exit is wrong when zeMemFree BLOCKS until the
+# buffer is idle: a gated copy that reads the buffer can be released (by another
+# thread signaling its wait event) and executed BETWEEN this call's _entry and
+# _exit, so at _exit the copy has already drained (nothing looks in-flight) and,
+# while the copy ran, the model had not yet marked the buffer freed (no UAF).
+# Doing it at entry lets check_free_in_flight see the still-parked copy, and
+# marks the buffer freed before that copy is later replayed, so the deferred UAF
+# check fires too. If the free actually fails, the erroneous-exit handler below
+# restores the allocation.
+$upon_entry['zeMemFree'] = lambda { |state, ctx, defi|
+  memory_allocations = state.find_objects(ctx, 'memory_allocation')
+  handle = defi['ptr']
   memory_allocation = memory_allocations[handle]
-  # ADDED: before releasing it, flag if this buffer is still referenced by a
-  # copy/fill that has been submitted but not yet completed (in-flight device
-  # work would touch freed memory).
-  check_free_in_flight(state, ctx, memory_allocation) if memory_allocation
-  memory_allocations.delete(handle) {
-    state.object_not_found(ctx, 'memory_allocation', handle)
-  }
-  if memory_allocation
-    mem = memory_allocation.owned_by
-    mem.memory_allocations.delete(handle) {
-      state.object_not_found(ctx, 'memory_allocation', handle, 'device')
-    } if mem
-    # ADDED: keep the freed allocation in the process-level freed registry so a
-    # later copy/fill/kernel referencing this address is caught as use-after-free.
-    memory_allocation.freed_by = state.get_api_context(ctx)
-    state.freed_memory_allocations(ctx)[handle] = memory_allocation
+  next unless memory_allocation
+  # flag if this buffer is still referenced by a copy/fill that has been
+  # submitted but not yet completed (in-flight device work would touch freed mem)
+  check_free_in_flight(state, ctx, memory_allocation)
+  memory_allocations.delete(handle)
+  owned = memory_allocation.owned_by
+  owned.memory_allocations.delete(handle) if owned
+  # keep the freed allocation in the process-level freed registry so a later
+  # copy/fill/kernel referencing this address is caught as use-after-free
+  memory_allocation.freed_by = state.get_api_context(ctx)
+  state.freed_memory_allocations(ctx)[handle] = memory_allocation
+}
+
+# ADDED: the free was applied at entry; if the driver reported failure, the
+# buffer is actually still alive -- move it back from the freed registry to the
+# live set so it is not falsely flagged as use-after-free later.
+$on_erroneous_exit['zeMemFree'] = lambda { |state, ctx, defi|
+  handle = state.find_param(ctx, "ptr")
+  mem = state.freed_memory_allocations(ctx).delete(handle)
+  if mem
+    mem.freed_by = nil
+    state.find_objects(ctx, 'memory_allocation')[handle] = mem
+    owned = mem.owned_by
+    owned.memory_allocations[handle] = mem if owned
   end
 }
