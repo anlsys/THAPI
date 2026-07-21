@@ -262,8 +262,13 @@ module ZEModel
     attr_accessor :associated_command_queue
     attr_accessor :immediate
     attr_accessor :associated_ordinal
-    #[[ApiCall, api_ctx]...] to access the history of list append
-    attr_accessor :api_calls
+    # ADDED: true when the list was created with ZE_COMMAND_LIST_FLAG_IN_ORDER
+    # (or, for immediate lists, ZE_COMMAND_QUEUE_FLAG_IN_ORDER). In-order lists
+    # execute their appended ops strictly in append order -- op N+1 will not
+    # start until op N completes -- so an earlier op that waits on an event only
+    # a later op in the SAME list signals can never complete (an intra-list
+    # deadlock the cross-list detector cannot see). See check_in_order_self_deadlock.
+    attr_accessor :in_order
     # ADDED: ordered list of RecordedOp appended to this command list. It is
     # replayed when the list is executed on a queue, so that checks depending on
     # event completion (out-of-bounds copy, event-signal reuse) run at the point
@@ -283,6 +288,7 @@ module ZEModel
       @status = @@INITIALIZED
       @immediate = false
       @associated_ordinal = 0
+      @in_order = false # ADDED
       @api_calls = []
       @ops = [] # ADDED
     end
@@ -338,13 +344,17 @@ module ZEModel
     attr_accessor :cursor
     attr_accessor :blocked_on
     attr_accessor :pending_signals
+    # ADDED: whether the originating command list is in-order (see CommandList#in_order).
+    # The intra-list self-deadlock check only applies to in-order units.
+    attr_reader :in_order
 
-    def initialize(ops, context, label)
+    def initialize(ops, context, label, in_order: false)
       @ops = ops
       @context = context
       @label = label
       @cursor = 0
       @blocked_on = []
+      @in_order = in_order # ADDED
       #every event this unit will eventually signal, for the wait-for graph
       @pending_signals = ops.map { |op| op.signal }.compact
     end

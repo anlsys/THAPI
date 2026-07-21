@@ -150,7 +150,8 @@ $on_successful_exit['zeCommandListAppendSignalEvent'] = lambda { |state, ctx, de
 #A device-side wait: this op blocks the list until phEvents are signaled.
 $on_successful_exit['zeCommandListAppendWaitOnEvents'] = lambda { |state, ctx, defi|
   record_op(state, ctx, state.find_param(ctx, 'hCommandList'),
-            ZEModel::RecordedOp.new(:wait, waits: wait_event_handles(state, ctx)))
+            ZEModel::RecordedOp.new(:wait, waits: wait_event_handles(state, ctx),
+              api: 'zeCommandListAppendWaitOnEvents'))
 }
 
 #A device-side reset: returns the event to unsignaled when this op executes.
@@ -470,6 +471,11 @@ $on_successful_exit['zeCommandListCreate'] = lambda { |state, ctx, defi|
   desc = state.to_struct(desc_val, ZE::ZECommandListDesc)
   handle = defi['phCommandList_val']
   command_lists[handle] = ZEModel::CommandList.new(handle, context, device, desc, nil)
+  # ADDED: remember whether this list is in-order. desc[:flags] decodes (via the
+  # FFI zebitmask) to an array of symbols; IN_ORDER means appended ops run strictly
+  # in order, enabling the intra-list self-deadlock check.
+  command_lists[handle].in_order = !!(desc && desc[:flags].respond_to?(:include?) &&
+                                      desc[:flags].include?(:ZE_COMMAND_LIST_FLAG_IN_ORDER))
   context.command_lists[handle] = command_lists[handle]
   check_struct_stype_misuse(state,ctx,defi,:ZE_STRUCTURE_TYPE_COMMAND_LIST_DESC,desc[:stype])
 }
@@ -485,6 +491,14 @@ $on_successful_exit['zeCommandListCreateImmediate'] = lambda { |state, ctx, defi
   command_lists[handle] = ZEModel::CommandList.new(handle, context, device, nil, altdesc)
   command_lists[handle].immediate = true #immdediate command lists cannot be passed to the execute command lists
   command_lists[handle].associated_ordinal = altdesc[:ordinal]
+  # ADDED: immediate lists carry the queue desc (altdesc); its IN_ORDER flag is the
+  # queue-level one. Immediate appends still CAN deadlock among themselves (e.g.
+  # op1 waits A/signals B while op2 waits B/signals A) -- but each append is its
+  # own single-op DeferredUnit, so such a cycle is a CROSS-unit cycle already
+  # caught by check_circular_deadlock, not the single-unit case
+  # check_in_order_self_deadlock handles. Recorded here for consistency.
+  command_lists[handle].in_order = !!(altdesc && altdesc[:flags].respond_to?(:include?) &&
+                                      altdesc[:flags].include?(:ZE_COMMAND_QUEUE_FLAG_IN_ORDER))
   context.command_lists[handle] = command_lists[handle]
 
   #immediate command list does not take in the list descriptor as an input

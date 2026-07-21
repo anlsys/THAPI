@@ -144,7 +144,7 @@ def record_op(state, ctx, cmd_list_handle, op)
   cmd_list = state.find_objects(ctx, 'command_list')[cmd_list_handle]
   return unless cmd_list
   if cmd_list.immediate
-    state.enqueue_immediate_op(ctx, op)
+    state.enqueue_immediate_op(ctx, op, cmd_list_handle)
   else
     cmd_list.ops << op
   end
@@ -349,15 +349,65 @@ def check_circular_deadlock(state, units)
   report_deadlock_cycle(state, found) if found
 end
 
-# ADDED: report one deadlock cycle, naming each unit and the event it is stuck on.
+# ADDED: report one deadlock cycle, naming each unit AND the specific command
+# (op) it is stuck on -- e.g. "command_list 0x..::zeCommandListAppendMemoryCopy".
+# The blocked command is the unit's current_op (the cursor is parked on it and
+# blocked_on holds exactly that op's unsatisfied waits), so the chain reads
+# <list>::<blocking API> -> <list>::<blocking API> -> ... back to the first.
+def deadlock_node_label(state, unit)
+  op = unit.current_op
+  # op.api is set for every op that can carry waits (copy/launch/barrier/wait);
+  # fall back to the op kind for anything else so the label is never blank.
+  api = op ? (op.api || op.kind.to_s) : 'unknown'
+  waits = unit.blocked_on.map { |h| state.get_handle_str(h) }.join(', ')
+  "#{unit.label}::#{api} (waiting on event #{waits})"
+end
+
 def report_deadlock_cycle(state, cycle)
   ctx = cycle.first.context
-  desc = cycle.map { |u|
-    waits = u.blocked_on.map { |h| state.get_handle_str(h) }.join(', ')
-    "#{u.label} (waiting on event #{waits})"
-  }.join(" -> ")
-  desc << " -> #{cycle.first.label}" # close the loop for readability
-  state.print_deadlock_error(ctx, "circular event dependency among command lists; none can start: #{desc}")
+  desc = cycle.map { |u| deadlock_node_label(state, u) }.join(" -> ")
+  # close the loop for readability
+  desc << " -> #{deadlock_node_label(state, cycle.first)}"
+  state.print_deadlock_error(ctx, "circular event dependency among command list operations; none can start: #{desc}")
+end
+
+# ADDED: detect an intra-list deadlock in an IN-ORDER command list. Such a list
+# runs its ops strictly in append order (op N+1 cannot start until op N
+# completes), so if the op the unit is parked on waits on an event that only a
+# LATER op in the SAME list will signal, that later op can never be reached --
+# the list deadlocks on itself. The cross-list detector cannot see this because
+# it drops self-edges. Run at end-of-trace (flush): a unit still parked here was
+# never rescued by an external host signal, so the wait is genuinely unmet.
+#
+# unit.pending_signals holds exactly the events signaled by ops at/after the
+# cursor, so blocked_on & pending_signals = waits only a later op in this list
+# owes -- the self-deadlock condition -- with no extra bookkeeping.
+def check_in_order_self_deadlock(state, units)
+  units.each do |unit|
+    next unless unit.in_order
+    next if unit.blocked_on.nil? || unit.blocked_on.empty?
+    self_waits = unit.blocked_on & unit.pending_signals
+    self_waits.each do |ev|
+      #the later op in this same list that would signal ev (but never runs)
+      later = unit.ops[(unit.cursor + 1)..]&.find { |o| o.signal == ev }
+      report_in_order_self_deadlock(state, unit, ev, later)
+    end
+  end
+end
+
+# ADDED: report one intra-list self-deadlock in the op-level arrow format:
+#   <list>::<waiting op> (waits on event 0xE) ->
+#   <list>::<signaling op> (signals event 0xE later in the same in-order list)
+def report_in_order_self_deadlock(state, unit, ev, signaling_op)
+  waiting = unit.current_op
+  waiting_api = waiting ? (waiting.api || waiting.kind.to_s) : 'unknown'
+  signaling_api = signaling_op ? (signaling_op.api || signaling_op.kind.to_s) : 'unknown'
+  ev_str = state.get_handle_str(ev)
+  desc = "#{unit.label}::#{waiting_api} (waits on event #{ev_str}) -> " \
+         "#{unit.label}::#{signaling_api} (signals event #{ev_str} later in the same in-order list)"
+  state.print_deadlock_error(unit.context,
+    "in-order command list cannot complete; an earlier command waits on an event a later " \
+    "command in the same list signals: #{desc}")
 end
 
 def check_struct_stype_misuse(state,ctx,defi,expected_stype, observed_stype)

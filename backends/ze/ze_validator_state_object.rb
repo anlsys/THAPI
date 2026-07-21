@@ -357,8 +357,8 @@ class StateObject
   # ADDED: register a command list's ops as a deferred unit and pump. `ops` is a
   # snapshot (dup) taken by the caller so a later reset+re-append on the same
   # list cannot mutate an in-flight execution.
-  def run_deferred_list(context, ops, label)
-    @deferred_units << ZEModel::DeferredUnit.new(ops, context, label)
+  def run_deferred_list(context, ops, label, in_order: false)
+    @deferred_units << ZEModel::DeferredUnit.new(ops, context, label, in_order: in_order)
     pump_deferred
   end
 
@@ -370,7 +370,8 @@ class StateObject
   def enqueue_deferred_execution(context, command_lists)
     command_lists.each do |cl|
       next unless cl
-      run_deferred_list(context, cl.ops.dup, "command_list #{get_handle_str(cl.handle)}")
+      run_deferred_list(context, cl.ops.dup, "command_list (#{get_handle_str(cl.handle)})",
+                        in_order: cl.in_order)
     end
   end
 
@@ -378,8 +379,10 @@ class StateObject
   # schedule the single op immediately. It still honors wait-events and goes
   # through the same machinery, giving immediate lists the same OOB-copy and
   # event-reuse checks as regular lists.
-  def enqueue_immediate_op(context, op)
-    run_deferred_list(context, [op], 'immediate command list')
+  def enqueue_immediate_op(context, op, handle = nil)
+    label = handle ? "immediate command list (#{get_handle_str(handle)})" \
+                   : 'immediate command list'
+    run_deferred_list(context, [op], label)
   end
 
   # ADDED: end-of-trace drain. First pump normally in case ordering left work
@@ -391,6 +394,9 @@ class StateObject
     pump_deferred
     return if @deferred_units.empty?
     check_circular_deadlock(self, @deferred_units)
+    #ADDED: an in-order list where an earlier op waits on an event only a later op
+    #in the SAME list signals is a self-deadlock the cross-list check cannot see
+    check_in_order_self_deadlock(self, @deferred_units)
     until @deferred_units.empty?
       unit = @deferred_units.first
       #force the op the unit is stuck on: report its unsignaled waits, then run it
