@@ -79,6 +79,12 @@ module ZEModel
     attr_accessor :resident
     attr_accessor :memtypestr
     attr_accessor :base
+    # ADDED: api-context string of the zeMemFree that released this allocation,
+    # or nil while live. A freed allocation is moved to the process-level
+    # @freed_memory_allocations registry (kept, not discarded) so a later copy/
+    # fill/kernel that still references its address range can be reported as a
+    # use-after-free instead of silently passing (unknown pointer).
+    attr_accessor :freed_by
     def initialize(handle, context, size, owned_by, memtypestr="shared")
       super(handle)
       @context = context
@@ -86,6 +92,7 @@ module ZEModel
       @owned_by = owned_by
       @memtypestr = memtypestr
       @base = handle
+      @freed_by = nil # ADDED
       #puts "size = #{size}, handle = #{handle}, handle+size=#{handle + size}"
       #for device memory.
       if memtypestr == "device"
@@ -457,6 +464,9 @@ module ZEModel
     attr_reader :command_lists
     attr_reader :modules
     attr_reader :module_build_logs
+    # ADDED: address -> freed Memory objects (kept after zeMemFree) so a later
+    # reference to a released address can be flagged as use-after-free.
+    attr_reader :freed_memory_allocations
 
     def initialize(vpid)
       @vpid = vpid
@@ -475,6 +485,7 @@ module ZEModel
       @module_build_logs = {}
       @kernels = {}
       @memory_allocations = {}
+      @freed_memory_allocations = {} # ADDED: address -> freed Memory
       #@initCalled = false
     end
 

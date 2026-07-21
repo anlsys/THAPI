@@ -191,6 +191,12 @@ class StateObject
     $stderr.puts "Level Zero Crash Error: on #{get_context_str(context)}: #{str}\n\n"
   end
 
+  # ADDED: reporting channel for memory-safety violations (use-after-free,
+  # freeing memory still in use by in-flight device work).
+  def print_memory_error(context, str)
+    $stderr.puts "Level Zero Memory Error: on #{get_context_str(context)}: #{str}\n\n"
+  end
+
   # ADDED: reporting channel for circular event dependency (deadlock). Uses the
   # process-level context because a deadlock spans multiple command lists/threads
   # rather than a single api call.
@@ -234,6 +240,28 @@ class StateObject
   def find_object(context, type, handle)
     handle = find_param(context, handle) if handle.kind_of? String
     find_objects(context, type)[handle]
+  end
+
+  # ADDED: process-level registry of allocations that have been zeMemFree'd but
+  # kept for use-after-free detection (address -> freed ZEModel::Memory).
+  def freed_memory_allocations(context)
+    get_process(context).freed_memory_allocations
+  end
+
+  # ADDED: yield [unit, op] for every copy/fill op still pending (at or after the
+  # cursor) in an in-flight deferred unit belonging to this process. Used by the
+  # free-in-flight check to see whether a buffer being freed is still referenced
+  # by device work that has been submitted but not yet completed. Deferred units
+  # do not carry a process id, so we match on the unit's context host+pid.
+  def each_inflight_copy_op(context)
+    @deferred_units.each do |unit|
+      next unless unit.context['hostname'] == context['hostname'] &&
+                  unit.context['vpid'] == context['vpid']
+      unit.ops[unit.cursor..].each do |op|
+        next unless op && op.kind == :copy
+        yield unit, op
+      end
+    end
   end
 
   def to_struct(memory, klass)
@@ -309,7 +337,11 @@ class StateObject
   def run_deferred_op(unit)
     context = unit.context
     op = unit.current_op
-    check_oob_copy(self, context, op.params) if op.kind == :copy
+    if op.kind == :copy
+      check_oob_copy(self, context, op.params)
+      #a pointer freed before this copy's turn to execute is a use-after-free
+      check_use_after_free(self, context, op.params)
+    end
     #a reset takes effect before this op signals its own completion event
     reset_event(context, op.params[:reset_handle]) if op.kind == :reset
     signaled = false

@@ -101,6 +101,23 @@ $on_successful_exit["zeCommandListAppendLaunchCooperativeKernel"] = lambda { |st
 # the copy actually executes rather than at append or execute time. Exit
 # callbacks read input params via find_param (defi holds only exit output).
 
+# ADDED: use-after-free check at ENTRY. A copy/fill whose pointer was already
+# freed can crash the driver inside the append, so no _exit event is emitted and
+# an exit-only check would miss it (the trace shows only the entry, then a crash).
+# Entry callbacks read input params directly from defi. This runs the same UAF
+# check against the freed registry before the (possibly fatal) append.
+$upon_entry['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
+  check_use_after_free(state, ctx, { api: 'zeCommandListAppendMemoryCopy',
+                                     dst: defi['dstptr'], src: defi['srcptr'],
+                                     size: defi['size'] })
+}
+
+$upon_entry['zeCommandListAppendMemoryFill'] = lambda { |state, ctx, defi|
+  check_use_after_free(state, ctx, { api: 'zeCommandListAppendMemoryFill',
+                                     dst: defi['ptr'], src: nil,
+                                     size: defi['size'] })
+}
+
 $on_successful_exit['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
   record_copy_op(state, ctx, 'zeCommandListAppendMemoryCopy', 'dstptr', 'srcptr')
 }
@@ -117,17 +134,21 @@ $on_successful_exit['zeCommandListAppendMemoryFill'] = lambda { |state, ctx, def
 # ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY). Check it now, against the current memory
 # state (the pointers are already allocated at append time).
 $on_erroneous_exit['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
-  check_oob_copy(state, ctx, { api: 'zeCommandListAppendMemoryCopy',
-                               dst: state.find_param(ctx, 'dstptr'),
-                               src: state.find_param(ctx, 'srcptr'),
-                               size: state.find_param(ctx, 'size') })
+  params = { api: 'zeCommandListAppendMemoryCopy',
+             dst: state.find_param(ctx, 'dstptr'),
+             src: state.find_param(ctx, 'srcptr'),
+             size: state.find_param(ctx, 'size') }
+  check_oob_copy(state, ctx, params)
+  check_use_after_free(state, ctx, params)
 }
 
 $on_erroneous_exit['zeCommandListAppendMemoryFill'] = lambda { |state, ctx, defi|
-  check_oob_copy(state, ctx, { api: 'zeCommandListAppendMemoryFill',
-                               dst: state.find_param(ctx, 'ptr'),
-                               src: nil,
-                               size: state.find_param(ctx, 'size') })
+  params = { api: 'zeCommandListAppendMemoryFill',
+             dst: state.find_param(ctx, 'ptr'),
+             src: nil,
+             size: state.find_param(ctx, 'size') }
+  check_oob_copy(state, ctx, params)
+  check_use_after_free(state, ctx, params)
 }
 
 $on_successful_exit['zeCommandListAppendMemoryCopyRegion'] = lambda { |state, ctx, defi|
@@ -630,6 +651,7 @@ $on_successful_exit['zeMemAllocDevice'] = lambda { |state, ctx, defi|
   size = state.find_param(ctx,"size")
   device_desc_val = state.find_param(ctx,"device_desc_val")
   handle = defi['pptr_val']
+  mark_reallocated(state, ctx, handle, size) # ADDED: address may reuse a freed range
   memory_allocation =  ZEModel::Memory.new(handle, context, size, device, "device")
   memory_allocations[handle] = memory_allocation
   device.memory_allocations[handle] = memory_allocation
@@ -649,6 +671,7 @@ $on_successful_exit['zeMemAllocShared'] = lambda { |state, ctx, defi|
   # TODO: should add in code to add this mme allocation to all devices with that property
   size = state.find_param(ctx,"size")
   handle = defi['pptr_val']
+  mark_reallocated(state, ctx, handle, size) # ADDED: address may reuse a freed range
   memory_allocation =  ZEModel::Memory.new(handle, context, size, device)
   memory_allocations[handle] = memory_allocation
   device.memory_allocations[handle] = memory_allocation if device
@@ -661,6 +684,7 @@ $on_successful_exit['zeMemAllocHost'] = lambda { |state, ctx, defi|
   context = state.find_object(ctx, 'context', 'hContext')
   size = state.find_param(ctx,"size")
   handle = defi['pptr_val']
+  mark_reallocated(state, ctx, handle, size) # ADDED: address may reuse a freed range
   memory_allocation =  ZEModel::Memory.new(handle, context, size, nil, "host")
   memory_allocations[handle] = memory_allocation
 }
@@ -668,7 +692,12 @@ $on_successful_exit['zeMemAllocHost'] = lambda { |state, ctx, defi|
 $on_successful_exit['zeMemFree'] = lambda { |state, ctx, defi|
   memory_allocations =  state.find_objects(ctx, 'memory_allocation')
   handle = state.find_param(ctx, "ptr")
-  memory_allocation = memory_allocations.delete(handle) {
+  memory_allocation = memory_allocations[handle]
+  # ADDED: before releasing it, flag if this buffer is still referenced by a
+  # copy/fill that has been submitted but not yet completed (in-flight device
+  # work would touch freed memory).
+  check_free_in_flight(state, ctx, memory_allocation) if memory_allocation
+  memory_allocations.delete(handle) {
     state.object_not_found(ctx, 'memory_allocation', handle)
   }
   if memory_allocation
@@ -676,5 +705,9 @@ $on_successful_exit['zeMemFree'] = lambda { |state, ctx, defi|
     mem.memory_allocations.delete(handle) {
       state.object_not_found(ctx, 'memory_allocation', handle, 'device')
     } if mem
+    # ADDED: keep the freed allocation in the process-level freed registry so a
+    # later copy/fill/kernel referencing this address is caught as use-after-free.
+    memory_allocation.freed_by = state.get_api_context(ctx)
+    state.freed_memory_allocations(ctx)[handle] = memory_allocation
   end
 }

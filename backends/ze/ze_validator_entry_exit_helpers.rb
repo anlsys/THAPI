@@ -259,6 +259,81 @@ def check_oob_copy(state, ctx, params)
   check_copy_endpoint(state, ctx, allocations, params[:src], size, api, 'source')
 end
 
+# ADDED: a successful allocation may reuse an address previously freed. Drop any
+# freed record whose former range overlaps the new allocation so it is not
+# mistaken for a still-dangling pointer. Call from the alloc callbacks.
+def mark_reallocated(state, ctx, handle, size)
+  freed = state.freed_memory_allocations(ctx)
+  return if freed.empty?
+  freed.delete_if { |_addr, m| ranges_overlap?(m.base, m.size, handle, size) }
+end
+
+# ADDED: like find_allocation_containing, but over the freed-allocation registry
+# -- finds a released allocation whose (former) range still contains ptr.
+def find_freed_allocation_containing(freed, ptr)
+  freed.each_value.find { |m| m.base && m.base <= ptr && ptr < m.base + m.size }
+end
+
+# ADDED: use-after-free check for one endpoint (dst/src) of a copy/fill. If the
+# pointer does NOT resolve to a live allocation but DOES fall inside an
+# allocation that was already zeMemFree'd, report a use-after-free. A pointer
+# that matches neither is left alone (unknown / untraced -- nothing to assert).
+def check_uaf_endpoint(state, ctx, live, freed, ptr, api, role)
+  return if ptr.nil? || ptr == 0
+  #still live (exact base or an offset within a live allocation) -> fine
+  return if live[ptr] || find_allocation_containing(live, ptr)
+  mem = freed[ptr] || find_freed_allocation_containing(freed, ptr)
+  return unless mem
+  #dedup: the same freed pointer can be seen both at append-entry and again at
+  #deferred execute time -- report it once per (api, pointer).
+  key = "uaf-#{api}-#{state.get_handle_str(ptr)}"
+  return unless state.print_tracker[key] == 0
+  state.print_tracker[key] = 1
+  offset = ptr - mem.base
+  where = offset == 0 ? "" : " (offset #{offset} into the freed allocation)"
+  state.print_memory_error(ctx, "#{api}: #{role} memory #{state.get_handle_str(ptr)}#{where} was already " \
+                                "freed#{mem.freed_by ? " by #{mem.freed_by}" : ""}; use-after-free")
+end
+
+# ADDED: deferred use-after-free check for a recorded copy/fill op. Runs from the
+# scheduler at the point the copy actually executes (alongside check_oob_copy),
+# so a pointer freed before the copy's turn is caught, while a destination only
+# allocated later is not falsely flagged.
+def check_use_after_free(state, ctx, params)
+  api  = params[:api] || 'zeCommandListAppendMemoryCopy'
+  live  = state.find_objects(ctx, 'memory_allocation')
+  freed = state.freed_memory_allocations(ctx)
+  return if freed.empty?
+  check_uaf_endpoint(state, ctx, live, freed, params[:dst], api, 'destination')
+  check_uaf_endpoint(state, ctx, live, freed, params[:src], api, 'source')
+end
+
+# ADDED: true if [a, a+asize) and [b, b+bsize) overlap.
+def ranges_overlap?(a, asize, b, bsize)
+  return false unless a && b && asize && bsize
+  a < b + bsize && b < a + asize
+end
+
+# ADDED: free-while-in-flight check. Called from zeMemFree BEFORE the allocation
+# is removed. If any copy/fill op still pending in an in-flight deferred command
+# list references (overlaps) the allocation being freed, the device may still
+# read/write it after the free -- report it. mem is the ZEModel::Memory about to
+# be freed.
+def check_free_in_flight(state, ctx, mem)
+  return unless mem
+  state.each_inflight_copy_op(ctx) do |unit, op|
+    p = op.params
+    hit = [[p[:dst], 'destination'], [p[:src], 'source']].find do |ptr, _role|
+      ptr && ptr != 0 && ranges_overlap?(mem.base, mem.size, ptr, p[:size])
+    end
+    next unless hit
+    _ptr, role = hit
+    state.print_memory_error(ctx, "memory #{state.get_handle_str(mem.base)} is being freed while still in use as " \
+                                  "the #{role} of an in-flight #{p[:api] || 'copy'} on #{unit.label}; the device " \
+                                  "may access freed memory")
+  end
+end
+
 def check_ptrs_have_same_context(state,ctx,params)
   allocations = state.find_objects(ctx, 'memory_allocation')
   if allocations[params[:dst]] && allocations[params[:dst]] && (allocations[params[:dst]].context != allocations[params[:src]].context)
