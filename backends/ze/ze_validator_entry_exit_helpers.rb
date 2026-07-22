@@ -23,22 +23,21 @@ def check_group_property_queued(state, ctx, defi, device)
 end
 
 
-def check_valid_ordinal(state, ctx, defi, cqg_ordinal)
-  copy_only_ords = []
-  if state.device_properties
-    command_queue_prop = state.device_properties["devices"][0]["command_queue_groups"]
-    command_queue_prop.each do |prop|
-      if prop["type"] == "copy"
-        copy_only_ords << prop["ordinal"]
-        #puts "appended #{prop["ordinal"]}"
-      end
-    end
-  else
-    #hardcode if the device property json wasn't generated
-    copy_only_ords << 1
-    copy_only_ords << 2
-  end
+# ADDED: the set of command-queue-group ordinals that belong to copy-only
+# engines, as gathered by the device profiler (ze_device_property.json). When the
+# device-property file is absent, fall back to the hardcoded ordinals that are
+# copy-only on the Intel Data Center Max GPUs we target. Extracted so both the
+# append-time check (check_valid_ordinal) and the execute-time check
+# (check_copy_only_queue_submission) share one definition.
+def copy_only_ordinals(state)
+  return [1, 2] unless state.device_properties
+  state.device_properties["devices"][0]["command_queue_groups"]
+       .select { |prop| prop["type"] == "copy" }
+       .map    { |prop| prop["ordinal"] }
+end
 
+def check_valid_ordinal(state, ctx, defi, cqg_ordinal)
+  copy_only_ords = copy_only_ordinals(state)
 
   if copy_only_ords.include?(cqg_ordinal) && state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] == 0
     state.print_tracker["zeCommandListAppendLaunchKernel::K2CopyOrdinal"] = 1
@@ -54,6 +53,37 @@ def check_valid_ordinal(state, ctx, defi, cqg_ordinal)
     end
     state.print_usage_error(ctx, "Launching kernel (#{kernel_name}) to a command list with Copy Ordinal: #{state.get_handle_str(command_list_handle)}")
   end
+end
+
+# ADDED: true if the command list contains a compute kernel launch. A launch op
+# is recorded with kind :launch, but so is zeCommandListAppendMemoryCopyRegion
+# (which is a copy, not compute), so we match on the appending API name rather
+# than the kind alone. Cooperative kernel launches count as compute too.
+COMPUTE_LAUNCH_APIS = ['zeCommandListAppendLaunchKernel',
+                       'zeCommandListAppendLaunchCooperativeKernel'].freeze
+def command_list_has_kernel_launch?(cmd_list)
+  cmd_list && cmd_list.ops.any? { |op| op.kind == :launch && COMPUTE_LAUNCH_APIS.include?(op.api) }
+end
+
+# ADDED: execute-time check for submitting a command list that contains a compute
+# kernel launch to a command queue associated with a copy-only engine. This
+# complements check_valid_ordinal (which fires at append time on the list's own
+# ordinal): here the queue is only known at zeCommandQueueExecuteCommandLists, so
+# we compare the QUEUE's group ordinal (queue.desc[:ordinal]) against the
+# copy-only set. On the Intel Data Center Max GPUs we target, running compute on a
+# copy-only engine segfaults with no diagnostic from the runtime. Reported once
+# per (queue, list) pair to avoid duplicate spam across repeated submits.
+def check_copy_only_queue_submission(state, ctx, queue, cmd_list)
+  return unless queue && queue.desc
+  return unless command_list_has_kernel_launch?(cmd_list)
+  queue_ordinal = queue.desc[:ordinal]
+  return unless copy_only_ordinals(state).include?(queue_ordinal)
+  key = "copyq-submit-#{state.get_handle_str(queue.handle)}-#{state.get_handle_str(cmd_list.handle)}"
+  return unless state.print_tracker[key] == 0
+  state.print_tracker[key] = 1
+  state.print_usage_error(ctx, "command list #{state.get_handle_str(cmd_list.handle)} contains a compute kernel " \
+                               "launch but was submitted to command queue #{state.get_handle_str(queue.handle)} " \
+                               "with copy-only ordinal #{queue_ordinal}")
 end
 
 def check_kernel_created(state, ctx, defi)
@@ -177,6 +207,29 @@ def record_copy_op(state, ctx, api, dst_key, src_key)
                   dst: (dst_key ? state.find_param(ctx, dst_key) : nil),
                   src: (src_key ? state.find_param(ctx, src_key) : nil),
                   size: state.find_param(ctx, 'size') })
+  record_op(state, ctx, cmd_list_handle, op)
+end
+
+# ADDED: record a zeCommandListAppendMemoryRangesBarrier op. Like a barrier, it
+# waits on its wait-events and signals its completion event, so it must appear in
+# the deferred op stream for the event-ordering / deadlock checks to see it. It
+# also names memory ranges whose coherency it guarantees; each range is snapshot
+# as {base:, size:} so a deferred check can verify the range lies within a live
+# allocation (see check_ranges_barrier). The two InArray params arrive in the
+# trace as pRanges_vals (the base addresses) and pRangeSizes_vals (byte sizes),
+# positionally paired. Missing/short arrays degrade to nil entries rather than
+# crashing (tracing may have started mid-stream).
+def record_ranges_barrier_op(state, ctx)
+  cmd_list_handle = state.find_param(ctx, 'hCommandList')
+  bases = state.find_param(ctx, 'pRanges_vals') || []
+  sizes = state.find_param(ctx, 'pRangeSizes_vals') || []
+  ranges = bases.each_with_index.map { |base, i| { base: base, size: sizes[i] } }
+  op = ZEModel::RecordedOp.new(:ranges_barrier,
+        signal: state.find_param(ctx, 'hSignalEvent'),
+        waits: wait_event_handles(state, ctx),
+        params: { api: 'zeCommandListAppendMemoryRangesBarrier',
+                  ctx_handle: cmd_list_ctx_handle(state, ctx, cmd_list_handle),
+                  ranges: ranges })
   record_op(state, ctx, cmd_list_handle, op)
 end
 
@@ -356,6 +409,23 @@ end
 def check_use_after_free_on_append(state, ctx, params, waits)
   return unless state.waits_satisfied?(ctx, waits)
   check_use_after_free(state, ctx, params)
+end
+
+# ADDED: deferred validation of a zeCommandListAppendMemoryRangesBarrier's memory
+# ranges. Runs from the scheduler when the barrier executes (its waits satisfied),
+# so it sees the memory model as it stands at that point -- mirroring the copy
+# checks. For each range, if its base was already zeMemFree'd we report a
+# use-after-free (the barrier references memory that is gone); a base that matches
+# no live allocation is left alone, since it may be IPC/untracked memory (see
+# check_uaf_endpoint's rationale). A range base of nullptr is skipped.
+def check_ranges_barrier(state, ctx, params)
+  api   = params[:api] || 'zeCommandListAppendMemoryRangesBarrier'
+  live  = state.memory_allocations(ctx, params[:ctx_handle])
+  freed = state.freed_memory_allocations(ctx, params[:ctx_handle])
+  return if freed.empty?
+  (params[:ranges] || []).each do |r|
+    check_uaf_endpoint(state, ctx, live, freed, r[:base], api, 'range')
+  end
 end
 
 # ADDED: true if [a, a+asize) and [b, b+bsize) overlap.

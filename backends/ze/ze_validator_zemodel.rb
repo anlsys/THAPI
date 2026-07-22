@@ -312,10 +312,12 @@ module ZEModel
   # ADDED: A single operation recorded when it is appended to a command list. It
   # snapshots everything the deferred checks need, because the trace's per-call
   # context (find_param) is gone by the time the op is replayed at execute time.
-  #   kind   - :copy, :wait, :signal, :reset, :barrier, :launch
+  #   kind   - :copy, :wait, :signal, :reset, :barrier, :ranges_barrier, :launch
   #   signal - handle of the completion event this op signals (nil/0 if none)
   #   waits  - event handles that must be signaled before this op can execute
-  #   params - kind-specific data (copy: api/dst/src/size; reset: reset_handle)
+  #   params - kind-specific data (copy: api/dst/src/size; reset: reset_handle;
+  #            ranges_barrier: api/ctx_handle/ranges, where ranges is an array of
+  #            {base:, size:} for each memory range the barrier covers)
   #   api    - the ZE API that appended this op (for diagnostics)
   class RecordedOp
     attr_reader :kind

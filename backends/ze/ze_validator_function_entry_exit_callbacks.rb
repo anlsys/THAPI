@@ -203,6 +203,16 @@ $on_successful_exit['zeCommandListAppendBarrier'] = lambda { |state, ctx, defi|
               api: 'zeCommandListAppendBarrier'))
 }
 
+# ADDED: a memory-ranges barrier has the same event semantics as a plain barrier
+# (waits on its events, signals its completion event), so record it in the op
+# stream for the deferred scheduler and deadlock detection. It additionally names
+# memory ranges whose coherency it guarantees; those ranges are snapshotted and
+# validated against the allocation model when the barrier executes (see
+# record_ranges_barrier_op / check_ranges_barrier).
+$on_successful_exit['zeCommandListAppendMemoryRangesBarrier'] = lambda { |state, ctx, defi|
+  record_ranges_barrier_op(state, ctx)
+}
+
 # ADDED: host-side event operations, effective immediately (in trace order).
 #Signaling an already-signaled event without a reset is the same misuse we catch
 #on device ops.
@@ -273,6 +283,8 @@ $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
     command_list_handles.each do |command_list_handle|
       check_list_and_queue_have_matching_context(state,ctx,defi,known_command_lists[command_list_handle],command_queue)
       check_list_and_fence_have_matching_context(state,ctx,defi,known_command_lists[command_list_handle],fence)
+      # ADDED: a list with a compute kernel launch must not go to a copy-only queue
+      check_copy_only_queue_submission(state,ctx,command_queue,known_command_lists[command_list_handle])
     end
   else
     # CHANGED: was raise_internal_error, which aborted the whole validator on one

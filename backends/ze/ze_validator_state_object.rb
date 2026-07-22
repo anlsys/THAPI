@@ -353,6 +353,8 @@ class StateObject
       #a pointer freed before this copy's turn to execute is a use-after-free
       check_use_after_free(self, context, op.params)
     end
+    #a memory-ranges barrier references memory freed before its turn is a UAF
+    check_ranges_barrier(self, context, op.params) if op.kind == :ranges_barrier
     #a reset takes effect before this op signals its own completion event
     reset_event(context, op.params[:reset_handle]) if op.kind == :reset
     signaled = false
