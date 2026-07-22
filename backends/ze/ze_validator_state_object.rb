@@ -242,10 +242,21 @@ class StateObject
     find_objects(context, type)[handle]
   end
 
-  # ADDED: process-level registry of allocations that have been zeMemFree'd but
+  # ADDED: the live-allocation sub-map for one Level Zero context (address ->
+  # Memory). Allocations are keyed by context handle because the L0 unified
+  # virtual address space only guarantees non-aliasing addresses within a
+  # context (see Process#memory_allocations). ctx_handle nil falls back to a
+  # single shared bucket so a trace that started mid-stream -- where the owning
+  # context is unknown -- still tracks something rather than crashing.
+  def memory_allocations(context, ctx_handle)
+    get_process(context).memory_allocations[ctx_handle]
+  end
+
+  # ADDED: per-context registry of allocations that have been zeMemFree'd but
   # kept for use-after-free detection (address -> freed ZEModel::Memory).
-  def freed_memory_allocations(context)
-    get_process(context).freed_memory_allocations
+  # CHANGED: now scoped by context handle, mirroring the live map above.
+  def freed_memory_allocations(context, ctx_handle)
+    get_process(context).freed_memory_allocations[ctx_handle]
   end
 
   # ADDED: yield [unit, op] for every copy/fill op still pending (at or after the
@@ -473,17 +484,20 @@ class StateObject
             'module',
             'module_build_log',
             'kernel',
-            'memory_allocation',  #what type of memory allocation?
           ].each { |t|
             #objects that were created will be deleted upon successful exits.
             #So, only the ones that didn't get deleted will be reported
             process.objects(t).each { |h, c|
-              if t == 'memory_allocation'
-                #puts "mem alloc type = #{c.instance_variable_get(:@memtypestr)}"
-                print_leak_error(ctx, t, h, c.instance_variable_get(:@memtypestr))
-              else
-                print_leak_error(ctx, t, h) #it prints the type as well
-              end
+              print_leak_error(ctx, t, h) #it prints the type as well
+            }
+          }
+          # CHANGED: memory_allocation is now nested by context handle
+          # (ctx_handle -> {address -> Memory}), so iterate one level deeper.
+          # Any allocation still live at end of trace, in any context, is a leak.
+          process.objects('memory_allocation').each { |_ctx_handle, allocs|
+            allocs.each { |h, c|
+              #puts "mem alloc type = #{c.instance_variable_get(:@memtypestr)}"
+              print_leak_error(ctx, 'memory_allocation', h, c.instance_variable_get(:@memtypestr))
             }
           }
         }

@@ -127,6 +127,16 @@ def get_fence(state,context,fence_handle)
   fence = fences[fence_handle] #returns fence
 end
 
+# ADDED: resolve the Level Zero context handle that owns a command list, given
+# the list handle. Memory maps are keyed by context handle, but copy/fill append
+# APIs identify only the command list -- the context is reachable through the
+# list's Context object. Returns nil for an unknown list (tracing started
+# mid-stream); callers fall back to the shared nil bucket in that case.
+def cmd_list_ctx_handle(state, ctx, cmd_list_handle)
+  cmd_list = state.find_objects(ctx, 'command_list')[cmd_list_handle]
+  cmd_list && cmd_list.context ? cmd_list.context.handle : nil
+end
+
 # ADDED: read the wait-event handles from an append call's input params. Both
 # spellings appear in the trace: copies/barriers/launches use phWaitEvents_vals,
 # zeCommandListAppendWaitOnEvents uses phEvents_vals. find_param is used because
@@ -160,6 +170,10 @@ def record_copy_op(state, ctx, api, dst_key, src_key)
         signal: state.find_param(ctx, 'hSignalEvent'),
         waits: wait_event_handles(state, ctx),
         params: { api: api,
+                  # ADDED: snapshot the owning context handle so the deferred OOB/
+                  # UAF checks look in the right per-context allocation map when the
+                  # copy replays at execute time (the per-call context is gone by then).
+                  ctx_handle: cmd_list_ctx_handle(state, ctx, cmd_list_handle),
                   dst: (dst_key ? state.find_param(ctx, dst_key) : nil),
                   src: (src_key ? state.find_param(ctx, src_key) : nil),
                   size: state.find_param(ctx, 'size') })
@@ -208,7 +222,7 @@ def check_fence_and_queue_compatibility(state,ctx,defi,cmd_queue,fence)
     unless cmd_queue && cmd_queue == fence.command_queue
       queue_handle = cmd_queue ? state.get_handle_str(cmd_queue.handle) : "nullptr"
       fence_handle = fence
-      state.print_usage_error(ctx, "Associated command queue (#{state.get_handle_str(fence.command_queue)}) of fence #{fence_handle} " +
+      state.print_usage_error(ctx, "Associated command queue (#{state.get_handle_str(fence.command_queue.handle)}) of fence #{fence_handle} " +
                                    "is different from the one that was provided #{queue_handle}")
     end
   end
@@ -254,16 +268,37 @@ end
 def check_oob_copy(state, ctx, params)
   api = params[:api] || 'zeCommandListAppendMemoryCopy'
   size = params[:size]
-  allocations = state.find_objects(ctx, 'memory_allocation')
+  # CHANGED: look up allocations in the copy's own context sub-map. The context
+  # handle was snapshotted into params at record/append time (see record_copy_op).
+  allocations = state.memory_allocations(ctx, params[:ctx_handle])
   check_copy_endpoint(state, ctx, allocations, params[:dst], size, api, 'destination')
   check_copy_endpoint(state, ctx, allocations, params[:src], size, api, 'source')
+end
+
+# ADDED: null-pointer check for a memory copy/fill. In Level Zero, a null dstptr
+# or srcptr on a copy (or a null ptr on a fill) is a usage error
+# (ZE_RESULT_ERROR_INVALID_NULL_POINTER) and can crash the driver inside the
+# append -- which then emits no _exit event -- so this runs at ENTRY, before the
+# (possibly fatal) call, reading the input pointers directly from defi. Null-ness
+# is a static property of the arguments, so unlike the OOB/UAF checks it needs no
+# deferral to execute time. `endpoints` is an ordered role -> pointer map; a fill
+# passes only the destination, so a fill's (absent) source is never flagged.
+# Reports every null endpoint found.
+def check_null_copy_ptr(state, ctx, api, endpoints)
+  endpoints.each do |role, ptr|
+    if ptr.nil? || ptr == 0
+      state.print_usage_error(ctx, "#{api}: #{role} pointer is nullptr")
+    end
+  end
 end
 
 # ADDED: a successful allocation may reuse an address previously freed. Drop any
 # freed record whose former range overlaps the new allocation so it is not
 # mistaken for a still-dangling pointer. Call from the alloc callbacks.
-def mark_reallocated(state, ctx, handle, size)
-  freed = state.freed_memory_allocations(ctx)
+def mark_reallocated(state, ctx, ctx_handle, handle, size)
+  # CHANGED: only scan the freed registry of the context this allocation belongs
+  # to -- a reused address in one context says nothing about another context.
+  freed = state.freed_memory_allocations(ctx, ctx_handle)
   return if freed.empty?
   freed.delete_if { |_addr, m| ranges_overlap?(m.base, m.size, handle, size) }
 end
@@ -301,8 +336,9 @@ end
 # allocated later is not falsely flagged.
 def check_use_after_free(state, ctx, params)
   api  = params[:api] || 'zeCommandListAppendMemoryCopy'
-  live  = state.find_objects(ctx, 'memory_allocation')
-  freed = state.freed_memory_allocations(ctx)
+  # CHANGED: resolve both maps within the copy's own context (see check_oob_copy).
+  live  = state.memory_allocations(ctx, params[:ctx_handle])
+  freed = state.freed_memory_allocations(ctx, params[:ctx_handle])
   return if freed.empty?
   check_uaf_endpoint(state, ctx, live, freed, params[:dst], api, 'destination')
   check_uaf_endpoint(state, ctx, live, freed, params[:src], api, 'source')
@@ -335,8 +371,13 @@ end
 # be freed.
 def check_free_in_flight(state, ctx, mem)
   return unless mem
+  # ADDED: the buffer being freed belongs to one context; only an in-flight copy
+  # in that SAME context can alias it. Comparing across contexts would be a false
+  # positive now that addresses may repeat between contexts.
+  mem_ctx_handle = mem.context ? mem.context.handle : nil
   state.each_inflight_copy_op(ctx) do |unit, op|
     p = op.params
+    next unless p[:ctx_handle] == mem_ctx_handle
     hit = [[p[:dst], 'destination'], [p[:src], 'source']].find do |ptr, _role|
       ptr && ptr != 0 && ranges_overlap?(mem.base, mem.size, ptr, p[:size])
     end
@@ -349,9 +390,14 @@ def check_free_in_flight(state, ctx, mem)
 end
 
 def check_ptrs_have_same_context(state,ctx,params)
-  allocations = state.find_objects(ctx, 'memory_allocation')
-  if allocations[params[:dst]] && allocations[params[:dst]] && (allocations[params[:dst]].context != allocations[params[:src]].context)
-    
+  # CHANGED: resolve within the copy's context sub-map. NOTE: this is currently a
+  # stub (empty body) and unregistered. With allocations now keyed by context,
+  # both endpoints found in one sub-map necessarily share a context by
+  # construction, so a genuine cross-context-copy check would instead have to
+  # search every context's sub-map for each pointer -- left for when this is implemented.
+  allocations = state.memory_allocations(ctx, params[:ctx_handle])
+  if allocations[params[:dst]] && allocations[params[:src]] && (allocations[params[:dst]].context != allocations[params[:src]].context)
+
   end
 end
 

@@ -46,6 +46,10 @@ module ZEModel
     @typename = 'device'
     attr_reader :properties
     attr_reader :sub_devices
+    # CHANGED: nested by Level Zero context handle -- ctx_handle -> {addr -> Memory}
+    # -- for the same reason as Process#memory_allocations: an address is only
+    # guaranteed unique within a context, and one device can back allocations in
+    # several contexts. Auto-vivifies an empty sub-map per context.
     attr_accessor :memory_allocations
     attr_accessor :property_fetched
     attr_accessor :cmd_queue_group_properties_queried
@@ -54,7 +58,7 @@ module ZEModel
     def initialize(handle)
       super
       @sub_devices = []
-      @memory_allocations = {}
+      @memory_allocations = Hash.new { |h, k| h[k] = {} }
       @property_fetched = false
       @cmd_queue_group_properties_queried = false
     end
@@ -467,6 +471,14 @@ module ZEModel
     # ADDED: address -> freed Memory objects (kept after zeMemFree) so a later
     # reference to a released address can be flagged as use-after-free.
     attr_reader :freed_memory_allocations
+    # ADDED: both memory maps are nested by Level Zero context handle --
+    # { ctx_handle => { address => Memory } } -- because the L0 unified virtual
+    # address space only guarantees non-aliasing addresses WITHIN a context.
+    # Two live allocations in different contexts may share a numeric address, so
+    # a flat address-keyed map would let the second overwrite the first. Each
+    # inner sub-map has the same shape as the old flat map, so code that already
+    # holds a sub-map (allocations[ptr], .each_value, .delete) is unchanged.
+    attr_reader :memory_allocations
 
     def initialize(vpid)
       @vpid = vpid
@@ -484,8 +496,11 @@ module ZEModel
       @modules = {}
       @module_build_logs = {}
       @kernels = {}
-      @memory_allocations = {}
-      @freed_memory_allocations = {} # ADDED: address -> freed Memory
+      # CHANGED: nested by context handle -- ctx_handle -> { address -> Memory }.
+      # Auto-vivify an empty sub-map on first use of a context so callers never
+      # get nil for a context that has not allocated yet.
+      @memory_allocations = Hash.new { |h, k| h[k] = {} }
+      @freed_memory_allocations = Hash.new { |h, k| h[k] = {} } # ADDED: ctx -> {addr -> freed Memory}
       #@initCalled = false
     end
 
