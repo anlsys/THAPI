@@ -86,6 +86,35 @@ def check_copy_only_queue_submission(state, ctx, queue, cmd_list)
                                "with copy-only ordinal #{queue_ordinal}")
 end
 
+# ADDED: check that a launched kernel's module was created on the SAME Level Zero
+# context as the command list the kernel is appended to. The spec requires it:
+# zeCommandListAppendLaunchKernel/LaunchCooperativeKernel state "the command list,
+# kernel and events were created on the same context." A kernel has no context of
+# its own -- zeKernelCreate takes a module (hModule), and the module carries the
+# context it was created on (zeModuleCreate's hContext) -- so the kernel's context
+# is kernel.module.context. Runs at ENTRY (a launch can abort without an _exit),
+# reading handles from defi. Unknown kernel/module/list, or a module/list whose
+# context we never saw (tracing started mid-stream), are skipped rather than
+# flagged. Reported once per (command list, kernel) pair.
+def check_kernel_list_context_match(state, ctx, defi)
+  command_lists = state.find_objects(ctx, 'command_list')
+  kernels = state.find_objects(ctx, 'kernel')
+  cmd_list = command_lists[defi['hCommandList']]
+  kernel = kernels[defi['hKernel']]
+  return unless cmd_list && cmd_list.context && kernel
+  mod = kernel.module
+  return unless mod && mod.context
+  return if mod.context == cmd_list.context
+  key = "kernel-list-ctx-#{state.get_handle_str(cmd_list.handle)}-#{state.get_handle_str(kernel.handle)}"
+  return unless state.print_tracker[key] == 0
+  state.print_tracker[key] = 1
+  state.print_usage_error(ctx,
+    "kernel #{state.get_handle_str(kernel.handle)} (from module " \
+    "#{state.get_handle_str(mod.handle)} on context #{state.get_handle_str(mod.context.handle)}) " \
+    "does not share the context of command list #{state.get_handle_str(cmd_list.handle)} " \
+    "(context #{state.get_handle_str(cmd_list.context.handle)})")
+end
+
 def check_kernel_created(state, ctx, defi)
   kernels = state.find_objects(ctx, 'kernel')
   kernel_handle = defi['hKernel']
@@ -184,6 +213,10 @@ def record_op(state, ctx, cmd_list_handle, op)
   cmd_list = state.find_objects(ctx, 'command_list')[cmd_list_handle]
   return unless cmd_list
   if cmd_list.immediate
+    # ADDED: an immediate list never reaches zeCommandQueueExecuteCommandLists, so
+    # check its events' context here (against the list's own context) before the op
+    # is scheduled.
+    check_event_pool_immediate_list_context_match(state, ctx, cmd_list, op)
     state.enqueue_immediate_op(ctx, op, cmd_list_handle)
   else
     cmd_list.ops << op
@@ -287,6 +320,89 @@ def check_list_and_queue_have_matching_context(state,ctx,defi,cmd_list, cmd_queu
     list_handle = cmd_list ? state.get_handle_str(cmd_list.handle) : "nullptr"
     state.print_usage_error(ctx, "Mismatching context between command queue #{queue_handle} and command list #{list_handle}")
   end
+end
+
+# ADDED: op kinds whose events are subject to the spec's same-context requirement.
+# Not every append that carries events requires them to share the list's context:
+# the Level Zero spec attaches "the command list and events were created on the
+# same context" to launch/copy/fill/signal/wait ops, but zeCommandListAppendBarrier
+# and zeCommandListAppendMemoryRangesBarrier use the WEAKER "events must be
+# accessible by the device on which the command list was created" wording -- no
+# same-context clause. So :barrier and :ranges_barrier are deliberately excluded
+# here to avoid false positives; their events would need a device-accessibility
+# model (which the validator does not currently have) rather than a context match.
+SAME_CONTEXT_EVENT_OP_KINDS = [:copy, :launch, :signal, :wait, :reset].freeze
+
+# ADDED: the distinct event handles one recorded op references -- the completion
+# event it signals (op.signal) and the events it waits on (op.waits). Null handles
+# are already normalized away (op.signal is nil when 0; op.waits drops nil/0 at
+# record time). Returns [] for ops whose events are not subject to the same-context
+# rule (see SAME_CONTEXT_EVENT_OP_KINDS).
+def same_context_event_handles_in_op(op)
+  return [] unless SAME_CONTEXT_EVENT_OP_KINDS.include?(op.kind)
+  handles = []
+  handles << op.signal if op.signal
+  handles.concat(op.waits) if op.waits
+  handles
+end
+
+# ADDED: distinct event handles a command list references across all of its
+# recorded ops that ARE subject to the same-context requirement.
+def same_context_event_handles_in_list(cmd_list)
+  cmd_list.ops.flat_map { |op| same_context_event_handles_in_op(op) }.uniq
+end
+
+# ADDED: core context-consistency check shared by the queue-submission and
+# immediate-list cases. For each event handle, resolve its context THROUGH its
+# event pool (an event has no context of its own -- zeEventCreate takes no context
+# and derives it from the pool, which is bound to a context at zeEventPoolCreate or,
+# for an IPC-shared pool, at the hContext passed to zeEventPoolOpenIpcHandle) and
+# report if it differs from ref_context. `ref_kind`/`ref_handle` name the object
+# the events are expected to match (a command queue or an immediate command list),
+# for the message and the dedup key. Reported once per (ref, event) pair. Unknown
+# events, or events whose pool/context we never saw (tracing started mid-stream),
+# are skipped.
+def check_events_share_context(state, ctx, event_handles, ref_context, ref_kind, ref_handle)
+  return unless ref_context
+  events = state.find_objects(ctx, 'event')
+  event_handles.uniq.each do |h|
+    ev = events[h]
+    next unless ev && ev.event_pool && ev.event_pool.context
+    next if ev.event_pool.context == ref_context
+    key = "evpool-#{ref_kind}-ctx-#{state.get_handle_str(ref_handle)}-#{state.get_handle_str(h)}"
+    next unless state.print_tracker[key] == 0
+    state.print_tracker[key] = 1
+    state.print_usage_error(ctx,
+      "event #{state.get_handle_str(h)} (from event pool " \
+      "#{state.get_handle_str(ev.event_pool.handle)} on context " \
+      "#{state.get_handle_str(ev.event_pool.context.handle)}) does not share the context of " \
+      "#{ref_kind} #{state.get_handle_str(ref_handle)} " \
+      "(context #{state.get_handle_str(ref_context.handle)})")
+  end
+end
+
+# ADDED: execute-time check that every event used by a submitted command list (in
+# an op subject to the same-context rule) comes from an event pool on the SAME
+# Level Zero context as the command queue the list is submitted to. The spec
+# requires such a command list and its events to share a context; since the list
+# must also match the queue's context, an event pool whose context differs from the
+# queue's is a mismatch.
+def check_event_pool_queue_context_match(state, ctx, queue, cmd_list)
+  return unless queue && queue.context && cmd_list
+  check_events_share_context(state, ctx, same_context_event_handles_in_list(cmd_list),
+                             queue.context, 'command queue', queue.handle)
+end
+
+# ADDED: append-time analogue for IMMEDIATE command lists. An immediate list is its
+# own implicit queue -- it never goes through zeCommandQueueExecuteCommandLists (and
+# is in fact rejected there), so the queue-submission check above never sees it. Its
+# ops execute at append time, so we validate each appended op's events here against
+# the immediate list's OWN context (which stands in for the queue's). Called from
+# record_op for the immediate branch.
+def check_event_pool_immediate_list_context_match(state, ctx, cmd_list, op)
+  return unless cmd_list && cmd_list.context
+  check_events_share_context(state, ctx, same_context_event_handles_in_op(op),
+                             cmd_list.context, 'immediate command list', cmd_list.handle)
 end
 
 # REPLACED check_oob_memory_copy (it iterated a CommandList as if enumerable and
@@ -468,6 +584,77 @@ def check_ptrs_have_same_context(state,ctx,params)
   allocations = state.memory_allocations(ctx, params[:ctx_handle])
   if allocations[params[:dst]] && allocations[params[:src]] && (allocations[params[:dst]].context != allocations[params[:src]].context)
 
+  end
+end
+
+# ADDED: search a single context sub-map for the allocation matching ptr -- an
+# exact base hit first, then an allocation whose [base, base+size) range contains
+# ptr (offset copy). Returns the Memory or nil.
+def find_memory_in_submap(submap, ptr)
+  submap[ptr] || find_allocation_containing(submap, ptr)
+end
+
+# ADDED: locate the KNOWN allocation for ptr across this process's per-context
+# allocation sub-maps, preferring the command list's own context. Returns
+# [memory, ctx_handle], or [nil, nil] if ptr matches no tracked allocation.
+# Preferring the list's context keeps the check false-positive-free under address
+# aliasing: L0 addresses are unique only within a context, so the same numeric
+# address can exist in several contexts. If ptr resolves in the list's own context
+# we return that (a correct, in-context copy) and stop; only if it resolves solely
+# in a foreign context do we surface a mismatch.
+#
+# NOTE: IPC-imported memory is intentionally NOT handled here -- the validator does
+# not model zeMemOpenIpcHandle, so such pointers are simply "not found" and skipped
+# (no callback registers them). Only pointers we positively tracked are considered.
+def find_known_memory_preferring_context(state, ctx, ptr, prefer_ctx_handle)
+  return [nil, nil] if ptr.nil? || ptr == 0
+  all_maps = state.get_process(ctx).memory_allocations
+  if prefer_ctx_handle && all_maps.key?(prefer_ctx_handle)
+    mem = find_memory_in_submap(all_maps[prefer_ctx_handle], ptr)
+    return [mem, prefer_ctx_handle] if mem
+  end
+  all_maps.each do |cth, submap|
+    next if cth == prefer_ctx_handle
+    mem = find_memory_in_submap(submap, ptr)
+    return [mem, cth] if mem
+  end
+  [nil, nil]
+end
+
+# ADDED: report one endpoint (dst/src) of a copy/fill only when its pointer
+# resolves to a KNOWN allocation on a DIFFERENT context than the command list. The
+# spec requires the command list and the copied memory to share a context
+# (zeCommandListAppendMemory{Copy,Fill}: "the command list and events were created,
+# and the memory was allocated, on the same context"). No false positives: a ptr
+# found in the list's own context is accepted, and a ptr found in NO tracked
+# context -- system/malloc host memory, an untracked/IPC allocation, or memory from
+# before tracing started -- is skipped (nothing is asserted about unknown pointers,
+# mirroring the OOB/UAF checks). Deduped once per (command list, endpoint, pointer).
+def check_ptr_endpoint_list_context(state, ctx, list_ctx_handle, list_handle, ptr, api, role)
+  return if ptr.nil? || ptr == 0
+  return if list_ctx_handle.nil? # unknown command list context (mid-stream) -> skip
+  mem, found_ctx = find_known_memory_preferring_context(state, ctx, ptr, list_ctx_handle)
+  return unless mem                      # unknown pointer -> skip (no false alarm)
+  return if found_ctx == list_ctx_handle # correctly in the list's context -> fine
+  key = "ptr-list-ctx-#{state.get_handle_str(list_handle)}-#{role}-#{state.get_handle_str(ptr)}"
+  return unless state.print_tracker[key] == 0
+  state.print_tracker[key] = 1
+  mem_ctx_str = mem.context ? state.get_handle_str(mem.context.handle) : state.get_handle_str(found_ctx)
+  state.print_usage_error(ctx,
+    "#{api}: #{role} memory #{state.get_handle_str(ptr)} was allocated on context #{mem_ctx_str} " \
+    "but command list #{state.get_handle_str(list_handle)} is on context #{state.get_handle_str(list_ctx_handle)}; " \
+    "the command list and copied memory must share a context")
+end
+
+# ADDED: append-entry check that a copy/fill's KNOWN memory endpoints were
+# allocated on the same context as the command list. Runs at ENTRY (a cross-context
+# copy can be rejected inside the append, which then emits no _exit event), reading
+# the input pointers directly from defi. Context is a static property of the
+# pointer and the list, so unlike OOB/UAF this needs no deferral to execute time.
+def check_copy_ptr_list_context(state, ctx, api, list_handle, endpoints)
+  list_ctx_handle = cmd_list_ctx_handle(state, ctx, list_handle)
+  endpoints.each do |role, ptr|
+    check_ptr_endpoint_list_context(state, ctx, list_ctx_handle, list_handle, ptr, api, role)
   end
 end
 

@@ -59,6 +59,8 @@ $upon_entry["zeCommandListAppendLaunchKernel"] = lambda { |state, ctx, defi|
   #both checks must run even if the launch later aborts
   check_valid_ordinal(state, ctx, defi, cqg_ordinal)
   check_kernel_created(state, ctx, defi)
+  #the kernel's module must be on the same context as the command list
+  check_kernel_list_context_match(state, ctx, defi)
 }
 
 # CHANGED: op-recording (for deferred execution ordering) stays at EXIT, since
@@ -86,6 +88,8 @@ $upon_entry["zeCommandListAppendLaunchCooperativeKernel"] = lambda { |state, ctx
   command_lists = state.find_objects(ctx, 'command_list')
   cmd_list = command_lists[defi['hCommandList']]
   check_group_property_queued(state,ctx,defi,cmd_list.device) if cmd_list
+  #the kernel's module must be on the same context as the command list
+  check_kernel_list_context_match(state, ctx, defi)
 }
 
 # CHANGED: recording at EXIT.
@@ -117,6 +121,9 @@ $upon_entry['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
       ctx_handle: cmd_list_ctx_handle(state, ctx, defi['hCommandList']),
       dst: defi['dstptr'], src: defi['srcptr'], size: defi['size'] },
     wait_event_handles(state, ctx))
+  # known memory endpoints must be allocated on the command list's context
+  check_copy_ptr_list_context(state, ctx, 'zeCommandListAppendMemoryCopy', defi['hCommandList'],
+    { 'destination' => defi['dstptr'], 'source' => defi['srcptr'] })
 }
 
 $upon_entry['zeCommandListAppendMemoryFill'] = lambda { |state, ctx, defi|
@@ -127,6 +134,9 @@ $upon_entry['zeCommandListAppendMemoryFill'] = lambda { |state, ctx, defi|
       ctx_handle: cmd_list_ctx_handle(state, ctx, defi['hCommandList']),
       dst: defi['ptr'], src: nil, size: defi['size'] },
     wait_event_handles(state, ctx))
+  # known memory endpoint must be allocated on the command list's context
+  check_copy_ptr_list_context(state, ctx, 'zeCommandListAppendMemoryFill', defi['hCommandList'],
+    { 'destination' => defi['ptr'] })
 }
 
 $on_successful_exit['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
@@ -285,6 +295,8 @@ $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
       check_list_and_fence_have_matching_context(state,ctx,defi,known_command_lists[command_list_handle],fence)
       # ADDED: a list with a compute kernel launch must not go to a copy-only queue
       check_copy_only_queue_submission(state,ctx,command_queue,known_command_lists[command_list_handle])
+      # ADDED: events used by the list must come from an event pool on the queue's context
+      check_event_pool_queue_context_match(state,ctx,command_queue,known_command_lists[command_list_handle])
     end
   else
     # CHANGED: was raise_internal_error, which aborted the whole validator on one
