@@ -17,6 +17,11 @@ DATADIR = DATAROOTDIR
 
 LTTNG_ARCHIVE_SIZE = '50M'
 LTTNG_ARCHIVE_TIMER = '60s'
+# --no-overhead snapshot (flight-recorder) ring-buffer geometry.
+# Total RAM per channel ~= subbuf-size * num-subbuf * ncpu (per-uid buffers),
+# so these are large on many-core nodes. Tune here if needed.
+LTTNG_NO_OVERHEAD_SUBBUF_SIZE = '128M'
+LTTNG_NO_OVERHEAD_NUM_SUBBUF = '10'
 LTTNG_DIRWATCH_SIZE = '500' # In MiB
 LTTNG_DIRWATCH_LOCK_RETRY_DELAY = 0.1
 MAX_UINT64_VALUE = (2**64) - 1
@@ -278,6 +283,13 @@ def trace_bt_prefix
   else
     { trace: '_aggreg', bt: 'to_aggreg' }
   end
+end
+
+# `--no-overhead` is exposed as the negatable `--[no-]overhead` switch (default
+# on), so `--no-overhead` stores `:overhead => false`. This helper centralizes
+# the double negative: true when the user asked for the low-overhead mode.
+def no_overhead?
+  !OPTIONS[:overhead]
 end
 
 # THAPI/xprof use multiple folder
@@ -729,12 +741,30 @@ module LocalMaster
     FileUtils.mkdir_p(lttng_home_dir)
     FileUtils.mkdir_p(lttng_trace_dir_tmp)
     exec('lttng-sessiond --daemonize')
-    exec("lttng create #{lttng_session_uuid} -o #{lttng_trace_dir_tmp}")
+    if no_overhead?
+      # Snapshot (flight-recorder) mode: buffers live only in RAM and are flushed
+      # to disk once, at teardown (see lttng_teardown_session).
+      exec("lttng create #{lttng_session_uuid} --snapshot")
+    else
+      exec("lttng create #{lttng_session_uuid} -o #{lttng_trace_dir_tmp}")
+    end
 
     File.write(File.join(lttng_trace_dir_tmp, 'thapi_metadata.yaml'), { type: 'lttng' }.to_yaml)
 
     channel_name = 'blocking-channel'
-    exec("lttng enable-channel --userspace --session=#{lttng_session_uuid} --blocking-timeout=inf #{channel_name}")
+    if no_overhead?
+      # Overwrite ring buffers with the periodic switch/read timers disabled: no
+      # background consumer wake-ups and no disk I/O during execution.
+      exec("lttng enable-channel --userspace --session=#{lttng_session_uuid} " \
+           "--overwrite --switch-timer=0 --read-timer=0 " \
+           "--subbuf-size=#{LTTNG_NO_OVERHEAD_SUBBUF_SIZE} --num-subbuf=#{LTTNG_NO_OVERHEAD_NUM_SUBBUF} " \
+           "#{channel_name}")
+    else
+      exec("lttng enable-channel --userspace --session=#{lttng_session_uuid} --blocking-timeout=inf #{channel_name}")
+    end
+    # vpid/vtid are cheap cached values in LTTng-UST and are *required* by THAPI's
+    # analysis (the interval filter reads them positionally), so keep them even in
+    # --no-overhead mode.
     exec("lttng add-context    --userspace --session=#{lttng_session_uuid} --channel=#{channel_name} -t vpid -t vtid")
 
     # Enable backend events
@@ -768,6 +798,13 @@ module LocalMaster
   end
 
   def lttng_teardown_session
+    if no_overhead?
+      # In snapshot mode nothing has been written yet: stop to flush the UST
+      # ring buffers, then record the single on-disk snapshot into the directory
+      # babeltrace_thapi reads (it discovers the CTF trace recursively).
+      exec("lttng stop #{lttng_session_uuid}")
+      exec("lttng snapshot record --session=#{lttng_session_uuid} --path=#{lttng_trace_dir_tmp}")
+    end
     exec("lttng rotate #{lttng_session_uuid}") if OPTIONS[:archive]
     exec("lttng destroy #{lttng_session_uuid}")
   end
@@ -912,13 +949,19 @@ def all_env_tracers(usr_binary)
     h["LTTNG_UST_#{name.upcase}_PROFILE"] = 1 if OPTIONS[:profile]
     h["LTTNG_UST_#{name.upcase}_VERBOSE"] = 1 if LOGGER.level <= Logger::DEBUG
   end
-  # Only support blocking, so lttng doesn't drop messages
-  h['LTTNG_UST_ALLOW_BLOCKING'] = 1
+  # Only support blocking, so lttng doesn't drop messages.
+  # In --no-overhead mode we deliberately use overwrite (non-blocking) buffers,
+  # so blocking must not be requested.
+  h['LTTNG_UST_ALLOW_BLOCKING'] = 1 unless no_overhead?
 
   # Each tracee rank tries to register simultaneously.
   # With the default (3s) timeout, ranks that lose the registration race give up
   # and run untraced. Block until registration completes instead.
   h['LTTNG_UST_REGISTER_TIMEOUT'] = -1
+
+  # Pre-fault (populate) the shared-memory ring-buffer pages at registration so
+  # tracepoints don't take minor page faults on the hot path at run time.
+  h['LTTNG_UST_MAP_POPULATE_POLICY'] = 'cpu_possible' if no_overhead?
 
   # Customization
   if OPTIONS[:'backend-names'].include?('ze')
@@ -1039,6 +1082,15 @@ if $thapi_launch || __FILE__ == $PROGRAM_NAME
   end
   parser.on('--[no-]profile', 'Enable or disable device profiling.', default: true)
   parser.on('--[no-]analysis', 'Enable or disable analysis of the LTTng trace.', default: true)
+  parser.on('--[no-]overhead',
+            'Tracing fidelity vs. run-time overhead (default: full fidelity).',
+            'Use `--no-overhead` to minimize the run-time distortion of tracing:',
+            '  * snapshot (flight-recorder) mode: records stay in RAM and are',
+            '    flushed to disk once, at program exit (no disk I/O while running);',
+            '  * overwrite ring buffers with switch/read timers disabled;',
+            '  * pre-fault the trace buffers to avoid run-time page faults.',
+            'Trade-off: on long runs the oldest events can be overwritten, giving an',
+            'incomplete tally. Incompatible with `--archive`.', default: true)
 
   # General Options
   parser.on('-b', '--backends BACKENDS', Array, 'Select which backends to use and their grouping level.',
@@ -1107,6 +1159,19 @@ if $thapi_launch || __FILE__ == $PROGRAM_NAME
   end
 
   options[:'backend-names'] = options[:backends].map { |name_level| name_level.split(':').first }
+
+  # `--no-overhead` uses snapshot/overwrite buffers, which is fundamentally
+  # incompatible with the rotation-based `--archive` streaming.
+  unless options[:overhead]
+    if options[:archive]
+      puts('ERROR: --no-overhead is incompatible with --archive (snapshot mode cannot use rotation).')
+      print_help_and_exit(parser)
+    end
+    warn('THAPI: --no-overhead uses snapshot/overwrite buffers; on long runs the oldest events ' \
+         'may be overwritten, yielding an incomplete tally. Tune LTTNG_NO_OVERHEAD_SUBBUF_SIZE / ' \
+         'LTTNG_NO_OVERHEAD_NUM_SUBBUF if needed.')
+  end
+
   OPTIONS = options.freeze
 
   if (launcher = %w[mpirun mpiexec].find { |b| ARGV.include?(b) })
