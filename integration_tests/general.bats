@@ -20,6 +20,16 @@ bats_require_minimum_version 1.5.0
   [ "$total_count" -ge 1 ]
 }
 
+@test "no-overhead_summary" {
+  total_count=$(iprof --no-overhead --backend cl -- clinfo | awk -F'|' '/Total/ {print int($4)}')
+  [ "$total_count" -ge 1 ]
+}
+
+@test "no-overhead_incompatible_with_archive" {
+  run -1 iprof --no-overhead --archive --backend cl -- clinfo
+  [[ "$output" =~ "incompatible with --archive" ]]
+}
+
 @test "default_trace" {
   iprof -t clinfo | wc -l
 }
