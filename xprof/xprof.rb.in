@@ -744,7 +744,7 @@ module LocalMaster
     if no_overhead?
       # Snapshot (flight-recorder) mode: buffers live only in RAM and are flushed
       # to disk once, at teardown (see lttng_teardown_session).
-      exec("lttng create #{lttng_session_uuid} --snapshot")
+      exec("lttng create #{lttng_session_uuid} --snapshot -o #{lttng_trace_dir_tmp}")
     else
       exec("lttng create #{lttng_session_uuid} -o #{lttng_trace_dir_tmp}")
     end
@@ -803,7 +803,7 @@ module LocalMaster
       # ring buffers, then record the single on-disk snapshot into the directory
       # babeltrace_thapi reads (it discovers the CTF trace recursively).
       exec("lttng stop #{lttng_session_uuid}")
-      exec("lttng snapshot record --session=#{lttng_session_uuid} --path=#{lttng_trace_dir_tmp}")
+      exec("lttng snapshot record --session=#{lttng_session_uuid}")
     end
     exec("lttng rotate #{lttng_session_uuid}") if OPTIONS[:archive]
     exec("lttng destroy #{lttng_session_uuid}")
