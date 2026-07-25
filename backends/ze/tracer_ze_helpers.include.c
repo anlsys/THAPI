@@ -520,8 +520,8 @@ static void _event_cleanup() {
 
   HASH_ITER(hh, _ze_events, ze_event, tmp) {
     HASH_DEL(_ze_events, ze_event);
-    if (ze_event->event && !(ze_event->flags & _ZE_PROFILED))
-      _profile_event_results(ze_event->event);
+    /* See _on_destroy_context: skip the teardown query to avoid a libze
+     * segfault on already-released events. */
     if (ze_event->event_pool) {
       if (ze_event->event)
         ZE_EVENT_DESTROY_PTR(ze_event->event);
@@ -538,8 +538,11 @@ static void _on_destroy_context(ze_context_handle_t context){
   HASH_ITER(hh, _ze_events, ze_event, tmp) {
     if (ze_event->context == context) {
       HASH_DEL(_ze_events, ze_event);
-      if (ze_event->event && !(ze_event->flags & _ZE_PROFILED))
-        _profile_event_results(ze_event->event);
+      /* Do NOT query event results at context teardown: XKRT finalize releases
+       * device/queue resources before zeContextDestroy, so a live
+       * zeEventQueryStatus/QueryKernelTimestamp here dereferences freed GPU
+       * state and segfaults inside libze. Normal profiling already ran on
+       * completion/reset (_unregister_ze_event/_on_reset_event). */
       if (ze_event->event_pool) {
         if (ze_event->event)
           ZE_EVENT_DESTROY_PTR(ze_event->event);
