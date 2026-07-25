@@ -20,14 +20,21 @@ bats_require_minimum_version 1.5.0
   [ "$total_count" -ge 1 ]
 }
 
-@test "no-overhead_summary" {
-  total_count=$(iprof --no-overhead --backend cl -- clinfo | awk -F'|' '/Total/ {print int($4)}')
+@test "warmup_summary" {
+  total_count=$(iprof --warmup --backend cl -- clinfo | awk -F'|' '/Total/ {print int($4)}')
   [ "$total_count" -ge 1 ]
 }
 
-@test "no-overhead_incompatible_with_archive" {
-  run -1 iprof --no-overhead --archive --backend cl -- clinfo
+@test "warmup_incompatible_with_archive" {
+  run -1 iprof --warmup --archive --backend cl -- clinfo
   [[ "$output" =~ "incompatible with --archive" ]]
+}
+
+@test "warmup_configurable_buffers" {
+  export THAPI_WARMUP_SUBBUF_SIZE=64M
+  export THAPI_WARMUP_NUM_SUBBUF=4
+  total_count=$(iprof --warmup --backend cl -- clinfo | awk -F'|' '/Total/ {print int($4)}')
+  [ "$total_count" -ge 1 ]
 }
 
 @test "default_trace" {
