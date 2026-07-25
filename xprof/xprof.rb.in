@@ -744,8 +744,10 @@ module LocalMaster
     exec('lttng-sessiond --daemonize')
     if warmup?
       # Snapshot (flight-recorder) mode: buffers live only in RAM and are flushed
-      # to disk once, at teardown (see lttng_teardown_session).
-      exec("lttng create #{lttng_session_uuid} --snapshot")
+      # to disk once, at teardown (see lttng_teardown_session). `-o` configures the
+      # snapshot output so `lttng snapshot record` writes under lttng_trace_dir_tmp
+      # (not the default $LTTNG_HOME/lttng-traces, which lttng_kill_sessiond wipes).
+      exec("lttng create #{lttng_session_uuid} --snapshot -o #{lttng_trace_dir_tmp}")
     else
       exec("lttng create #{lttng_session_uuid} -o #{lttng_trace_dir_tmp}")
     end
@@ -801,9 +803,10 @@ module LocalMaster
 
   def lttng_teardown_session
     if warmup?
-      # In snapshot mode nothing has been written yet: stop to flush the UST
-      # ring buffers, then record the single on-disk snapshot into the directory
-      # babeltrace_thapi reads (it discovers the CTF trace recursively).
+      # In snapshot mode nothing has been written yet: stop to flush the UST ring
+      # buffers (recommended to avoid "holes"), then record the single snapshot to
+      # the output configured at create time (under lttng_trace_dir_tmp), which
+      # babeltrace_thapi discovers recursively.
       exec("lttng stop #{lttng_session_uuid}")
       exec("lttng snapshot record --session=#{lttng_session_uuid}")
     end
