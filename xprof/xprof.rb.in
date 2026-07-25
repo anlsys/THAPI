@@ -21,8 +21,8 @@ LTTNG_ARCHIVE_TIMER = '60s'
 # preallocates and pre-touches these RAM buffers up front.
 # Total RAM per channel ~= subbuf-size * num-subbuf * ncpu (per-uid buffers),
 # so these are large on many-core nodes. Override via the environment.
-THAPI_WARMUP_SUBBUF_SIZE = ENV.fetch('THAPI_WARMUP_SUBBUF_SIZE', '128M')
-THAPI_WARMUP_NUM_SUBBUF = ENV.fetch('THAPI_WARMUP_NUM_SUBBUF', '10')
+THAPI_WARMUP_SUBBUF_SIZE = ENV.fetch('THAPI_WARMUP_SUBBUF_SIZE', '16M')
+THAPI_WARMUP_NUM_SUBBUF = ENV.fetch('THAPI_WARMUP_NUM_SUBBUF', '4')
 LTTNG_DIRWATCH_SIZE = '500' # In MiB
 LTTNG_DIRWATCH_LOCK_RETRY_DELAY = 0.1
 MAX_UINT64_VALUE = (2**64) - 1
