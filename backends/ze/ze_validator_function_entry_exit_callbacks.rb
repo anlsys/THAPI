@@ -73,6 +73,27 @@ $on_successful_exit["zeCommandListAppendLaunchKernel"] = lambda { |state, ctx, d
               api: 'zeCommandListAppendLaunchKernel'))
 }
 
+# ADDED: zeCommandListReset returns a command list to its initial, empty,
+# appendable state so it can be reused without destroy+recreate. Misuse checks run
+# at ENTRY (a reset can be rejected/crash without emitting an _exit -- e.g. on an
+# immediate list) reading the input handle from defi.
+$upon_entry["zeCommandListReset"] = lambda { |state, ctx, defi|
+  check_command_list_reset(state, ctx, defi)
+}
+
+# ADDED: on success the list is empty and open again. Clear the recorded ops so a
+# later close/execute replays only ops appended after the reset (in-flight
+# executions from before are unaffected -- enqueue_deferred_execution snapshotted
+# a dup of the ops at submit time), and return the status to INITIALIZED so the
+# closed-before-execute check applies to the reused list.
+$on_successful_exit["zeCommandListReset"] = lambda { |state, ctx, defi|
+  command_lists = state.find_objects(ctx, 'command_list')
+  cmd_list = command_lists[state.find_param(ctx, 'hCommandList')]
+  return unless cmd_list
+  cmd_list.ops.clear
+  cmd_list.status = ZEModel::CommandList.class_variable_get(:@@INITIALIZED)
+}
+
 #when command queue is executed, the associated fence's status is set to IN_USE
 $on_successful_exit["zeCommandListClose"] = lambda { |state, ctx, defi|
   command_lists = state.find_objects(ctx, 'command_list')

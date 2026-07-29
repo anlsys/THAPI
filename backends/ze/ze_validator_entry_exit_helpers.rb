@@ -286,6 +286,50 @@ def check_command_list_closed(state, ctx, defi)
 end
 
 
+# ADDED: validate a zeCommandListReset. Runs at ENTRY, before the model applies
+# the reset, reading the list handle from defi. Reports three misuses:
+#   * already-destroyed list -- resetting a destroyed handle is a usage error.
+#   * immediate command list -- zeCommandListReset is invalid on an immediate list
+#     (it has no closed/execute lifecycle to reset); the runtime returns
+#     ZE_RESULT_ERROR_INVALID_ARGUMENT.
+#   * reset while in-flight -- the list is still executing a prior
+#     zeCommandQueueExecuteCommandLists submission. Resetting it now races the
+#     device and is undefined behavior in Level Zero.
+# Every command list handle is tracked, so the list is always found.
+# Reported once per (command list, reason) pair.
+def check_command_list_reset(state, ctx, defi)
+  handle = defi['hCommandList']
+  cmd_list = state.find_objects(ctx, 'command_list')[handle]
+
+  if cmd_list.status == ZEModel::CommandList.class_variable_get(:@@DESTROYED)
+    key = "clreset-destroyed-#{state.get_handle_str(handle)}"
+    if state.print_tracker[key] == 0
+      state.print_tracker[key] = 1
+      state.print_usage_error(ctx, "command list #{state.get_handle_str(handle)} was already destroyed before zeCommandListReset")
+    end
+    return
+  end
+
+  if cmd_list.immediate
+    key = "clreset-immediate-#{state.get_handle_str(handle)}"
+    if state.print_tracker[key] == 0
+      state.print_tracker[key] = 1
+      state.print_usage_error(ctx, "zeCommandListReset called on immediate command list #{state.get_handle_str(handle)}; " \
+                                   "immediate command lists cannot be reset")
+    end
+  end
+
+  if state.command_list_in_flight?(ctx, handle)
+    key = "clreset-inflight-#{state.get_handle_str(handle)}"
+    if state.print_tracker[key] == 0
+      state.print_tracker[key] = 1
+      state.print_usage_error(ctx, "command list #{state.get_handle_str(handle)} is being reset while a prior " \
+                                   "zeCommandQueueExecuteCommandLists submission is still in-flight; the device may " \
+                                   "still be executing it (undefined behavior)")
+    end
+  end
+end
+
 def check_valid_module(state,ctx,defi)
   module_handle = state.find_param(ctx, 'hModule')
   if !module_handle || module_handle == 0

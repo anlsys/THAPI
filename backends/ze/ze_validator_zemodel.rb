@@ -360,14 +360,20 @@ module ZEModel
     # ADDED: whether the originating command list is in-order (see CommandList#in_order).
     # The intra-list self-deadlock check only applies to in-order units.
     attr_reader :in_order
+    # ADDED: handle of the command list this unit was submitted from (nil if
+    # unknown/immediate without a handle). Lets checks scoped to a specific list --
+    # e.g. resetting a list while a prior submission is still in-flight -- find the
+    # deferred units that belong to it without matching on the label string.
+    attr_reader :cmd_list_handle
 
-    def initialize(ops, context, label, in_order: false)
+    def initialize(ops, context, label, in_order: false, cmd_list_handle: nil)
       @ops = ops
       @context = context
       @label = label
       @cursor = 0
       @blocked_on = []
       @in_order = in_order # ADDED
+      @cmd_list_handle = cmd_list_handle # ADDED
       #every event this unit will eventually signal, for the wait-for graph
       @pending_signals = ops.map { |op| op.signal }.compact
     end

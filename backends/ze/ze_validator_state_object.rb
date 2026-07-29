@@ -275,6 +275,22 @@ class StateObject
     end
   end
 
+  # ADDED: true if command list `handle` still has an in-flight deferred
+  # execution in this process -- a prior zeCommandQueueExecuteCommandLists whose
+  # ops have not all drained yet. Used by zeCommandListReset, which must not run
+  # while the list is still executing (undefined behavior in Level Zero). Matches
+  # on the unit's originating list handle and the process it belongs to (deferred
+  # units carry no pid, so we compare context host+pid, mirroring
+  # each_inflight_copy_op).
+  def command_list_in_flight?(context, handle)
+    @deferred_units.any? do |unit|
+      unit.cmd_list_handle == handle &&
+        unit.context['hostname'] == context['hostname'] &&
+        unit.context['vpid'] == context['vpid'] &&
+        !unit.done?
+    end
+  end
+
   def to_struct(memory, klass)
     memory.size > 0 ? klass.new(FFI::MemoryPointer.from_string(memory)) : nil
   end
@@ -402,8 +418,9 @@ class StateObject
   # ADDED: register a command list's ops as a deferred unit and pump. `ops` is a
   # snapshot (dup) taken by the caller so a later reset+re-append on the same
   # list cannot mutate an in-flight execution.
-  def run_deferred_list(context, ops, label, in_order: false)
-    @deferred_units << ZEModel::DeferredUnit.new(ops, context, label, in_order: in_order)
+  def run_deferred_list(context, ops, label, in_order: false, cmd_list_handle: nil)
+    @deferred_units << ZEModel::DeferredUnit.new(ops, context, label, in_order: in_order,
+                                                 cmd_list_handle: cmd_list_handle)
     pump_deferred
   end
 
@@ -416,7 +433,7 @@ class StateObject
     command_lists.each do |cl|
       next unless cl
       run_deferred_list(context, cl.ops.dup, "command_list (#{get_handle_str(cl.handle)})",
-                        in_order: cl.in_order)
+                        in_order: cl.in_order, cmd_list_handle: cl.handle)
     end
   end
 
