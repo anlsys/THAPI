@@ -5,6 +5,7 @@
 #include <iostream>
 #include <metababel/metababel.h>
 #include <regex>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 
@@ -181,6 +182,25 @@ static void property_device_callback(void *btx_handle,
 
   auto *data = static_cast<data_t *>(usr_data);
   data->device_property[{hostname, vpid, (thapi_device_id)hDevice}] = *pDeviceProperties_val;
+}
+
+static void
+property_command_queue_group_callback(void *btx_handle,
+                                      void *usr_data,
+                                      int64_t ts,
+                                      const char *hostname,
+                                      int64_t vpid,
+                                      uint64_t vtid,
+                                      ze_driver_handle_t hDriver,
+                                      ze_device_handle_t hDevice,
+                                      uint32_t numGroups,
+                                      size_t _pGroupProperties_val_length,
+                                      ze_command_queue_group_properties_t *pGroupProperties_val) {
+
+  auto *data = static_cast<data_t *>(usr_data);
+  data->command_queue_group_property[{hostname, vpid, (thapi_device_id)hDevice}] =
+      std::vector<ze_command_queue_group_properties_t>(pGroupProperties_val,
+                                                       pGroupProperties_val + numGroups);
 }
 
 static void property_subdevice_callback(void *btx_handle,
@@ -508,6 +528,38 @@ static void hSignalEvent_eventMemory_1ptr_entry_callback(void *btx_handle,
     name_s << strip_event_class_name_entry(event_class_name) << "("
            << memory_location(data, hp, (uintptr_t)ptr) << ")";
     name = name_s.str();
+  }
+  data->threadToLastLaunchInfo[{hostname, vpid, vtid}] = {
+      hCommandList, name, ts, btx_event_t::TRAFFIC, btx_additional_info_traffic_t{ts, size}};
+}
+
+static void hSignalEvent_eventMemory_region_entry_callback(void *btx_handle,
+                                                           void *usr_data,
+                                                           int64_t ts,
+                                                           const char *event_class_name,
+                                                           const char *hostname,
+                                                           int64_t vpid,
+                                                           uint64_t vtid,
+                                                           ze_command_list_handle_t hCommandList,
+                                                           void *dstptr,
+                                                           void *srcptr,
+                                                           ze_copy_region_t *dstRegion_val) {
+
+  auto *data = static_cast<data_t *>(usr_data);
+  const hp_t hp{hostname, vpid};
+
+  // No `size` field on region copies: bytes are implicit in the descriptor.
+  // depth == 0 denotes a 2D copy, i.e. a single slice.
+  size_t size = (size_t)dstRegion_val->width * dstRegion_val->height *
+                (dstRegion_val->depth != 0 ? dstRegion_val->depth : 1);
+
+  std::string name;
+  {
+    std::stringstream ss_name;
+    ss_name << strip_event_class_name_entry(event_class_name) << "("
+            << memory_location(data, hp, (uintptr_t)srcptr) << "2"
+            << memory_location(data, hp, (uintptr_t)dstptr) << ")";
+    name = ss_name.str();
   }
   data->threadToLastLaunchInfo[{hostname, vpid, vtid}] = {
       hCommandList, name, ts, btx_event_t::TRAFFIC, btx_additional_info_traffic_t{ts, size}};
@@ -919,7 +971,35 @@ static void event_profiling_result_callback(void *btx_handle,
       ss_metadata << std::get<btx_additional_info_kernel_t>(ptr) << ", ";
     // Create additional Medatata of the Command Queue
     ss_metadata << "{ordinal: " << commandQueueDesc.ordinal << ", "
-                << "index: " << commandQueueDesc.index << "}";
+                << "index: " << commandQueueDesc.index;
+    // Decode the command-queue-group capability flags for this ordinal. The
+    // flags field is a bitmask (COMPUTE|COPY|COOPERATIVE_KERNELS|METRICS), and
+    // multiple bits are typically set, so emit every set bit as a list rather
+    // than collapsing to a single type.
+    const auto it_g =
+        data->command_queue_group_property.find({hostname, vpid, (thapi_device_id)device});
+    if (it_g != data->command_queue_group_property.cend() &&
+        commandQueueDesc.ordinal < it_g->second.size()) {
+      const auto flags = it_g->second[commandQueueDesc.ordinal].flags;
+      ss_metadata << ", flags: [";
+      const char *sep = "";
+      uint32_t known = 0;
+      auto add = [&](ze_command_queue_group_property_flag_t bit, const char *name) {
+        if (flags & bit) {
+          ss_metadata << sep << name;
+          sep = ", ";
+          known |= bit;
+        }
+      };
+      add(ZE_COMMAND_QUEUE_GROUP_PROPERTY_FLAG_COMPUTE, "COMPUTE");
+      add(ZE_COMMAND_QUEUE_GROUP_PROPERTY_FLAG_COPY, "COPY");
+      add(ZE_COMMAND_QUEUE_GROUP_PROPERTY_FLAG_COOPERATIVE_KERNELS, "COOPERATIVE_KERNELS");
+      add(ZE_COMMAND_QUEUE_GROUP_PROPERTY_FLAG_METRICS, "METRICS");
+      if (flags & ~known)
+        ss_metadata << sep << "UNKNOWN";
+      ss_metadata << "]";
+    }
+    ss_metadata << "}";
     metadata = ss_metadata.str();
   }
   if (!hCommandListIsImmediate)
@@ -1388,6 +1468,8 @@ void btx_register_usr_callbacks(void *btx_handle) {
   btx_register_callbacks_lttng_ust_ze_properties_device(btx_handle, &property_device_callback);
   btx_register_callbacks_lttng_ust_ze_properties_subdevice(btx_handle,
                                                            &property_subdevice_callback);
+  btx_register_callbacks_lttng_ust_ze_properties_command_queue_group(
+      btx_handle, &property_command_queue_group_callback);
 
   /* Map command list to device and to command queue dist*/
   btx_register_callbacks_lttng_ust_ze_zeCommandListCreateImmediate_entry(
@@ -1426,6 +1508,7 @@ void btx_register_usr_callbacks(void *btx_handle) {
 
   REGISTER_ASSOCIATED_CALLBACK(hSignalEvent_eventMemory_2ptr_entry);
   REGISTER_ASSOCIATED_CALLBACK(hSignalEvent_eventMemory_1ptr_entry);
+  REGISTER_ASSOCIATED_CALLBACK(hSignalEvent_eventMemory_region_entry);
 
   REGISTER_ASSOCIATED_CALLBACK(eventMemory_without_hSignalEvent_entry);
   REGISTER_ASSOCIATED_CALLBACK(eventMemory_without_hSignalEvent_exit);

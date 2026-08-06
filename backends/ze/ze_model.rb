@@ -35,7 +35,7 @@ zex_funcs_e = $zex_api['functions']
 typedefs = $ze_api['typedefs'] + $zet_api['typedefs'] + $zes_api['typedefs'] + $zel_api['typedefs'] + $zer_api['typedefs'] + $zex_api['typedefs']
 structs = $ze_api['structs'] + $zet_api['structs'] + $zes_api['structs'] + $zel_api['structs'] + $zer_api['structs'] + $zex_api['structs']
 
-find_all_types(typedefs) #yaml_ast.rb
+find_all_types(typedefs)
 gen_struct_map(typedefs, structs)
 gen_ffi_type_map(typedefs)
 
@@ -274,23 +274,11 @@ register_epilogue 'zeEventDestroy', <<EOF
     _on_destroy_event(hEvent);
 EOF
 
-# Emit device_peer_access tracepoints after the loader hands back the driver
-# list. Guarded on phDrivers so the count-only invocation (phDrivers == NULL)
-# doesn't trigger a dump.
-p2p_epilogue = <<EOF
-  if (_retval == ZE_RESULT_SUCCESS && phDrivers && pCount &&
-      tracepoint_enabled(lttng_ust_ze_properties, zeMetadata_device_peer_access)) {
-    _dump_p2p_all_drivers(*pCount, phDrivers);
-  }
-EOF
-register_epilogue 'zeDriverGet',   p2p_epilogue
-register_epilogue 'zeInitDrivers', p2p_epilogue
-
 # Dump memory info if required
 memory_info_dump = lambda { |ptr_name|
   "_dump_memory_info(hCommandList, #{ptr_name})"
 }
-#memory info device,heap, etc. Only if paranoid memory tracking is enabled
+
 memory_info_prologue = lambda { |ptr_names|
   <<EOF
   if (_do_paranoid_memory_location &&
@@ -357,8 +345,8 @@ profiling_prologue = lambda { |event_name|
   }
 EOF
 }
-#event name is known from API Spec
-profiling_epilogue = lambda { |event_name|
+
+profiling_epilogue = lambda { |_event_name, waits_expr = 'phWaitEvents', n_waits_expr = 'numWaitEvents'|
   <<EOF
   if (_do_profile && _einj) {
     if (_retval == ZE_RESULT_SUCCESS) {

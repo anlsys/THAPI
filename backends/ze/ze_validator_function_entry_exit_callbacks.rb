@@ -5,131 +5,371 @@ require 'ze_library'
 $upon_entry = {} #called to modify program state on entry
 $on_successful_exit = {} #called upon seeing exit functions with a successful return code
 $on_erroneous_exit = {} #called upon seeing exit functions with a non-successful return code
-$on_metadata_event = {} #called upon when zeMetadata_* is called
-
-$on_metadata_event["zeMetadata_device_peer_access"] = lambda{|state, ctx, defi|
-  accessibility = defi['canAccess']
-  device1_ptr = defi['hDevice']
-  device2_ptr = defi['hPeerDevice']
-  if device1_ptr != device2_ptr
-    state.p2p_info[device1_ptr][device2_ptr] = true
-    state.p2p_info[device2_ptr][device1_ptr] = true
-  end
-  #puts "p2pinfo = #{state.p2p_info}"
-}
-
-
-#What happens if we try to evict memory that wasn't allocated?
-#UB if a device is currently referring to the memory?
-$upon_entry["zeContextEvictMemory"] = lambda{|state, ctx, defi|
-  mem_addr = defi['ptr']
-  memory_allocations =  state.find_objects(ctx, 'memory_allocation')
-  mem = memory_allocations[mem_addr]
-  mem.resident = false
-}
 
 $on_successful_exit["zeContextEvictMemory"] = lambda{|state, ctx, defi|
-  mem_addr = defi['ptr']
-  memory_allocations =  state.find_objects(ctx, 'memory_allocation')
-  mem = memory_allocations[mem_addr]
-  mem.resident = false
+  mem_addr = state.find_param(ctx,"ptr")
+  # CHANGED: scope the lookup to the evicting context (hContext is a param of
+  # this API), so an address live in another context is not touched by mistake.
+  memory_allocations = state.memory_allocations(ctx, state.find_param(ctx, 'hContext'))
+  if memory_allocations[mem_addr]
+    mem = memory_allocations[mem_addr]
+    mem.resident = false
+  end
 }
 
 #Check whether that memory is accessible by device?
-$upon_entry["zeContextMakeMemoryResident"] = lambda {|state, ctx, defi|
-  mem_addr = defi['ptr']
-  memory_allocations =  state.find_objects(ctx, 'memory_allocation')
-  mem = memory_allocations[mem_addr]
-  mem.resident = true #Does the driver automatically evict memory if the virtual mem exceeds the physical mem?
-}
-
-$upon_entry["zeCommandListAppendMemoryCopyRegion"] = lambda{|state, ctx, defi|
-  #src cannot become a dst from another simultaneous thread
-  #dst cannot become a src from another simultaneous thread and also a dst
-  dst_ptr = defi['dstptr']
-  src_ptr = defi['srcptr']
-  record_copy_over(state,ctx,src_ptr,dst_ptr)
-  check_memory_residency(state,ctx,defi,src_ptr,dst_ptr,"zeCommandListAppendMemoryCopyRegion")
-  check_copy_over_data_race(state,ctx,src_ptr,dst_ptr)
+$on_successful_exit["zeContextMakeMemoryResident"] = lambda {|state, ctx, defi|
+  mem_addr = state.find_param(ctx,"ptr")
+  # CHANGED: scope the lookup to this context (see zeContextEvictMemory).
+  memory_allocations = state.memory_allocations(ctx, state.find_param(ctx, 'hContext'))
+  if memory_allocations[mem_addr]
+    mem = memory_allocations[mem_addr]
+    mem.resident = true #Does the driver automatically evict memory if the virtual mem exceeds the physical mem?
+  end
 }
 
 
-$upon_entry["zeDeviceGetProperties"] = lambda{|state, ctx, defi|
-  device_ptr = defi['hDevice']
+$on_successful_exit["zeDeviceGetProperties"] = lambda{|state, ctx, defi|
+  device_ptr = state.find_param(ctx,'hDevice')
   devices = state.find_objects(ctx, 'device')
   devices[device_ptr].property_fetched = true
 }
 
-$upon_entry["zeDeviceGetCommandQueueGroupProperties"] = lambda{|state, ctx, defi|
-  device_ptr = defi['hDevice']
+$on_successful_exit["zeDeviceGetCommandQueueGroupProperties"] = lambda{|state, ctx, defi|
+  device_ptr = state.find_param(ctx,'hDevice')
   devices = state.find_objects(ctx, 'device')
   devices[device_ptr].cmd_queue_group_properties_queried = true
 }
 
-#Checks for appending a kernel to a copy engine.
-#Compute ordinal is 0 on 1550 MAX GPUs but this is device specific.
+# CHANGED: validation moved to ENTRY. Launching a kernel on a copy-only ordinal
+# can crash the process, so the append may emit no _exit event -- checking at
+# exit (the old code, which also had a `stat.find_param` typo that would NameError)
+# would miss it. Entry callbacks may read input params directly from defi.
 $upon_entry["zeCommandListAppendLaunchKernel"] = lambda { |state, ctx, defi|
-  cqg_ordinal = defi['commandQueueGroupOrdinal']
-  check_valid_ordinal(state,ctx,defi,cqg_ordinal)
-  check_kernel_created(state,ctx,defi)
+  #Retrieve the compute ordinal from the command list
+  command_lists = state.find_objects(ctx, 'command_list')
+  cmd_list = command_lists[defi['hCommandList']]
+  cqg_ordinal = 0
+  #a normal list carries the ordinal in desc; an immediate list in altdesc
+  if cmd_list && cmd_list.desc
+    cqg_ordinal = cmd_list.desc[:commandQueueGroupOrdinal]
+  elsif cmd_list && cmd_list.altdesc
+    cqg_ordinal =  cmd_list.altdesc[:ordinal]
+  end
+  #both checks must run even if the launch later aborts
+  check_valid_ordinal(state, ctx, defi, cqg_ordinal)
+  check_kernel_created(state, ctx, defi)
+  #the kernel's module must be on the same context as the command list
+  check_kernel_list_context_match(state, ctx, defi)
+}
+
+# CHANGED: op-recording (for deferred execution ordering) stays at EXIT, since
+# only a launch that successfully appended actually executes later on the queue.
+$on_successful_exit["zeCommandListAppendLaunchKernel"] = lambda { |state, ctx, defi|
+  record_op(state, ctx, state.find_param(ctx, 'hCommandList'),
+            ZEModel::RecordedOp.new(:launch,
+              signal: state.find_param(ctx, 'hSignalEvent'),
+              waits: wait_event_handles(state, ctx),
+              api: 'zeCommandListAppendLaunchKernel'))
+}
+
+# ADDED: zeCommandListReset returns a command list to its initial, empty,
+# appendable state so it can be reused without destroy+recreate. Misuse checks run
+# at ENTRY (a reset can be rejected/crash without emitting an _exit -- e.g. on an
+# immediate list) reading the input handle from defi.
+$upon_entry["zeCommandListReset"] = lambda { |state, ctx, defi|
+  check_command_list_reset(state, ctx, defi)
+}
+
+# ADDED: on success the list is empty and open again. Clear the recorded ops so a
+# later close/execute replays only ops appended after the reset (in-flight
+# executions from before are unaffected -- enqueue_deferred_execution snapshotted
+# a dup of the ops at submit time), and return the status to INITIALIZED so the
+# closed-before-execute check applies to the reused list.
+$on_successful_exit["zeCommandListReset"] = lambda { |state, ctx, defi|
+  command_lists = state.find_objects(ctx, 'command_list')
+  cmd_list = command_lists[state.find_param(ctx, 'hCommandList')]
+  return unless cmd_list
+  cmd_list.ops.clear
+  cmd_list.status = ZEModel::CommandList.class_variable_get(:@@INITIALIZED)
 }
 
 #when command queue is executed, the associated fence's status is set to IN_USE
-$upon_entry["zeCommandListClose"] = lambda { |state, ctx, defi|
+$on_successful_exit["zeCommandListClose"] = lambda { |state, ctx, defi|
   command_lists = state.find_objects(ctx, 'command_list')
-  cmd_list = command_lists[defi['hCommandList']]
-  #puts "cmdlist = #{defi['hCommandList']}"
+  command_list_handle = state.find_param(ctx,"hCommandList")
+  cmd_list = command_lists[command_list_handle]
   cmd_list.status = ZEModel::CommandList.class_variable_get(:@@CLOSED)
 }
 
-#TODO: check if reset or close was called before this if a different call with the same cmd list was observed previously
+# CHANGED: validation at ENTRY (a cooperative launch can likewise abort without
+# an exit). Also fixes the `stte` typo (undefined -> NameError) and nil-guards
+# the command list.
 $upon_entry["zeCommandListAppendLaunchCooperativeKernel"] = lambda { |state, ctx, defi|
   command_lists = state.find_objects(ctx, 'command_list')
   cmd_list = command_lists[defi['hCommandList']]
-  check_group_property_queued(stte,ctx,cmd_list.device)
+  check_group_property_queued(state,ctx,defi,cmd_list.device) if cmd_list
+  #the kernel's module must be on the same context as the command list
+  check_kernel_list_context_match(state, ctx, defi)
 }
 
-#when command queue is executed, the associated fence's status is set to IN_USE
+# CHANGED: recording at EXIT.
+$on_successful_exit["zeCommandListAppendLaunchCooperativeKernel"] = lambda { |state, ctx, defi|
+  record_op(state, ctx, state.find_param(ctx, 'hCommandList'),
+            ZEModel::RecordedOp.new(:launch,
+              signal: state.find_param(ctx, 'hSignalEvent'),
+              waits: wait_event_handles(state, ctx),
+              api: 'zeCommandListAppendLaunchCooperativeKernel'))
+}
+
+# ---- ADDED: copy / event ops recorded onto the command list for deferred replay
+# Each records the op in list order. For copies the out-of-bounds check is
+# deferred until the op's wait-events are satisfied (see the scheduler in
+# ze_validator_state_object.rb), so it runs against the memory state at the point
+# the copy actually executes rather than at append or execute time. Exit
+# callbacks read input params via find_param (defi holds only exit output).
+
+# ADDED: use-after-free check at ENTRY. A copy/fill whose pointer was already
+# freed can crash the driver inside the append, so no _exit event is emitted and
+# an exit-only check would miss it (the trace shows only the entry, then a crash).
+# Entry callbacks read input params directly from defi. This runs the same UAF
+# check against the freed registry before the (possibly fatal) append.
+$upon_entry['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
+  check_null_copy_ptr(state, ctx, 'zeCommandListAppendMemoryCopy',
+    { 'destination' => defi['dstptr'], 'source' => defi['srcptr'] })
+  check_use_after_free_on_append(state, ctx,
+    { api: 'zeCommandListAppendMemoryCopy',
+      ctx_handle: cmd_list_ctx_handle(state, ctx, defi['hCommandList']),
+      dst: defi['dstptr'], src: defi['srcptr'], size: defi['size'] },
+    wait_event_handles(state, ctx))
+  # known memory endpoints must be allocated on the command list's context
+  check_copy_ptr_list_context(state, ctx, 'zeCommandListAppendMemoryCopy', defi['hCommandList'],
+    { 'destination' => defi['dstptr'], 'source' => defi['srcptr'] })
+}
+
+$upon_entry['zeCommandListAppendMemoryFill'] = lambda { |state, ctx, defi|
+  check_null_copy_ptr(state, ctx, 'zeCommandListAppendMemoryFill',
+    { 'destination' => defi['ptr'] })
+  check_use_after_free_on_append(state, ctx,
+    { api: 'zeCommandListAppendMemoryFill',
+      ctx_handle: cmd_list_ctx_handle(state, ctx, defi['hCommandList']),
+      dst: defi['ptr'], src: nil, size: defi['size'] },
+    wait_event_handles(state, ctx))
+  # known memory endpoint must be allocated on the command list's context
+  check_copy_ptr_list_context(state, ctx, 'zeCommandListAppendMemoryFill', defi['hCommandList'],
+    { 'destination' => defi['ptr'] })
+}
+
+$on_successful_exit['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
+  record_copy_op(state, ctx, 'zeCommandListAppendMemoryCopy', 'dstptr', 'srcptr')
+}
+
+$on_successful_exit['zeCommandListAppendMemoryFill'] = lambda { |state, ctx, defi|
+  #a fill only touches the destination; model it as a copy with no source
+  record_copy_op(state, ctx, 'zeCommandListAppendMemoryFill', 'ptr', nil)
+}
+
+# ADDED: a copy append that FAILED is never recorded and never executed, so the
+# deferred check would never see it. But a copy whose size exceeds its
+# destination/source allocation is out-of-bounds regardless of the error code --
+# and a failing append is exactly where the driver rejects such a copy (e.g.
+# ZE_RESULT_ERROR_OUT_OF_DEVICE_MEMORY). Check it now, against the current memory
+# state (the pointers are already allocated at append time).
+$on_erroneous_exit['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
+  params = { api: 'zeCommandListAppendMemoryCopy',
+             ctx_handle: cmd_list_ctx_handle(state, ctx, state.find_param(ctx, 'hCommandList')),
+             dst: state.find_param(ctx, 'dstptr'),
+             src: state.find_param(ctx, 'srcptr'),
+             size: state.find_param(ctx, 'size') }
+  check_oob_copy(state, ctx, params)
+  check_use_after_free(state, ctx, params)
+}
+
+$on_erroneous_exit['zeCommandListAppendMemoryFill'] = lambda { |state, ctx, defi|
+  params = { api: 'zeCommandListAppendMemoryFill',
+             ctx_handle: cmd_list_ctx_handle(state, ctx, state.find_param(ctx, 'hCommandList')),
+             dst: state.find_param(ctx, 'ptr'),
+             src: nil,
+             size: state.find_param(ctx, 'size') }
+  check_oob_copy(state, ctx, params)
+  check_use_after_free(state, ctx, params)
+}
+
+$on_successful_exit['zeCommandListAppendMemoryCopyRegion'] = lambda { |state, ctx, defi|
+  #region copies carry 2D/3D extents, so `size` is not a flat byte count; we only
+  #record ordering + event effects and skip the flat OOB comparison for now
+  record_op(state, ctx, state.find_param(ctx, 'hCommandList'),
+            ZEModel::RecordedOp.new(:launch,
+              signal: state.find_param(ctx, 'hSignalEvent'),
+              waits: wait_event_handles(state, ctx),
+              api: 'zeCommandListAppendMemoryCopyRegion'))
+}
+
+#A device-side signal: the event is signaled when this op executes (after waits).
+$on_successful_exit['zeCommandListAppendSignalEvent'] = lambda { |state, ctx, defi|
+  record_op(state, ctx, state.find_param(ctx, 'hCommandList'),
+            ZEModel::RecordedOp.new(:signal, signal: state.find_param(ctx, 'hEvent'),
+              api: 'zeCommandListAppendSignalEvent'))
+}
+
+#A device-side wait: this op blocks the list until phEvents are signaled.
+$on_successful_exit['zeCommandListAppendWaitOnEvents'] = lambda { |state, ctx, defi|
+  record_op(state, ctx, state.find_param(ctx, 'hCommandList'),
+            ZEModel::RecordedOp.new(:wait, waits: wait_event_handles(state, ctx),
+              api: 'zeCommandListAppendWaitOnEvents'))
+}
+
+#A device-side reset: returns the event to unsignaled when this op executes.
+$on_successful_exit['zeCommandListAppendEventReset'] = lambda { |state, ctx, defi|
+  record_op(state, ctx, state.find_param(ctx, 'hCommandList'),
+            ZEModel::RecordedOp.new(:reset, params: { reset_handle: state.find_param(ctx, 'hEvent') }))
+}
+
+#A barrier waits on its events and signals its completion event.
+$on_successful_exit['zeCommandListAppendBarrier'] = lambda { |state, ctx, defi|
+  record_op(state, ctx, state.find_param(ctx, 'hCommandList'),
+            ZEModel::RecordedOp.new(:barrier,
+              signal: state.find_param(ctx, 'hSignalEvent'),
+              waits: wait_event_handles(state, ctx),
+              api: 'zeCommandListAppendBarrier'))
+}
+
+# ADDED: a memory-ranges barrier has the same event semantics as a plain barrier
+# (waits on its events, signals its completion event), so record it in the op
+# stream for the deferred scheduler and deadlock detection. It additionally names
+# memory ranges whose coherency it guarantees; those ranges are snapshotted and
+# validated against the allocation model when the barrier executes (see
+# record_ranges_barrier_op / check_ranges_barrier).
+$on_successful_exit['zeCommandListAppendMemoryRangesBarrier'] = lambda { |state, ctx, defi|
+  record_ranges_barrier_op(state, ctx)
+}
+
+# ADDED: host-side event operations, effective immediately (in trace order).
+#Signaling an already-signaled event without a reset is the same misuse we catch
+#on device ops.
+$on_successful_exit['zeEventHostSignal'] = lambda { |state, ctx, defi|
+  handle = state.find_param(ctx, 'hEvent')
+  check_event_signal_reuse(state, ctx, handle, 'zeEventHostSignal')
+  state.signal_event(ctx, handle, 'zeEventHostSignal')
+}
+
+$on_successful_exit['zeEventHostReset'] = lambda { |state, ctx, defi|
+  state.reset_event(ctx, state.find_param(ctx, 'hEvent'))
+}
+
+#The host waited until the event was signaled and observed it. This does NOT
+#signal the event; it records that the signaled state was consumed, so a later
+#signal without a reset reads as reuse-without-reset, not a double-signal.
+$on_successful_exit['zeEventHostSynchronize'] = lambda { |state, ctx, defi|
+  state.observe_event(ctx, state.find_param(ctx, 'hEvent'))
+}
+
+#A successful status query also observes the signaled state.
+$on_successful_exit['zeEventQueryStatus'] = lambda { |state, ctx, defi|
+  state.observe_event(ctx, state.find_param(ctx, 'hEvent'))
+}
+
+# ADDED: device-wide host synchronization points. The host waited for all
+#submitted work, so every currently-signaled event has been consumed.
+#zeCommandQueueSynchronize covers regular queues; zeCommandListHostSynchronize is
+#the immediate-command-list analogue (an immediate list is its own implicit
+#queue) -- giving immediate lists the same event-observation semantics.
+$on_successful_exit['zeCommandQueueSynchronize'] = lambda { |state, ctx, defi|
+  state.observe_all_signaled_events(ctx)
+}
+
+$on_successful_exit['zeCommandListHostSynchronize'] = lambda { |state, ctx, defi|
+  state.observe_all_signaled_events(ctx)
+}
+
 $upon_entry["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
-  #check if command list is null
-  check_valid_command_list(state,ctx,defi)
-  #Check if command list was closed before executing it on the queue
-  check_command_list_closed(state, ctx, defi) #ignore if it is the first execute call
-  check_fence_misuse(state,ctx,defi)
-  #check if the group property was hardcoded
   command_queues = state.find_objects(ctx, 'command_queue')
-  command_queue = command_queues[defi['hCommandQueue']]
-  check_group_property_queued(state,ctx,command_queue.device)
+  command_queue_handle = defi['hCommandQueue']
+  command_queue = command_queues[command_queue_handle]
+
+  #check if any command list is null
+  check_valid_command_lists(state,ctx,defi)
+  check_valid_command_queue(state,ctx,defi,command_queues,command_queue_handle)
+  #Check if command list was closed before executing it on the queue
+  #ignore if it is the first execute call
+  check_command_list_closed(state, ctx, defi)
+  check_fence_misuse(state,ctx,defi)
+
+  known_command_lists = state.find_objects(ctx, 'command_list')
+  # CHANGED: was `state.find_objects(ctx, 'phCommandLists_vals')` -- that is not
+  # an object store; the submitted list handles are the array payload itself.
+  command_list_handles = defi['phCommandLists_vals'] || []
+
+  fences = state.find_objects(ctx, 'fence')
+  fence_handle = defi['hFence']
+  fence = fences[fence_handle]
+
+  if fence
+    fence.status = fence.in_use #set this at the entry so that other command lists can view it
+  end
+
+  if command_queue
+    check_group_property_queued(state,ctx,defi,command_queue.device)
+    check_fence_and_queue_compatibility(state,ctx,defi,command_queue,fence)
+    command_list_handles.each do |command_list_handle|
+      check_list_and_queue_have_matching_context(state,ctx,defi,known_command_lists[command_list_handle],command_queue)
+      check_list_and_fence_have_matching_context(state,ctx,defi,known_command_lists[command_list_handle],fence)
+      # ADDED: a list with a compute kernel launch must not go to a copy-only queue
+      check_copy_only_queue_submission(state,ctx,command_queue,known_command_lists[command_list_handle])
+      # ADDED: events used by the list must come from an event pool on the queue's context
+      check_event_pool_queue_context_match(state,ctx,command_queue,known_command_lists[command_list_handle])
+    end
+  else
+    # CHANGED: was raise_internal_error, which aborted the whole validator on one
+    # unknown queue handle (common if tracing started after zeCommandQueueCreate).
+    # Report and continue so the deferred execution below still runs.
+    state.print_usage_error(ctx, "command queue #{state.get_handle_str(command_queue_handle)} was not found ")
+  end
 }
 
-#When a fence signals the host, set the fence's status to signaled 
-$upon_entry["zeFenceHostSynchronize"] =  lambda { |state, ctx, defi|
-  curr_fence = ZEModel::Fence.get_fence(state,ctx,defi)
-  return unless curr_fence
-  if curr_fence.status == ZEModel::Fence.class_variable_get(:@@SIGNALED)
-  state.print_usage_error(ctx, "Used fence: #{state.get_handle_str(defi['hFence'])} twice without resetting it")
+# CHANGED: execute is asynchronous. On success, the submitted lists' recorded ops
+# become deferred execution units (each list its own unit). Their memory copies
+# are checked for out-of-bounds when their wait-events are signaled, not here (see
+# the scheduler in ze_validator_state_object.rb). Previously this was empty.
+$on_successful_exit["zeCommandQueueExecuteCommandLists"] = lambda { |state, ctx, defi|
+  known_command_lists = state.find_objects(ctx, 'command_list')
+  command_list_handles = state.find_param(ctx, 'phCommandLists_vals') || []
+  command_lists = command_list_handles.map { |h| known_command_lists[h] }
+  state.enqueue_deferred_execution(ctx, command_lists)
+}
+
+#When a fence signals the host, set the fence's status to signaled
+$on_successful_exit["zeFenceHostSynchronize"] =  lambda { |state, ctx, defi|
+  # CHANGED: was `get_fence(state,ctx,defi)` -- get_fence expects a handle, not
+  # defi. Read the handle from the entry params and pass it.
+  fence_handle = state.find_param(ctx,"hFence")
+  fence = get_fence(state, ctx, fence_handle)
+  if fence
+    fence.status = fence.signaled
+  else
+    state.print_usage_error(ctx, "nullptr fence was used for zeFenceHostSynchronize")
   end
-  curr_fence.status = ZEModel::Fence.class_variable_get(:@@SIGNALED)
 }
 
 #should a double reset be considered as a usage error?
 #Also, a fence can be shared throughout the threads and is modeled correctly (if you are wondering about whether the model treats fence associated with different thread-id differently).
 $upon_entry["zeFenceReset"] =  lambda { |state, ctx, defi|
-  fences = nil
-  #puts "fence ctx = #{ctx}"
-  curr_fence = ZEModel::Fence.get_fence(state,ctx,defi)
+  # CHANGED: was ZEModel::Fence.get_fence(...) and @@INITIALIZED -- Fence has no
+  # such class method or class variable (that method was removed from the model;
+  # @@INITIALIZED belongs to CommandList). get_fence is a top-level helper, and a
+  # reset fence returns to the not_signaled instance state. This is an entry
+  # callback, so input params are available directly in defi.
+  curr_fence = get_fence(state, ctx, defi['hFence'])
   return unless curr_fence
-  curr_fence.status = ZEModel::Fence.class_variable_get(:@@INITIALIZED)
+  curr_fence.status = curr_fence.not_signaled
 }
 
 #Set the driver for the current context
 $on_successful_exit['zeDriverGet'] = lambda { |state, ctx, defi|
   drivers = state.get_process(ctx).drivers
-  #puts "defi = #{defi}"
   defi['phDrivers_vals'].each { |h|
     drivers[h] = ZEModel::Driver.new(h) unless drivers[h]
   }
-  #puts "drivers = #{drivers}"
 }
 
 #Set device
@@ -146,17 +386,11 @@ $on_successful_exit['zeDeviceGet'] = lambda { |state, ctx, defi|
   end
 }
 
-$upon_entry['ze_thapi_extra_info_p2p_entry'] = lambda {|state, ctx, defi|
-  #puts "detected! defi = #{defi}"
-  #puts "detected! state = #{state}"
-  #puts "detected! ctx = #{ctx}"
-}
+
 
 $on_successful_exit['zeDeviceGetSubDevices'] = lambda { |state, ctx, defi|
   devices = state.find_objects(ctx, 'device')
-  # Same reason as zeDeviceGet above: read hDevice directly from the exit
-  # payload to avoid last_entry clobber from nested calls.
-  device = devices[defi['hDevice']]
+  device = state.find_object(ctx, 'device', 'hDevice')
   defi['phSubdevices_vals'].each { |h|
     unless devices[h]
       devices[h] = ZEModel::SubDevice.new(h, device)
@@ -172,6 +406,7 @@ $on_successful_exit['zeContextCreate'] = lambda { |state, ctx, defi|
   desc = state.to_struct(desc_val, ZE::ZEContextDesc)
   handle = defi['phContext_val']
   contexts[handle] = ZEModel::Context.new(handle, driver, desc)
+  check_struct_stype_misuse(state,ctx,defi,:ZE_STRUCTURE_TYPE_CONTEXT_DESC,desc[:stype])
 }
 
 $on_successful_exit['zeContextCreateEx'] = lambda { |state, ctx, defi|
@@ -204,6 +439,7 @@ $on_successful_exit['zeEventPoolCreate'] = lambda { |state, ctx, defi|
   handle = defi['phEventPool_val']
   event_pools[handle] = ZEModel::EventPool.new(handle, context, desc, devs)
   context.event_pools[handle] = event_pools[handle]
+  check_struct_stype_misuse(state,ctx,defi,:ZE_STRUCTURE_TYPE_EVENT_POOL_DESC,desc[:stype])
 }
 
 $on_successful_exit['zeEventPoolDestroy'] = lambda { |state, ctx, defi|
@@ -231,6 +467,7 @@ $on_successful_exit['zeEventCreate'] = lambda { |state, ctx, defi|
     state.print_usage_error(ctx, "event_pool #{state.get_handle_str(event_pool.handle)} index #{desc[:index]} is already used")
   end
   event_pool.events[handle] = events[handle]
+  check_struct_stype_misuse(state,ctx,defi,:ZE_STRUCTURE_TYPE_EVENT_DESC,desc[:stype])
 }
 
 $on_successful_exit['zeEventDestroy'] = lambda { |state, ctx, defi|
@@ -255,9 +492,16 @@ $on_successful_exit['zeCommandQueueCreate'] = lambda { |state, ctx, defi|
   desc_val = state.find_param(ctx, 'desc_val')
   desc = state.to_struct(desc_val, ZE::ZECommandQueueDesc)
   handle = defi['phCommandQueue_val']
-  #puts "desc = #{desc}"
   command_queues[handle] = ZEModel::CommandQueue.new(handle, context, device, desc)
   context.command_queues[handle] = command_queues[handle]
+  check_struct_stype_misuse(state,ctx,defi,:ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC,desc[:stype])
+}
+
+$on_erroneous_exit['zeCommandQueueCreate'] = lambda { |state, ctx, defi|
+  desc_val = state.find_param(ctx, 'desc_val')
+  desc = state.to_struct(desc_val, ZE::ZECommandQueueDesc)
+  handle = state.find_param(ctx, 'phCommandQueue')
+  check_valid_index_for_ordinal(state,ctx,handle,desc[:ordinal],desc[:index])
 }
 
 $on_successful_exit['zeCommandQueueDestroy'] = lambda { |state, ctx, defi|
@@ -283,6 +527,7 @@ $on_successful_exit['zeFenceCreate'] = lambda { |state, ctx, defi|
   fence = ZEModel::Fence.new(handle, command_queue, desc)
   fences[handle] = fence
   command_queue.fences[handle] = fence
+  check_struct_stype_misuse(state,ctx,defi,:ZE_STRUCTURE_TYPE_FENCE_DESC,desc[:stype])
 }
 
 $on_successful_exit['zeFenceDestroy'] = lambda { |state, ctx, defi|
@@ -303,10 +548,15 @@ $on_successful_exit['zeCommandListCreate'] = lambda { |state, ctx, defi|
   device = state.find_object(ctx, 'device', 'hDevice')
   desc_val = state.find_param(ctx, 'desc_val')
   desc = state.to_struct(desc_val, ZE::ZECommandListDesc)
-  #puts "cmd_desc = #{desc}"
   handle = defi['phCommandList_val']
   command_lists[handle] = ZEModel::CommandList.new(handle, context, device, desc, nil)
+  # ADDED: remember whether this list is in-order. desc[:flags] decodes (via the
+  # FFI zebitmask) to an array of symbols; IN_ORDER means appended ops run strictly
+  # in order, enabling the intra-list self-deadlock check.
+  command_lists[handle].in_order = !!(desc && desc[:flags].respond_to?(:include?) &&
+                                      desc[:flags].include?(:ZE_COMMAND_LIST_FLAG_IN_ORDER))
   context.command_lists[handle] = command_lists[handle]
+  check_struct_stype_misuse(state,ctx,defi,:ZE_STRUCTURE_TYPE_COMMAND_LIST_DESC,desc[:stype])
 }
 
 $on_successful_exit['zeCommandListCreateImmediate'] = lambda { |state, ctx, defi|
@@ -316,11 +566,22 @@ $on_successful_exit['zeCommandListCreateImmediate'] = lambda { |state, ctx, defi
   altdesc_val = state.find_param(ctx, 'altdesc_val')
   altdesc = state.to_struct(altdesc_val, ZE::ZECommandQueueDesc)
   handle = defi['phCommandList_val']
-  check_group_property_queued(state,ctx,device)
+  check_group_property_queued(state,ctx,defi,device)
   command_lists[handle] = ZEModel::CommandList.new(handle, context, device, nil, altdesc)
   command_lists[handle].immediate = true #immdediate command lists cannot be passed to the execute command lists
-  command_list[handle].associated_ordinal = altdesc.ordinal
+  command_lists[handle].associated_ordinal = altdesc[:ordinal]
+  # ADDED: immediate lists carry the queue desc (altdesc); its IN_ORDER flag is the
+  # queue-level one. Immediate appends still CAN deadlock among themselves (e.g.
+  # op1 waits A/signals B while op2 waits B/signals A) -- but each append is its
+  # own single-op DeferredUnit, so such a cycle is a CROSS-unit cycle already
+  # caught by check_circular_deadlock, not the single-unit case
+  # check_in_order_self_deadlock handles. Recorded here for consistency.
+  command_lists[handle].in_order = !!(altdesc && altdesc[:flags].respond_to?(:include?) &&
+                                      altdesc[:flags].include?(:ZE_COMMAND_QUEUE_FLAG_IN_ORDER))
   context.command_lists[handle] = command_lists[handle]
+
+  #immediate command list does not take in the list descriptor as an input
+  check_struct_stype_misuse(state,ctx,defi,:ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC,altdesc[:stype])
 }
 
 $on_successful_exit['zeCommandListDestroy'] = lambda { |state, ctx, defi|
@@ -352,6 +613,9 @@ $on_successful_exit['zeModuleCreate'] = lambda { |state, ctx, defi|
     context.module_build_logs[build_log_handle] = build_log
     modules[handle].build_log = build_log
   end
+  check_struct_stype_misuse(state,ctx,defi,:ZE_STRUCTURE_TYPE_MODULE_DESC,desc[:stype])
+
+
 }
 
 $on_erroneous_exit['zeModuleCreate'] = lambda { |state, ctx, defi|
@@ -412,9 +676,11 @@ $on_successful_exit['zeKernelCreate'] = lambda { |state, ctx, defi|
   desc_val = state.find_param(ctx, 'desc_val')
   desc = state.to_struct(desc_val, ZE::ZEKernelDesc)
   handle = defi['phKernel_val']
-  kernel = ZEModel::Kernel.new(handle, mod, desc)
+  kernelName = state.find_param(ctx, 'desc__pKernelName_val')
+  kernel = ZEModel::Kernel.new(handle, mod, desc, kernelName)
   kernels[handle] = kernel
   mod.kernels[handle] = kernel
+  check_struct_stype_misuse(state,ctx,defi,:ZE_STRUCTURE_TYPE_KERNEL_DESC, desc[:stype])
 }
 
 $on_successful_exit['zeKernelDestroy'] = lambda { |state, ctx, defi|
@@ -429,43 +695,33 @@ $on_successful_exit['zeKernelDestroy'] = lambda { |state, ctx, defi|
   }
 }
 
-$upon_entry['zeCommandListAppendMemoryCopy'] = lambda { |state, ctx, defi|
-  check_oob_memory_copy(state,ctx,defi)
-}
-
-$upon_entry['zeMemAllocDevice'] = lambda {|state, ctx, defi|
-  device_desc_val = defi['device_desc_val']
-  device_desc = state.to_struct(device_desc_val, ZE::ZEDeviceMemAllocDesc)
-  
-  if state.print_tracker["zeMemAllocDevice::StypeMisuse"] == 0
-    state.print_tracker["zeMemAllocDevice::StypeMisuse"] = 1
-    check_struct_stype_misuse(state,ctx,:ZE_STRUCTURE_TYPE_DEVICE_MEM_ALLOC_DESC, device_desc[:stype].to_sym)
-  end
-}
+# REMOVED: a second, broken $on_successful_exit['zeCommandListAppendMemoryCopy']
+# used to live here. It called add_api_call_to_cmd_list (undefined locals) and,
+# being defined later, would have overridden the recorder above. The single
+# recorder near the other append callbacks now handles this API.
 
 #The implementation of this (zeMemAllocDevice) function must be thread-safe
 $on_successful_exit['zeMemAllocDevice'] = lambda { |state, ctx, defi|
   # memory is associated with devices
-  memory_allocations =  state.find_objects(ctx, 'memory_allocation')
+  ctx_handle = state.find_param(ctx, 'hContext') # ADDED: key allocations by context
+  memory_allocations = state.memory_allocations(ctx, ctx_handle)
   context = state.find_object(ctx, 'context', 'hContext')
   device = state.find_object(ctx, 'device','hDevice')
   size = state.find_param(ctx,"size")
+  device_desc_val = state.find_param(ctx,"device_desc_val")
   handle = defi['pptr_val']
+  mark_reallocated(state, ctx, ctx_handle, handle, size) # ADDED: address may reuse a freed range in this context
   memory_allocation =  ZEModel::Memory.new(handle, context, size, device, "device")
   memory_allocations[handle] = memory_allocation
-  device.memory_allocations[handle] = memory_allocation
+  device.memory_allocations[ctx_handle][handle] = memory_allocation # CHANGED: per-context device sub-map
+  device_desc = state.to_struct(device_desc_val, ZE::ZEDeviceMemAllocDesc)
+  check_struct_stype_misuse(state,ctx,defi,:ZE_STRUCTURE_TYPE_DEVICE_MEM_ALLOC_DESC, device_desc[:stype])
 }
 
-#remove the transit info when the copy region returns
-$on_successful_exit["zeCommandListAppendMemoryCopyRegion"] = lambda { |state, ctx, defi|
-  src_ptr = state.find_param(ctx,"srcptr")
-  dst_ptr = state.find_param(ctx,"dstptr")
-  state.memory_in_transit[ctx['vpid']] -= [[src_ptr, "src"]]
-  state.memory_in_transit[ctx['vpid']] -= [[dst_ptr, "dst"]]
-}
 
 $on_successful_exit['zeMemAllocShared'] = lambda { |state, ctx, defi|
-  memory_allocations =  state.find_objects(ctx, 'memory_allocation')
+  ctx_handle = state.find_param(ctx, 'hContext') # ADDED: key allocations by context
+  memory_allocations = state.memory_allocations(ctx, ctx_handle)
   # finds the device and context objects associated with the params
   context = state.find_object(ctx, 'context', 'hContext')
   device = state.find_object(ctx, 'device','hDevice')
@@ -475,32 +731,65 @@ $on_successful_exit['zeMemAllocShared'] = lambda { |state, ctx, defi|
   # TODO: should add in code to add this mme allocation to all devices with that property
   size = state.find_param(ctx,"size")
   handle = defi['pptr_val']
+  mark_reallocated(state, ctx, ctx_handle, handle, size) # ADDED: address may reuse a freed range in this context
   memory_allocation =  ZEModel::Memory.new(handle, context, size, device)
   memory_allocations[handle] = memory_allocation
-  device.memory_allocations[handle] = memory_allocation if device
+  device.memory_allocations[ctx_handle][handle] = memory_allocation if device # CHANGED: per-context device sub-map
 }
 
 $on_successful_exit['zeMemAllocHost'] = lambda { |state, ctx, defi|
   # Host allocations are accessible by the host and all devices within the driver’s context.
   # TODO: add this memory allocation to all devices in the context
-  memory_allocations =  state.find_objects(ctx, 'memory_allocation')
+  ctx_handle = state.find_param(ctx, 'hContext') # ADDED: key allocations by context
+  memory_allocations = state.memory_allocations(ctx, ctx_handle)
   context = state.find_object(ctx, 'context', 'hContext')
   size = state.find_param(ctx,"size")
   handle = defi['pptr_val']
+  mark_reallocated(state, ctx, ctx_handle, handle, size) # ADDED: address may reuse a freed range in this context
   memory_allocation =  ZEModel::Memory.new(handle, context, size, nil, "host")
   memory_allocations[handle] = memory_allocation
 }
 
-$on_successful_exit['zeMemFree'] = lambda { |state, ctx, defi|
-  memory_allocations =  state.find_objects(ctx, 'memory_allocation')
+# CHANGED: apply the free at ENTRY, not exit. On the program timeline the app
+# relinquishes the buffer at the call to zeMemFree; nothing after that call may
+# touch it. Applying the free at _exit is wrong when zeMemFree BLOCKS until the
+# buffer is idle: a gated copy that reads the buffer can be released (by another
+# thread signaling its wait event) and executed BETWEEN this call's _entry and
+# _exit, so at _exit the copy has already drained (nothing looks in-flight) and,
+# while the copy ran, the model had not yet marked the buffer freed (no UAF).
+# Doing it at entry lets check_free_in_flight see the still-parked copy, and
+# marks the buffer freed before that copy is later replayed, so the deferred UAF
+# check fires too. If the free actually fails, the erroneous-exit handler below
+# restores the allocation.
+$upon_entry['zeMemFree'] = lambda { |state, ctx, defi|
+  ctx_handle = defi['hContext'] # ADDED: allocations are keyed by freeing context
+  memory_allocations = state.memory_allocations(ctx, ctx_handle)
+  handle = defi['ptr']
+  memory_allocation = memory_allocations[handle]
+  next unless memory_allocation
+  # flag if this buffer is still referenced by a copy/fill that has been
+  # submitted but not yet completed (in-flight device work would touch freed mem)
+  check_free_in_flight(state, ctx, memory_allocation)
+  memory_allocations.delete(handle)
+  owned = memory_allocation.owned_by
+  owned.memory_allocations[ctx_handle].delete(handle) if owned # CHANGED: per-context device sub-map
+  # keep the freed allocation in this context's freed registry so a later
+  # copy/fill/kernel referencing this address is caught as use-after-free
+  memory_allocation.freed_by = state.get_api_context(ctx)
+  state.freed_memory_allocations(ctx, ctx_handle)[handle] = memory_allocation
+}
+
+# ADDED: the free was applied at entry; if the driver reported failure, the
+# buffer is actually still alive -- move it back from the freed registry to the
+# live set so it is not falsely flagged as use-after-free later.
+$on_erroneous_exit['zeMemFree'] = lambda { |state, ctx, defi|
+  ctx_handle = state.find_param(ctx, 'hContext') # ADDED: same context the entry freed under
   handle = state.find_param(ctx, "ptr")
-  memory_allocation = memory_allocations.delete(handle) {
-    state.object_not_found(ctx, 'memory_allocation', handle)
-  }
-  if memory_allocation
-    mem = memory_allocation.owned_by
-    mem.memory_allocations.delete(handle) {
-      state.object_not_found(ctx, 'memory_allocation', handle, 'device')
-    } if mem
+  mem = state.freed_memory_allocations(ctx, ctx_handle).delete(handle)
+  if mem
+    mem.freed_by = nil
+    state.memory_allocations(ctx, ctx_handle)[handle] = mem
+    owned = mem.owned_by
+    owned.memory_allocations[ctx_handle][handle] = mem if owned # CHANGED: per-context device sub-map
   end
 }
