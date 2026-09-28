@@ -95,6 +95,41 @@ AS_IF([test "x$ac_cv_header_cxxabi_h" != xyes && test "x$LLVM_DEMANGLE_LIBS" = x
 AC_ARG_ENABLE([strict], AS_HELP_STRING([--enable-strict], [Enable -Werror]), [], [enable_strict=yes])
 AM_CONDITIONAL([STRICT], [test "x$enable_strict" = xyes])
 
+# Valgrind/tracegrind. `iprof --valgrind` runs the tracee under the tracegrind
+# tool (https://github.com/anlsys/valgrind, branch `tracegrind`) and injects the
+# memory accesses it records into the LTTng trace.
+AC_ARG_WITH([tracegrind],
+  [AS_HELP_STRING([--with-tracegrind@<:@=PREFIX@:>@],
+     [build the Valgrind/tracegrind memory-access hook (default: no)])],
+  [], [with_tracegrind=no])
+AS_IF([test "x$with_tracegrind" != xno],
+  [AS_IF([test "x$with_tracegrind" != xyes],
+         [TRACEGRIND_CPPFLAGS="-I$with_tracegrind/include"
+          thapi_tracegrind_path="$with_tracegrind/bin$PATH_SEPARATOR$PATH"],
+         [TRACEGRIND_CPPFLAGS=""
+          thapi_tracegrind_path="$PATH"])
+   thapi_save_CPPFLAGS="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS $TRACEGRIND_CPPFLAGS"
+   AC_CHECK_HEADER([valgrind/valgrind.h], [],
+     [AC_MSG_ERROR([--with-tracegrind: <valgrind/valgrind.h> not found.])])
+   AC_CHECK_HEADER([valgrind/tracegrind.h], [],
+     [AC_MSG_ERROR([--with-tracegrind: <valgrind/tracegrind.h> not found. Please install: https://github.com/anlsys/valgrind (branch tracegrind).])])
+   CPPFLAGS="$thapi_save_CPPFLAGS"
+   AC_PATH_PROG([VALGRIND], [valgrind], [no], [$thapi_tracegrind_path])
+   test "x$VALGRIND" = xno && AC_MSG_ERROR([--with-tracegrind: required program 'valgrind' not found.])
+   AC_MSG_CHECKING([whether $VALGRIND provides the tracegrind tool])
+   AS_IF([$VALGRIND --tool=tracegrind --version >/dev/null 2>&1],
+         [AC_MSG_RESULT([yes])],
+         [AC_MSG_RESULT([no])
+          AC_MSG_WARN([$VALGRIND cannot run --tool=tracegrind; `iprof --valgrind' will fail at runtime.])])
+   TRACEGRIND_ENABLED=yes],
+  [TRACEGRIND_ENABLED=no
+   VALGRIND=valgrind])
+AM_CONDITIONAL([TRACEGRIND], [test "x$TRACEGRIND_ENABLED" = xyes])
+AC_SUBST([TRACEGRIND_CPPFLAGS])
+AC_SUBST([TRACEGRIND_ENABLED])
+AC_SUBST([VALGRIND])
+
 # By default `--enable-sync-daemon-mpi`, will set the "enable_sync_daemon_mpi" variable
 AC_ARG_ENABLE([sync-daemon-mpi],
               AS_HELP_STRING([--disable-sync-daemon-mpi], [Disable mpi sync daemon]),
@@ -187,6 +222,7 @@ AC_CONFIG_FILES([
 	backends/itt/Makefile
 	backends/cxi/Makefile
 	backends/pytorch/Makefile
+	backends/tracegrind/Makefile
 ])
 AC_CONFIG_FILES([utils/test_wrapper_thapi_text_pretty.sh], [chmod +x utils/test_wrapper_thapi_text_pretty.sh])
 AC_CONFIG_FILES([backends/opencl/tracer_opencl.sh], [chmod +x backends/opencl/tracer_opencl.sh])

@@ -1,0 +1,31 @@
+---
+# The single event the Valgrind hook injects before every LTTng event the
+# traced process emits. It carries the memory accesses Tracegrind compacted for
+# the calling thread since the previous event.
+#
+# Intervals are flushed straight out of Tracegrind's drain buffer, where each
+# 'tracegrind_interval_t' is two consecutive words. A sequence is therefore laid
+# out as [a0, b0, a1, b1, ...] and interval i is [ loads[2i] ; loads[2i+1] )
+# (a = first byte, b = one-past-last). 'n_loads'/'n_stores' count intervals, so
+# each sequence carries twice as many words. Keeping one sequence per kind
+# rather than separate start[]/end[] arrays is what lets the hook hand the
+# buffer to LTTng without deinterleaving it.
+lttng_ust_tracegrind:
+  events:
+    - name: mem_accesses
+      args:
+        - ["unsigned long", seq]        # per-thread interception counter
+        - ["unsigned long", user_ctx]   # ring-buffer ctx of the event about to be emitted
+        - ["unsigned int", chunk]       # record index within one interception (0-based)
+        - ["unsigned int", n_loads]
+        - ["unsigned long *", loads]
+        - ["unsigned int", n_stores]
+        - ["unsigned long *", stores]
+      fields:
+        - [ctf_integer, "unsigned long", seq, seq]
+        - [ctf_integer_hex, "unsigned long", user_ctx, user_ctx]
+        - [ctf_integer, "unsigned int", chunk, chunk]
+        - [ctf_integer, "unsigned int", n_loads, n_loads]
+        - [ctf_sequence_hex, "unsigned long", loads, loads, "unsigned int", "n_loads * 2"]
+        - [ctf_integer, "unsigned int", n_stores, n_stores]
+        - [ctf_sequence_hex, "unsigned long", stores, stores, "unsigned int", "n_stores * 2"]
