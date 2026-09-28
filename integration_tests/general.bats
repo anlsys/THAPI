@@ -125,3 +125,15 @@ bats_require_minimum_version 1.5.0
   cmp out_a.pftrace out_b.pftrace
   rm -f out_a.pftrace out_b.pftrace
 }
+
+@test "valgrind_tracegrind" {
+  # Needs THAPI built with --with-tracegrind *and* the tracegrind fork on PATH.
+  # The hook is the only artifact --with-tracegrind adds, so probe for it.
+  [ -f "$(pkg-config --variable=libdir thapi)/libTracerTracegrind.so" ] ||
+    skip "built without --with-tracegrind"
+  valgrind --tool=tracegrind --version >/dev/null 2>&1 || skip "tracegrind tool not available"
+
+  # `-t` keeps the raw LTTng trace: the tally/timeline pipelines drop the event.
+  run -0 iprof --valgrind --backend cl -t -- clinfo
+  [[ "$output" =~ "lttng_ust_tracegrind:mem_accesses" ]]
+}

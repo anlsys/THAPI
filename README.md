@@ -175,6 +175,33 @@ iprof -l -- ./a.out
 iprof -t -- ./a.out
 ```
 
+### Memory accesses (`--valgrind`)
+
+When THAPI is built with `--with-tracegrind` (Spack: `spack install thapi +tracegrind`),
+`iprof --valgrind` runs the program under
+[Tracegrind](https://github.com/anlsys/valgrind/tree/tracegrind/tracegrind), a Valgrind
+tool that records every load and store. All the accesses performed between two events
+THAPI recorded are flushed into an extra `lttng_ust_tracegrind:mem_accesses` event,
+emitted just before each of them:
+
+```bash
+iprof --valgrind -t -- ./a.out
+```
+
+```
+lttng_ust_tracegrind:mem_accesses: { seq = 3, user_ctx = 0x..., chunk = 0,
+                                     n_loads = 96, loads = [ a0, b0, a1, b1, ... ],
+                                     n_stores = 31, stores = [ a0, b0, a1, b1, ... ] }
+lttng_ust_ze:zeCommandListAppendLaunchKernel_entry: { ... }
+```
+
+Accesses are compacted into intervals: interval `i` is `[ loads[2i] ; loads[2i+1] )`,
+and `n_loads`/`n_stores` are the interval counts.
+See [`backends/tracegrind/README.md`](backends/tracegrind/README.md) for details.
+
+> Use `-t` or `--no-analysis`: the tally and timeline pipelines discard these events.
+> Expect a 10-100x slowdown
+
 ## Stand-alone tracers (low-level / hacking)
 
 For development and quick experiments, (and for bash lover), THAPI provides back-end-specific wrapper scripts 

@@ -15,6 +15,10 @@ PREFIX = '@prefix@'
 DATAROOTDIR = File.join(PREFIX, 'share')
 DATADIR = DATAROOTDIR
 
+TRACEGRIND_ENABLED = '@TRACEGRIND_ENABLED@' == 'yes'
+VALGRIND_BIN = '@VALGRIND@'
+TRACEGRIND_LIB = File.join(LIBDIR, 'libTracerTracegrind.so')
+
 LTTNG_ARCHIVE_SIZE = '50M'
 LTTNG_ARCHIVE_TIMER = '60s'
 LTTNG_DIRWATCH_SIZE = '500' # In MiB
@@ -92,6 +96,10 @@ def exec(cmd, opts: {}, debug: true, ignore_exit_codes: [])
 
   LOGGER.warn { stderr_str.strip } unless stderr_str.empty?
   stdout_str
+end
+
+def valgrind_argv
+  [VALGRIND_BIN, '--tool=tracegrind', '--quiet', '--start-disabled=yes']
 end
 
 def launch_usr_bin(env, cmd)
@@ -659,6 +667,13 @@ def enable_events_pytorch(channel_name, tracing_mode: 'default', profiling: fals
   LOGGER.debug("Tracing mode #{tracing_mode} similar to default for pytorch") unless tracing_mode == 'default'
 end
 
+def enable_events_tracegrind(channel_name, tracing_mode: 'default', profiling: false)
+  lttng_enable = "lttng enable-event --userspace --session=#{lttng_session_uuid} --channel=#{channel_name}"
+  exec("#{lttng_enable} lttng_ust_tracegrind:*")
+  LOGGER.debug('Profiling is ignored for tracegrind') if profiling
+  LOGGER.debug("Tracing mode #{tracing_mode} similar to default for tracegrind") unless tracing_mode == 'default'
+end
+
 def enable_events_metadata(channel_name, tracing_mode: 'default', profiling: true)
   lttng_enable = "lttng enable-event --userspace --session=#{lttng_session_uuid} --channel=#{channel_name}"
   LOGGER.debug('Profiling is ignored for metadata') if profiling
@@ -756,6 +771,8 @@ module LocalMaster
            tracing_mode: OPTIONS[:'tracing-mode'],
            profiling: OPTIONS[:profile])
     end
+
+    enable_events_tracegrind(channel_name) if OPTIONS[:valgrind]
 
     if SamplingDaemon.active?
       channel_name = 'non-blocking-channel'
@@ -886,6 +903,10 @@ end
 #                                          _|
 #
 
+def traced_rank?
+  Set[-1, MPITopo.rank_id].intersect?(OPTIONS[:'traced-ranks'])
+end
+
 def all_env_tracers(usr_binary)
   # Return the list of backends (used by local master to enable lttng events)
   # and the ENV used by any traced-ranks to preload THAPI tracers
@@ -982,6 +1003,10 @@ def all_env_tracers(usr_binary)
     end
   end
 
+  if OPTIONS[:valgrind]
+    h[%w[LD_PRELOAD prepend]] << TRACEGRIND_LIB
+  end
+
   # Sample
   if SamplingDaemon.active?
     LOGGER.debug('Sampling Enabled')
@@ -995,7 +1020,7 @@ def all_env_tracers(usr_binary)
   # All the traced ranks, and only them, need the ENV
   # TODO: Only call whichlib64 for traced-ranks
   backends = [] unless MPITopo.local_master?
-  h = {} unless Set[-1, MPITopo.rank_id].intersect?(OPTIONS[:'traced-ranks'])
+  h = {} unless traced_rank?
 
   LOGGER.info("Backends found: #{backends}")
   LOGGER.debug("User app env: #{h}")
@@ -1013,7 +1038,10 @@ def all_trace_and_processing(usr_argv)
     syncd.local_barrier('waiting_for_lttng_setup')
 
     begin
-      launch_usr_bin(env, usr_argv)
+      # `all_env_tracers` above was given the *user* binary for whichlib64, so
+      # the Valgrind prefix can only be added now.
+      cmd = OPTIONS[:valgrind] && traced_rank? ? valgrind_argv + usr_argv : usr_argv
+      launch_usr_bin(env, cmd)
     ensure
       syncd.local_barrier('waiting_for_application_ending')
       LocalMaster.teardown(sampling_daemon, archive_pids) if MPITopo.local_master?
@@ -1100,6 +1128,12 @@ if $thapi_launch || __FILE__ == $PROGRAM_NAME
 
   parser.on('-s', '--sample', 'Enable counters sampling.')
 
+  parser.on('--valgrind', "Run the traced program under Valgrind's `tracegrind` tool.",
+            'Every memory access performed between two THAPI events is recorded and',
+            'flushed into an extra `lttng_ust_tracegrind:mem_accesses` event.',
+            'Requires THAPI built with `--with-tracegrind`, and `-t` or `--no-analysis`',
+            'to keep the events.')
+
   parser.on('--metadata', 'Display trace metadata.')
   parser.on('-v', '--version', 'Print the Version String.') do
     puts File.read(File.join(DATADIR, 'thapi_version'))
@@ -1158,6 +1192,22 @@ if $thapi_launch || __FILE__ == $PROGRAM_NAME
   # Setup Logger
   LOGGER.level = OPTIONS[:debug]
   LOGGER.debug(OPTIONS)
+
+  if OPTIONS[:valgrind]
+    unless TRACEGRIND_ENABLED
+      warn('ERROR: --valgrind requires THAPI to be built with `--with-tracegrind`.')
+      exit(1)
+    end
+    if trace_bt_prefix[:bt] != 'move'
+      warn(<<~EOF
+        WARNING: --valgrind events only survive in the raw LTTng trace.
+        Use `-t` or `--no-analysis` to keep them; the tally and timeline
+        pipelines discard them.
+
+      EOF
+          )
+    end
+  end
 
   # Right now, `replay` means no tracing.
   # But we don't have a way of disabling post-processing
