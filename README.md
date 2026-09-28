@@ -195,7 +195,7 @@ lttng_ust_tracegrind:mem_accesses: { seq: 2, chunk: 0, loads: 98 [0xc376d08-0xc3
 lttng_ust_ze:zeCommandListAppendLaunchKernel_entry: { ... }
 ```
 
-Accesses are compacted into intervals, and four of them are shown per kind by default.
+Accesses are compacted into intervals, and eight of them are shown per kind by default.
 Set `THAPI_TRACEGRIND_MAX_PRINT` to another count, or to `0`, to see more or less.
 See [`backends/tracegrind/README.md`](backends/tracegrind/README.md) for details.
 
