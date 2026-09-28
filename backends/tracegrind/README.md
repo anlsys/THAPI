@@ -30,11 +30,21 @@ recompiled for this.
 
 ## The event
 
+As `iprof -t` renders it (`utils/babeltrace_tracegrind_lib.rb`):
+
 ```
-lttng_ust_tracegrind:mem_accesses:
-  { seq = 3, user_ctx = 0x..., chunk = 0,
-    n_loads = 96,  loads  = [ a0, b0, a1, b1, ... ],
-    n_stores = 31, stores = [ a0, b0, a1, b1, ... ] }
+lttng_ust_tracegrind:mem_accesses: { seq: 2, chunk: 1,
+    loads: 16384 [0x12c9dce8-0x12c9dcfc, 0x12a70098-0x12a7009c, ...(+16382)],
+    stores: 0 [], user_ctx: 0x0000001ffeffea80 }
+```
+
+Eight intervals are shown per kind; set `THAPI_TRACEGRIND_MAX_PRINT` to another
+count, or to `0` to print them all. On the wire the event is
+
+```
+{ seq, user_ctx, chunk,
+  n_loads = 96,  loads  = [ a0, b0, a1, b1, ... ],
+  n_stores = 31, stores = [ a0, b0, a1, b1, ... ] }
 ```
 
 The intervals are Tracegrind's raw `tracegrind_interval_t` buffer flushed
@@ -75,6 +85,12 @@ Requires the tracegrind fork's headers at build time:
 Only `<valgrind/valgrind.h>` and `<valgrind/tracegrind.h>` are needed to
 compile; the `valgrind` launcher and the `tracegrind` tool are runtime
 dependencies. With Spack: `spack install thapi +tracegrind`.
+
+The `valgrind-tracegrind` Spack package builds only this tool, so its
+`bin/valgrind` knows no other: a bare `valgrind <prog>` there would look for
+memcheck and fail. `iprof` always passes `--tool=tracegrind`, and uses the
+absolute path recorded at configure time, so it is unaffected -- but keep the
+builtin `valgrind` package around if you want memcheck.
 
 ## Limitations
 

@@ -189,14 +189,14 @@ iprof --valgrind -t -- ./a.out
 ```
 
 ```
-lttng_ust_tracegrind:mem_accesses: { seq = 3, user_ctx = 0x..., chunk = 0,
-                                     n_loads = 96, loads = [ a0, b0, a1, b1, ... ],
-                                     n_stores = 31, stores = [ a0, b0, a1, b1, ... ] }
+lttng_ust_tracegrind:mem_accesses: { seq: 2, chunk: 0, loads: 98 [0xc376d08-0xc376d10,
+                                     0xc0def10-0xc0def20, ...(+96)], stores: 31 [...],
+                                     user_ctx: 0x0000001ffeffea80 }
 lttng_ust_ze:zeCommandListAppendLaunchKernel_entry: { ... }
 ```
 
-Accesses are compacted into intervals: interval `i` is `[ loads[2i] ; loads[2i+1] )`,
-and `n_loads`/`n_stores` are the interval counts.
+Accesses are compacted into intervals, and four of them are shown per kind by default.
+Set `THAPI_TRACEGRIND_MAX_PRINT` to another count, or to `0`, to see more or less.
 See [`backends/tracegrind/README.md`](backends/tracegrind/README.md) for details.
 
 > Use `-t` or `--no-analysis`: the tally and timeline pipelines discard these events.

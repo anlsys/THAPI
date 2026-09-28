@@ -57,7 +57,8 @@ thapi_version:
 
 data_DATA = \
 	thapi_version \
-	optparse_thapi.rb
+	optparse_thapi.rb \
+	babeltrace_tracegrind_lib.rb
 
 CLEANFILES = \
 	thapi_version \
@@ -87,6 +88,7 @@ EXTRA_DIST = \
 	meta_parameter_spec.rb \
 	meta_parameters.rb \
 	optparse_thapi.rb \
+	babeltrace_tracegrind_lib.rb \
 	thapi_log_to_bt_source_component.rb \
 	thapi_text_pretty_set_ts.rb \
 	test_wrapper_thapi_text_pretty.sh
