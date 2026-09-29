@@ -98,33 +98,63 @@ AM_CONDITIONAL([STRICT], [test "x$enable_strict" = xyes])
 # Valgrind/tracegrind. `iprof --valgrind` runs the tracee under the tracegrind
 # tool (https://github.com/anlsys/valgrind, branch `tracegrind`) and injects the
 # memory accesses it records into the LTTng trace.
+# Default is `check`: auto-detect. If a tracegrind-capable valgrind is on PATH
+# (or under --with-tracegrind=PREFIX) it is used; if not, the hook is skipped
+# quietly. An explicit --with-tracegrind[=PREFIX] makes it a hard requirement,
+# so a typo'd prefix fails loudly instead of silently dropping the feature.
+# It used to default to `no`, which meant the documented
+#   ../configure --prefix=...
+# silently produced a build with no `iprof --valgrind` support at all.
 AC_ARG_WITH([tracegrind],
   [AS_HELP_STRING([--with-tracegrind@<:@=PREFIX@:>@],
-     [build the Valgrind/tracegrind memory-access hook (default: no)])],
-  [], [with_tracegrind=no])
+     [build the Valgrind/tracegrind memory-access hook (default: auto-detect)])],
+  [], [with_tracegrind=check])
 AS_IF([test "x$with_tracegrind" != xno],
-  [AS_IF([test "x$with_tracegrind" != xyes],
+  [thapi_tracegrind_required=yes
+   AS_IF([test "x$with_tracegrind" = xcheck], [thapi_tracegrind_required=no])
+   AS_IF([test "x$with_tracegrind" != xyes && test "x$with_tracegrind" != xcheck],
          [TRACEGRIND_CPPFLAGS="-I$with_tracegrind/include"
           thapi_tracegrind_path="$with_tracegrind/bin$PATH_SEPARATOR$PATH"],
          [TRACEGRIND_CPPFLAGS=""
           thapi_tracegrind_path="$PATH"])
+   # In auto-detect mode with no PREFIX given, find valgrind on PATH first and
+   # derive its prefix, so an out-of-tree valgrind (e.g. a spack one) is found
+   # without the user having to pass --with-tracegrind=PREFIX by hand.
+   AS_IF([test "x$TRACEGRIND_CPPFLAGS" = x],
+     [AC_PATH_PROG([thapi_tracegrind_vg], [valgrind], [no], [$thapi_tracegrind_path])
+      AS_IF([test "x$thapi_tracegrind_vg" != xno],
+        [thapi_tracegrind_pfx=`AS_DIRNAME(["\`AS_DIRNAME([$thapi_tracegrind_vg])\`"])`
+         AS_IF([test -f "$thapi_tracegrind_pfx/include/valgrind/tracegrind.h"],
+               [TRACEGRIND_CPPFLAGS="-I$thapi_tracegrind_pfx/include"])])])
    thapi_save_CPPFLAGS="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS $TRACEGRIND_CPPFLAGS"
-   AC_CHECK_HEADER([valgrind/valgrind.h], [],
-     [AC_MSG_ERROR([--with-tracegrind: <valgrind/valgrind.h> not found.])])
-   AC_CHECK_HEADER([valgrind/tracegrind.h], [],
-     [AC_MSG_ERROR([--with-tracegrind: <valgrind/tracegrind.h> not found. Please install: https://github.com/anlsys/valgrind (branch tracegrind).])])
+   thapi_tracegrind_hdrs=yes
+   AC_CHECK_HEADER([valgrind/valgrind.h], [], [thapi_tracegrind_hdrs=no])
+   AC_CHECK_HEADER([valgrind/tracegrind.h], [], [thapi_tracegrind_hdrs=no])
    CPPFLAGS="$thapi_save_CPPFLAGS"
-   AC_PATH_PROG([VALGRIND], [valgrind], [no], [$thapi_tracegrind_path])
-   test "x$VALGRIND" = xno && AC_MSG_ERROR([--with-tracegrind: required program 'valgrind' not found.])
-   AC_MSG_CHECKING([whether $VALGRIND provides the tracegrind tool])
-   AS_IF([$VALGRIND --tool=tracegrind --version >/dev/null 2>&1],
-         [AC_MSG_RESULT([yes])],
-         [AC_MSG_RESULT([no])
-          AC_MSG_WARN([$VALGRIND cannot run --tool=tracegrind; `iprof --valgrind' will fail at runtime.])])
-   TRACEGRIND_ENABLED=yes],
+   AS_IF([test "x$thapi_tracegrind_hdrs" = xno && test "x$thapi_tracegrind_required" = xyes],
+     [AC_MSG_ERROR([--with-tracegrind: valgrind/valgrind.h and valgrind/tracegrind.h are required. Please install: https://github.com/anlsys/valgrind (branch tracegrind).])])
+   AS_IF([test "x$thapi_tracegrind_hdrs" = xyes],
+     [AC_PATH_PROG([VALGRIND], [valgrind], [no], [$thapi_tracegrind_path])
+      AS_IF([test "x$VALGRIND" = xno],
+        [AS_IF([test "x$thapi_tracegrind_required" = xyes],
+               [AC_MSG_ERROR([--with-tracegrind: required program 'valgrind' not found.])])
+         TRACEGRIND_ENABLED=no],
+        [AC_MSG_CHECKING([whether $VALGRIND provides the tracegrind tool])
+         AS_IF([$VALGRIND --tool=tracegrind --version >/dev/null 2>&1],
+               [AC_MSG_RESULT([yes])
+                TRACEGRIND_ENABLED=yes],
+               [AC_MSG_RESULT([no])
+                AS_IF([test "x$thapi_tracegrind_required" = xyes],
+                      [AC_MSG_WARN([$VALGRIND cannot run --tool=tracegrind; `iprof --valgrind' will fail at runtime.])
+                       TRACEGRIND_ENABLED=yes],
+                      [TRACEGRIND_ENABLED=no])])])],
+     [TRACEGRIND_ENABLED=no])
+   AS_IF([test "x$TRACEGRIND_ENABLED" != xyes], [VALGRIND=valgrind])],
   [TRACEGRIND_ENABLED=no
    VALGRIND=valgrind])
+AC_MSG_CHECKING([whether to build the Valgrind/tracegrind hook])
+AC_MSG_RESULT([$TRACEGRIND_ENABLED])
 AM_CONDITIONAL([TRACEGRIND], [test "x$TRACEGRIND_ENABLED" = xyes])
 AC_SUBST([TRACEGRIND_CPPFLAGS])
 AC_SUBST([TRACEGRIND_ENABLED])
