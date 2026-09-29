@@ -1008,4 +1008,3 @@ backends/tracegrind/tracegrind_tracepoints.c
 backends/tracegrind/tracegrind_tracepoints.h
 backends/tracegrind/tracegrind_tracepoints.tp
 build-linux-ubuntu22.04-alderlake-ifgrvtl
-utils/babeltrace_tracegrind_lib.rb
