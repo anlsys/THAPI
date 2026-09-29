@@ -104,7 +104,22 @@ CLEANFILES += \
 	tracer_mpi.c
 
 bin_SCRIPTS = \
-	tracer_mpi.sh
+	tracer_mpi.sh \
+	validator/mpi_validator
+
+# Everything the mpi_validator needs. Installed under $(datadir)/mpi/validator
+# so the namespaced requires in mpi_validator resolve from the DATADIR that
+# configure bakes into it. Unlike ze_validator this is unconditional: it needs
+# no gem beyond THAPI's existing dependencies.
+MPI_VALIDATOR_SOURCES = \
+	validator/mpi_objects.rb \
+	validator/mpi_validator_function_entry_exit_callbacks.rb \
+	validator/mpi_validator_state_object.rb
+
+EXTRA_DIST += $(MPI_VALIDATOR_SOURCES)
+
+mpi_validatordir = $(datadir)/mpi/validator
+mpi_validator_DATA = $(MPI_VALIDATOR_SOURCES)
 
 noinst_LTLIBRARIES = \
 	libmpitracepoints.la

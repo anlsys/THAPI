@@ -1,0 +1,124 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Standalone MPI trace validator: consumes a THAPI/LTTng CTF trace and routes
+# each MPI call to an entry / successful-exit / erroneous-exit callback.
+# Modeled on THAPI's ze_validator.
+#
+# The checks live in mpi_validator_function_entry_exit_callbacks.rb; the call
+# stack tracking and dispatch live in mpi_validator_state_object.rb.
+
+DATADIR = File.join("@prefix@", "share")
+BINDIR = File.join("@prefix@", "bin")
+$:.unshift(DATADIR) if File.directory?(DATADIR)
+
+require 'optparse'
+require 'babeltrace2'
+require 'find'
+require 'set'
+require 'mpi/validator/mpi_validator_state_object'
+
+# Don't complain about broken pipe
+Signal.trap('SIGPIPE', 'SYSTEM_DEFAULT')
+
+$options = { live: false, verbose: false }
+
+OptionParser.new do |opts|
+  opts.banner = 'Usage: mpi_validator [OPTIONS] trace_directory...'
+
+  opts.on('-h', '--help', 'Prints this help') do
+    puts opts
+    exit
+  end
+
+  opts.on('--live', 'Enable live processing of the trace') do
+    $options[:live] = true
+  end
+
+  opts.on('-v', '--verbose', 'Print every entry/exit event') do
+    $options[:verbose] = true
+  end
+end.parse!
+
+def build_and_run_graph(source_location, sink_object)
+  graph = BT2::BTGraph.new
+
+  ctf_fs = BT2::BTPlugin.find('ctf').get_source_component_class_by_name('fs')
+  ctf_lttng_live = BT2::BTPlugin.find('ctf')
+                                .get_source_component_class_by_name('lttng-live')
+  utils_muxer = BT2::BTPlugin.find('utils')
+                             .get_filter_component_class_by_name('muxer')
+
+  if !$options[:live]
+    # Walk for CTF trace directories (those holding a `metadata` file), then
+    # ask babeltrace whether each is really one it can read.
+    trace_locations =
+      Find.find(*source_location).reject do |path|
+        FileTest.directory?(path)
+      end.select do |path|
+        File.basename(path) == 'metadata'
+      end.collect do |path|
+        File.dirname(path)
+      end.select do |path|
+        qe = BT2::BTQueryExecutor.new(component_class: ctf_fs,
+                                      object_name: 'babeltrace.support-info',
+                                      params: { 'input' => path,
+                                                'type' => 'directory' })
+        qe.query.value['weight'] > 0.5
+      end
+  else
+    trace_locations = source_location
+  end
+  raise 'Could not find lttng trace' if trace_locations.empty?
+
+  comp_sources =
+    if !$options[:live]
+      trace_locations.each_with_index.collect do |trace_location, i|
+        graph.add_component(ctf_fs, "trace_#{i}",
+                            params: { 'inputs' => [trace_location] })
+      end
+    else
+      trace_locations.each_with_index.collect do |trace_location, i|
+        graph.add_component(ctf_lttng_live, "trace_#{i}",
+                            params: { 'inputs' => [trace_location],
+                                      'session-not-found-action' => 'end' })
+      end
+    end
+
+  # Muxer, so events arrive in timestamp order across ranks and hosts
+  comp_muxer = graph.add_component(utils_muxer, 'mux')
+
+  sink = graph.add_simple_sink('mpi_validator', sink_object.consume)
+
+  # Sources to muxer
+  comp_sources.flat_map(&:output_ports).each_with_index do |op, i|
+    ip = comp_muxer.input_port(i)
+    graph.connect_ports(op, ip)
+  end
+
+  # Chain the rest
+  [comp_muxer, sink].flatten.each_cons(2) do |_out, _in|
+    graph.connect_ports(_out.output_port(0), _in.input_port(0))
+  end
+
+  graph.run
+  sink_object.check_issues
+end
+
+# only execute this code if we launch this as the main script. if it's just
+# included with "require" we just want access to the functions.
+if __FILE__ == $PROGRAM_NAME
+  if ARGV.empty?
+    warn 'Usage: mpi_validator [OPTIONS] trace_directory...'
+    exit 1
+  end
+
+  sink_obj = StateObject.new(verbose: $options[:verbose])
+  ARGV.uniq!
+  begin
+    exit build_and_run_graph(ARGV, sink_obj)
+  rescue StandardError => e
+    warn "mpi_validator: #{e.message}"
+    exit 2
+  end
+end
