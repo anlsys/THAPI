@@ -52,6 +52,31 @@ check "first host seen"  "hostA" "$out"
 check "second host seen" "hostB" "$out"
 check "combined tally"   "8 MPI calls across 2 distinct APIs" "$out"
 
+echo "buffer ownership (nonblocking in-flight)"
+rm -rf race_trace clean_trace
+python3 make_race_trace.py race_trace race racehost \
+	12121212-3434-5656-7878-909090909090 >/dev/null
+python3 make_race_trace.py clean_trace clean cleanhost \
+	21212121-4343-6565-8787-090909090909 >/dev/null
+
+out=$($VALIDATOR race_trace 2>&1)
+check "store into in-flight Isend buffer" \
+	'BUFFER RACE' "$out"
+check "violation names the element"       'element [20]'                "$out"
+check "violation names the request"       'MPI_Isend request 0xac000000' "$out"
+check "uncompleted request reported"      'was never completed'          "$out"
+
+# The same store after MPI_Wait is legal: the check must not fire.
+out=$($VALIDATOR clean_trace 2>&1); rc=$?
+if [[ "$out" == *"BUFFER RACE"* ]]; then
+	echo "  FAIL: false positive after MPI_Wait"
+	fail=1
+else
+	echo "  ok: no false positive once the request is completed"
+fi
+[[ $rc -eq 0 ]] && echo "  ok: exit code 0 when clean" \
+	|| { echo "  FAIL: exit code $rc, want 0"; fail=1; }
+
 echo "error handling"
 out=$($VALIDATOR /nonexistent 2>&1); rc=$?
 check "missing path reported" "mpi_validator:" "$out"

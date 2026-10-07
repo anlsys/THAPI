@@ -66,6 +66,139 @@ $on_successful_exit['MPI_Recv'] = lambda { |state, context, payload|
 }
 
 
+
+register_inflight = lambda { |state, context, payload, api|
+  request = payload['request_val']
+  next if request.nil? || request.zero?
+
+  buf = state.find_param(context, 'buf')
+  count = state.find_param(context, 'count')
+  dtype = state.find_param(context, 'datatype')
+  next unless buf && count
+
+  elem_size = MPIDatatype.size(dtype)
+  next if elem_size.nil? || elem_size.zero?
+  state.add_inflight(context,
+                     InflightBuffer.new(context, api, request,
+                                        buf, buf + (count * elem_size),
+                                        count, dtype, context['timestamp'],
+                                        state.find_param(context, api == 'MPI_Isend' ? 'dest' : 'source'),
+                                        state.find_param(context, 'tag')))
+}
+
+
+$on_successful_exit['MPI_Isend'] = lambda {|state, context, payload|
+  register_inflight.call(state, context, payload, 'MPI_Isend')
+}
+$on_successful_exit['MPI_Irecv'] = lambda {|state, context, payload|
+  register_inflight.call(state, context, payload, 'MPI_Irecv')
+}
+
+$on_successful_exit['MPI_Issend'] = lambda {|state, context, payload|
+  register_inflight.call(state, context, payload, 'MPI_Iseend')
+}
+
+$on_successful_exit['MPI_Irsend'] = lambda {|state, context, payload|
+  register_inflight.call(state, context, payload, 'MPI_Irsend')
+}
+
+$on_successful_exit['MPI_Ibsend'] = lambda {|state, context, payload|
+  register_inflight.call(state, context, payload, 'MPI_Ibsend')
+}
+
+
+$on_successful_exit['MPI_Wait'] = lambda {|state, context, payload|
+  state.delete_inflight(context, state.find_param(context,'request_val')) if payload['flag_val'] != 0
+}
+
+$on_successful_exit['MPI_Request_free'] = lambda {|state, context, payload|
+  state.delete_inflight(context, state.find_param(context,'request_val')) if payload['flag_val'] != 0
+}
+
+
+$on_successful_exit['MPI_Waitall'] = lambda {|state, context, payload|
+  state.get_process(context).inflight.clear if payload['flag_val'] != 0
+}
+
+$on_successful_exit['MPI_Testall'] = lambda {|state, context, payload|
+  state.get_process(context).inflight.clear if payload['flag_val'] != 0
+}
+
+$on_successful_exit['MPI_Buffer_detach'] = lambda {|state, context, payload|
+  buffer = state.find_param(context, 'buffer_addr')
+  process = state.get_process(context)
+  process.free_user_buffer(buffer)
+}
+
+
+$on_successful_exit['MPI_Comm_attach_buffer'] = lambda {|state, context, payload|
+  comm_ptr = state.find_param(context, 'comm')
+  buffer = state.find_param(context, 'buffer')
+  buffer_size= state.find_param(context, 'size')
+  communicator = state.communicators[comm_ptr]
+  communicator.set_user_buffer(buffer,buffer_size) if comm_ptr && buffer && buffer_size
+}
+
+$on_successful_exit['MPI_Comm_detach_buffer'] = lambda {|state, context, payload|
+  buffer = state.find_param(context, 'buffer_addr')
+  comm_ptr = state.find_param(context, 'comm')
+  communicator = state.communicators[comm_ptr]
+  communicator.free_user_buffer(buffer) if buffer && comm_ptr && communicator
+}
+
+$on_successful_exit['MPI_Buffer_attach'] = lambda{|state, context, payload|
+  buffer = state.find_param(context,'buffer')
+  buffer_size = state.find_param(context,'size')
+  state.get_process(context).set_user_buffer(buffer, buffer_size) if buffer && buffer_size
+  puts "process buffer = #{state.get_process(context).user_buffer_size}"
+}
+
+
+$upon_entry['MPI_Bsend'] = lambda{|state, context, payload|
+  #only the primitive data types are supported
+  dtype = payload['datatype']
+  if  MPIDatatype.predefined?(dtype)
+    per_element_size = MPIDatatype.size(dtype)
+    count = payload['count']
+    size = per_element_size*count
+    buffer_size = state.get_process(context).user_buffer_size    
+    buffer_addr = state.get_process(context).user_buffer_addr    
+    state.print_usage_error(context, "Bsend size (#{size} bytes) exceeds the attached buffer (#{buffer_addr})'s size #{buffer_size}") if size > buffer_size
+
+  end
+}
+
+
+# Tracegrind reports the memory touched between MPI calls, as flat [start, end)
+$on_other_event['lttng_ust_tracegrind:mem_accesses'] = lambda { |state, context, payload|
+  buffers = state.inflight_buffers(context)
+  next if buffers.empty?
+
+  { 'stores' => 'wrote', 'loads' => 'read' }.each do |field, verb|
+    addrs = payload[field]
+    next if addrs.nil? || addrs.empty?
+
+    # Flat array of alternating start/end addresses.
+    addrs.each_slice(2) do |start, _end|
+      next if start && _end
+      buffers.each do |b|
+        next unless b.overlaps?(start, _end)
+        next if verb == 'read' && b.api != 'MPI_Irecv'
+        elem_size = MPIDatatype.size(b.dtype)
+        idx = b.element_index(start, elem_size)
+        where = idx ? "element [#{idx}]" : "offset +#{start - b.base_addr}"
+        state.print_race(
+          context,
+          "application #{verb} #{_end - start} byte(s) at 0x#{from.to_s(16)} " \
+          "(#{where} of the #{b.size}-byte buffer at 0x#{b.base_addr.to_s(16)}) " \
+          "while #{b.api} request 0x#{b.request.to_s(16)} is still in flight " \
+          '-- the buffer belongs to MPI until the request completes'
+        )
+      end
+    end
+  end
+}
+
 $on_erroneous_exit.default = lambda { |state, context, payload|
   args = state.get_last_entry(context)&.params
   detail = args && !args.empty? ? " (args: #{args.inspect})" : ''

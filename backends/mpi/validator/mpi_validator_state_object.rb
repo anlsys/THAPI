@@ -1,20 +1,9 @@
-# frozen_string_literal: true
-
-# Per-thread call-stack tracking and callback dispatch, mirroring the structure
-# of THAPI's ze_validator_state_object.rb.
-#
-# An _exit event carries only the return code, not the call's arguments, so we
-# keep the matching _entry payload on a per-thread stack. Exit callbacks read it
-# through find_param.
-
 require 'mpi/validator/mpi_validator_function_entry_exit_callbacks'
 require 'mpi/validator/mpi_objects'
 MPI_SUCCESS = 0
 
-# One frame of a thread's call stack: an _entry seen but not yet matched.
 Entry = Struct.new(:name, :params, :timestamp, :api)
 
-# Per-thread state: the call stack of APIs currently executing.
 class ThreadState
   attr_accessor :stack
   attr_reader :rank
@@ -31,8 +20,25 @@ end
 
 class ProcessState
   attr_reader :threads
+  attr_reader :inflight
+  attr_reader :user_buffer_size
+  attr_reader :user_buffer_addr
   def initialize
     @threads = Hash.new { |h, k| h[k] = ThreadState.new }
+    @inflight = {}
+    @user_buffer_size = -1
+    @user_buffer_addr = nil
+  end
+  
+  def set_user_buffer(addr, size)
+    @user_buffer_addr = addr
+    @user_buffer_size = size
+  end
+  def free_user_buffer(addr)
+    if addr == @user_buffer_addr
+      @user_buffer_addr = nil
+      @user_buffer_size = -1
+    end
   end
 end
 
@@ -63,7 +69,6 @@ class StateObject
     @temp_counter=0
   end
 
-  # --- per-thread call stack -----------------------------------------------
 
   def get_thread(context)
     @state[context['hostname']]
@@ -74,6 +79,26 @@ class StateObject
   def get_host(contex)
     @state[context['hostname']]
   end
+
+  def get_process(context)
+    @state[context['hostname']].processes[context['vpid']]
+  end
+
+
+  def add_inflight(context, record)
+    get_process(context).inflight[record.request] = record
+  end
+
+  def delete_inflight(context, request)
+    return nil unless request
+    get_process(context).inflight.delete(request)
+  end
+
+  def inflight_buffers(context)
+    get_process(context).inflight.values
+  end
+
+  def print_race(context, str) = report(context, 'BUFFER RACE', str)
 
   def get_stack_top(context)
     stack = get_thread(context).stack
@@ -159,9 +184,21 @@ class StateObject
     pop_stack(context)
   end
 
-  # Events that are neither _entry nor _exit (e.g. lttng_ust_mpi_type:property).
+  # Events that are neither _entry nor _exit (e.g. lttng_ust_mpi_type:property,
+  # lttng_ust_tracegrind:mem_accesses).
   def on_other_event(name, context, payload)
-    puts "[#{get_context_str(context)}] #{name}: #{payload.inspect}" if @options[:verbose]
+    if @options[:verbose]
+      # A mem_accesses payload holds up to 16384 addresses; inspecting it
+      # verbatim would bury the rest of the output. Summarize those instead.
+      summary = if payload.key?('n_loads') || payload.key?('n_stores')
+                  format('{seq=%s chunk=%s n_loads=%s n_stores=%s}',
+                         payload['seq'], payload['chunk'],
+                         payload['n_loads'], payload['n_stores'])
+                else
+                  payload.inspect
+                end
+      puts "[#{get_context_str(context)}] #{name}: #{summary}"
+    end
     l = $on_other_event[name]
     l&.call(self, context, payload)
   end
@@ -217,11 +254,25 @@ class StateObject
 
   # Called once after the graph drains. Returns the process exit code.
   def check_issues
-    puts "counter = #{@temp_counter}"
+    puts "my counter = #{@temp_counter}"
     dangling_entries.each do |d|
       ctx = d.slice('hostname', 'vpid', 'vtid')
       print_usage_error(ctx,
                            "#{d['entry']['api']} entered but never returned")
+    end
+
+    # Requests still in flight when the trace ends: never waited on, so the
+    # buffer was never returned to the application and the request leaked.
+    @state.each do |hostname, host|
+      host.processes.each do |vpid, process|
+        process.inflight.each_value do |b|
+          ctx = { 'hostname' => hostname, 'vpid' => vpid, 'vtid' => vpid }
+          print_usage_error(ctx,
+                            "#{b.api} request 0x#{b.request.to_s(16)} " \
+                            "(buffer 0x#{b.lo.to_s(16)}, #{b.size} bytes) " \
+                            'was never completed: no matching MPI_Wait/MPI_Test')
+        end
+      end
     end
 
     communicators.each do |k, comm|
