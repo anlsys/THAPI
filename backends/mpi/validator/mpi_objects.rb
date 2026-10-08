@@ -46,19 +46,32 @@ module MPIDatatype
   end
 end
 
+
+
 class Communicator < MPIObject
-  attr_accessor :num_ranks
+  attr_accessor :participating_ranks
   attr_accessor :sends
   attr_accessor :recvs
+  attr_accessor :bcasts
   attr_reader :user_buffer_addr
   attr_reader :user_buffer_size 
-  def initialize(base, num_ranks=1)
+  def initialize(base)
 	  super(base)
-    @num_ranks = num_ranks
+    @participating_ranks = Hash.new {|h,k| h[k] = nil}
 	  @sends = {} 
 	  @recvs = {}
+    @bcasts = {}
     @user_buffer_addr = nil
     @user_buffer_size = -1
+  end
+  #Possible FN here because we differentiate message by the source, count, and type
+  #We only check if a bcast message has been recorded by all the processes
+  def record_bcast(context, caller_pid, source, buffer_count, buffer_type)
+    key = "#{source}-#{buffer_count}-#{buffer_type}"
+    unless @bcasts.key?(key)
+      @bcasts[key] = Hash.new {|h,k| h[k] = nil} 
+    end
+    @bcasts[key][caller_pid] = context
   end
 
   def set_user_buffer(addr, size)

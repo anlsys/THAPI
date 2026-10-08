@@ -32,27 +32,27 @@ $on_successful_exit['MPI_Send'] = lambda { |state, context, payload|
   comm.send(context,src_rank,dest_rank,tag,buf_ptr,dtype)
 }
 
-# Careful with differentiating ranks/processes
-# TODO: try to kill the process responsible for the application it self
 # Is data race possible with just the Strong memory operations?? (get precise definition of strong in ptx)
-# Create a tag for the ze_validator for AE  
-$on_successful_exit['MPI_Comm_size']= lambda { |state, context, payload|
-  size = payload['size_val']
-  comm = state.find_param(context, 'comm')
-  state.communicators[comm]= Communicator.new(payload['comm'], size)
-  puts "size = #{size}"
-}
 
 $on_successful_exit['MPI_Comm_rank']=lambda { |state, context, payload|
-  thread = state.get_thread(context)
-  puts "payload for rank = #{payload}"
-  thread.set_rank(payload['rank_val']) if payload['rank_val']
+  comm_ptr = state.find_param(context, 'comm')
+  unless state.communicators.key?(comm_ptr)
+    state.communicators[comm_ptr] = Communicator.new(comm_ptr)
+  end
+  state.communicators[comm_ptr].participating_ranks[context['vpid']] 
+  puts "#{state.communicators[comm_ptr].participating_ranks}"
 }
 
-$upon_entry['MPI_Comm_rank']=lambda { |state, context, payload|
-  puts "payload for rank (entry) = #{payload}"
-}
 
+$on_successful_exit['MPI_Bcast']=lambda { |state, context, payload|
+  comm_ptr = state.find_param(context, 'comm')
+  comm = state.communicators[comm_ptr]
+  root = state.find_param(context, 'root')
+  buffer_count = state.find_param(context, 'count')
+  buffer_type = state.find_param(context, 'datatype')
+
+  comm.record_bcast(context, context['vpid'], root, buffer_count, buffer_type)
+}
 
 $on_successful_exit['MPI_Recv'] = lambda { |state, context, payload|
   comm = state.communicators[state.find_param(context, 'comm')]
@@ -130,7 +130,7 @@ $on_successful_exit['MPI_Buffer_detach'] = lambda {|state, context, payload|
   process.free_user_buffer(buffer)
 }
 
-
+#Write a test for this as well
 $on_successful_exit['MPI_Comm_attach_buffer'] = lambda {|state, context, payload|
   comm_ptr = state.find_param(context, 'comm')
   buffer = state.find_param(context, 'buffer')

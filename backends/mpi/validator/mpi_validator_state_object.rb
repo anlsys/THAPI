@@ -285,7 +285,10 @@ class StateObject
         puts "MPI_Recv at rank #{record[:to]} from dst=#{record[:from]} with tag=#{:tag}"
         print_usage_error(record[:context], "MPI_Recv at rank #{record[:to]} from dst=#{record[:from]} with tag=#{:tag} doesn't have a matching MPI_Send") unless comm.sends[key]
       end
-      
+      comm.bcasts.each do |key, record|
+        ctx = record[record.keys.sample] 
+        print_usage_error(ctx, "MPI_Bcast has only #{record.size} participating ranks. System expects #{comm.participating_ranks.size} ranks to properly broadcast the message") if record.size < comm.participating_ranks.size
+      end   
     end
     puts "\n--- summary ---"
     puts format('%d MPI calls across %d distinct APIs',
