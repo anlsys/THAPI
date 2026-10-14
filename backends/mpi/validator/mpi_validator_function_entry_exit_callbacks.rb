@@ -6,19 +6,90 @@ $on_erroneous_exit = {}
 # Events that are neither _entry nor _exit, keyed by full event name.
 $on_other_event = {}
 
+register_inflight = lambda { |state, context, payload, api, _exit|
+  key = nil
+  if payload['request_val']
+    key = payload['request_val']
+  elsif !payload
+    key = payload.to_s
+  end
+  
+  next if key == "{}"
+
+  buf = state.find_param(context, 'buf')
+  count = state.find_param(context, 'count')
+  dtype = state.find_param(context, 'datatype')
+  next unless buf && count
+
+  elem_size = MPIDatatype.size(dtype)
+  next if elem_size.nil? || elem_size.zero?
+  
+  peer = nil
+  tag = nil
+  if _exit 
+    peer = state.find_param(context, api.match?(/.*[sS]end/) ? 'dest' : 'source')
+    tag = state.find_param(context, 'tag')
+  else
+    peer = api.match?(/.*[sS]end/) ? payload['dest'] : payload['source']
+    tag = payload['tag']
+  end
+  
+  state.add_inflight(context,
+                     InflightBuffer.new(context, api, key,
+                                        buf, buf + (count * elem_size),
+                                        count, dtype, context['timestamp'],
+                                        peer, tag))
+}
 
 # Entry checks run before the call could crash: validate arguments here.
 $upon_entry['MPI_Send'] = lambda { |state, context, payload|
   comm = state.communicators[payload['comm']]
   dest_rank = payload['dest']
-  # An unknown communicator is already an error; without this `next` the
-  # following line dereferences nil and takes the whole run down with
-  # "undefined method `num_ranks' for nil".
   unless comm
     state.print_usage_error(context, "Unknown communicator: #{payload['comm']} at MPI_Send")
     next
   end
   state.print_usage_error(context, "Rank out-of-bounds for MPI_Send. Communicator #{comm} must be [0,#{comm.num_ranks-1}]") if comm.num_ranks <= dest_rank
+  register_inflight.call(state, context, payload, 'MPI_Send')
+}
+
+$on_successful_exit['MPI_Psend_init'] = lambda { |state, context, payload|
+  buf = state.find_param(context, 'buf')
+  partitions = state.find_param(context, 'partitions')
+  count = state.find_param(context, 'count')
+  dest = state.find_param(context, 'dest')
+  request = state.find_param(context, 'request')
+  comm = state.communicators[state.find_param(context, 'comm')]
+  state.partitioned_messages[request] = PartitionedMessage.new(buf,dest, request, partitions, count)  
+}
+
+$on_successful_exit['MPI_Pready'] = lambda {|state, context, payload|
+  request = state.find_param(context, 'request')
+  state.partitioned_messages[request].ready_counters += 1 if request
+
+}
+
+$upon_entry['MPI_Ssend'] = lambda { |state, context, payload|
+  comm = state.communicators[payload['comm']]
+  dest_rank = payload['dest']
+  unless comm
+    state.print_usage_error(context, "Unknown communicator: #{payload['comm']} at MPI_Send")
+    next
+  end
+  state.print_usage_error(context, "Rank out-of-bounds for MPI_Ssend. Communicator #{comm} must be [0,#{comm.num_ranks-1}]") if comm.num_ranks <= dest_rank
+  register_inflight.call(state, context, payload, 'MPI_Ssend')
+}
+
+$on_successful_exit['MPI_Ssend'] = lambda { |state, context, payload|
+  comm = state.communicators[state.find_param(context, 'comm')]
+  next unless comm # unknown communicator already reported at entry
+  src_rank = state.get_thread(context).rank
+  dest_rank = state.find_param(context, 'dest')
+  buf_ptr = state.find_param(context, 'buf')
+  tag = state.find_param(context, 'tag')
+  dtype = state.find_param(context, 'datatype')
+  key = state.get_all_params(context).to_s
+  state.delete_inflight(context, key)
 }
 
 $on_successful_exit['MPI_Send'] = lambda { |state, context, payload|
@@ -29,18 +100,21 @@ $on_successful_exit['MPI_Send'] = lambda { |state, context, payload|
   buf_ptr = state.find_param(context, 'buf')
   tag = state.find_param(context, 'tag')
   dtype = state.find_param(context, 'datatype')
+  key = state.get_all_params(context).to_s
+  state.delete_inflight(context, key)
   comm.send(context,src_rank,dest_rank,tag,buf_ptr,dtype)
+  
 }
 
 # Is data race possible with just the Strong memory operations?? (get precise definition of strong in ptx)
 
 $on_successful_exit['MPI_Comm_rank']=lambda { |state, context, payload|
   comm_ptr = state.find_param(context, 'comm')
+  rank_val = state.find_param(context, 'rank_val')
   unless state.communicators.key?(comm_ptr)
     state.communicators[comm_ptr] = Communicator.new(comm_ptr)
   end
-  state.communicators[comm_ptr].participating_ranks[context['vpid']] 
-  puts "#{state.communicators[comm_ptr].participating_ranks}"
+  state.communicators[comm_ptr].participating_ranks[rank_val] = context['vpid']
 }
 
 
@@ -67,43 +141,25 @@ $on_successful_exit['MPI_Recv'] = lambda { |state, context, payload|
 
 
 
-register_inflight = lambda { |state, context, payload, api|
-  request = payload['request_val']
-  next if request.nil? || request.zero?
-
-  buf = state.find_param(context, 'buf')
-  count = state.find_param(context, 'count')
-  dtype = state.find_param(context, 'datatype')
-  next unless buf && count
-
-  elem_size = MPIDatatype.size(dtype)
-  next if elem_size.nil? || elem_size.zero?
-  state.add_inflight(context,
-                     InflightBuffer.new(context, api, request,
-                                        buf, buf + (count * elem_size),
-                                        count, dtype, context['timestamp'],
-                                        state.find_param(context, api == 'MPI_Isend' ? 'dest' : 'source'),
-                                        state.find_param(context, 'tag')))
-}
 
 
 $on_successful_exit['MPI_Isend'] = lambda {|state, context, payload|
-  register_inflight.call(state, context, payload, 'MPI_Isend')
+  register_inflight.call(state, context, payload, 'MPI_Isend', true)
 }
 $on_successful_exit['MPI_Irecv'] = lambda {|state, context, payload|
-  register_inflight.call(state, context, payload, 'MPI_Irecv')
+  register_inflight.call(state, context, payload, 'MPI_Irecv',true)
 }
 
 $on_successful_exit['MPI_Issend'] = lambda {|state, context, payload|
-  register_inflight.call(state, context, payload, 'MPI_Iseend')
+  register_inflight.call(state, context, payload, 'MPI_Iseend', true)
 }
 
 $on_successful_exit['MPI_Irsend'] = lambda {|state, context, payload|
-  register_inflight.call(state, context, payload, 'MPI_Irsend')
+  register_inflight.call(state, context, payload, 'MPI_Irsend', true)
 }
 
 $on_successful_exit['MPI_Ibsend'] = lambda {|state, context, payload|
-  register_inflight.call(state, context, payload, 'MPI_Ibsend')
+  register_inflight.call(state, context, payload, 'MPI_Ibsend', true)
 }
 
 

@@ -57,9 +57,11 @@ end
 class StateObject
   attr_reader :issues
   attr_accessor :communicators
+  attr_accessor :partitioned_sends
   def initialize(**opts)
     @communicators = Hash.new {}
     @options = opts
+    @partitioned_messages = {}
     @state = Hash.new { |h, k| h[k] = HostState.new }
     @issues = []
     @api_counts = Hash.new(0)
@@ -124,9 +126,13 @@ class StateObject
   # _exit too, since the entry payload is still on the stack.
   def find_param(context, name)
     entry = get_stack_top(context)
-    entry && entry.params[name]
+    entry ? entry.params[name] : nil
   end
-
+  
+  def get_all_params(context)
+    entry = get_stack_top(context) 
+    entry ? entry.params : nil
+  end 
   # --- reporting ------------------------------------------------------------
 
   def get_context_str(context)

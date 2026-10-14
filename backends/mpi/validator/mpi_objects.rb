@@ -46,21 +46,41 @@ module MPIDatatype
   end
 end
 
+class PartitionedMessage < MPIObject
+  attr_accessor :partitions
+  attr_accessor :count
+  attr_reader :dest
+  attr_reader :request
+  attr_accessor :ready_counters
+  attr_accessor :received_counters
+  def initialize(base,dest,request,partitions,count)
+    super(base)
+    @partitions = partitions
+    @count = count
+    @dest = dest
+    @request = request
+    @received_counters = 0
+    @ready_counters = 0
+  end
+end
 
 
 class Communicator < MPIObject
   attr_accessor :participating_ranks
   attr_accessor :sends
   attr_accessor :recvs
+  attr_accessor :partitioned_messages
   attr_accessor :bcasts
   attr_reader :user_buffer_addr
   attr_reader :user_buffer_size 
+  
   def initialize(base)
 	  super(base)
     @participating_ranks = Hash.new {|h,k| h[k] = nil}
 	  @sends = {} 
 	  @recvs = {}
     @bcasts = {}
+    @partitioned_messages = {}
     @user_buffer_addr = nil
     @user_buffer_size = -1
   end
