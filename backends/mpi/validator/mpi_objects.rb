@@ -46,21 +46,25 @@ module MPIDatatype
   end
 end
 
-class PartitionedMessage < MPIObject
+class PersistentMessage < MPIObject
   attr_accessor :partitions
   attr_accessor :count
   attr_reader :dest
   attr_reader :request
-  attr_accessor :ready_counters
-  attr_accessor :received_counters
-  def initialize(base,dest,request,partitions,count)
+  attr_accessor :recv_initialized
+  attr_accessor :test_called
+  attr_accessor :comm
+  attr_reader :context
+  def initialize(base,dest,comm,request,partitions,count,context)
     super(base)
     @partitions = partitions
     @count = count
     @dest = dest
     @request = request
-    @received_counters = 0
-    @ready_counters = 0
+    @test_called = false
+    @recv_initialized = false
+    @comm = comm
+    @context = context
   end
 end
 

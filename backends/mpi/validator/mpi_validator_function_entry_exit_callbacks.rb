@@ -60,14 +60,61 @@ $on_successful_exit['MPI_Psend_init'] = lambda { |state, context, payload|
   dest = state.find_param(context, 'dest')
   request = state.find_param(context, 'request')
   comm = state.communicators[state.find_param(context, 'comm')]
-  state.partitioned_messages[request] = PartitionedMessage.new(buf,dest, request, partitions, count)  
+  state.persistent_messages[request] = PersistentMessage.new(buf,dest, comm, request, partitions, count,context)  
 }
 
-$on_successful_exit['MPI_Pready'] = lambda {|state, context, payload|
+
+$on_successful_exit['MPI_Send_init'] = lambda { |state, context, payload|
+  buf = state.find_param(context, 'buf')
+  #partitions = state.find_param(context, 'partitions')
+  count = state.find_param(context, 'count')
+  dest = state.find_param(context, 'dest')
   request = state.find_param(context, 'request')
-  state.partitioned_messages[request].ready_counters += 1 if request
-
+  comm = state.communicators[state.find_param(context, 'comm')]
+  state.persistent_messages[request] = PersistentMessage.new(buf,dest, comm, request, 0, count,context)  
 }
+
+
+$on_successful_exit['MPI_Recv_init'] = lambda { |state, context, payload|
+  comm_ptr = state.find_param(context, 'comm')
+  bag_map = nil
+  state.communicator_bags.each do |key, bag|
+    if bag.key?(comm_ptr)
+      bag_map = bag
+      break
+    end
+  end
+  state.persistent_messages.each do |key, pm|
+    if bag_map.key?(pm.comm.base)
+      pm.recv_initialized = true
+      break
+    end 
+  end
+}
+
+$on_successful_exit['MPI_Precv_init'] = lambda { |state, context, payload|
+  comm_ptr = state.find_param(context, 'comm')
+  bag_map = nil
+  state.communicator_bags.each do |key, bag|
+    if bag.key?(comm_ptr)
+      bag_map = bag
+      break
+    end
+  end
+  state.persistent_messages.each do |key, pm|
+    if bag_map.key?(pm.comm.base)
+      pm.recv_initialized = true
+      break
+    end 
+  end
+}
+
+$on_successful_exit['MPI_Test'] = lambda { |state, context, payload|
+  request = state.find_param(context, 'request')
+  pm = state.persistent_messages[request]
+  pm.test_called = true if pm
+}
+
 
 $upon_entry['MPI_Ssend'] = lambda { |state, context, payload|
   comm = state.communicators[payload['comm']]
@@ -107,14 +154,16 @@ $on_successful_exit['MPI_Send'] = lambda { |state, context, payload|
 }
 
 # Is data race possible with just the Strong memory operations?? (get precise definition of strong in ptx)
-
+# Unless Comm_create is called, they are all the same communicator
 $on_successful_exit['MPI_Comm_rank']=lambda { |state, context, payload|
   comm_ptr = state.find_param(context, 'comm')
   rank_val = state.find_param(context, 'rank_val')
   unless state.communicators.key?(comm_ptr)
     state.communicators[comm_ptr] = Communicator.new(comm_ptr)
   end
-  state.communicators[comm_ptr].participating_ranks[rank_val] = context['vpid']
+  state.communicator_bags[state.bag_id][comm_ptr] = nil
+  state.communicators[comm_ptr].participating_ranks[context['vpid']] = rank_val
+  
 }
 
 

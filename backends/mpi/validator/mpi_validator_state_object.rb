@@ -56,19 +56,23 @@ end
 
 class StateObject
   attr_reader :issues
+  attr_accessor :bag_id
+  attr_accessor :communicator_bags
   attr_accessor :communicators
-  attr_accessor :partitioned_sends
+  attr_accessor :persistent_messages
   def initialize(**opts)
     @communicators = Hash.new {}
     @options = opts
-    @partitioned_messages = {}
+    @persistent_messages = {}
     @state = Hash.new { |h, k| h[k] = HostState.new }
     @issues = []
     @api_counts = Hash.new(0)
     @total_calls = 0
     @error_count = 0
     @unmatched_exits = 0
-    @temp_counter=0
+    @temp_counter = 0
+    @bag_id = 0
+    @communicator_bags = Hash.new {|h,k| h[k] = {}}
   end
 
 
@@ -280,20 +284,22 @@ class StateObject
         end
       end
     end
-
+    persistent_messages.each do |request, msg|
+      print_usage_error(msg.context, "MPI_Test was not called for a persistent message") unless msg.test_called
+      print_usage_error(msg.context, "Corresponding receiver was not initialized for a persistent message") unless msg.recv_initialized
+    end
     communicators.each do |k, comm|
       comm.sends.each do |key, record|
-        puts "MPI_Send at rank #{record[:from]} to dst=#{record[:to]} with tag=#{:tag}"
-        print_usage_error(record[:context], "MPI_Send from rank #{record[:from]} to dst=#{record[:to]} with tag=#{:tag} doesn't have a matching MPI_Recv") unless comm.recvs[key]
+        print_usage_error(record[:context], "MPI_Send from rank #{record[:from]} to dst=#{record[:to]} with tag=#{:tag} doesn't have a matching MPI_Recv in the communicator #{comm.base}") unless comm.recvs[key]
       end
 
       comm.recvs.each do |key, record|
         puts "MPI_Recv at rank #{record[:to]} from dst=#{record[:from]} with tag=#{:tag}"
-        print_usage_error(record[:context], "MPI_Recv at rank #{record[:to]} from dst=#{record[:from]} with tag=#{:tag} doesn't have a matching MPI_Send") unless comm.sends[key]
+        print_usage_error(record[:context], "MPI_Recv at rank #{record[:to]} from dst=#{record[:from]} with tag=#{:tag} doesn't have a matching MPI_Send in the communicatorr #{comm.base}") unless comm.sends[key]
       end
       comm.bcasts.each do |key, record|
         ctx = record[record.keys.sample] 
-        print_usage_error(ctx, "MPI_Bcast has only #{record.size} participating ranks. System expects #{comm.participating_ranks.size} ranks to properly broadcast the message") if record.size < comm.participating_ranks.size
+        print_usage_error(ctx, "MPI_Bcast has only #{record.size} participating ranks. System expects #{comm.participating_ranks.size} ranks to properly broadcast the message in the communicator #{comm.base}") if record.size < comm.participating_ranks.size
       end   
     end
     puts "\n--- summary ---"
