@@ -60,6 +60,8 @@ class StateObject
   attr_accessor :communicator_bags
   attr_accessor :communicators
   attr_accessor :persistent_messages
+  attr_accessor :scatter_map
+  attr_accessor :gather_map
   def initialize(**opts)
     @communicators = Hash.new {}
     @options = opts
@@ -72,6 +74,9 @@ class StateObject
     @unmatched_exits = 0
     @temp_counter = 0
     @bag_id = 0
+    @comm_to_bag_map = {}
+    @scatter_map = Hash.new {|h,k| h[k] = [0]}
+    @gather_map = Hash.new {|h,k| h[k] = [0]}
     @communicator_bags = Hash.new {|h,k| h[k] = {}}
   end
 
@@ -288,6 +293,19 @@ class StateObject
       print_usage_error(msg.context, "MPI_Test was not called for a persistent message") unless msg.test_called
       print_usage_error(msg.context, "Corresponding receiver was not initialized for a persistent message") unless msg.recv_initialized
     end
+    scatter_map.each do |k,arr|
+      sl = k.split("-")
+      signature = "sendcount(#{sl[0]})-sendtype(#{sl[1]})-recvcount(#{sl[2]})-recvtype(#{sl[3]})-root(#{sl[4]})-comm(#{arr[2]})"
+      print_usage_error(arr[1], "At most 1 rank sent MPI_Scatter with signature #{signature}")if arr[0] <= 1
+    end
+
+    
+    gather_map.each do |k,arr|
+      sl = k.split("-")
+      signature = "sendcount(#{sl[0]})-sendtype(#{sl[1]})-recvcount(#{sl[2]})-recvtype(#{sl[3]})-root(#{sl[4]})-comm(#{arr[2]})"
+      print_usage_error(arr[1], "At most 1 rank sent MPI_Gather with signature #{signature}")if arr[0] <= 1
+    end
+    
     communicators.each do |k, comm|
       comm.sends.each do |key, record|
         print_usage_error(record[:context], "MPI_Send from rank #{record[:from]} to dst=#{record[:to]} with tag=#{:tag} doesn't have a matching MPI_Recv in the communicator #{comm.base}") unless comm.recvs[key]

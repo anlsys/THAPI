@@ -6,6 +6,17 @@ $on_erroneous_exit = {}
 # Events that are neither _entry nor _exit, keyed by full event name.
 $on_other_event = {}
 
+make_scatter_gather_key = lambda {|state|
+  sendcount = state.find_param(context, 'sendcount')
+  sendtype = state.find_param(context, 'sendtype')
+  recvcount = state.find_param(context, 'recvcount')
+  recvtype = state.find_param(context, 'recvtype')
+  root = state.find_param(context, 'root')
+  comm = state.find_param(context, 'comm')
+  bag_id = state.comm_to_bag_map[comm]
+  "#{sendcount}-#{sendtype}-#{recvcount}-#{recvtype}-#{root}-#{bag_id}"
+}
+
 register_inflight = lambda { |state, context, payload, api, _exit|
   key = nil
   if payload['request_val']
@@ -51,6 +62,52 @@ $upon_entry['MPI_Send'] = lambda { |state, context, payload|
   end
   state.print_usage_error(context, "Rank out-of-bounds for MPI_Send. Communicator #{comm} must be [0,#{comm.num_ranks-1}]") if comm.num_ranks <= dest_rank
   register_inflight.call(state, context, payload, 'MPI_Send')
+}
+
+
+$on_successful_exit['MPI_Gather'] = lambda { |state, context, payload|
+  send_count = state.find_param(context, 'sendcount')
+  recv_count = state.find_param(context, 'recvcount')
+  comm = state.find_param(context, 'comm')
+  root = state.find_param(context, 'root')
+  
+  gather_key = make_scatter_gather_key.call(state)
+  state.gather_map[gather_key][0] += 1
+  state.gather_map[gather_key] += [context, comm] if state.gather_map[gather_key].size < 2
+
+  sendtype = state.find_param(context, 'sendtype')
+  recvtype = state.find_param(context, 'recvtype')
+  rank = state.communicators[comm].participating_ranks[context['vpid']]
+  if rank && rank == root && recv_count != send_count && sendtype == recvtype 
+    state.print_usage_error(context,"Receive count differs from the send count at MPI_Gather using the communicator #{comm}")
+  end 
+}
+
+
+$on_successful_exit['MPI_Allgather'] = lambda { |state, context, payload|
+  send_count = state.find_param(context, 'sendcount')
+  recv_count = state.find_param(context, 'recvcount')
+  comm = state.find_param(context, 'comm')
+
+  sendtype = state.find_param(context, 'sendtype')
+  recvtype = state.find_param(context, 'recvtype')
+  if recv_count != send_count && sendtype == recvtype 
+    state.print_usage_error(context,"Receive count differs from the send count at MPI_Allgather using the communicator #{comm}")
+  end 
+}
+
+$on_successful_exit['MPI_Scatter'] = lambda { |state, context, payload|
+  send_count = state.find_param(context, 'sendcount')
+  recv_count = state.find_param(context, 'recvcount')
+  comm = state.find_param(context, 'comm')
+  sendtype = state.find_param(context, 'sendtype')
+  recvtype = state.find_param(context, 'recvtype')
+  scatter_key = make_scatter_gather_key.call(state)
+  state.scatter_map[scatter_key][0] += 1
+  state.scatter_map[scatter_key] += [context,comm] if state.scatter_map[scatter_key].size < 2
+  if recv_count > send_count && sendtype == recvtype
+    state.print_usage_error(context,"Receive count cannot be larger than the send count at MPI_Scatter using the communicator #{comm}")
+  end 
 }
 
 $on_successful_exit['MPI_Psend_init'] = lambda { |state, context, payload|
@@ -157,11 +214,12 @@ $on_successful_exit['MPI_Send'] = lambda { |state, context, payload|
 # Unless Comm_create is called, they are all the same communicator
 $on_successful_exit['MPI_Comm_rank']=lambda { |state, context, payload|
   comm_ptr = state.find_param(context, 'comm')
-  rank_val = state.find_param(context, 'rank_val')
+  rank_val = payload['rank_val']
   unless state.communicators.key?(comm_ptr)
     state.communicators[comm_ptr] = Communicator.new(comm_ptr)
   end
-  state.communicator_bags[state.bag_id][comm_ptr] = nil
+  state.communicator_bags[state.bag_id][comm_ptr] = nil #make sure the comm create reflects the new bag_id
+  state.comm_to_bag_map[comm_ptr] = state.bag_id
   state.communicators[comm_ptr].participating_ranks[context['vpid']] = rank_val
   
 }
