@@ -1,0 +1,1635 @@
+---
+cuGetErrorString:
+  ! '':
+  - 6000
+cuGetErrorName:
+  ! '':
+  - 6000
+cuInit:
+  ! '':
+  - 2000
+cuDriverGetVersion:
+  ! '':
+  - 2020
+cuDeviceGet:
+  ! '':
+  - 2000
+cuDeviceGetCount:
+  ! '':
+  - 2000
+cuDeviceGetName:
+  ! '':
+  - 2000
+cuDeviceGetUuid:
+  ! '':
+  - 11040
+  - 9020
+cuDeviceGetLuid:
+  ! '':
+  - 10000
+cuDeviceTotalMem:
+  ! '':
+  - 3020
+  - 2000
+cuDeviceGetTexture1DLinearMaxWidth:
+  ! '':
+  - 11010
+cuDeviceGetAttribute:
+  ! '':
+  - 2000
+cuDeviceGetHostAtomicCapabilities:
+  ! '':
+  - 13000
+cuDeviceGetNvSciSyncAttributes:
+  ! '':
+  - 10020
+cuDeviceSetMemPool:
+  ! '':
+  - 11020
+cuDeviceGetMemPool:
+  ! '':
+  - 11020
+cuDeviceGetDefaultMemPool:
+  ! '':
+  - 11020
+cuDeviceGetProperties:
+  ! '':
+  - 2000
+cuDeviceComputeCapability:
+  ! '':
+  - 2000
+cuDevicePrimaryCtxRetain:
+  ! '':
+  - 7000
+cuDevicePrimaryCtxRelease:
+  ! '':
+  - 11000
+  - 7000
+cuDevicePrimaryCtxSetFlags:
+  ! '':
+  - 11000
+  - 7000
+cuDevicePrimaryCtxGetState:
+  ! '':
+  - 7000
+cuDevicePrimaryCtxReset:
+  ! '':
+  - 11000
+  - 7000
+cuDeviceGetExecAffinitySupport:
+  ! '':
+  - 11040
+cuCtxCreate:
+  ! '':
+  - 12050
+  - 11040
+  - 3020
+  - 2000
+cuCtxGetId:
+  ! '':
+  - 12000
+cuCtxDestroy:
+  ! '':
+  - 4000
+  - 2000
+cuCtxPushCurrent:
+  ! '':
+  - 4000
+  - 2000
+cuCtxPopCurrent:
+  ! '':
+  - 4000
+  - 2000
+cuCtxSetCurrent:
+  ! '':
+  - 4000
+cuCtxGetCurrent:
+  ! '':
+  - 4000
+cuCtxGetDevice:
+  ! '':
+  - 13000
+  - 2000
+cuCtxGetFlags:
+  ! '':
+  - 7000
+cuCtxSetFlags:
+  ! '':
+  - 12010
+cuCtxSynchronize:
+  ! '':
+  - 13000
+  - 2000
+cuCtxSetLimit:
+  ! '':
+  - 3010
+cuCtxGetLimit:
+  ! '':
+  - 3010
+cuCtxGetCacheConfig:
+  ! '':
+  - 3020
+cuCtxSetCacheConfig:
+  ! '':
+  - 3020
+cuCtxGetSharedMemConfig:
+  ! '':
+  - 4020
+cuCtxSetSharedMemConfig:
+  ! '':
+  - 4020
+cuCtxGetApiVersion:
+  ! '':
+  - 3020
+cuCtxGetStreamPriorityRange:
+  ! '':
+  - 5050
+cuCtxResetPersistingL2Cache:
+  ! '':
+  - 11000
+cuCtxAttach:
+  ! '':
+  - 2000
+cuCtxDetach:
+  ! '':
+  - 2000
+cuCtxGetExecAffinity:
+  ! '':
+  - 11040
+cuModuleLoad:
+  ! '':
+  - 2000
+cuModuleLoadData:
+  ! '':
+  - 2000
+cuModuleLoadDataEx:
+  ! '':
+  - 2010
+cuModuleLoadFatBinary:
+  ! '':
+  - 2000
+cuModuleUnload:
+  ! '':
+  - 2000
+cuModuleGetFunction:
+  ! '':
+  - 2000
+cuModuleGetGlobal:
+  ! '':
+  - 3020
+  - 2000
+cuModuleGetTexRef:
+  ! '':
+  - 2000
+cuModuleGetSurfRef:
+  ! '':
+  - 3000
+cuModuleGetFunctionCount:
+  ! '':
+  - 12040
+cuModuleEnumerateFunctions:
+  ! '':
+  - 12040
+cuLinkCreate:
+  ! '':
+  - 6050
+  - 5050
+cuLinkAddData:
+  ! '':
+  - 6050
+  - 5050
+cuLinkAddFile:
+  ! '':
+  - 6050
+  - 5050
+cuLinkComplete:
+  ! '':
+  - 5050
+cuLinkDestroy:
+  ! '':
+  - 5050
+cuMemGetInfo:
+  ! '':
+  - 3020
+  - 2000
+cuMemAlloc:
+  ! '':
+  - 3020
+  - 2000
+cuMemAllocPitch:
+  ! '':
+  - 3020
+  - 2000
+cuMemFree:
+  ! '':
+  - 3020
+  - 2000
+cuMemGetAddressRange:
+  ! '':
+  - 3020
+  - 2000
+cuMemAllocHost:
+  ! '':
+  - 3020
+  - 2000
+cuMemFreeHost:
+  ! '':
+  - 2000
+cuMemHostAlloc:
+  ! '':
+  - 2020
+cuMemHostGetDevicePointer:
+  ! '':
+  - 3020
+  - 2020
+cuMemHostGetFlags:
+  ! '':
+  - 2030
+cuMemAllocManaged:
+  ! '':
+  - 6000
+cuDeviceGetByPCIBusId:
+  ! '':
+  - 4010
+cuDeviceGetPCIBusId:
+  ! '':
+  - 4010
+cuIpcGetEventHandle:
+  ! '':
+  - 4010
+cuIpcOpenEventHandle:
+  ! '':
+  - 4010
+cuIpcGetMemHandle:
+  ! '':
+  - 4010
+cuIpcOpenMemHandle:
+  ! '':
+  - 11000
+  - 4010
+cuIpcCloseMemHandle:
+  ! '':
+  - 4010
+cuMemHostRegister:
+  ! '':
+  - 6050
+  - 4000
+cuMemHostUnregister:
+  ! '':
+  - 4000
+cuMemcpy:
+  _ptds:
+  - 7000
+  ! '':
+  - 4000
+cuMemcpyPeer:
+  _ptds:
+  - 7000
+  ! '':
+  - 4000
+cuMemcpyHtoD:
+  _ptds:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemcpyDtoH:
+  _ptds:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemcpyDtoD:
+  _ptds:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemcpyDtoA:
+  _ptds:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemcpyAtoD:
+  _ptds:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemcpyHtoA:
+  _ptds:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemcpyAtoH:
+  _ptds:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemcpyAtoA:
+  _ptds:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemcpy2D:
+  _ptds:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemcpy2DUnaligned:
+  _ptds:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemcpy3D:
+  _ptds:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemcpy3DPeer:
+  _ptds:
+  - 7000
+  ! '':
+  - 4000
+cuMemcpyAsync:
+  _ptsz:
+  - 7000
+  ! '':
+  - 4000
+cuMemcpyPeerAsync:
+  _ptsz:
+  - 7000
+  ! '':
+  - 4000
+cuMemcpyHtoDAsync:
+  _ptsz:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemcpyDtoHAsync:
+  _ptsz:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemcpyDtoDAsync:
+  _ptsz:
+  - 7000
+  ! '':
+  - 3020
+  - 3000
+cuMemcpyHtoAAsync:
+  _ptsz:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemcpyAtoHAsync:
+  _ptsz:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemcpy2DAsync:
+  _ptsz:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemcpy3DAsync:
+  _ptsz:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemcpy3DPeerAsync:
+  _ptsz:
+  - 7000
+  ! '':
+  - 4000
+cuMemcpyBatchAsync:
+  _ptsz:
+  - 13000
+  - 12080
+  ! '':
+  - 13000
+  - 12080
+cuMemcpy3DBatchAsync:
+  _ptsz:
+  - 13000
+  - 12080
+  ! '':
+  - 13000
+  - 12080
+cuMemsetD8:
+  _ptds:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemsetD16:
+  _ptds:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemsetD32:
+  _ptds:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemsetD2D8:
+  _ptds:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemsetD2D16:
+  _ptds:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemsetD2D32:
+  _ptds:
+  - 7000
+  ! '':
+  - 3020
+  - 2000
+cuMemsetD8Async:
+  _ptsz:
+  - 7000
+  ! '':
+  - 3020
+cuMemsetD16Async:
+  _ptsz:
+  - 7000
+  ! '':
+  - 3020
+cuMemsetD32Async:
+  _ptsz:
+  - 7000
+  ! '':
+  - 3020
+cuMemsetD2D8Async:
+  _ptsz:
+  - 7000
+  ! '':
+  - 3020
+cuMemsetD2D16Async:
+  _ptsz:
+  - 7000
+  ! '':
+  - 3020
+cuMemsetD2D32Async:
+  _ptsz:
+  - 7000
+  ! '':
+  - 3020
+cuArrayCreate:
+  ! '':
+  - 3020
+  - 2000
+cuArrayGetDescriptor:
+  ! '':
+  - 3020
+  - 2000
+cuArrayGetSparseProperties:
+  ! '':
+  - 11010
+cuMipmappedArrayGetSparseProperties:
+  ! '':
+  - 11010
+cuArrayGetMemoryRequirements:
+  ! '':
+  - 11060
+cuMipmappedArrayGetMemoryRequirements:
+  ! '':
+  - 11060
+cuArrayGetPlane:
+  ! '':
+  - 11020
+cuArrayDestroy:
+  ! '':
+  - 2000
+cuArray3DCreate:
+  ! '':
+  - 3020
+  - 2000
+cuArray3DGetDescriptor:
+  ! '':
+  - 3020
+  - 2000
+cuMipmappedArrayCreate:
+  ! '':
+  - 5000
+cuMipmappedArrayGetLevel:
+  ! '':
+  - 5000
+cuMipmappedArrayDestroy:
+  ! '':
+  - 5000
+cuMemAddressReserve:
+  ! '':
+  - 10020
+cuMemAddressFree:
+  ! '':
+  - 10020
+cuMemCreate:
+  ! '':
+  - 10020
+cuMemRelease:
+  ! '':
+  - 10020
+cuMemMap:
+  ! '':
+  - 10020
+cuMemMapArrayAsync:
+  _ptsz:
+  - 11010
+  ! '':
+  - 11010
+cuMemUnmap:
+  ! '':
+  - 10020
+cuMemSetAccess:
+  ! '':
+  - 10020
+cuMemGetAccess:
+  ! '':
+  - 10020
+cuMemExportToShareableHandle:
+  ! '':
+  - 10020
+cuMemImportFromShareableHandle:
+  ! '':
+  - 10020
+cuMemGetAllocationGranularity:
+  ! '':
+  - 10020
+cuMemGetAllocationPropertiesFromHandle:
+  ! '':
+  - 10020
+cuMemRetainAllocationHandle:
+  ! '':
+  - 11000
+cuMemFreeAsync:
+  _ptsz:
+  - 11020
+  ! '':
+  - 11020
+cuMemAllocAsync:
+  _ptsz:
+  - 11020
+  ! '':
+  - 11020
+cuMemPoolTrimTo:
+  ! '':
+  - 11020
+cuMemPoolSetAttribute:
+  ! '':
+  - 11020
+cuMemPoolGetAttribute:
+  ! '':
+  - 11020
+cuMemPoolSetAccess:
+  ! '':
+  - 11020
+cuMemPoolGetAccess:
+  ! '':
+  - 11020
+cuMemPoolCreate:
+  ! '':
+  - 11020
+cuMemPoolDestroy:
+  ! '':
+  - 11020
+cuMemGetDefaultMemPool:
+  ! '':
+  - 13000
+cuMemGetMemPool:
+  ! '':
+  - 13000
+cuMemSetMemPool:
+  ! '':
+  - 13000
+cuMemAllocFromPoolAsync:
+  _ptsz:
+  - 11020
+  ! '':
+  - 11020
+cuMemPoolExportToShareableHandle:
+  ! '':
+  - 11020
+cuMemPoolImportFromShareableHandle:
+  ! '':
+  - 11020
+cuMemPoolExportPointer:
+  ! '':
+  - 11020
+cuMemPoolImportPointer:
+  ! '':
+  - 11020
+cuPointerGetAttribute:
+  ! '':
+  - 4000
+cuMemPrefetchAsync:
+  _ptsz:
+  - 12020
+  - 8000
+  ! '':
+  - 12020
+  - 8000
+cuMemAdvise:
+  ! '':
+  - 12020
+  - 8000
+cuMemPrefetchBatchAsync:
+  _ptsz:
+  - 13000
+  ! '':
+  - 13000
+cuMemDiscardBatchAsync:
+  _ptsz:
+  - 13000
+  ! '':
+  - 13000
+cuMemDiscardAndPrefetchBatchAsync:
+  _ptsz:
+  - 13000
+  ! '':
+  - 13000
+cuMemRangeGetAttribute:
+  ! '':
+  - 8000
+cuMemRangeGetAttributes:
+  ! '':
+  - 8000
+cuMulticastCreate:
+  ! '':
+  - 12010
+cuMulticastAddDevice:
+  ! '':
+  - 12010
+cuMulticastBindMem:
+  ! '':
+  - 12010
+cuMulticastBindAddr:
+  ! '':
+  - 12010
+cuMulticastUnbind:
+  ! '':
+  - 12010
+cuMulticastGetGranularity:
+  ! '':
+  - 12010
+cuPointerSetAttribute:
+  ! '':
+  - 6000
+cuPointerGetAttributes:
+  ! '':
+  - 7000
+cuStreamCreate:
+  ! '':
+  - 2000
+cuStreamCreateWithPriority:
+  ! '':
+  - 5050
+cuStreamGetId:
+  ! '':
+  - 12000
+  _ptsz:
+  - 12000
+cuStreamGetPriority:
+  _ptsz:
+  - 7000
+  ! '':
+  - 5050
+cuStreamGetFlags:
+  _ptsz:
+  - 7000
+  ! '':
+  - 5050
+cuStreamGetCtx:
+  _ptsz:
+  - 12050
+  - 9020
+  ! '':
+  - 12050
+  - 9020
+cuStreamWaitEvent:
+  _ptsz:
+  - 7000
+  ! '':
+  - 3020
+cuStreamAddCallback:
+  _ptsz:
+  - 7000
+  ! '':
+  - 5000
+cuStreamBeginCapture:
+  _ptsz:
+  - 10010
+  - 10000
+  ! '':
+  - 10010
+  - 10000
+cuStreamBeginCaptureToGraph:
+  _ptsz:
+  - 12030
+  ! '':
+  - 12030
+cuThreadExchangeStreamCaptureMode:
+  ! '':
+  - 10010
+cuStreamEndCapture:
+  _ptsz:
+  - 10000
+  ! '':
+  - 10000
+cuStreamIsCapturing:
+  _ptsz:
+  - 10000
+  ! '':
+  - 10000
+cuStreamGetCaptureInfo:
+  _ptsz:
+  - 12030
+  - 11030
+  - 10010
+  ! '':
+  - 12030
+  - 11030
+  - 10010
+cuStreamUpdateCaptureDependencies:
+  _ptsz:
+  - 12030
+  - 11030
+  ! '':
+  - 12030
+  - 11030
+cuStreamAttachMemAsync:
+  _ptsz:
+  - 7000
+  ! '':
+  - 6000
+cuStreamQuery:
+  _ptsz:
+  - 7000
+  ! '':
+  - 2000
+cuStreamSynchronize:
+  _ptsz:
+  - 7000
+  ! '':
+  - 2000
+cuStreamDestroy:
+  ! '':
+  - 4000
+  - 2000
+cuStreamCopyAttributes:
+  _ptsz:
+  - 11000
+  ! '':
+  - 11000
+cuStreamGetAttribute:
+  _ptsz:
+  - 11000
+  ! '':
+  - 11000
+cuStreamSetAttribute:
+  _ptsz:
+  - 11000
+  ! '':
+  - 11000
+cuEventCreate:
+  ! '':
+  - 2000
+cuEventRecord:
+  _ptsz:
+  - 7000
+  ! '':
+  - 2000
+cuEventRecordWithFlags:
+  _ptsz:
+  - 11010
+  ! '':
+  - 11010
+cuEventQuery:
+  ! '':
+  - 2000
+cuEventSynchronize:
+  ! '':
+  - 2000
+cuEventDestroy:
+  ! '':
+  - 4000
+  - 2000
+cuEventElapsedTime:
+  ! '':
+  - 12080
+  - 2000
+cuImportExternalMemory:
+  ! '':
+  - 10000
+cuExternalMemoryGetMappedBuffer:
+  ! '':
+  - 10000
+cuExternalMemoryGetMappedMipmappedArray:
+  ! '':
+  - 10000
+cuDestroyExternalMemory:
+  ! '':
+  - 10000
+cuImportExternalSemaphore:
+  ! '':
+  - 10000
+cuSignalExternalSemaphoresAsync:
+  _ptsz:
+  - 10000
+  ! '':
+  - 10000
+cuWaitExternalSemaphoresAsync:
+  _ptsz:
+  - 10000
+  ! '':
+  - 10000
+cuDestroyExternalSemaphore:
+  ! '':
+  - 10000
+cuStreamWaitValue32:
+  _ptsz:
+  - 11070
+  - 8000
+  ! '':
+  - 11070
+  - 8000
+cuStreamWaitValue64:
+  _ptsz:
+  - 11070
+  - 9000
+  ! '':
+  - 11070
+  - 9000
+cuStreamWriteValue32:
+  _ptsz:
+  - 11070
+  - 8000
+  ! '':
+  - 11070
+  - 8000
+cuStreamWriteValue64:
+  _ptsz:
+  - 11070
+  - 9000
+  ! '':
+  - 11070
+  - 9000
+cuStreamBatchMemOp:
+  _ptsz:
+  - 11070
+  - 8000
+  ! '':
+  - 11070
+  - 8000
+cuFuncGetAttribute:
+  ! '':
+  - 2020
+cuFuncSetAttribute:
+  ! '':
+  - 9000
+cuFuncSetCacheConfig:
+  ! '':
+  - 3000
+cuFuncSetSharedMemConfig:
+  ! '':
+  - 4020
+cuFuncGetName:
+  ! '':
+  - 12030
+cuFuncGetParamInfo:
+  ! '':
+  - 12040
+cuFuncIsLoaded:
+  ! '':
+  - 12040
+cuFuncLoad:
+  ! '':
+  - 12040
+cuLaunchKernel:
+  _ptsz:
+  - 7000
+  ! '':
+  - 4000
+cuLaunchKernelEx:
+  _ptsz:
+  - 11060
+  ! '':
+  - 11060
+cuLaunchCooperativeKernel:
+  _ptsz:
+  - 9000
+  ! '':
+  - 9000
+cuLaunchCooperativeKernelMultiDevice:
+  ! '':
+  - 9000
+cuLaunchHostFunc:
+  _ptsz:
+  - 10000
+  ! '':
+  - 10000
+cuFuncSetBlockShape:
+  ! '':
+  - 2000
+cuFuncSetSharedSize:
+  ! '':
+  - 2000
+cuParamSetSize:
+  ! '':
+  - 2000
+cuParamSeti:
+  ! '':
+  - 2000
+cuParamSetf:
+  ! '':
+  - 2000
+cuParamSetv:
+  ! '':
+  - 2000
+cuLaunch:
+  ! '':
+  - 2000
+cuLaunchGrid:
+  ! '':
+  - 2000
+cuLaunchGridAsync:
+  ! '':
+  - 2000
+cuParamSetTexRef:
+  ! '':
+  - 2000
+cuGraphCreate:
+  ! '':
+  - 10000
+cuGraphAddKernelNode:
+  ! '':
+  - 12000
+  - 10000
+cuGraphKernelNodeGetParams:
+  ! '':
+  - 12000
+  - 10000
+cuGraphKernelNodeSetParams:
+  ! '':
+  - 12000
+  - 10000
+cuGraphAddMemcpyNode:
+  ! '':
+  - 10000
+cuGraphMemcpyNodeGetParams:
+  ! '':
+  - 10000
+cuGraphMemcpyNodeSetParams:
+  ! '':
+  - 10000
+cuGraphAddMemsetNode:
+  ! '':
+  - 10000
+cuGraphMemsetNodeGetParams:
+  ! '':
+  - 10000
+cuGraphMemsetNodeSetParams:
+  ! '':
+  - 10000
+cuGraphAddHostNode:
+  ! '':
+  - 10000
+cuGraphHostNodeGetParams:
+  ! '':
+  - 10000
+cuGraphHostNodeSetParams:
+  ! '':
+  - 10000
+cuGraphAddChildGraphNode:
+  ! '':
+  - 10000
+cuGraphChildGraphNodeGetGraph:
+  ! '':
+  - 10000
+cuGraphAddEmptyNode:
+  ! '':
+  - 10000
+cuGraphAddEventRecordNode:
+  ! '':
+  - 11010
+cuGraphEventRecordNodeGetEvent:
+  ! '':
+  - 11010
+cuGraphEventRecordNodeSetEvent:
+  ! '':
+  - 11010
+cuGraphAddEventWaitNode:
+  ! '':
+  - 11010
+cuGraphEventWaitNodeGetEvent:
+  ! '':
+  - 11010
+cuGraphEventWaitNodeSetEvent:
+  ! '':
+  - 11010
+cuGraphAddExternalSemaphoresSignalNode:
+  ! '':
+  - 11020
+cuGraphExternalSemaphoresSignalNodeGetParams:
+  ! '':
+  - 11020
+cuGraphExternalSemaphoresSignalNodeSetParams:
+  ! '':
+  - 11020
+cuGraphAddExternalSemaphoresWaitNode:
+  ! '':
+  - 11020
+cuGraphExternalSemaphoresWaitNodeGetParams:
+  ! '':
+  - 11020
+cuGraphExternalSemaphoresWaitNodeSetParams:
+  ! '':
+  - 11020
+cuGraphAddBatchMemOpNode:
+  ! '':
+  - 11070
+cuGraphBatchMemOpNodeGetParams:
+  ! '':
+  - 11070
+cuGraphBatchMemOpNodeSetParams:
+  ! '':
+  - 11070
+cuGraphExecBatchMemOpNodeSetParams:
+  ! '':
+  - 11070
+cuGraphClone:
+  ! '':
+  - 10000
+cuGraphNodeFindInClone:
+  ! '':
+  - 10000
+cuGraphNodeGetType:
+  ! '':
+  - 10000
+cuGraphGetNodes:
+  ! '':
+  - 10000
+cuGraphGetRootNodes:
+  ! '':
+  - 10000
+cuGraphGetEdges:
+  ! '':
+  - 12030
+  - 10000
+cuGraphNodeGetDependencies:
+  ! '':
+  - 12030
+  - 10000
+cuGraphNodeGetDependentNodes:
+  ! '':
+  - 12030
+  - 10000
+cuGraphAddDependencies:
+  ! '':
+  - 12030
+  - 10000
+cuGraphRemoveDependencies:
+  ! '':
+  - 12030
+  - 10000
+cuGraphDestroyNode:
+  ! '':
+  - 10000
+cuGraphInstantiateWithFlags:
+  ! '':
+  - 11040
+cuGraphInstantiateWithParams:
+  _ptsz:
+  - 12000
+  ! '':
+  - 12000
+cuGraphExecGetFlags:
+  ! '':
+  - 12000
+cuGraphExecKernelNodeSetParams:
+  ! '':
+  - 12000
+  - 10010
+cuGraphExecMemcpyNodeSetParams:
+  ! '':
+  - 10020
+cuGraphExecMemsetNodeSetParams:
+  ! '':
+  - 10020
+cuGraphExecHostNodeSetParams:
+  ! '':
+  - 10020
+cuGraphExecChildGraphNodeSetParams:
+  ! '':
+  - 11010
+cuGraphExecEventRecordNodeSetEvent:
+  ! '':
+  - 11010
+cuGraphExecEventWaitNodeSetEvent:
+  ! '':
+  - 11010
+cuGraphExecExternalSemaphoresSignalNodeSetParams:
+  ! '':
+  - 11020
+cuGraphExecExternalSemaphoresWaitNodeSetParams:
+  ! '':
+  - 11020
+cuGraphUpload:
+  _ptsz:
+  - 11010
+  ! '':
+  - 11010
+cuGraphLaunch:
+  _ptsz:
+  - 10000
+  ! '':
+  - 10000
+cuGraphExecDestroy:
+  ! '':
+  - 10000
+cuGraphDestroy:
+  ! '':
+  - 10000
+cuGraphExecUpdate:
+  ! '':
+  - 12000
+  - 10020
+cuGraphKernelNodeCopyAttributes:
+  ! '':
+  - 11000
+cuGraphKernelNodeGetAttribute:
+  ! '':
+  - 11000
+cuGraphKernelNodeSetAttribute:
+  ! '':
+  - 11000
+cuGraphDebugDotPrint:
+  ! '':
+  - 11030
+cuGraphAddMemAllocNode:
+  ! '':
+  - 11040
+cuGraphMemAllocNodeGetParams:
+  ! '':
+  - 11040
+cuGraphAddMemFreeNode:
+  ! '':
+  - 11040
+cuGraphMemFreeNodeGetParams:
+  ! '':
+  - 11040
+cuGraphNodeSetEnabled:
+  ! '':
+  - 11060
+cuGraphNodeGetEnabled:
+  ! '':
+  - 11060
+cuGraphAddNode:
+  ! '':
+  - 12030
+  - 12020
+cuGraphNodeSetParams:
+  ! '':
+  - 12020
+cuGraphExecNodeSetParams:
+  ! '':
+  - 12020
+cuGraphConditionalHandleCreate:
+  ! '':
+  - 12030
+cuDeviceGraphMemTrim:
+  ! '':
+  - 11040
+cuDeviceGetGraphMemAttribute:
+  ! '':
+  - 11040
+cuDeviceSetGraphMemAttribute:
+  ! '':
+  - 11040
+cuOccupancyMaxActiveBlocksPerMultiprocessor:
+  ! '':
+  - 6050
+cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags:
+  ! '':
+  - 7000
+cuOccupancyMaxPotentialBlockSize:
+  ! '':
+  - 6050
+cuOccupancyMaxPotentialBlockSizeWithFlags:
+  ! '':
+  - 7000
+cuOccupancyAvailableDynamicSMemPerBlock:
+  ! '':
+  - 10020
+cuOccupancyMaxPotentialClusterSize:
+  ! '':
+  - 11070
+cuOccupancyMaxActiveClusters:
+  ! '':
+  - 11070
+cuTexRefSetArray:
+  ! '':
+  - 2000
+cuTexRefSetMipmappedArray:
+  ! '':
+  - 5000
+cuTexRefSetAddress:
+  ! '':
+  - 3020
+  - 2000
+cuTexRefSetAddress2D:
+  ! '':
+  - 4010
+  - 3020
+  - 2020
+cuTexRefSetFormat:
+  ! '':
+  - 2000
+cuTexRefSetAddressMode:
+  ! '':
+  - 2000
+cuTexRefSetFilterMode:
+  ! '':
+  - 2000
+cuTexRefSetMipmapFilterMode:
+  ! '':
+  - 5000
+cuTexRefSetMipmapLevelBias:
+  ! '':
+  - 5000
+cuTexRefSetMipmapLevelClamp:
+  ! '':
+  - 5000
+cuTexRefSetMaxAnisotropy:
+  ! '':
+  - 5000
+cuTexRefSetBorderColor:
+  ! '':
+  - 8000
+cuTexRefSetFlags:
+  ! '':
+  - 2000
+cuTexRefGetAddress:
+  ! '':
+  - 3020
+  - 2000
+cuTexRefGetArray:
+  ! '':
+  - 2000
+cuTexRefGetMipmappedArray:
+  ! '':
+  - 5000
+cuTexRefGetAddressMode:
+  ! '':
+  - 2000
+cuTexRefGetFilterMode:
+  ! '':
+  - 2000
+cuTexRefGetFormat:
+  ! '':
+  - 2000
+cuTexRefGetMipmapFilterMode:
+  ! '':
+  - 5000
+cuTexRefGetMipmapLevelBias:
+  ! '':
+  - 5000
+cuTexRefGetMipmapLevelClamp:
+  ! '':
+  - 5000
+cuTexRefGetMaxAnisotropy:
+  ! '':
+  - 5000
+cuTexRefGetBorderColor:
+  ! '':
+  - 8000
+cuTexRefGetFlags:
+  ! '':
+  - 2000
+cuTexRefCreate:
+  ! '':
+  - 2000
+cuTexRefDestroy:
+  ! '':
+  - 2000
+cuSurfRefSetArray:
+  ! '':
+  - 3000
+cuSurfRefGetArray:
+  ! '':
+  - 3000
+cuTexObjectCreate:
+  ! '':
+  - 5000
+cuTexObjectDestroy:
+  ! '':
+  - 5000
+cuTexObjectGetResourceDesc:
+  ! '':
+  - 5000
+cuTexObjectGetTextureDesc:
+  ! '':
+  - 5000
+cuTexObjectGetResourceViewDesc:
+  ! '':
+  - 5000
+cuSurfObjectCreate:
+  ! '':
+  - 5000
+cuSurfObjectDestroy:
+  ! '':
+  - 5000
+cuSurfObjectGetResourceDesc:
+  ! '':
+  - 5000
+cuTensorMapEncodeTiled:
+  ! '':
+  - 12000
+cuTensorMapEncodeIm2col:
+  ! '':
+  - 12000
+cuTensorMapReplaceAddress:
+  ! '':
+  - 12000
+cuTensorMapEncodeIm2colWide:
+  ! '':
+  - 12080
+cuDeviceCanAccessPeer:
+  ! '':
+  - 4000
+cuCtxEnablePeerAccess:
+  ! '':
+  - 4000
+cuCtxDisablePeerAccess:
+  ! '':
+  - 4000
+cuDeviceGetP2PAttribute:
+  ! '':
+  - 8000
+cuDeviceGetP2PAtomicCapabilities:
+  ! '':
+  - 13000
+cuGraphicsUnregisterResource:
+  ! '':
+  - 3000
+cuGraphicsSubResourceGetMappedArray:
+  ! '':
+  - 3000
+cuGraphicsResourceGetMappedMipmappedArray:
+  ! '':
+  - 5000
+cuGraphicsResourceGetMappedPointer:
+  ! '':
+  - 3020
+  - 3000
+cuGraphicsResourceSetMapFlags:
+  ! '':
+  - 6050
+  - 3000
+cuGraphicsMapResources:
+  _ptsz:
+  - 7000
+  ! '':
+  - 3000
+cuGraphicsUnmapResources:
+  _ptsz:
+  - 7000
+  ! '':
+  - 3000
+cuGetExportTable:
+  ! '':
+  - 3000
+cuFuncGetModule:
+  ! '':
+  - 11000
+cuGetProcAddress:
+  ! '':
+  - 12000
+  - 11030
+cuStreamGetDevice:
+  ! '':
+  - 12080
+  _ptsz:
+  - 12080
+cuFlushGPUDirectRDMAWrites:
+  ! '':
+  - 11030
+cuUserObjectCreate:
+  ! '':
+  - 11030
+cuUserObjectRetain:
+  ! '':
+  - 11030
+cuUserObjectRelease:
+  ! '':
+  - 11030
+cuGraphRetainUserObject:
+  ! '':
+  - 11030
+cuGraphReleaseUserObject:
+  ! '':
+  - 11030
+cuModuleGetLoadingMode:
+  ! '':
+  - 11070
+cuMemGetHandleForAddressRange:
+  ! '':
+  - 11070
+cuLibraryLoadData:
+  ! '':
+  - 12000
+cuLibraryLoadFromFile:
+  ! '':
+  - 12000
+cuLibraryUnload:
+  ! '':
+  - 12000
+cuLibraryGetKernel:
+  ! '':
+  - 12000
+cuLibraryGetModule:
+  ! '':
+  - 12000
+cuLibraryGetKernelCount:
+  ! '':
+  - 12040
+cuLibraryEnumerateKernels:
+  ! '':
+  - 12040
+cuKernelGetFunction:
+  ! '':
+  - 12000
+cuKernelGetLibrary:
+  ! '':
+  - 12050
+cuLibraryGetGlobal:
+  ! '':
+  - 12000
+cuLibraryGetManaged:
+  ! '':
+  - 12000
+cuKernelGetAttribute:
+  ! '':
+  - 12000
+cuKernelSetAttribute:
+  ! '':
+  - 12000
+cuKernelSetCacheConfig:
+  ! '':
+  - 12000
+cuKernelGetName:
+  ! '':
+  - 12030
+cuKernelGetParamInfo:
+  ! '':
+  - 12040
+cuLibraryGetUnifiedFunction:
+  ! '':
+  - 12000
+cuCoredumpGetAttribute:
+  ! '':
+  - 12010
+cuCoredumpGetAttributeGlobal:
+  ! '':
+  - 12010
+cuCoredumpSetAttribute:
+  ! '':
+  - 12010
+cuCoredumpSetAttributeGlobal:
+  ! '':
+  - 12010
+cuDeviceRegisterAsyncNotification:
+  ! '':
+  - 12040
+cuDeviceUnregisterAsyncNotification:
+  ! '':
+  - 12040
+cuGreenCtxCreate:
+  ! '':
+  - 12040
+cuGreenCtxDestroy:
+  ! '':
+  - 12040
+cuDeviceGetDevResource:
+  ! '':
+  - 12040
+cuCtxGetDevResource:
+  ! '':
+  - 12040
+cuGreenCtxGetDevResource:
+  ! '':
+  - 12040
+cuGreenCtxRecordEvent:
+  ! '':
+  - 12040
+cuGreenCtxWaitEvent:
+  ! '':
+  - 12040
+cuDevResourceGenerateDesc:
+  ! '':
+  - 12040
+cuDevSmResourceSplitByCount:
+  ! '':
+  - 12040
+cuStreamGetGreenCtx:
+  ! '':
+  - 12040
+cuCtxFromGreenCtx:
+  ! '':
+  - 12040
+cuGreenCtxGetId:
+  ! '':
+  - 12090
+cuCtxRecordEvent:
+  ! '':
+  - 12050
+cuCtxWaitEvent:
+  ! '':
+  - 12050
+cuGreenCtxStreamCreate:
+  ! '':
+  - 12050
+cuMemBatchDecompressAsync:
+  ! '':
+  - 12060
+  _ptsz:
+  - 12060
+cuLogsRegisterCallback:
+  ! '':
+  - 12090
+cuLogsUnregisterCallback:
+  ! '':
+  - 12090
+cuLogsCurrent:
+  ! '':
+  - 12090
+cuLogsDumpToFile:
+  ! '':
+  - 12090
+cuLogsDumpToMemory:
+  ! '':
+  - 12090
+cuGraphInstantiate:
+  ! '':
+  - 11000
+  - 10000
+cuCheckpointProcessGetRestoreThreadId:
+  ! '':
+  - 12080
+cuCheckpointProcessGetState:
+  ! '':
+  - 12080
+cuCheckpointProcessLock:
+  ! '':
+  - 12080
+cuCheckpointProcessCheckpoint:
+  ! '':
+  - 12080
+cuCheckpointProcessRestore:
+  ! '':
+  - 12080
+cuCheckpointProcessUnlock:
+  ! '':
+  - 12080
+cuVDPAUGetDevice:
+  ! '':
+  - 3010
+cuVDPAUCtxCreate:
+  ! '':
+  - 3020
+  - 3010
+cuGraphicsVDPAURegisterVideoSurface:
+  ! '':
+  - 3010
+cuGraphicsVDPAURegisterOutputSurface:
+  ! '':
+  - 3010
+cuProfilerInitialize:
+  ! '':
+  - 4000
+cuProfilerStart:
+  ! '':
+  - 4000
+cuProfilerStop:
+  ! '':
+  - 4000

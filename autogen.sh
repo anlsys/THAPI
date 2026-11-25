@@ -2,7 +2,7 @@
 # NOTE: this tree builds out-of-tree, the way the upstream README describes:
 #
 #     ./autogen.sh && mkdir build && cd build
-#     ../configure --prefix=/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/ici
+#     ../configure --prefix `pwd`/ici --enable-ze-validator   # installs to build/ici
 #     make -j install
 #
 # Source the build environment first (compilers, h2yaml, metababel, gems):

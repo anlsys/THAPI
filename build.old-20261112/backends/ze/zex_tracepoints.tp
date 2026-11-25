@@ -1,0 +1,486 @@
+#include "lttng/tracepoint_gen.h"
+#include "ze.h.include"
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexKernelGetBaseAddress_entry,
+  TP_ARGS(
+    ze_kernel_handle_t, hKernel,
+    uint64_t *, baseAddress
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hKernel, (uintptr_t)(hKernel))
+    ctf_integer_hex(uintptr_t, baseAddress, (uintptr_t)(baseAddress))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexKernelGetBaseAddress_exit,
+  TP_ARGS(
+    ze_kernel_handle_t, hKernel,
+    uint64_t *, baseAddress,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexKernelGetArgumentSize_entry,
+  TP_ARGS(
+    ze_kernel_handle_t, hKernel,
+    uint32_t, argIndex,
+    uint32_t *, pArgSize
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hKernel, (uintptr_t)(hKernel))
+    ctf_integer(uint32_t, argIndex, argIndex)
+    ctf_integer_hex(uintptr_t, pArgSize, (uintptr_t)(pArgSize))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexKernelGetArgumentSize_exit,
+  TP_ARGS(
+    ze_kernel_handle_t, hKernel,
+    uint32_t, argIndex,
+    uint32_t *, pArgSize,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexKernelGetArgumentType_entry,
+  TP_ARGS(
+    ze_kernel_handle_t, hKernel,
+    uint32_t, argIndex,
+    uint32_t *, pSize,
+    char *, pString
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hKernel, (uintptr_t)(hKernel))
+    ctf_integer(uint32_t, argIndex, argIndex)
+    ctf_integer_hex(uintptr_t, pSize, (uintptr_t)(pSize))
+    ctf_integer_hex(uintptr_t, pString, (uintptr_t)(pString))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexKernelGetArgumentType_exit,
+  TP_ARGS(
+    ze_kernel_handle_t, hKernel,
+    uint32_t, argIndex,
+    uint32_t *, pSize,
+    char *, pString,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexDriverImportExternalPointer_entry,
+  TP_ARGS(
+    ze_driver_handle_t, hDriver,
+    void *, ptr,
+    size_t, size
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hDriver, (uintptr_t)(hDriver))
+    ctf_integer_hex(uintptr_t, ptr, (uintptr_t)(ptr))
+    ctf_integer(size_t, size, size)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexDriverImportExternalPointer_exit,
+  TP_ARGS(
+    ze_driver_handle_t, hDriver,
+    void *, ptr,
+    size_t, size,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexDriverReleaseImportedPointer_entry,
+  TP_ARGS(
+    ze_driver_handle_t, hDriver,
+    void *, ptr
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hDriver, (uintptr_t)(hDriver))
+    ctf_integer_hex(uintptr_t, ptr, (uintptr_t)(ptr))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexDriverReleaseImportedPointer_exit,
+  TP_ARGS(
+    ze_driver_handle_t, hDriver,
+    void *, ptr,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexDriverGetHostPointerBaseAddress_entry,
+  TP_ARGS(
+    ze_driver_handle_t, hDriver,
+    void *, ptr,
+    void **, baseAddress
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hDriver, (uintptr_t)(hDriver))
+    ctf_integer_hex(uintptr_t, ptr, (uintptr_t)(ptr))
+    ctf_integer_hex(uintptr_t, baseAddress, (uintptr_t)(baseAddress))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexDriverGetHostPointerBaseAddress_exit,
+  TP_ARGS(
+    ze_driver_handle_t, hDriver,
+    void *, ptr,
+    void **, baseAddress,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexMemGetIpcHandles_entry,
+  TP_ARGS(
+    ze_context_handle_t, hContext,
+    const void *, ptr,
+    uint32_t *, numIpcHandles,
+    ze_ipc_mem_handle_t *, pIpcHandles
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)(hContext))
+    ctf_integer_hex(uintptr_t, ptr, (uintptr_t)(ptr))
+    ctf_integer_hex(uintptr_t, numIpcHandles, (uintptr_t)(numIpcHandles))
+    ctf_integer_hex(uintptr_t, pIpcHandles, (uintptr_t)(pIpcHandles))
+    ctf_integer(uint32_t, numIpcHandles_val, (numIpcHandles ? *numIpcHandles : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexMemGetIpcHandles_exit,
+  TP_ARGS(
+    ze_context_handle_t, hContext,
+    const void *, ptr,
+    uint32_t *, numIpcHandles,
+    ze_ipc_mem_handle_t *, pIpcHandles,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+    ctf_integer(uint32_t, numIpcHandles_val, (numIpcHandles ? *numIpcHandles : 0))
+    ctf_sequence_text(uint8_t, pIpcHandles_vals, pIpcHandles, size_t, ((numIpcHandles && pIpcHandles ? *numIpcHandles : 0)) * sizeof(ze_ipc_mem_handle_t))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexMemOpenIpcHandles_entry,
+  TP_ARGS(
+    ze_context_handle_t, hContext,
+    ze_device_handle_t, hDevice,
+    uint32_t, numIpcHandles,
+    ze_ipc_mem_handle_t *, pIpcHandles,
+    ze_ipc_memory_flags_t, flags,
+    void **, pptr
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)(hContext))
+    ctf_integer_hex(uintptr_t, hDevice, (uintptr_t)(hDevice))
+    ctf_integer(uint32_t, numIpcHandles, numIpcHandles)
+    ctf_integer_hex(uintptr_t, pIpcHandles, (uintptr_t)(pIpcHandles))
+    ctf_integer(ze_ipc_memory_flags_t, flags, flags)
+    ctf_integer_hex(uintptr_t, pptr, (uintptr_t)(pptr))
+    ctf_sequence_text(uint8_t, pIpcHandles_vals, pIpcHandles, size_t, ((pIpcHandles ? numIpcHandles : 0)) * sizeof(ze_ipc_mem_handle_t))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexMemOpenIpcHandles_exit,
+  TP_ARGS(
+    ze_context_handle_t, hContext,
+    ze_device_handle_t, hDevice,
+    uint32_t, numIpcHandles,
+    ze_ipc_mem_handle_t *, pIpcHandles,
+    ze_ipc_memory_flags_t, flags,
+    void **, pptr,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+    ctf_integer_hex(uintptr_t, pptr_val, (uintptr_t)((pptr ? *pptr : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexCommandListAppendWaitOnMemory_entry,
+  TP_ARGS(
+    ze_command_list_handle_t, hCommandList,
+    zex_wait_on_mem_desc_t *, desc,
+    void *, ptr,
+    uint32_t, data,
+    ze_event_handle_t, hSignalEvent
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hCommandList, (uintptr_t)(hCommandList))
+    ctf_integer_hex(uintptr_t, desc, (uintptr_t)(desc))
+    ctf_integer_hex(uintptr_t, ptr, (uintptr_t)(ptr))
+    ctf_integer(uint32_t, data, data)
+    ctf_integer_hex(uintptr_t, hSignalEvent, (uintptr_t)(hSignalEvent))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexCommandListAppendWaitOnMemory_exit,
+  TP_ARGS(
+    ze_command_list_handle_t, hCommandList,
+    zex_wait_on_mem_desc_t *, desc,
+    void *, ptr,
+    uint32_t, data,
+    ze_event_handle_t, hSignalEvent,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexCommandListAppendWriteToMemory_entry,
+  TP_ARGS(
+    ze_command_list_handle_t, hCommandList,
+    zex_write_to_mem_desc_t *, desc,
+    void *, ptr,
+    uint64_t, data
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hCommandList, (uintptr_t)(hCommandList))
+    ctf_integer_hex(uintptr_t, desc, (uintptr_t)(desc))
+    ctf_integer_hex(uintptr_t, ptr, (uintptr_t)(ptr))
+    ctf_integer(uint64_t, data, data)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexCommandListAppendWriteToMemory_exit,
+  TP_ARGS(
+    ze_command_list_handle_t, hCommandList,
+    zex_write_to_mem_desc_t *, desc,
+    void *, ptr,
+    uint64_t, data,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexEventGetDeviceAddress_entry,
+  TP_ARGS(
+    ze_event_handle_t, event,
+    uint64_t *, completionValue,
+    uint64_t *, address
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, event, (uintptr_t)(event))
+    ctf_integer_hex(uintptr_t, completionValue, (uintptr_t)(completionValue))
+    ctf_integer_hex(uintptr_t, address, (uintptr_t)(address))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexEventGetDeviceAddress_exit,
+  TP_ARGS(
+    ze_event_handle_t, event,
+    uint64_t *, completionValue,
+    uint64_t *, address,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexCounterBasedEventCreate_entry,
+  TP_ARGS(
+    ze_context_handle_t, hContext,
+    ze_device_handle_t, hDevice,
+    uint64_t *, deviceAddress,
+    uint64_t *, hostAddress,
+    uint64_t, completionValue,
+    const ze_event_desc_t *, desc,
+    ze_event_handle_t *, phEvent
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)(hContext))
+    ctf_integer_hex(uintptr_t, hDevice, (uintptr_t)(hDevice))
+    ctf_integer_hex(uintptr_t, deviceAddress, (uintptr_t)(deviceAddress))
+    ctf_integer_hex(uintptr_t, hostAddress, (uintptr_t)(hostAddress))
+    ctf_integer(uint64_t, completionValue, completionValue)
+    ctf_integer_hex(uintptr_t, desc, (uintptr_t)(desc))
+    ctf_integer_hex(uintptr_t, phEvent, (uintptr_t)(phEvent))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexCounterBasedEventCreate_exit,
+  TP_ARGS(
+    ze_context_handle_t, hContext,
+    ze_device_handle_t, hDevice,
+    uint64_t *, deviceAddress,
+    uint64_t *, hostAddress,
+    uint64_t, completionValue,
+    const ze_event_desc_t *, desc,
+    ze_event_handle_t *, phEvent,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexCounterBasedEventGetIpcHandle_entry,
+  TP_ARGS(
+    ze_event_handle_t, hEvent,
+    zex_ipc_counter_based_event_handle_t *, phIpc
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hEvent, (uintptr_t)(hEvent))
+    ctf_integer_hex(uintptr_t, phIpc, (uintptr_t)(phIpc))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexCounterBasedEventGetIpcHandle_exit,
+  TP_ARGS(
+    ze_event_handle_t, hEvent,
+    zex_ipc_counter_based_event_handle_t *, phIpc,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexCounterBasedEventCloseIpcHandle_entry,
+  TP_ARGS(
+    ze_event_handle_t, hEvent
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hEvent, (uintptr_t)(hEvent))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexCounterBasedEventCloseIpcHandle_exit,
+  TP_ARGS(
+    ze_event_handle_t, hEvent,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexIntelAllocateNetworkInterrupt_entry,
+  TP_ARGS(
+    ze_context_handle_t, hContext,
+    uint32_t *, networkInterruptId
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)(hContext))
+    ctf_integer_hex(uintptr_t, networkInterruptId, (uintptr_t)(networkInterruptId))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexIntelAllocateNetworkInterrupt_exit,
+  TP_ARGS(
+    ze_context_handle_t, hContext,
+    uint32_t *, networkInterruptId,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexIntelReleaseNetworkInterrupt_entry,
+  TP_ARGS(
+    ze_context_handle_t, hContext,
+    uint32_t, networkInterruptId
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)(hContext))
+    ctf_integer(uint32_t, networkInterruptId, networkInterruptId)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zex,
+  zexIntelReleaseNetworkInterrupt_exit,
+  TP_ARGS(
+    ze_context_handle_t, hContext,
+    uint32_t, networkInterruptId,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+

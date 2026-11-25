@@ -1,0 +1,282 @@
+libzetracepoints_la-ze_structs_tracepoints.lo: ze_structs_tracepoints.c \
+ /usr/include/stdc-predef.h ze_structs_tracepoints.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/tracepoint.h \
+ /usr/include/stdio.h /usr/include/bits/libc-header-start.h \
+ /usr/include/features.h /usr/include/features-time64.h \
+ /usr/include/bits/wordsize.h /usr/include/bits/timesize.h \
+ /usr/include/sys/cdefs.h /usr/include/bits/long-double.h \
+ /usr/include/gnu/stubs.h /usr/include/gnu/stubs-64.h \
+ /opt/aurora/26.181.0/spack/unified/1.1.1/install/linux-x86_64/gcc-13.4.0-22p27zg/lib/gcc/x86_64-pc-linux-gnu/13.4.0/include/stddef.h \
+ /opt/aurora/26.181.0/spack/unified/1.1.1/install/linux-x86_64/gcc-13.4.0-22p27zg/lib/gcc/x86_64-pc-linux-gnu/13.4.0/include/stdarg.h \
+ /usr/include/bits/types.h /usr/include/bits/typesizes.h \
+ /usr/include/bits/time64.h /usr/include/bits/types/__fpos_t.h \
+ /usr/include/bits/types/__mbstate_t.h \
+ /usr/include/bits/types/__fpos64_t.h /usr/include/bits/types/__FILE.h \
+ /usr/include/bits/types/FILE.h /usr/include/bits/types/struct_FILE.h \
+ /usr/include/bits/types/cookie_io_functions_t.h \
+ /usr/include/bits/stdio_lim.h /usr/include/bits/floatn.h \
+ /usr/include/bits/floatn-common.h /usr/include/bits/stdio.h \
+ /usr/include/stdlib.h /usr/include/bits/waitflags.h \
+ /usr/include/bits/waitstatus.h /usr/include/sys/types.h \
+ /usr/include/bits/types/clock_t.h /usr/include/bits/types/clockid_t.h \
+ /usr/include/bits/types/time_t.h /usr/include/bits/types/timer_t.h \
+ /usr/include/bits/stdint-intn.h /usr/include/endian.h \
+ /usr/include/bits/endian.h /usr/include/bits/endianness.h \
+ /usr/include/bits/byteswap.h /usr/include/bits/uintn-identity.h \
+ /usr/include/sys/select.h /usr/include/bits/select.h \
+ /usr/include/bits/types/sigset_t.h /usr/include/bits/types/__sigset_t.h \
+ /usr/include/bits/types/struct_timeval.h \
+ /usr/include/bits/types/struct_timespec.h \
+ /usr/include/bits/pthreadtypes.h /usr/include/bits/thread-shared-types.h \
+ /usr/include/bits/pthreadtypes-arch.h \
+ /usr/include/bits/atomic_wide_counter.h /usr/include/bits/struct_mutex.h \
+ /usr/include/bits/struct_rwlock.h /usr/include/alloca.h \
+ /usr/include/bits/stdlib-bsearch.h /usr/include/bits/stdlib-float.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/tracepoint-types.h \
+ /opt/aurora/26.181.0/spack/unified/1.1.1/install/linux-x86_64/gcc-13.4.0-22p27zg/lib/gcc/x86_64-pc-linux-gnu/13.4.0/include/stdint.h \
+ /usr/include/stdint.h /usr/include/bits/wchar.h \
+ /usr/include/bits/stdint-uintn.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/tracepoint-rcu.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/compiler.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/config.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/urcu/pointer.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/arch.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/arch/x86.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/syscall-compat.h \
+ /usr/include/syscall.h /usr/include/sys/syscall.h \
+ /usr/include/asm/unistd.h /usr/include/asm/unistd_64.h \
+ /usr/include/bits/syscall.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/arch/generic.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/uatomic.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/uatomic/api.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/uatomic/x86.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/system.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/uatomic/uassert.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/uatomic/generic.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-api-compat.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-utils.h \
+ /usr/include/unistd.h /usr/include/bits/posix_opt.h \
+ /usr/include/bits/environments.h /usr/include/bits/confname.h \
+ /usr/include/bits/getopt_posix.h /usr/include/bits/getopt_core.h \
+ /usr/include/bits/unistd_ext.h /usr/include/dlfcn.h \
+ /usr/include/bits/dlfcn.h /usr/include/string.h \
+ /usr/include/bits/types/locale_t.h /usr/include/bits/types/__locale_t.h \
+ /usr/include/strings.h \
+ /opt/aurora/26.181.0/spack/unified/1.1.1/install/linux-x86_64/gcc-13.4.0-22p27zg/lib/gcc/x86_64-pc-linux-gnu/13.4.0/include/stdbool.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-config.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-compiler.h \
+ /usr/include/assert.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-tracer.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-arch.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-version.h \
+ ../../utils/lttng/tracepoint_gen.h ../../../backends/ze/ze.h.include \
+ modified_include/ze_api.h modified_include/ze_ddi.h \
+ modified_include/ze_api.h modified_include/zet_api.h \
+ modified_include/zet_ddi.h modified_include/zet_api.h \
+ modified_include/zes_api.h modified_include/zes_ddi.h \
+ modified_include/zes_api.h modified_include/zex_api.h \
+ modified_include/layers/zel_tracing_api.h \
+ modified_include/layers/../ze_api.h \
+ modified_include/layers/zel_tracing_ddi.h \
+ modified_include/layers/zel_tracing_register_cb.h \
+ modified_include/loader/ze_loader.h modified_include/loader/../ze_api.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/tracepoint-event.h \
+ ze_structs_tracepoints.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-tracepoint-event.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/rculist.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/list.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu-pointer.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/pointer.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-events.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-abi.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-endian.h \
+ /usr/include/byteswap.h \
+ /opt/aurora/26.181.0/spack/unified/1.1.1/install/linux-x86_64/gcc-13.4.0-22p27zg/lib/gcc/x86_64-pc-linux-gnu/13.4.0/include/float.h \
+ /usr/include/errno.h /usr/include/bits/errno.h \
+ /usr/include/linux/errno.h /usr/include/asm/errno.h \
+ /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/ref.h \
+ /opt/aurora/26.181.0/spack/unified/1.1.1/install/linux-x86_64/gcc-13.4.0-22p27zg/lib/gcc/x86_64-pc-linux-gnu/13.4.0/include/limits.h \
+ /opt/aurora/26.181.0/spack/unified/1.1.1/install/linux-x86_64/gcc-13.4.0-22p27zg/lib/gcc/x86_64-pc-linux-gnu/13.4.0/include/syslimits.h \
+ /usr/include/limits.h /usr/include/bits/posix1_lim.h \
+ /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
+ /usr/include/bits/pthread_stack_min-dynamic.h \
+ /usr/include/bits/pthread_stack_min.h /usr/include/bits/posix2_lim.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/assert.h \
+ /opt/aurora/26.181.0/spack/unified/1.1.1/install/linux-x86_64/gcc-13.4.0-22p27zg/lib/gcc/x86_64-pc-linux-gnu/13.4.0/include-fixed/pthread.h \
+ /usr/include/sched.h /usr/include/bits/sched.h \
+ /usr/include/bits/types/struct_sched_param.h /usr/include/bits/cpu-set.h \
+ /usr/include/time.h /usr/include/bits/time.h \
+ /usr/include/bits/types/struct_tm.h \
+ /usr/include/bits/types/struct_itimerspec.h /usr/include/bits/setjmp.h \
+ /usr/include/bits/types/struct___jmp_buf_tag.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-ringbuffer-context.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-tracepoint-event-reset.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-tracepoint-event-write.h \
+ /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-tracepoint-event-nowrite.h
+/usr/include/stdc-predef.h:
+ze_structs_tracepoints.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/tracepoint.h:
+/usr/include/stdio.h:
+/usr/include/bits/libc-header-start.h:
+/usr/include/features.h:
+/usr/include/features-time64.h:
+/usr/include/bits/wordsize.h:
+/usr/include/bits/timesize.h:
+/usr/include/sys/cdefs.h:
+/usr/include/bits/long-double.h:
+/usr/include/gnu/stubs.h:
+/usr/include/gnu/stubs-64.h:
+/opt/aurora/26.181.0/spack/unified/1.1.1/install/linux-x86_64/gcc-13.4.0-22p27zg/lib/gcc/x86_64-pc-linux-gnu/13.4.0/include/stddef.h:
+/opt/aurora/26.181.0/spack/unified/1.1.1/install/linux-x86_64/gcc-13.4.0-22p27zg/lib/gcc/x86_64-pc-linux-gnu/13.4.0/include/stdarg.h:
+/usr/include/bits/types.h:
+/usr/include/bits/typesizes.h:
+/usr/include/bits/time64.h:
+/usr/include/bits/types/__fpos_t.h:
+/usr/include/bits/types/__mbstate_t.h:
+/usr/include/bits/types/__fpos64_t.h:
+/usr/include/bits/types/__FILE.h:
+/usr/include/bits/types/FILE.h:
+/usr/include/bits/types/struct_FILE.h:
+/usr/include/bits/types/cookie_io_functions_t.h:
+/usr/include/bits/stdio_lim.h:
+/usr/include/bits/floatn.h:
+/usr/include/bits/floatn-common.h:
+/usr/include/bits/stdio.h:
+/usr/include/stdlib.h:
+/usr/include/bits/waitflags.h:
+/usr/include/bits/waitstatus.h:
+/usr/include/sys/types.h:
+/usr/include/bits/types/clock_t.h:
+/usr/include/bits/types/clockid_t.h:
+/usr/include/bits/types/time_t.h:
+/usr/include/bits/types/timer_t.h:
+/usr/include/bits/stdint-intn.h:
+/usr/include/endian.h:
+/usr/include/bits/endian.h:
+/usr/include/bits/endianness.h:
+/usr/include/bits/byteswap.h:
+/usr/include/bits/uintn-identity.h:
+/usr/include/sys/select.h:
+/usr/include/bits/select.h:
+/usr/include/bits/types/sigset_t.h:
+/usr/include/bits/types/__sigset_t.h:
+/usr/include/bits/types/struct_timeval.h:
+/usr/include/bits/types/struct_timespec.h:
+/usr/include/bits/pthreadtypes.h:
+/usr/include/bits/thread-shared-types.h:
+/usr/include/bits/pthreadtypes-arch.h:
+/usr/include/bits/atomic_wide_counter.h:
+/usr/include/bits/struct_mutex.h:
+/usr/include/bits/struct_rwlock.h:
+/usr/include/alloca.h:
+/usr/include/bits/stdlib-bsearch.h:
+/usr/include/bits/stdlib-float.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/tracepoint-types.h:
+/opt/aurora/26.181.0/spack/unified/1.1.1/install/linux-x86_64/gcc-13.4.0-22p27zg/lib/gcc/x86_64-pc-linux-gnu/13.4.0/include/stdint.h:
+/usr/include/stdint.h:
+/usr/include/bits/wchar.h:
+/usr/include/bits/stdint-uintn.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/tracepoint-rcu.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/compiler.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/config.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/urcu/pointer.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/arch.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/arch/x86.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/syscall-compat.h:
+/usr/include/syscall.h:
+/usr/include/sys/syscall.h:
+/usr/include/asm/unistd.h:
+/usr/include/asm/unistd_64.h:
+/usr/include/bits/syscall.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/arch/generic.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/uatomic.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/uatomic/api.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/uatomic/x86.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/system.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/uatomic/uassert.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/uatomic/generic.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-api-compat.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-utils.h:
+/usr/include/unistd.h:
+/usr/include/bits/posix_opt.h:
+/usr/include/bits/environments.h:
+/usr/include/bits/confname.h:
+/usr/include/bits/getopt_posix.h:
+/usr/include/bits/getopt_core.h:
+/usr/include/bits/unistd_ext.h:
+/usr/include/dlfcn.h:
+/usr/include/bits/dlfcn.h:
+/usr/include/string.h:
+/usr/include/bits/types/locale_t.h:
+/usr/include/bits/types/__locale_t.h:
+/usr/include/strings.h:
+/opt/aurora/26.181.0/spack/unified/1.1.1/install/linux-x86_64/gcc-13.4.0-22p27zg/lib/gcc/x86_64-pc-linux-gnu/13.4.0/include/stdbool.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-config.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-compiler.h:
+/usr/include/assert.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-tracer.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-arch.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-version.h:
+../../utils/lttng/tracepoint_gen.h:
+../../../backends/ze/ze.h.include:
+modified_include/ze_api.h:
+modified_include/ze_ddi.h:
+modified_include/ze_api.h:
+modified_include/zet_api.h:
+modified_include/zet_ddi.h:
+modified_include/zet_api.h:
+modified_include/zes_api.h:
+modified_include/zes_ddi.h:
+modified_include/zes_api.h:
+modified_include/zex_api.h:
+modified_include/layers/zel_tracing_api.h:
+modified_include/layers/../ze_api.h:
+modified_include/layers/zel_tracing_ddi.h:
+modified_include/layers/zel_tracing_register_cb.h:
+modified_include/loader/ze_loader.h:
+modified_include/loader/../ze_api.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/tracepoint-event.h:
+ze_structs_tracepoints.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-tracepoint-event.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/rculist.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/list.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu-pointer.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/pointer.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-events.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-abi.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-endian.h:
+/usr/include/byteswap.h:
+/opt/aurora/26.181.0/spack/unified/1.1.1/install/linux-x86_64/gcc-13.4.0-22p27zg/lib/gcc/x86_64-pc-linux-gnu/13.4.0/include/float.h:
+/usr/include/errno.h:
+/usr/include/bits/errno.h:
+/usr/include/linux/errno.h:
+/usr/include/asm/errno.h:
+/usr/include/asm-generic/errno.h:
+/usr/include/asm-generic/errno-base.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/ref.h:
+/opt/aurora/26.181.0/spack/unified/1.1.1/install/linux-x86_64/gcc-13.4.0-22p27zg/lib/gcc/x86_64-pc-linux-gnu/13.4.0/include/limits.h:
+/opt/aurora/26.181.0/spack/unified/1.1.1/install/linux-x86_64/gcc-13.4.0-22p27zg/lib/gcc/x86_64-pc-linux-gnu/13.4.0/include/syslimits.h:
+/usr/include/limits.h:
+/usr/include/bits/posix1_lim.h:
+/usr/include/bits/local_lim.h:
+/usr/include/linux/limits.h:
+/usr/include/bits/pthread_stack_min-dynamic.h:
+/usr/include/bits/pthread_stack_min.h:
+/usr/include/bits/posix2_lim.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/userspace-rcu-0.15.3-nedz5gsbo4fp77nxkrlceq63ujb7dbqe/include/urcu/assert.h:
+/opt/aurora/26.181.0/spack/unified/1.1.1/install/linux-x86_64/gcc-13.4.0-22p27zg/lib/gcc/x86_64-pc-linux-gnu/13.4.0/include-fixed/pthread.h:
+/usr/include/sched.h:
+/usr/include/bits/sched.h:
+/usr/include/bits/types/struct_sched_param.h:
+/usr/include/bits/cpu-set.h:
+/usr/include/time.h:
+/usr/include/bits/time.h:
+/usr/include/bits/types/struct_tm.h:
+/usr/include/bits/types/struct_itimerspec.h:
+/usr/include/bits/setjmp.h:
+/usr/include/bits/types/struct___jmp_buf_tag.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-ringbuffer-context.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-tracepoint-event-reset.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-tracepoint-event-write.h:
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/lttng-ust-2.14.0-26npuitj6codqpnp6dnoerzq45uexes4/include/lttng/ust-tracepoint-event-nowrite.h:

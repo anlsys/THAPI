@@ -1,0 +1,686 @@
+#include "lttng/tracepoint_gen.h"
+#include "ze.h.include"
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_base_state_t,
+  TP_ARGS(
+    zes_base_state_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_base_state_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_device_state_t,
+  TP_ARGS(
+    zes_device_state_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_device_state_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_reset_properties_t,
+  TP_ARGS(
+    zes_reset_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_reset_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_device_properties_t,
+  TP_ARGS(
+    zes_device_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_device_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_device_ext_properties_t,
+  TP_ARGS(
+    zes_device_ext_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_device_ext_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_process_state_t,
+  TP_ARGS(
+    zes_process_state_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_process_state_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_pci_properties_t,
+  TP_ARGS(
+    zes_pci_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_pci_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_pci_state_t,
+  TP_ARGS(
+    zes_pci_state_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_pci_state_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_pci_bar_properties_t,
+  TP_ARGS(
+    zes_pci_bar_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_pci_bar_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_pci_bar_properties_1_2_t,
+  TP_ARGS(
+    zes_pci_bar_properties_1_2_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_pci_bar_properties_1_2_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_overclock_properties_t,
+  TP_ARGS(
+    zes_overclock_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_overclock_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_diag_properties_t,
+  TP_ARGS(
+    zes_diag_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_diag_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_device_ecc_desc_t,
+  TP_ARGS(
+    zes_device_ecc_desc_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_device_ecc_desc_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_device_ecc_properties_t,
+  TP_ARGS(
+    zes_device_ecc_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_device_ecc_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_engine_properties_t,
+  TP_ARGS(
+    zes_engine_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_engine_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_fabric_port_properties_t,
+  TP_ARGS(
+    zes_fabric_port_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_fabric_port_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_fabric_port_config_t,
+  TP_ARGS(
+    zes_fabric_port_config_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_fabric_port_config_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_fabric_port_state_t,
+  TP_ARGS(
+    zes_fabric_port_state_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_fabric_port_state_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_fabric_port_error_counters_t,
+  TP_ARGS(
+    zes_fabric_port_error_counters_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_fabric_port_error_counters_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_fan_properties_t,
+  TP_ARGS(
+    zes_fan_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_fan_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_fan_config_t,
+  TP_ARGS(
+    zes_fan_config_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_fan_config_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_firmware_properties_t,
+  TP_ARGS(
+    zes_firmware_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_firmware_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_freq_properties_t,
+  TP_ARGS(
+    zes_freq_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_freq_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_freq_state_t,
+  TP_ARGS(
+    zes_freq_state_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_freq_state_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_oc_capabilities_t,
+  TP_ARGS(
+    zes_oc_capabilities_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_oc_capabilities_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_led_properties_t,
+  TP_ARGS(
+    zes_led_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_led_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_led_state_t,
+  TP_ARGS(
+    zes_led_state_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_led_state_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_mem_properties_t,
+  TP_ARGS(
+    zes_mem_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_mem_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_mem_state_t,
+  TP_ARGS(
+    zes_mem_state_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_mem_state_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_perf_properties_t,
+  TP_ARGS(
+    zes_perf_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_perf_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_power_properties_t,
+  TP_ARGS(
+    zes_power_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_power_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_psu_properties_t,
+  TP_ARGS(
+    zes_psu_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_psu_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_psu_state_t,
+  TP_ARGS(
+    zes_psu_state_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_psu_state_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_ras_properties_t,
+  TP_ARGS(
+    zes_ras_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_ras_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_ras_state_t,
+  TP_ARGS(
+    zes_ras_state_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_ras_state_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_ras_config_t,
+  TP_ARGS(
+    zes_ras_config_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_ras_config_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_sched_properties_t,
+  TP_ARGS(
+    zes_sched_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_sched_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_sched_timeout_properties_t,
+  TP_ARGS(
+    zes_sched_timeout_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_sched_timeout_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_sched_timeslice_properties_t,
+  TP_ARGS(
+    zes_sched_timeslice_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_sched_timeslice_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_standby_properties_t,
+  TP_ARGS(
+    zes_standby_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_standby_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_temp_properties_t,
+  TP_ARGS(
+    zes_temp_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_temp_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_temp_config_t,
+  TP_ARGS(
+    zes_temp_config_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_temp_config_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_device_ecc_default_properties_ext_t,
+  TP_ARGS(
+    zes_device_ecc_default_properties_ext_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_device_ecc_default_properties_ext_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_power_limit_ext_desc_t,
+  TP_ARGS(
+    zes_power_limit_ext_desc_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_power_limit_ext_desc_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_power_ext_properties_t,
+  TP_ARGS(
+    zes_power_ext_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_power_ext_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_engine_ext_properties_t,
+  TP_ARGS(
+    zes_engine_ext_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_engine_ext_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_mem_page_offline_state_exp_t,
+  TP_ARGS(
+    zes_mem_page_offline_state_exp_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_mem_page_offline_state_exp_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_mem_bandwidth_counter_bits_exp_properties_t,
+  TP_ARGS(
+    zes_mem_bandwidth_counter_bits_exp_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_mem_bandwidth_counter_bits_exp_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_power_domain_exp_properties_t,
+  TP_ARGS(
+    zes_power_domain_exp_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_power_domain_exp_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_subdevice_exp_properties_t,
+  TP_ARGS(
+    zes_subdevice_exp_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_subdevice_exp_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_vf_exp_properties_t,
+  TP_ARGS(
+    zes_vf_exp_properties_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_vf_exp_properties_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_vf_util_mem_exp_t,
+  TP_ARGS(
+    zes_vf_util_mem_exp_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_vf_util_mem_exp_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_vf_util_engine_exp_t,
+  TP_ARGS(
+    zes_vf_util_engine_exp_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_vf_util_engine_exp_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_vf_exp_capabilities_t,
+  TP_ARGS(
+    zes_vf_exp_capabilities_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_vf_exp_capabilities_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_vf_exp2_capabilities_t,
+  TP_ARGS(
+    zes_vf_exp2_capabilities_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_vf_exp2_capabilities_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_vf_util_mem_exp2_t,
+  TP_ARGS(
+    zes_vf_util_mem_exp2_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_vf_util_mem_exp2_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zes_structs,
+  zes_vf_util_engine_exp2_t,
+  TP_ARGS(
+    zes_vf_util_engine_exp2_t *, p
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, p, (uintptr_t)(p))
+    ctf_sequence_text(uint8_t, p_val, p, size_t, (p ? sizeof(zes_vf_util_engine_exp2_t) : 0))
+  )
+)
+

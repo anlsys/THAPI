@@ -1,0 +1,200 @@
+schema_version: 1
+backend: level_zero
+apis:
+  zeDeviceGetProperties:
+    success:
+      - action: level_zero.zeDeviceGetProperties.success
+  zeDeviceGetCommandQueueGroupProperties:
+    success:
+      - action: level_zero.zeDeviceGetCommandQueueGroupProperties.success
+  zeCommandListAppendLaunchKernel:
+    entry:
+      - action: level_zero.zeCommandListAppendLaunchKernel.entry
+    success:
+      - action: level_zero.zeCommandListAppendLaunchKernel.success
+  zeCommandListReset:
+    entry:
+      - action: level_zero.zeCommandListReset.entry
+    success:
+      - action: level_zero.zeCommandListReset.success
+  zeCommandListClose:
+    success:
+      - action: level_zero.zeCommandListClose.success
+  zeCommandListAppendLaunchCooperativeKernel:
+    entry:
+      - action: level_zero.zeCommandListAppendLaunchCooperativeKernel.entry
+    success:
+      - action: level_zero.zeCommandListAppendLaunchCooperativeKernel.success
+  zeCommandListAppendMemoryCopy:
+    entry:
+      - action: level_zero.zeCommandListAppendMemoryCopy.entry
+    success:
+      - action: level_zero.zeCommandListAppendMemoryCopy.success
+    error:
+      - action: level_zero.zeCommandListAppendMemoryCopy.error
+  zeCommandListAppendMemoryFill:
+    entry:
+      - action: level_zero.zeCommandListAppendMemoryFill.entry
+    success:
+      - action: level_zero.zeCommandListAppendMemoryFill.success
+    error:
+      - action: level_zero.zeCommandListAppendMemoryFill.error
+  zeCommandListAppendMemoryCopyRegion:
+    success:
+      - action: level_zero.zeCommandListAppendMemoryCopyRegion.success
+  zeCommandListAppendSignalEvent:
+    success:
+      - action: level_zero.zeCommandListAppendSignalEvent.success
+  zeCommandListAppendWaitOnEvents:
+    success:
+      - action: level_zero.zeCommandListAppendWaitOnEvents.success
+  zeCommandListAppendEventReset:
+    success:
+      - action: level_zero.zeCommandListAppendEventReset.success
+  zeCommandListAppendBarrier:
+    success:
+      - action: level_zero.zeCommandListAppendBarrier.success
+  zeCommandListAppendMemoryRangesBarrier:
+    success:
+      - action: level_zero.zeCommandListAppendMemoryRangesBarrier.success
+  zeEventHostSignal:
+    success:
+      - action: level_zero.zeEventHostSignal.success
+  zeEventHostReset:
+    success:
+      - action: level_zero.zeEventHostReset.success
+  zeEventHostSynchronize:
+    success:
+      - action: level_zero.zeEventHostSynchronize.success
+  zeEventQueryStatus:
+    success:
+      - action: level_zero.zeEventQueryStatus.success
+  zeCommandQueueSynchronize:
+    success:
+      - action: level_zero.zeCommandQueueSynchronize.success
+  zeCommandListHostSynchronize:
+    success:
+      - action: level_zero.zeCommandListHostSynchronize.success
+  zeCommandQueueExecuteCommandLists:
+    entry:
+      - action: level_zero.zeCommandQueueExecuteCommandLists.entry
+    success:
+      - action: level_zero.zeCommandQueueExecuteCommandLists.success
+  zeFenceHostSynchronize:
+    success:
+      - action: level_zero.zeFenceHostSynchronize.success
+  zeFenceReset:
+    entry:
+      - action: level_zero.zeFenceReset.entry
+  zeDriverGet:
+    success:
+      - action: level_zero.zeDriverGet.success
+  zeDeviceGet:
+    success:
+      - action: level_zero.zeDeviceGet.success
+  zeDeviceGetSubDevices:
+    success:
+      - action: level_zero.zeDeviceGetSubDevices.success
+  zeContextCreate:
+    success:
+      - action: level_zero.zeContextCreate.success
+  zeContextCreateEx:
+    success:
+      - action: level_zero.zeContextCreateEx.success
+  zeContextDestroy:
+    success:
+      - action: level_zero.zeContextDestroy.success
+  zeEventPoolCreate:
+    success:
+      - action: level_zero.zeEventPoolCreate.success
+  zeEventPoolDestroy:
+    success:
+      - action: level_zero.zeEventPoolDestroy.success
+  zeEventCreate:
+    entry:
+      - action: level_zero.zeEventCreate.entry
+    success:
+      - action: level_zero.zeEventCreate.success
+  zeEventDestroy:
+    success:
+      - action: level_zero.zeEventDestroy.success
+  zeCommandQueueCreate:
+    success:
+      - action: level_zero.zeCommandQueueCreate.success
+    error:
+      - action: level_zero.zeCommandQueueCreate.error
+  zeCommandQueueDestroy:
+    success:
+      - action: level_zero.zeCommandQueueDestroy.success
+  zeFenceCreate:
+    success:
+      - action: level_zero.zeFenceCreate.success
+  zeFenceDestroy:
+    success:
+      - action: level_zero.zeFenceDestroy.success
+  zeCommandListCreate:
+    success:
+      - action: level_zero.zeCommandListCreate.success
+  zeCommandListCreateImmediate:
+    success:
+      - action: level_zero.zeCommandListCreateImmediate.success
+  zeCommandListDestroy:
+    success:
+      - action: level_zero.zeCommandListDestroy.success
+  zeModuleCreate:
+    success:
+      - action: level_zero.zeModuleCreate.success
+    error:
+      - action: level_zero.zeModuleCreate.error
+  zeModuleDestroy:
+    success:
+      - action: level_zero.zeModuleDestroy.success
+  zeModuleDynamicLink:
+    error:
+      - action: level_zero.zeModuleDynamicLink.error
+    success:
+      - action: level_zero.zeModuleDynamicLink.success
+  zeModuleBuildLogDestroy:
+    success:
+      - action: level_zero.zeModuleBuildLogDestroy.success
+  zeKernelCreate:
+    entry:
+      - action: level_zero.zeKernelCreate.entry
+    success:
+      - action: level_zero.zeKernelCreate.success
+  zeKernelDestroy:
+    success:
+      - action: level_zero.zeKernelDestroy.success
+  zeMemAllocDevice:
+    success:
+      - action: level_zero.zeMemAllocDevice.success
+  zeMemAllocShared:
+    success:
+      - action: level_zero.zeMemAllocShared.success
+  zeMemAllocHost:
+    success:
+      - action: level_zero.zeMemAllocHost.success
+  zeMemFree:
+    entry:
+      - action: level_zero.zeMemFree.entry
+    error:
+      - action: level_zero.zeMemFree.error
+  zeMemGetAddressRange:
+    entry:
+      - action: level_zero.zeMemGetAddressRange.entry
+operations:
+  copy:
+    - check: check_oob_copy
+      with:
+        params: {ref: operation.params}
+    - check: check_use_after_free
+      with:
+        params: {ref: operation.params}
+  ranges_barrier:
+    - check: check_uaf_ranges_barrier
+      with:
+        params: {ref: operation.params}
+finalize:
+  - action: commands.flush_pending
+  - check: calls.finished
+  - check: objects.no_leaks

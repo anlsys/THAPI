@@ -1,0 +1,63 @@
+
+#undef LTTNG_UST_TRACEPOINT_PROVIDER
+#define LTTNG_UST_TRACEPOINT_PROVIDER lttng_ust_opencl_arguments
+
+#undef LTTNG_UST_TRACEPOINT_INCLUDE
+#define LTTNG_UST_TRACEPOINT_INCLUDE "./opencl_arguments.h"
+
+#if !defined(OPENCL_ARGUMENTS_H) || defined(LTTNG_UST_TRACEPOINT_HEADER_MULTI_READ)
+#define OPENCL_ARGUMENTS_H
+
+#include <lttng/tracepoint.h>
+
+#include "lttng/tracepoint_gen.h"
+#include "cl.h.include"
+
+TRACEPOINT_EVENT(
+  lttng_ust_opencl_arguments,
+  argument_info,
+  TP_ARGS(
+    cl_kernel, kernel,
+    cl_uint, arg_index,
+    cl_kernel_arg_address_qualifier, address_qualifier,
+    cl_kernel_arg_access_qualifier, access_qualifier,
+    char *, type_name,
+    cl_kernel_arg_type_qualifier, type_qualifier,
+    char *, name
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, kernel, (uintptr_t)kernel)
+    ctf_integer(cl_uint, arg_index, arg_index)
+    ctf_integer(cl_kernel_arg_address_qualifier, address_qualifier, address_qualifier)
+    ctf_integer(cl_kernel_arg_access_qualifier, access_qualifier, access_qualifier)
+    ctf_string(type_name, type_name)
+    ctf_integer(cl_kernel_arg_type_qualifier, type_qualifier, type_qualifier)
+    ctf_string(name, name)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_opencl_arguments,
+  kernel_info,
+  TP_ARGS(
+    cl_kernel, kernel,
+    char *, function_name,
+    cl_uint, num_args,
+    cl_context, context,
+    cl_program, program,
+    char *, attibutes
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, kernel, (uintptr_t)kernel)
+    ctf_string(function_name, function_name)
+    ctf_integer(cl_uint, num_args, num_args)
+    ctf_integer_hex(uintptr_t, context, (uintptr_t)context)
+    ctf_integer_hex(uintptr_t, program, (uintptr_t)program)
+    ctf_string(attibutes, attibutes)
+  )
+)
+
+
+#endif /* OPENCL_ARGUMENTS_H */
+
+#include <lttng/tracepoint-event.h>

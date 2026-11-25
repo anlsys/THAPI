@@ -1,0 +1,94 @@
+#!/bin/sh
+exec_prefix=/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/ici
+libdir=${exec_prefix}/lib
+pkglibdir=$libdir/thapi
+prefix=/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/ici
+datarootdir=${prefix}/share
+datadir=${datarootdir}
+
+display_help() {
+  echo "Usage:"
+  echo " $(basename $0) [options] [--] <application> <application-arguments>"
+  echo "  --help                        Show this screen"
+  echo "  --version                     Print the version string"
+  echo "  --disable-intel-extensions    Disable Intel extensions"
+  echo "  --sample                      Sample performance counters"
+  exit 1
+}
+
+display_version() {
+  cat $datadir/thapi_version
+  exit 1
+}
+
+intel_extensions=true
+while true; do
+  case "$1" in
+    --help)
+      display_help
+      exit
+      ;;
+    --version)
+      display_version
+      exit
+      ;;
+    --disable-intel-extensions) intel_extensions=false shift ;;
+    --sample)
+      shift
+      sample=1
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *) break ;;
+  esac
+done
+
+if [ "$#" -eq 0 ]; then
+  display_help
+fi
+
+lttng-sessiond --daemonize --quiet
+if [ ! -z "$lttng_view" ]; then
+  lttng-relayd --daemonize
+  lttng create thapi-ompt-session --live
+else
+  lttng create thapi-ompt-session
+fi
+lttng enable-channel --userspace --blocking-timeout=inf blocking-channel
+lttng add-context --userspace --channel=blocking-channel -t vpid -t vtid
+lttng enable-event --channel=blocking-channel --userspace lttng_ust_ompt:*
+
+export OMP_TOOL_LIBRARIES=$libdir/libTracerOMPT.so
+export LTTNG_UST_ALLOW_BLOCKING=1
+
+if [ "$intel_extensions" = true ]; then
+  export LTTNG_UST_OMP_INTEL=1
+fi
+if [ ! -z "$sample" ]; then
+  export LTTNG_UST_SAMPLING=1
+  lttng enable-channel --userspace nonblocking-channel
+  lttng enable-event --channel=nonblocking-channel --userspace lttng_ust_sampling:*
+fi
+
+lttng start
+
+ctrl_c() {
+  lttng stop
+  lttng destroy
+  exit
+}
+
+trap ctrl_c INT
+
+if [ ! -z "$lttng_view" ]; then
+  lttng view --viewer="babeltrace_thapi --backend omp --context --live" &
+  PID=$!
+fi
+"$@"
+lttng stop
+lttng destroy
+if [ ! -z "$lttng_view" ]; then
+  wait $PID
+fi

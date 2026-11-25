@@ -1,0 +1,6417 @@
+#include "lttng/tracepoint_gen.h"
+#include "ze.h.include"
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCreate_entry,
+  TP_ARGS(
+    const zel_tracer_desc_t *, desc,
+    zel_tracer_handle_t *, phTracer
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, desc, (uintptr_t)(desc))
+    ctf_integer_hex(uintptr_t, phTracer, (uintptr_t)(phTracer))
+    ctf_sequence_text(uint8_t, desc_val, desc, size_t, (desc ? sizeof(zel_tracer_desc_t) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCreate_exit,
+  TP_ARGS(
+    const zel_tracer_desc_t *, desc,
+    zel_tracer_handle_t *, phTracer,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDestroy_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDestroy_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerSetPrologues_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_core_callbacks_t *, pCoreCbs
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer_hex(uintptr_t, pCoreCbs, (uintptr_t)(pCoreCbs))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerSetPrologues_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_core_callbacks_t *, pCoreCbs,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerSetEpilogues_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_core_callbacks_t *, pCoreCbs
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer_hex(uintptr_t, pCoreCbs, (uintptr_t)(pCoreCbs))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerSetEpilogues_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_core_callbacks_t *, pCoreCbs,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerSetEnabled_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    ze_bool_t, enable
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(ze_bool_t, enable, enable)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerSetEnabled_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    ze_bool_t, enable,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelGetTracerApiProcAddrTable_entry,
+  TP_ARGS(
+    ze_api_version_t, version,
+    zel_tracer_dditable_t *, pDdiTable
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, version, version)
+    ctf_integer_hex(uintptr_t, pDdiTable, (uintptr_t)(pDdiTable))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelGetTracerApiProcAddrTable_exit,
+  TP_ARGS(
+    ze_api_version_t, version,
+    zel_tracer_dditable_t *, pDdiTable,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerInitRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnInitCb_t, pfnInitCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnInitCb, (uintptr_t)(pfnInitCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerInitRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnInitCb_t, pfnInitCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverGetRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverGetCb_t, pfnGetCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetCb, (uintptr_t)(pfnGetCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverGetRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverGetCb_t, pfnGetCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerInitDriversRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnInitDriversCb_t, pfnInitDriversCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnInitDriversCb, (uintptr_t)(pfnInitDriversCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerInitDriversRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnInitDriversCb_t, pfnInitDriversCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverGetApiVersionRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverGetApiVersionCb_t, pfnGetApiVersionCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetApiVersionCb, (uintptr_t)(pfnGetApiVersionCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverGetApiVersionRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverGetApiVersionCb_t, pfnGetApiVersionCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverGetPropertiesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverGetPropertiesCb_t, pfnGetPropertiesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetPropertiesCb, (uintptr_t)(pfnGetPropertiesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverGetPropertiesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverGetPropertiesCb_t, pfnGetPropertiesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverGetIpcPropertiesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverGetIpcPropertiesCb_t, pfnGetIpcPropertiesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetIpcPropertiesCb, (uintptr_t)(pfnGetIpcPropertiesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverGetIpcPropertiesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverGetIpcPropertiesCb_t, pfnGetIpcPropertiesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverGetExtensionPropertiesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverGetExtensionPropertiesCb_t, pfnGetExtensionPropertiesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetExtensionPropertiesCb, (uintptr_t)(pfnGetExtensionPropertiesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverGetExtensionPropertiesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverGetExtensionPropertiesCb_t, pfnGetExtensionPropertiesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverGetExtensionFunctionAddressRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverGetExtensionFunctionAddressCb_t, pfnGetExtensionFunctionAddressCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetExtensionFunctionAddressCb, (uintptr_t)(pfnGetExtensionFunctionAddressCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverGetExtensionFunctionAddressRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverGetExtensionFunctionAddressCb_t, pfnGetExtensionFunctionAddressCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverGetLastErrorDescriptionRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverGetLastErrorDescriptionCb_t, pfnGetLastErrorDescriptionCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetLastErrorDescriptionCb, (uintptr_t)(pfnGetLastErrorDescriptionCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverGetLastErrorDescriptionRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverGetLastErrorDescriptionCb_t, pfnGetLastErrorDescriptionCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetCb_t, pfnGetCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetCb, (uintptr_t)(pfnGetCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetCb_t, pfnGetCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetRootDeviceRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetRootDeviceCb_t, pfnGetRootDeviceCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetRootDeviceCb, (uintptr_t)(pfnGetRootDeviceCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetRootDeviceRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetRootDeviceCb_t, pfnGetRootDeviceCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetSubDevicesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetSubDevicesCb_t, pfnGetSubDevicesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetSubDevicesCb, (uintptr_t)(pfnGetSubDevicesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetSubDevicesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetSubDevicesCb_t, pfnGetSubDevicesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetPropertiesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetPropertiesCb_t, pfnGetPropertiesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetPropertiesCb, (uintptr_t)(pfnGetPropertiesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetPropertiesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetPropertiesCb_t, pfnGetPropertiesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetComputePropertiesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetComputePropertiesCb_t, pfnGetComputePropertiesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetComputePropertiesCb, (uintptr_t)(pfnGetComputePropertiesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetComputePropertiesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetComputePropertiesCb_t, pfnGetComputePropertiesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetModulePropertiesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetModulePropertiesCb_t, pfnGetModulePropertiesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetModulePropertiesCb, (uintptr_t)(pfnGetModulePropertiesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetModulePropertiesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetModulePropertiesCb_t, pfnGetModulePropertiesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetCommandQueueGroupPropertiesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetCommandQueueGroupPropertiesCb_t, pfnGetCommandQueueGroupPropertiesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetCommandQueueGroupPropertiesCb, (uintptr_t)(pfnGetCommandQueueGroupPropertiesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetCommandQueueGroupPropertiesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetCommandQueueGroupPropertiesCb_t, pfnGetCommandQueueGroupPropertiesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetMemoryPropertiesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetMemoryPropertiesCb_t, pfnGetMemoryPropertiesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetMemoryPropertiesCb, (uintptr_t)(pfnGetMemoryPropertiesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetMemoryPropertiesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetMemoryPropertiesCb_t, pfnGetMemoryPropertiesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetMemoryAccessPropertiesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetMemoryAccessPropertiesCb_t, pfnGetMemoryAccessPropertiesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetMemoryAccessPropertiesCb, (uintptr_t)(pfnGetMemoryAccessPropertiesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetMemoryAccessPropertiesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetMemoryAccessPropertiesCb_t, pfnGetMemoryAccessPropertiesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetCachePropertiesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetCachePropertiesCb_t, pfnGetCachePropertiesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetCachePropertiesCb, (uintptr_t)(pfnGetCachePropertiesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetCachePropertiesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetCachePropertiesCb_t, pfnGetCachePropertiesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetImagePropertiesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetImagePropertiesCb_t, pfnGetImagePropertiesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetImagePropertiesCb, (uintptr_t)(pfnGetImagePropertiesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetImagePropertiesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetImagePropertiesCb_t, pfnGetImagePropertiesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetExternalMemoryPropertiesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetExternalMemoryPropertiesCb_t, pfnGetExternalMemoryPropertiesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetExternalMemoryPropertiesCb, (uintptr_t)(pfnGetExternalMemoryPropertiesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetExternalMemoryPropertiesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetExternalMemoryPropertiesCb_t, pfnGetExternalMemoryPropertiesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetP2PPropertiesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetP2PPropertiesCb_t, pfnGetP2PPropertiesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetP2PPropertiesCb, (uintptr_t)(pfnGetP2PPropertiesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetP2PPropertiesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetP2PPropertiesCb_t, pfnGetP2PPropertiesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceCanAccessPeerRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceCanAccessPeerCb_t, pfnCanAccessPeerCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCanAccessPeerCb, (uintptr_t)(pfnCanAccessPeerCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceCanAccessPeerRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceCanAccessPeerCb_t, pfnCanAccessPeerCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetStatusRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetStatusCb_t, pfnGetStatusCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetStatusCb, (uintptr_t)(pfnGetStatusCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetStatusRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetStatusCb_t, pfnGetStatusCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetGlobalTimestampsRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetGlobalTimestampsCb_t, pfnGetGlobalTimestampsCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetGlobalTimestampsCb, (uintptr_t)(pfnGetGlobalTimestampsCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetGlobalTimestampsRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetGlobalTimestampsCb_t, pfnGetGlobalTimestampsCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextCreateRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextCreateCb_t, pfnCreateCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateCb, (uintptr_t)(pfnCreateCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextCreateRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextCreateCb_t, pfnCreateCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextCreateExRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextCreateExCb_t, pfnCreateExCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateExCb, (uintptr_t)(pfnCreateExCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextCreateExRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextCreateExCb_t, pfnCreateExCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextDestroyRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextDestroyCb_t, pfnDestroyCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnDestroyCb, (uintptr_t)(pfnDestroyCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextDestroyRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextDestroyCb_t, pfnDestroyCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextGetStatusRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextGetStatusCb_t, pfnGetStatusCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetStatusCb, (uintptr_t)(pfnGetStatusCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextGetStatusRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextGetStatusCb_t, pfnGetStatusCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandQueueCreateRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandQueueCreateCb_t, pfnCreateCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateCb, (uintptr_t)(pfnCreateCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandQueueCreateRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandQueueCreateCb_t, pfnCreateCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandQueueDestroyRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandQueueDestroyCb_t, pfnDestroyCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnDestroyCb, (uintptr_t)(pfnDestroyCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandQueueDestroyRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandQueueDestroyCb_t, pfnDestroyCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandQueueExecuteCommandListsRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandQueueExecuteCommandListsCb_t, pfnExecuteCommandListsCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnExecuteCommandListsCb, (uintptr_t)(pfnExecuteCommandListsCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandQueueExecuteCommandListsRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandQueueExecuteCommandListsCb_t, pfnExecuteCommandListsCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandQueueSynchronizeRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandQueueSynchronizeCb_t, pfnSynchronizeCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnSynchronizeCb, (uintptr_t)(pfnSynchronizeCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandQueueSynchronizeRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandQueueSynchronizeCb_t, pfnSynchronizeCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandQueueGetOrdinalRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandQueueGetOrdinalCb_t, pfnGetOrdinalCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetOrdinalCb, (uintptr_t)(pfnGetOrdinalCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandQueueGetOrdinalRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandQueueGetOrdinalCb_t, pfnGetOrdinalCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandQueueGetIndexRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandQueueGetIndexCb_t, pfnGetIndexCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetIndexCb, (uintptr_t)(pfnGetIndexCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandQueueGetIndexRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandQueueGetIndexCb_t, pfnGetIndexCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListCreateRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListCreateCb_t, pfnCreateCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateCb, (uintptr_t)(pfnCreateCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListCreateRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListCreateCb_t, pfnCreateCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListCreateImmediateRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListCreateImmediateCb_t, pfnCreateImmediateCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateImmediateCb, (uintptr_t)(pfnCreateImmediateCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListCreateImmediateRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListCreateImmediateCb_t, pfnCreateImmediateCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListDestroyRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListDestroyCb_t, pfnDestroyCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnDestroyCb, (uintptr_t)(pfnDestroyCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListDestroyRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListDestroyCb_t, pfnDestroyCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListCloseRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListCloseCb_t, pfnCloseCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCloseCb, (uintptr_t)(pfnCloseCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListCloseRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListCloseCb_t, pfnCloseCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListResetRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListResetCb_t, pfnResetCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnResetCb, (uintptr_t)(pfnResetCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListResetRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListResetCb_t, pfnResetCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendWriteGlobalTimestampRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendWriteGlobalTimestampCb_t, pfnAppendWriteGlobalTimestampCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendWriteGlobalTimestampCb, (uintptr_t)(pfnAppendWriteGlobalTimestampCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendWriteGlobalTimestampRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendWriteGlobalTimestampCb_t, pfnAppendWriteGlobalTimestampCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListHostSynchronizeRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListHostSynchronizeCb_t, pfnHostSynchronizeCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnHostSynchronizeCb, (uintptr_t)(pfnHostSynchronizeCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListHostSynchronizeRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListHostSynchronizeCb_t, pfnHostSynchronizeCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListGetDeviceHandleRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListGetDeviceHandleCb_t, pfnGetDeviceHandleCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetDeviceHandleCb, (uintptr_t)(pfnGetDeviceHandleCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListGetDeviceHandleRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListGetDeviceHandleCb_t, pfnGetDeviceHandleCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListGetContextHandleRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListGetContextHandleCb_t, pfnGetContextHandleCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetContextHandleCb, (uintptr_t)(pfnGetContextHandleCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListGetContextHandleRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListGetContextHandleCb_t, pfnGetContextHandleCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListGetOrdinalRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListGetOrdinalCb_t, pfnGetOrdinalCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetOrdinalCb, (uintptr_t)(pfnGetOrdinalCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListGetOrdinalRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListGetOrdinalCb_t, pfnGetOrdinalCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListImmediateGetIndexRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListImmediateGetIndexCb_t, pfnImmediateGetIndexCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnImmediateGetIndexCb, (uintptr_t)(pfnImmediateGetIndexCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListImmediateGetIndexRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListImmediateGetIndexCb_t, pfnImmediateGetIndexCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListIsImmediateRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListIsImmediateCb_t, pfnIsImmediateCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnIsImmediateCb, (uintptr_t)(pfnIsImmediateCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListIsImmediateRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListIsImmediateCb_t, pfnIsImmediateCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendBarrierRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendBarrierCb_t, pfnAppendBarrierCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendBarrierCb, (uintptr_t)(pfnAppendBarrierCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendBarrierRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendBarrierCb_t, pfnAppendBarrierCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendMemoryRangesBarrierRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendMemoryRangesBarrierCb_t, pfnAppendMemoryRangesBarrierCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendMemoryRangesBarrierCb, (uintptr_t)(pfnAppendMemoryRangesBarrierCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendMemoryRangesBarrierRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendMemoryRangesBarrierCb_t, pfnAppendMemoryRangesBarrierCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextSystemBarrierRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextSystemBarrierCb_t, pfnSystemBarrierCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnSystemBarrierCb, (uintptr_t)(pfnSystemBarrierCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextSystemBarrierRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextSystemBarrierCb_t, pfnSystemBarrierCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendMemoryCopyRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendMemoryCopyCb_t, pfnAppendMemoryCopyCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendMemoryCopyCb, (uintptr_t)(pfnAppendMemoryCopyCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendMemoryCopyRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendMemoryCopyCb_t, pfnAppendMemoryCopyCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendMemoryFillRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendMemoryFillCb_t, pfnAppendMemoryFillCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendMemoryFillCb, (uintptr_t)(pfnAppendMemoryFillCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendMemoryFillRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendMemoryFillCb_t, pfnAppendMemoryFillCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendMemoryCopyRegionRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendMemoryCopyRegionCb_t, pfnAppendMemoryCopyRegionCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendMemoryCopyRegionCb, (uintptr_t)(pfnAppendMemoryCopyRegionCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendMemoryCopyRegionRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendMemoryCopyRegionCb_t, pfnAppendMemoryCopyRegionCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendMemoryCopyFromContextRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendMemoryCopyFromContextCb_t, pfnAppendMemoryCopyFromContextCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendMemoryCopyFromContextCb, (uintptr_t)(pfnAppendMemoryCopyFromContextCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendMemoryCopyFromContextRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendMemoryCopyFromContextCb_t, pfnAppendMemoryCopyFromContextCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendImageCopyRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendImageCopyCb_t, pfnAppendImageCopyCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendImageCopyCb, (uintptr_t)(pfnAppendImageCopyCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendImageCopyRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendImageCopyCb_t, pfnAppendImageCopyCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendImageCopyRegionRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendImageCopyRegionCb_t, pfnAppendImageCopyRegionCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendImageCopyRegionCb, (uintptr_t)(pfnAppendImageCopyRegionCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendImageCopyRegionRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendImageCopyRegionCb_t, pfnAppendImageCopyRegionCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendImageCopyToMemoryRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendImageCopyToMemoryCb_t, pfnAppendImageCopyToMemoryCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendImageCopyToMemoryCb, (uintptr_t)(pfnAppendImageCopyToMemoryCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendImageCopyToMemoryRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendImageCopyToMemoryCb_t, pfnAppendImageCopyToMemoryCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendImageCopyFromMemoryRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendImageCopyFromMemoryCb_t, pfnAppendImageCopyFromMemoryCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendImageCopyFromMemoryCb, (uintptr_t)(pfnAppendImageCopyFromMemoryCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendImageCopyFromMemoryRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendImageCopyFromMemoryCb_t, pfnAppendImageCopyFromMemoryCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendMemoryPrefetchRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendMemoryPrefetchCb_t, pfnAppendMemoryPrefetchCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendMemoryPrefetchCb, (uintptr_t)(pfnAppendMemoryPrefetchCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendMemoryPrefetchRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendMemoryPrefetchCb_t, pfnAppendMemoryPrefetchCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendMemAdviseRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendMemAdviseCb_t, pfnAppendMemAdviseCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendMemAdviseCb, (uintptr_t)(pfnAppendMemAdviseCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendMemAdviseRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendMemAdviseCb_t, pfnAppendMemAdviseCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventPoolCreateRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventPoolCreateCb_t, pfnCreateCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateCb, (uintptr_t)(pfnCreateCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventPoolCreateRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventPoolCreateCb_t, pfnCreateCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventPoolDestroyRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventPoolDestroyCb_t, pfnDestroyCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnDestroyCb, (uintptr_t)(pfnDestroyCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventPoolDestroyRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventPoolDestroyCb_t, pfnDestroyCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventCreateRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventCreateCb_t, pfnCreateCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateCb, (uintptr_t)(pfnCreateCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventCreateRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventCreateCb_t, pfnCreateCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventDestroyRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventDestroyCb_t, pfnDestroyCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnDestroyCb, (uintptr_t)(pfnDestroyCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventDestroyRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventDestroyCb_t, pfnDestroyCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventPoolGetIpcHandleRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventPoolGetIpcHandleCb_t, pfnGetIpcHandleCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetIpcHandleCb, (uintptr_t)(pfnGetIpcHandleCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventPoolGetIpcHandleRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventPoolGetIpcHandleCb_t, pfnGetIpcHandleCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventPoolPutIpcHandleRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventPoolPutIpcHandleCb_t, pfnPutIpcHandleCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnPutIpcHandleCb, (uintptr_t)(pfnPutIpcHandleCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventPoolPutIpcHandleRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventPoolPutIpcHandleCb_t, pfnPutIpcHandleCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventPoolOpenIpcHandleRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventPoolOpenIpcHandleCb_t, pfnOpenIpcHandleCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnOpenIpcHandleCb, (uintptr_t)(pfnOpenIpcHandleCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventPoolOpenIpcHandleRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventPoolOpenIpcHandleCb_t, pfnOpenIpcHandleCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventPoolCloseIpcHandleRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventPoolCloseIpcHandleCb_t, pfnCloseIpcHandleCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCloseIpcHandleCb, (uintptr_t)(pfnCloseIpcHandleCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventPoolCloseIpcHandleRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventPoolCloseIpcHandleCb_t, pfnCloseIpcHandleCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendSignalEventRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendSignalEventCb_t, pfnAppendSignalEventCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendSignalEventCb, (uintptr_t)(pfnAppendSignalEventCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendSignalEventRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendSignalEventCb_t, pfnAppendSignalEventCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendWaitOnEventsRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendWaitOnEventsCb_t, pfnAppendWaitOnEventsCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendWaitOnEventsCb, (uintptr_t)(pfnAppendWaitOnEventsCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendWaitOnEventsRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendWaitOnEventsCb_t, pfnAppendWaitOnEventsCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventHostSignalRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventHostSignalCb_t, pfnHostSignalCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnHostSignalCb, (uintptr_t)(pfnHostSignalCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventHostSignalRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventHostSignalCb_t, pfnHostSignalCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventHostSynchronizeRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventHostSynchronizeCb_t, pfnHostSynchronizeCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnHostSynchronizeCb, (uintptr_t)(pfnHostSynchronizeCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventHostSynchronizeRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventHostSynchronizeCb_t, pfnHostSynchronizeCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventQueryStatusRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventQueryStatusCb_t, pfnQueryStatusCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnQueryStatusCb, (uintptr_t)(pfnQueryStatusCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventQueryStatusRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventQueryStatusCb_t, pfnQueryStatusCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendEventResetRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendEventResetCb_t, pfnAppendEventResetCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendEventResetCb, (uintptr_t)(pfnAppendEventResetCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendEventResetRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendEventResetCb_t, pfnAppendEventResetCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventHostResetRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventHostResetCb_t, pfnHostResetCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnHostResetCb, (uintptr_t)(pfnHostResetCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventHostResetRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventHostResetCb_t, pfnHostResetCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventQueryKernelTimestampRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventQueryKernelTimestampCb_t, pfnQueryKernelTimestampCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnQueryKernelTimestampCb, (uintptr_t)(pfnQueryKernelTimestampCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventQueryKernelTimestampRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventQueryKernelTimestampCb_t, pfnQueryKernelTimestampCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendQueryKernelTimestampsRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendQueryKernelTimestampsCb_t, pfnAppendQueryKernelTimestampsCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendQueryKernelTimestampsCb, (uintptr_t)(pfnAppendQueryKernelTimestampsCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendQueryKernelTimestampsRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendQueryKernelTimestampsCb_t, pfnAppendQueryKernelTimestampsCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventGetEventPoolRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventGetEventPoolCb_t, pfnGetEventPoolCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetEventPoolCb, (uintptr_t)(pfnGetEventPoolCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventGetEventPoolRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventGetEventPoolCb_t, pfnGetEventPoolCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventGetSignalScopeRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventGetSignalScopeCb_t, pfnGetSignalScopeCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetSignalScopeCb, (uintptr_t)(pfnGetSignalScopeCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventGetSignalScopeRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventGetSignalScopeCb_t, pfnGetSignalScopeCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventGetWaitScopeRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventGetWaitScopeCb_t, pfnGetWaitScopeCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetWaitScopeCb, (uintptr_t)(pfnGetWaitScopeCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventGetWaitScopeRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventGetWaitScopeCb_t, pfnGetWaitScopeCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventPoolGetContextHandleRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventPoolGetContextHandleCb_t, pfnGetContextHandleCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetContextHandleCb, (uintptr_t)(pfnGetContextHandleCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventPoolGetContextHandleRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventPoolGetContextHandleCb_t, pfnGetContextHandleCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventPoolGetFlagsRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventPoolGetFlagsCb_t, pfnGetFlagsCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetFlagsCb, (uintptr_t)(pfnGetFlagsCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventPoolGetFlagsRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventPoolGetFlagsCb_t, pfnGetFlagsCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFenceCreateRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFenceCreateCb_t, pfnCreateCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateCb, (uintptr_t)(pfnCreateCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFenceCreateRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFenceCreateCb_t, pfnCreateCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFenceDestroyRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFenceDestroyCb_t, pfnDestroyCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnDestroyCb, (uintptr_t)(pfnDestroyCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFenceDestroyRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFenceDestroyCb_t, pfnDestroyCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFenceHostSynchronizeRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFenceHostSynchronizeCb_t, pfnHostSynchronizeCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnHostSynchronizeCb, (uintptr_t)(pfnHostSynchronizeCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFenceHostSynchronizeRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFenceHostSynchronizeCb_t, pfnHostSynchronizeCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFenceQueryStatusRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFenceQueryStatusCb_t, pfnQueryStatusCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnQueryStatusCb, (uintptr_t)(pfnQueryStatusCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFenceQueryStatusRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFenceQueryStatusCb_t, pfnQueryStatusCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFenceResetRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFenceResetCb_t, pfnResetCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnResetCb, (uintptr_t)(pfnResetCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFenceResetRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFenceResetCb_t, pfnResetCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerImageGetPropertiesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnImageGetPropertiesCb_t, pfnGetPropertiesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetPropertiesCb, (uintptr_t)(pfnGetPropertiesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerImageGetPropertiesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnImageGetPropertiesCb_t, pfnGetPropertiesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerImageCreateRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnImageCreateCb_t, pfnCreateCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateCb, (uintptr_t)(pfnCreateCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerImageCreateRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnImageCreateCb_t, pfnCreateCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerImageDestroyRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnImageDestroyCb_t, pfnDestroyCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnDestroyCb, (uintptr_t)(pfnDestroyCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerImageDestroyRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnImageDestroyCb_t, pfnDestroyCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemAllocSharedRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemAllocSharedCb_t, pfnAllocSharedCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAllocSharedCb, (uintptr_t)(pfnAllocSharedCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemAllocSharedRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemAllocSharedCb_t, pfnAllocSharedCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemAllocDeviceRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemAllocDeviceCb_t, pfnAllocDeviceCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAllocDeviceCb, (uintptr_t)(pfnAllocDeviceCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemAllocDeviceRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemAllocDeviceCb_t, pfnAllocDeviceCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemAllocHostRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemAllocHostCb_t, pfnAllocHostCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAllocHostCb, (uintptr_t)(pfnAllocHostCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemAllocHostRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemAllocHostCb_t, pfnAllocHostCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemFreeRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemFreeCb_t, pfnFreeCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnFreeCb, (uintptr_t)(pfnFreeCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemFreeRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemFreeCb_t, pfnFreeCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemGetAllocPropertiesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemGetAllocPropertiesCb_t, pfnGetAllocPropertiesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetAllocPropertiesCb, (uintptr_t)(pfnGetAllocPropertiesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemGetAllocPropertiesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemGetAllocPropertiesCb_t, pfnGetAllocPropertiesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemGetAddressRangeRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemGetAddressRangeCb_t, pfnGetAddressRangeCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetAddressRangeCb, (uintptr_t)(pfnGetAddressRangeCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemGetAddressRangeRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemGetAddressRangeCb_t, pfnGetAddressRangeCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemGetIpcHandleRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemGetIpcHandleCb_t, pfnGetIpcHandleCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetIpcHandleCb, (uintptr_t)(pfnGetIpcHandleCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemGetIpcHandleRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemGetIpcHandleCb_t, pfnGetIpcHandleCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemGetIpcHandleFromFileDescriptorExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemGetIpcHandleFromFileDescriptorExpCb_t, pfnGetIpcHandleFromFileDescriptorExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetIpcHandleFromFileDescriptorExpCb, (uintptr_t)(pfnGetIpcHandleFromFileDescriptorExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemGetIpcHandleFromFileDescriptorExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemGetIpcHandleFromFileDescriptorExpCb_t, pfnGetIpcHandleFromFileDescriptorExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemGetFileDescriptorFromIpcHandleExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemGetFileDescriptorFromIpcHandleExpCb_t, pfnGetFileDescriptorFromIpcHandleExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetFileDescriptorFromIpcHandleExpCb, (uintptr_t)(pfnGetFileDescriptorFromIpcHandleExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemGetFileDescriptorFromIpcHandleExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemGetFileDescriptorFromIpcHandleExpCb_t, pfnGetFileDescriptorFromIpcHandleExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemPutIpcHandleRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemPutIpcHandleCb_t, pfnPutIpcHandleCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnPutIpcHandleCb, (uintptr_t)(pfnPutIpcHandleCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemPutIpcHandleRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemPutIpcHandleCb_t, pfnPutIpcHandleCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemOpenIpcHandleRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemOpenIpcHandleCb_t, pfnOpenIpcHandleCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnOpenIpcHandleCb, (uintptr_t)(pfnOpenIpcHandleCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemOpenIpcHandleRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemOpenIpcHandleCb_t, pfnOpenIpcHandleCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemCloseIpcHandleRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemCloseIpcHandleCb_t, pfnCloseIpcHandleCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCloseIpcHandleCb, (uintptr_t)(pfnCloseIpcHandleCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemCloseIpcHandleRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemCloseIpcHandleCb_t, pfnCloseIpcHandleCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemSetAtomicAccessAttributeExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemSetAtomicAccessAttributeExpCb_t, pfnSetAtomicAccessAttributeExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnSetAtomicAccessAttributeExpCb, (uintptr_t)(pfnSetAtomicAccessAttributeExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemSetAtomicAccessAttributeExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemSetAtomicAccessAttributeExpCb_t, pfnSetAtomicAccessAttributeExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemGetAtomicAccessAttributeExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemGetAtomicAccessAttributeExpCb_t, pfnGetAtomicAccessAttributeExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetAtomicAccessAttributeExpCb, (uintptr_t)(pfnGetAtomicAccessAttributeExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemGetAtomicAccessAttributeExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemGetAtomicAccessAttributeExpCb_t, pfnGetAtomicAccessAttributeExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleCreateRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleCreateCb_t, pfnCreateCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateCb, (uintptr_t)(pfnCreateCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleCreateRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleCreateCb_t, pfnCreateCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleDestroyRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleDestroyCb_t, pfnDestroyCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnDestroyCb, (uintptr_t)(pfnDestroyCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleDestroyRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleDestroyCb_t, pfnDestroyCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleDynamicLinkRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleDynamicLinkCb_t, pfnDynamicLinkCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnDynamicLinkCb, (uintptr_t)(pfnDynamicLinkCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleDynamicLinkRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleDynamicLinkCb_t, pfnDynamicLinkCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleBuildLogDestroyRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleBuildLogDestroyCb_t, pfnDestroyCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnDestroyCb, (uintptr_t)(pfnDestroyCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleBuildLogDestroyRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleBuildLogDestroyCb_t, pfnDestroyCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleBuildLogGetStringRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleBuildLogGetStringCb_t, pfnGetStringCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetStringCb, (uintptr_t)(pfnGetStringCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleBuildLogGetStringRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleBuildLogGetStringCb_t, pfnGetStringCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleGetNativeBinaryRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleGetNativeBinaryCb_t, pfnGetNativeBinaryCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetNativeBinaryCb, (uintptr_t)(pfnGetNativeBinaryCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleGetNativeBinaryRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleGetNativeBinaryCb_t, pfnGetNativeBinaryCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleGetGlobalPointerRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleGetGlobalPointerCb_t, pfnGetGlobalPointerCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetGlobalPointerCb, (uintptr_t)(pfnGetGlobalPointerCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleGetGlobalPointerRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleGetGlobalPointerCb_t, pfnGetGlobalPointerCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleGetKernelNamesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleGetKernelNamesCb_t, pfnGetKernelNamesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetKernelNamesCb, (uintptr_t)(pfnGetKernelNamesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleGetKernelNamesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleGetKernelNamesCb_t, pfnGetKernelNamesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleGetPropertiesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleGetPropertiesCb_t, pfnGetPropertiesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetPropertiesCb, (uintptr_t)(pfnGetPropertiesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleGetPropertiesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleGetPropertiesCb_t, pfnGetPropertiesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelCreateRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelCreateCb_t, pfnCreateCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateCb, (uintptr_t)(pfnCreateCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelCreateRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelCreateCb_t, pfnCreateCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelDestroyRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelDestroyCb_t, pfnDestroyCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnDestroyCb, (uintptr_t)(pfnDestroyCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelDestroyRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelDestroyCb_t, pfnDestroyCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleGetFunctionPointerRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleGetFunctionPointerCb_t, pfnGetFunctionPointerCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetFunctionPointerCb, (uintptr_t)(pfnGetFunctionPointerCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleGetFunctionPointerRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleGetFunctionPointerCb_t, pfnGetFunctionPointerCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelSetGroupSizeRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelSetGroupSizeCb_t, pfnSetGroupSizeCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnSetGroupSizeCb, (uintptr_t)(pfnSetGroupSizeCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelSetGroupSizeRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelSetGroupSizeCb_t, pfnSetGroupSizeCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelSuggestGroupSizeRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelSuggestGroupSizeCb_t, pfnSuggestGroupSizeCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnSuggestGroupSizeCb, (uintptr_t)(pfnSuggestGroupSizeCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelSuggestGroupSizeRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelSuggestGroupSizeCb_t, pfnSuggestGroupSizeCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelSuggestMaxCooperativeGroupCountRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelSuggestMaxCooperativeGroupCountCb_t, pfnSuggestMaxCooperativeGroupCountCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnSuggestMaxCooperativeGroupCountCb, (uintptr_t)(pfnSuggestMaxCooperativeGroupCountCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelSuggestMaxCooperativeGroupCountRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelSuggestMaxCooperativeGroupCountCb_t, pfnSuggestMaxCooperativeGroupCountCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelSetArgumentValueRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelSetArgumentValueCb_t, pfnSetArgumentValueCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnSetArgumentValueCb, (uintptr_t)(pfnSetArgumentValueCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelSetArgumentValueRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelSetArgumentValueCb_t, pfnSetArgumentValueCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelSetIndirectAccessRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelSetIndirectAccessCb_t, pfnSetIndirectAccessCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnSetIndirectAccessCb, (uintptr_t)(pfnSetIndirectAccessCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelSetIndirectAccessRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelSetIndirectAccessCb_t, pfnSetIndirectAccessCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelGetIndirectAccessRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelGetIndirectAccessCb_t, pfnGetIndirectAccessCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetIndirectAccessCb, (uintptr_t)(pfnGetIndirectAccessCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelGetIndirectAccessRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelGetIndirectAccessCb_t, pfnGetIndirectAccessCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelGetSourceAttributesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelGetSourceAttributesCb_t, pfnGetSourceAttributesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetSourceAttributesCb, (uintptr_t)(pfnGetSourceAttributesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelGetSourceAttributesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelGetSourceAttributesCb_t, pfnGetSourceAttributesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelSetCacheConfigRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelSetCacheConfigCb_t, pfnSetCacheConfigCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnSetCacheConfigCb, (uintptr_t)(pfnSetCacheConfigCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelSetCacheConfigRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelSetCacheConfigCb_t, pfnSetCacheConfigCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelGetPropertiesRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelGetPropertiesCb_t, pfnGetPropertiesCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetPropertiesCb, (uintptr_t)(pfnGetPropertiesCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelGetPropertiesRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelGetPropertiesCb_t, pfnGetPropertiesCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelGetNameRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelGetNameCb_t, pfnGetNameCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetNameCb, (uintptr_t)(pfnGetNameCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelGetNameRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelGetNameCb_t, pfnGetNameCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendLaunchKernelRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendLaunchKernelCb_t, pfnAppendLaunchKernelCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendLaunchKernelCb, (uintptr_t)(pfnAppendLaunchKernelCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendLaunchKernelRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendLaunchKernelCb_t, pfnAppendLaunchKernelCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendLaunchCooperativeKernelRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendLaunchCooperativeKernelCb_t, pfnAppendLaunchCooperativeKernelCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendLaunchCooperativeKernelCb, (uintptr_t)(pfnAppendLaunchCooperativeKernelCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendLaunchCooperativeKernelRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendLaunchCooperativeKernelCb_t, pfnAppendLaunchCooperativeKernelCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendLaunchKernelIndirectRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendLaunchKernelIndirectCb_t, pfnAppendLaunchKernelIndirectCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendLaunchKernelIndirectCb, (uintptr_t)(pfnAppendLaunchKernelIndirectCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendLaunchKernelIndirectRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendLaunchKernelIndirectCb_t, pfnAppendLaunchKernelIndirectCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendLaunchMultipleKernelsIndirectRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendLaunchMultipleKernelsIndirectCb_t, pfnAppendLaunchMultipleKernelsIndirectCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendLaunchMultipleKernelsIndirectCb, (uintptr_t)(pfnAppendLaunchMultipleKernelsIndirectCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendLaunchMultipleKernelsIndirectRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendLaunchMultipleKernelsIndirectCb_t, pfnAppendLaunchMultipleKernelsIndirectCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextMakeMemoryResidentRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextMakeMemoryResidentCb_t, pfnMakeMemoryResidentCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnMakeMemoryResidentCb, (uintptr_t)(pfnMakeMemoryResidentCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextMakeMemoryResidentRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextMakeMemoryResidentCb_t, pfnMakeMemoryResidentCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextEvictMemoryRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextEvictMemoryCb_t, pfnEvictMemoryCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnEvictMemoryCb, (uintptr_t)(pfnEvictMemoryCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextEvictMemoryRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextEvictMemoryCb_t, pfnEvictMemoryCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextMakeImageResidentRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextMakeImageResidentCb_t, pfnMakeImageResidentCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnMakeImageResidentCb, (uintptr_t)(pfnMakeImageResidentCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextMakeImageResidentRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextMakeImageResidentCb_t, pfnMakeImageResidentCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextEvictImageRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextEvictImageCb_t, pfnEvictImageCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnEvictImageCb, (uintptr_t)(pfnEvictImageCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerContextEvictImageRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnContextEvictImageCb_t, pfnEvictImageCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerSamplerCreateRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnSamplerCreateCb_t, pfnCreateCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateCb, (uintptr_t)(pfnCreateCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerSamplerCreateRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnSamplerCreateCb_t, pfnCreateCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerSamplerDestroyRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnSamplerDestroyCb_t, pfnDestroyCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnDestroyCb, (uintptr_t)(pfnDestroyCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerSamplerDestroyRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnSamplerDestroyCb_t, pfnDestroyCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerVirtualMemReserveRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnVirtualMemReserveCb_t, pfnReserveCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnReserveCb, (uintptr_t)(pfnReserveCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerVirtualMemReserveRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnVirtualMemReserveCb_t, pfnReserveCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerVirtualMemFreeRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnVirtualMemFreeCb_t, pfnFreeCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnFreeCb, (uintptr_t)(pfnFreeCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerVirtualMemFreeRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnVirtualMemFreeCb_t, pfnFreeCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerVirtualMemQueryPageSizeRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnVirtualMemQueryPageSizeCb_t, pfnQueryPageSizeCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnQueryPageSizeCb, (uintptr_t)(pfnQueryPageSizeCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerVirtualMemQueryPageSizeRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnVirtualMemQueryPageSizeCb_t, pfnQueryPageSizeCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerPhysicalMemCreateRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnPhysicalMemCreateCb_t, pfnCreateCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateCb, (uintptr_t)(pfnCreateCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerPhysicalMemCreateRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnPhysicalMemCreateCb_t, pfnCreateCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerPhysicalMemDestroyRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnPhysicalMemDestroyCb_t, pfnDestroyCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnDestroyCb, (uintptr_t)(pfnDestroyCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerPhysicalMemDestroyRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnPhysicalMemDestroyCb_t, pfnDestroyCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerVirtualMemMapRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnVirtualMemMapCb_t, pfnMapCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnMapCb, (uintptr_t)(pfnMapCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerVirtualMemMapRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnVirtualMemMapCb_t, pfnMapCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerVirtualMemUnmapRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnVirtualMemUnmapCb_t, pfnUnmapCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnUnmapCb, (uintptr_t)(pfnUnmapCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerVirtualMemUnmapRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnVirtualMemUnmapCb_t, pfnUnmapCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerVirtualMemSetAccessAttributeRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnVirtualMemSetAccessAttributeCb_t, pfnSetAccessAttributeCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnSetAccessAttributeCb, (uintptr_t)(pfnSetAccessAttributeCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerVirtualMemSetAccessAttributeRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnVirtualMemSetAccessAttributeCb_t, pfnSetAccessAttributeCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerVirtualMemGetAccessAttributeRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnVirtualMemGetAccessAttributeCb_t, pfnGetAccessAttributeCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetAccessAttributeCb, (uintptr_t)(pfnGetAccessAttributeCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerVirtualMemGetAccessAttributeRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnVirtualMemGetAccessAttributeCb_t, pfnGetAccessAttributeCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelSetGlobalOffsetExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelSetGlobalOffsetExpCb_t, pfnSetGlobalOffsetExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnSetGlobalOffsetExpCb, (uintptr_t)(pfnSetGlobalOffsetExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelSetGlobalOffsetExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelSetGlobalOffsetExpCb_t, pfnSetGlobalOffsetExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelGetBinaryExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelGetBinaryExpCb_t, pfnGetBinaryExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetBinaryExpCb, (uintptr_t)(pfnGetBinaryExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelGetBinaryExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelGetBinaryExpCb_t, pfnGetBinaryExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceImportExternalSemaphoreExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceImportExternalSemaphoreExtCb_t, pfnImportExternalSemaphoreExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnImportExternalSemaphoreExtCb, (uintptr_t)(pfnImportExternalSemaphoreExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceImportExternalSemaphoreExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceImportExternalSemaphoreExtCb_t, pfnImportExternalSemaphoreExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceReleaseExternalSemaphoreExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceReleaseExternalSemaphoreExtCb_t, pfnReleaseExternalSemaphoreExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnReleaseExternalSemaphoreExtCb, (uintptr_t)(pfnReleaseExternalSemaphoreExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceReleaseExternalSemaphoreExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceReleaseExternalSemaphoreExtCb_t, pfnReleaseExternalSemaphoreExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendSignalExternalSemaphoreExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendSignalExternalSemaphoreExtCb_t, pfnAppendSignalExternalSemaphoreExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendSignalExternalSemaphoreExtCb, (uintptr_t)(pfnAppendSignalExternalSemaphoreExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendSignalExternalSemaphoreExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendSignalExternalSemaphoreExtCb_t, pfnAppendSignalExternalSemaphoreExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendWaitExternalSemaphoreExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendWaitExternalSemaphoreExtCb_t, pfnAppendWaitExternalSemaphoreExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendWaitExternalSemaphoreExtCb, (uintptr_t)(pfnAppendWaitExternalSemaphoreExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendWaitExternalSemaphoreExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendWaitExternalSemaphoreExtCb_t, pfnAppendWaitExternalSemaphoreExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderCreateExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderCreateExtCb_t, pfnCreateExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateExtCb, (uintptr_t)(pfnCreateExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderCreateExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderCreateExtCb_t, pfnCreateExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderGetBuildPropertiesExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderGetBuildPropertiesExtCb_t, pfnGetBuildPropertiesExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetBuildPropertiesExtCb, (uintptr_t)(pfnGetBuildPropertiesExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderGetBuildPropertiesExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderGetBuildPropertiesExtCb_t, pfnGetBuildPropertiesExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverRTASFormatCompatibilityCheckExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverRTASFormatCompatibilityCheckExtCb_t, pfnRTASFormatCompatibilityCheckExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnRTASFormatCompatibilityCheckExtCb, (uintptr_t)(pfnRTASFormatCompatibilityCheckExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverRTASFormatCompatibilityCheckExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverRTASFormatCompatibilityCheckExtCb_t, pfnRTASFormatCompatibilityCheckExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderBuildExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderBuildExtCb_t, pfnBuildExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnBuildExtCb, (uintptr_t)(pfnBuildExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderBuildExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderBuildExtCb_t, pfnBuildExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderCommandListAppendCopyExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderCommandListAppendCopyExtCb_t, pfnCommandListAppendCopyExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCommandListAppendCopyExtCb, (uintptr_t)(pfnCommandListAppendCopyExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderCommandListAppendCopyExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderCommandListAppendCopyExtCb_t, pfnCommandListAppendCopyExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderDestroyExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderDestroyExtCb_t, pfnDestroyExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnDestroyExtCb, (uintptr_t)(pfnDestroyExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderDestroyExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderDestroyExtCb_t, pfnDestroyExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASParallelOperationCreateExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASParallelOperationCreateExtCb_t, pfnCreateExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateExtCb, (uintptr_t)(pfnCreateExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASParallelOperationCreateExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASParallelOperationCreateExtCb_t, pfnCreateExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASParallelOperationGetPropertiesExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASParallelOperationGetPropertiesExtCb_t, pfnGetPropertiesExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetPropertiesExtCb, (uintptr_t)(pfnGetPropertiesExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASParallelOperationGetPropertiesExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASParallelOperationGetPropertiesExtCb_t, pfnGetPropertiesExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASParallelOperationJoinExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASParallelOperationJoinExtCb_t, pfnJoinExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnJoinExtCb, (uintptr_t)(pfnJoinExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASParallelOperationJoinExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASParallelOperationJoinExtCb_t, pfnJoinExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASParallelOperationDestroyExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASParallelOperationDestroyExtCb_t, pfnDestroyExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnDestroyExtCb, (uintptr_t)(pfnDestroyExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASParallelOperationDestroyExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASParallelOperationDestroyExtCb_t, pfnDestroyExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetVectorWidthPropertiesExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetVectorWidthPropertiesExtCb_t, pfnGetVectorWidthPropertiesExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetVectorWidthPropertiesExtCb, (uintptr_t)(pfnGetVectorWidthPropertiesExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetVectorWidthPropertiesExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetVectorWidthPropertiesExtCb_t, pfnGetVectorWidthPropertiesExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceReserveCacheExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceReserveCacheExtCb_t, pfnReserveCacheExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnReserveCacheExtCb, (uintptr_t)(pfnReserveCacheExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceReserveCacheExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceReserveCacheExtCb_t, pfnReserveCacheExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceSetCacheAdviceExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceSetCacheAdviceExtCb_t, pfnSetCacheAdviceExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnSetCacheAdviceExtCb, (uintptr_t)(pfnSetCacheAdviceExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceSetCacheAdviceExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceSetCacheAdviceExtCb_t, pfnSetCacheAdviceExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventQueryTimestampsExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventQueryTimestampsExpCb_t, pfnQueryTimestampsExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnQueryTimestampsExpCb, (uintptr_t)(pfnQueryTimestampsExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventQueryTimestampsExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventQueryTimestampsExpCb_t, pfnQueryTimestampsExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerImageGetMemoryPropertiesExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnImageGetMemoryPropertiesExpCb_t, pfnGetMemoryPropertiesExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetMemoryPropertiesExpCb, (uintptr_t)(pfnGetMemoryPropertiesExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerImageGetMemoryPropertiesExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnImageGetMemoryPropertiesExpCb_t, pfnGetMemoryPropertiesExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerImageViewCreateExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnImageViewCreateExtCb_t, pfnViewCreateExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnViewCreateExtCb, (uintptr_t)(pfnViewCreateExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerImageViewCreateExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnImageViewCreateExtCb_t, pfnViewCreateExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerImageViewCreateExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnImageViewCreateExpCb_t, pfnViewCreateExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnViewCreateExpCb, (uintptr_t)(pfnViewCreateExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerImageViewCreateExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnImageViewCreateExpCb_t, pfnViewCreateExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelSchedulingHintExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelSchedulingHintExpCb_t, pfnSchedulingHintExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnSchedulingHintExpCb, (uintptr_t)(pfnSchedulingHintExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerKernelSchedulingHintExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnKernelSchedulingHintExpCb_t, pfnSchedulingHintExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDevicePciGetPropertiesExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDevicePciGetPropertiesExtCb_t, pfnPciGetPropertiesExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnPciGetPropertiesExtCb, (uintptr_t)(pfnPciGetPropertiesExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDevicePciGetPropertiesExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDevicePciGetPropertiesExtCb_t, pfnPciGetPropertiesExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendImageCopyToMemoryExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendImageCopyToMemoryExtCb_t, pfnAppendImageCopyToMemoryExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendImageCopyToMemoryExtCb, (uintptr_t)(pfnAppendImageCopyToMemoryExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendImageCopyToMemoryExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendImageCopyToMemoryExtCb_t, pfnAppendImageCopyToMemoryExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendImageCopyFromMemoryExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendImageCopyFromMemoryExtCb_t, pfnAppendImageCopyFromMemoryExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnAppendImageCopyFromMemoryExtCb, (uintptr_t)(pfnAppendImageCopyFromMemoryExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListAppendImageCopyFromMemoryExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListAppendImageCopyFromMemoryExtCb_t, pfnAppendImageCopyFromMemoryExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerImageGetAllocPropertiesExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnImageGetAllocPropertiesExtCb_t, pfnGetAllocPropertiesExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetAllocPropertiesExtCb, (uintptr_t)(pfnGetAllocPropertiesExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerImageGetAllocPropertiesExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnImageGetAllocPropertiesExtCb_t, pfnGetAllocPropertiesExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleInspectLinkageExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleInspectLinkageExtCb_t, pfnInspectLinkageExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnInspectLinkageExtCb, (uintptr_t)(pfnInspectLinkageExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerModuleInspectLinkageExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnModuleInspectLinkageExtCb_t, pfnInspectLinkageExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemFreeExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemFreeExtCb_t, pfnFreeExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnFreeExtCb, (uintptr_t)(pfnFreeExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemFreeExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemFreeExtCb_t, pfnFreeExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFabricVertexGetExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFabricVertexGetExpCb_t, pfnGetExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetExpCb, (uintptr_t)(pfnGetExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFabricVertexGetExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFabricVertexGetExpCb_t, pfnGetExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFabricVertexGetSubVerticesExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFabricVertexGetSubVerticesExpCb_t, pfnGetSubVerticesExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetSubVerticesExpCb, (uintptr_t)(pfnGetSubVerticesExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFabricVertexGetSubVerticesExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFabricVertexGetSubVerticesExpCb_t, pfnGetSubVerticesExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFabricVertexGetPropertiesExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFabricVertexGetPropertiesExpCb_t, pfnGetPropertiesExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetPropertiesExpCb, (uintptr_t)(pfnGetPropertiesExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFabricVertexGetPropertiesExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFabricVertexGetPropertiesExpCb_t, pfnGetPropertiesExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFabricVertexGetDeviceExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFabricVertexGetDeviceExpCb_t, pfnGetDeviceExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetDeviceExpCb, (uintptr_t)(pfnGetDeviceExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFabricVertexGetDeviceExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFabricVertexGetDeviceExpCb_t, pfnGetDeviceExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetFabricVertexExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetFabricVertexExpCb_t, pfnGetFabricVertexExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetFabricVertexExpCb, (uintptr_t)(pfnGetFabricVertexExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDeviceGetFabricVertexExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDeviceGetFabricVertexExpCb_t, pfnGetFabricVertexExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFabricEdgeGetExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFabricEdgeGetExpCb_t, pfnGetExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetExpCb, (uintptr_t)(pfnGetExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFabricEdgeGetExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFabricEdgeGetExpCb_t, pfnGetExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFabricEdgeGetVerticesExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFabricEdgeGetVerticesExpCb_t, pfnGetVerticesExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetVerticesExpCb, (uintptr_t)(pfnGetVerticesExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFabricEdgeGetVerticesExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFabricEdgeGetVerticesExpCb_t, pfnGetVerticesExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFabricEdgeGetPropertiesExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFabricEdgeGetPropertiesExpCb_t, pfnGetPropertiesExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetPropertiesExpCb, (uintptr_t)(pfnGetPropertiesExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerFabricEdgeGetPropertiesExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnFabricEdgeGetPropertiesExpCb_t, pfnGetPropertiesExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventQueryKernelTimestampsExtRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventQueryKernelTimestampsExtCb_t, pfnQueryKernelTimestampsExtCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnQueryKernelTimestampsExtCb, (uintptr_t)(pfnQueryKernelTimestampsExtCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerEventQueryKernelTimestampsExtRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnEventQueryKernelTimestampsExtCb_t, pfnQueryKernelTimestampsExtCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderCreateExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderCreateExpCb_t, pfnCreateExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateExpCb, (uintptr_t)(pfnCreateExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderCreateExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderCreateExpCb_t, pfnCreateExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderGetBuildPropertiesExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderGetBuildPropertiesExpCb_t, pfnGetBuildPropertiesExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetBuildPropertiesExpCb, (uintptr_t)(pfnGetBuildPropertiesExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderGetBuildPropertiesExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderGetBuildPropertiesExpCb_t, pfnGetBuildPropertiesExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverRTASFormatCompatibilityCheckExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverRTASFormatCompatibilityCheckExpCb_t, pfnRTASFormatCompatibilityCheckExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnRTASFormatCompatibilityCheckExpCb, (uintptr_t)(pfnRTASFormatCompatibilityCheckExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerDriverRTASFormatCompatibilityCheckExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnDriverRTASFormatCompatibilityCheckExpCb_t, pfnRTASFormatCompatibilityCheckExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderBuildExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderBuildExpCb_t, pfnBuildExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnBuildExpCb, (uintptr_t)(pfnBuildExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderBuildExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderBuildExpCb_t, pfnBuildExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderDestroyExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderDestroyExpCb_t, pfnDestroyExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnDestroyExpCb, (uintptr_t)(pfnDestroyExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASBuilderDestroyExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASBuilderDestroyExpCb_t, pfnDestroyExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASParallelOperationCreateExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASParallelOperationCreateExpCb_t, pfnCreateExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateExpCb, (uintptr_t)(pfnCreateExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASParallelOperationCreateExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASParallelOperationCreateExpCb_t, pfnCreateExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASParallelOperationGetPropertiesExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASParallelOperationGetPropertiesExpCb_t, pfnGetPropertiesExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetPropertiesExpCb, (uintptr_t)(pfnGetPropertiesExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASParallelOperationGetPropertiesExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASParallelOperationGetPropertiesExpCb_t, pfnGetPropertiesExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASParallelOperationJoinExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASParallelOperationJoinExpCb_t, pfnJoinExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnJoinExpCb, (uintptr_t)(pfnJoinExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASParallelOperationJoinExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASParallelOperationJoinExpCb_t, pfnJoinExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASParallelOperationDestroyExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASParallelOperationDestroyExpCb_t, pfnDestroyExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnDestroyExpCb, (uintptr_t)(pfnDestroyExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerRTASParallelOperationDestroyExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnRTASParallelOperationDestroyExpCb_t, pfnDestroyExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemGetPitchFor2dImageRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemGetPitchFor2dImageCb_t, pfnGetPitchFor2dImageCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetPitchFor2dImageCb, (uintptr_t)(pfnGetPitchFor2dImageCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerMemGetPitchFor2dImageRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnMemGetPitchFor2dImageCb_t, pfnGetPitchFor2dImageCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerImageGetDeviceOffsetExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnImageGetDeviceOffsetExpCb_t, pfnGetDeviceOffsetExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetDeviceOffsetExpCb, (uintptr_t)(pfnGetDeviceOffsetExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerImageGetDeviceOffsetExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnImageGetDeviceOffsetExpCb_t, pfnGetDeviceOffsetExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListCreateCloneExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListCreateCloneExpCb_t, pfnCreateCloneExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnCreateCloneExpCb, (uintptr_t)(pfnCreateCloneExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListCreateCloneExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListCreateCloneExpCb_t, pfnCreateCloneExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListImmediateAppendCommandListsExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListImmediateAppendCommandListsExpCb_t, pfnImmediateAppendCommandListsExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnImmediateAppendCommandListsExpCb, (uintptr_t)(pfnImmediateAppendCommandListsExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListImmediateAppendCommandListsExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListImmediateAppendCommandListsExpCb_t, pfnImmediateAppendCommandListsExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListGetNextCommandIdExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListGetNextCommandIdExpCb_t, pfnGetNextCommandIdExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetNextCommandIdExpCb, (uintptr_t)(pfnGetNextCommandIdExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListGetNextCommandIdExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListGetNextCommandIdExpCb_t, pfnGetNextCommandIdExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListGetNextCommandIdWithKernelsExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListGetNextCommandIdWithKernelsExpCb_t, pfnGetNextCommandIdWithKernelsExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnGetNextCommandIdWithKernelsExpCb, (uintptr_t)(pfnGetNextCommandIdWithKernelsExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListGetNextCommandIdWithKernelsExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListGetNextCommandIdWithKernelsExpCb_t, pfnGetNextCommandIdWithKernelsExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListUpdateMutableCommandsExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListUpdateMutableCommandsExpCb_t, pfnUpdateMutableCommandsExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnUpdateMutableCommandsExpCb, (uintptr_t)(pfnUpdateMutableCommandsExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListUpdateMutableCommandsExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListUpdateMutableCommandsExpCb_t, pfnUpdateMutableCommandsExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListUpdateMutableCommandSignalEventExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListUpdateMutableCommandSignalEventExpCb_t, pfnUpdateMutableCommandSignalEventExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnUpdateMutableCommandSignalEventExpCb, (uintptr_t)(pfnUpdateMutableCommandSignalEventExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListUpdateMutableCommandSignalEventExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListUpdateMutableCommandSignalEventExpCb_t, pfnUpdateMutableCommandSignalEventExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListUpdateMutableCommandWaitEventsExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListUpdateMutableCommandWaitEventsExpCb_t, pfnUpdateMutableCommandWaitEventsExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnUpdateMutableCommandWaitEventsExpCb, (uintptr_t)(pfnUpdateMutableCommandWaitEventsExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListUpdateMutableCommandWaitEventsExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListUpdateMutableCommandWaitEventsExpCb_t, pfnUpdateMutableCommandWaitEventsExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListUpdateMutableCommandKernelsExpRegisterCallback_entry,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListUpdateMutableCommandKernelsExpCb_t, pfnUpdateMutableCommandKernelsExpCb
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hTracer, (uintptr_t)(hTracer))
+    ctf_integer(int32_t, callback_type, callback_type)
+    ctf_integer_hex(uintptr_t, pfnUpdateMutableCommandKernelsExpCb, (uintptr_t)(pfnUpdateMutableCommandKernelsExpCb))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelTracerCommandListUpdateMutableCommandKernelsExpRegisterCallback_exit,
+  TP_ARGS(
+    zel_tracer_handle_t, hTracer,
+    zel_tracer_reg_t, callback_type,
+    ze_pfnCommandListUpdateMutableCommandKernelsExpCb_t, pfnUpdateMutableCommandKernelsExpCb,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelLoaderGetVersions_entry,
+  TP_ARGS(
+    size_t *, num_elems,
+    zel_component_version_t *, versions
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, num_elems, (uintptr_t)(num_elems))
+    ctf_integer_hex(uintptr_t, versions, (uintptr_t)(versions))
+    ctf_integer(size_t, num_elems_val, (num_elems ? *num_elems : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelLoaderGetVersions_exit,
+  TP_ARGS(
+    size_t *, num_elems,
+    zel_component_version_t *, versions,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+    ctf_integer(size_t, num_elems_val, (num_elems ? *num_elems : 0))
+    ctf_sequence_text(uint8_t, versions_vals, versions, size_t, ((num_elems && versions ? *num_elems : 0)) * sizeof(zel_component_version_t))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelLoaderTranslateHandle_entry,
+  TP_ARGS(
+    zel_handle_type_t, handleType,
+    void *, handleIn,
+    void **, handleOut
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, handleType, handleType)
+    ctf_integer_hex(uintptr_t, handleIn, (uintptr_t)(handleIn))
+    ctf_integer_hex(uintptr_t, handleOut, (uintptr_t)(handleOut))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelLoaderTranslateHandle_exit,
+  TP_ARGS(
+    zel_handle_type_t, handleType,
+    void *, handleIn,
+    void **, handleOut,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+    ctf_integer_hex(uintptr_t, handleOut_val, (uintptr_t)((handleOut ? *handleOut : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelSetDriverTeardown_entry,
+  TP_ARGS(
+    void
+  ),
+  TP_FIELDS(
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelSetDriverTeardown_exit,
+  TP_ARGS(
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelSetDelayLoaderContextTeardown_entry,
+  TP_ARGS(
+    void
+  ),
+  TP_FIELDS(
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelSetDelayLoaderContextTeardown_exit,
+  TP_ARGS(
+    void
+  ),
+  TP_FIELDS(
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelLoaderContextTeardown_entry,
+  TP_ARGS(
+    void
+  ),
+  TP_FIELDS(
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelLoaderContextTeardown_exit,
+  TP_ARGS(
+    void
+  ),
+  TP_FIELDS(
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelEnableTracingLayer_entry,
+  TP_ARGS(
+    void
+  ),
+  TP_FIELDS(
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelEnableTracingLayer_exit,
+  TP_ARGS(
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelCheckIsLoaderInTearDown_entry,
+  TP_ARGS(
+    void
+  ),
+  TP_FIELDS(
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelCheckIsLoaderInTearDown_exit,
+  TP_ARGS(
+    _Bool, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(_Bool, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelRegisterTeardownCallback_entry,
+  TP_ARGS(
+    zel_loader_teardown_callback_t, application_callback,
+    zel_application_teardown_callback_t *, loader_callback,
+    uint32_t *, index
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, application_callback, (uintptr_t)(application_callback))
+    ctf_integer_hex(uintptr_t, loader_callback, (uintptr_t)(loader_callback))
+    ctf_integer_hex(uintptr_t, index, (uintptr_t)(index))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelRegisterTeardownCallback_exit,
+  TP_ARGS(
+    zel_loader_teardown_callback_t, application_callback,
+    zel_application_teardown_callback_t *, loader_callback,
+    uint32_t *, index,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelDisableTracingLayer_entry,
+  TP_ARGS(
+    void
+  ),
+  TP_FIELDS(
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelDisableTracingLayer_exit,
+  TP_ARGS(
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelLoaderDriverCheck_entry,
+  TP_ARGS(
+    ze_init_flags_t, flags,
+    ze_init_driver_type_desc_t *, desc,
+    ze_global_dditable_t *, globalInitStored,
+    void *, sysmanGlobalInitStored,
+    _Bool *, requireDdiReinit,
+    _Bool, sysmanOnly
+  ),
+  TP_FIELDS(
+    ctf_integer(ze_init_flags_t, flags, flags)
+    ctf_integer_hex(uintptr_t, desc, (uintptr_t)(desc))
+    ctf_integer_hex(uintptr_t, globalInitStored, (uintptr_t)(globalInitStored))
+    ctf_integer_hex(uintptr_t, sysmanGlobalInitStored, (uintptr_t)(sysmanGlobalInitStored))
+    ctf_integer_hex(uintptr_t, requireDdiReinit, (uintptr_t)(requireDdiReinit))
+    ctf_integer(_Bool, sysmanOnly, sysmanOnly)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelLoaderDriverCheck_exit,
+  TP_ARGS(
+    ze_init_flags_t, flags,
+    ze_init_driver_type_desc_t *, desc,
+    ze_global_dditable_t *, globalInitStored,
+    void *, sysmanGlobalInitStored,
+    _Bool *, requireDdiReinit,
+    _Bool, sysmanOnly,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelLoaderTracingLayerInit_entry,
+  TP_ARGS(
+    void *, zeDdiTable
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, zeDdiTable, (uintptr_t)(zeDdiTable))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelLoaderTracingLayerInit_exit,
+  TP_ARGS(
+    void *, zeDdiTable,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zeLoaderGetTracingHandle_entry,
+  TP_ARGS(
+    void
+  ),
+  TP_FIELDS(
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zeLoaderGetTracingHandle_exit,
+  TP_ARGS(
+    void *, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, zeResult, (uintptr_t)(zeResult))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelLoaderGetContext_entry,
+  TP_ARGS(
+    void
+  ),
+  TP_FIELDS(
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelLoaderGetContext_exit,
+  TP_ARGS(
+    void *, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, zeResult, (uintptr_t)(zeResult))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelLoaderGetVersionsInternal_entry,
+  TP_ARGS(
+    size_t *, num_elems,
+    zel_component_version_t *, versions
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, num_elems, (uintptr_t)(num_elems))
+    ctf_integer_hex(uintptr_t, versions, (uintptr_t)(versions))
+    ctf_integer(size_t, num_elems_val, (num_elems ? *num_elems : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelLoaderGetVersionsInternal_exit,
+  TP_ARGS(
+    size_t *, num_elems,
+    zel_component_version_t *, versions,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+    ctf_integer(size_t, num_elems_val, (num_elems ? *num_elems : 0))
+    ctf_sequence_text(uint8_t, versions_vals, versions, size_t, ((num_elems && versions ? *num_elems : 0)) * sizeof(zel_component_version_t))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelLoaderTranslateHandleInternal_entry,
+  TP_ARGS(
+    zel_handle_type_t, handleType,
+    void *, handleIn,
+    void **, handleOut
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, handleType, handleType)
+    ctf_integer_hex(uintptr_t, handleIn, (uintptr_t)(handleIn))
+    ctf_integer_hex(uintptr_t, handleOut, (uintptr_t)(handleOut))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_zel,
+  zelLoaderTranslateHandleInternal_exit,
+  TP_ARGS(
+    zel_handle_type_t, handleType,
+    void *, handleIn,
+    void **, handleOut,
+    ze_result_t, zeResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, zeResult, zeResult)
+    ctf_integer_hex(uintptr_t, handleOut_val, (uintptr_t)((handleOut ? *handleOut : 0)))
+  )
+)
+

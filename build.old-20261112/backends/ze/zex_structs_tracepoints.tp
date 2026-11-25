@@ -1,0 +1,2 @@
+#include "lttng/tracepoint_gen.h"
+#include "ze.h.include"

@@ -1,0 +1,24 @@
+#include "lttng/tracepoint_gen.h"
+
+TRACEPOINT_EVENT(
+  lttng_ust_pytorch,
+  op_entry,
+  TP_ARGS(
+    const char *, name
+  ),
+  TP_FIELDS(
+    ctf_string(name, name)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_pytorch,
+  op_exit,
+  TP_ARGS(
+    const char *, name
+  ),
+  TP_FIELDS(
+    ctf_string(name, name)
+  )
+)
+

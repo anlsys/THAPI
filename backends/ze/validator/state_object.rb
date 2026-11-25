@@ -1,4 +1,4 @@
-require 'babeltrace2'
+require 'ze/validator/backend'
 require 'ze_library'
 require 'set'
 require 'ze/validator/errors'
@@ -6,7 +6,8 @@ require 'ze/validator/model'
 require 'ze/validator/callbacks'
 require 'yaml'
 
-class StateObject
+module ZEValidator
+class StateObject < THAPIValidator::APIBackend
   attr_reader :state
   attr_reader :lock_shared_object_on_entry
   attr_reader :unlock_shared_object_on_exit
@@ -18,6 +19,9 @@ class StateObject
     @deprecated = metadata.fetch('deprecated')
     @device_properties = Hash.new { |h, k| h[k] = {} }
     @reporter = ZEValidator::Reporter.new
+    configure_rules(ZEValidator::HANDLERS,
+      default_path: File.join(DATADIR, 'ze', 'validator', 'rules.yaml'),
+      backend: 'level_zero', user_path: opts[:rules])
 
     # fullpath to a .csv file for exporting detected errors on 'finalize()'
     @csv_export = opts[:csv_export]
@@ -298,13 +302,7 @@ class StateObject
   def run_deferred_op(unit)
     context = unit.context
     op = unit.current_op
-    if op.kind == :copy
-      check_oob_copy(self, context, op.params)
-      #a pointer freed before this copy's turn to execute is a use-after-free
-      check_use_after_free(self, context, op.params)
-    end
-    #a memory-ranges barrier references memory freed before its turn is a UAF
-    check_uaf_ranges_barrier(self, context, op.params) if op.kind == :ranges_barrier
+    dispatch_operation(op.kind, context, {params: op.params})
     #a reset takes effect before this op signals its own completion event
     reset_event(context, op.params[:reset_handle]) if op.kind == :reset
     signaled = false
@@ -416,9 +414,7 @@ class StateObject
   #   traced got read (e.g., deadlocks, leaks, etc.)
   #   - export to csv if asked by users
   def finalize()
-    flush_deferred
-    report_unfinished_calls
-    report_leaks if @report_leaks
+    finalize_rules
     @reporter.summary
     @reporter.export_csv(@csv_export) if @csv_export
   end
@@ -505,82 +501,85 @@ class StateObject
   end
 
 
-  # Pushes the call frame, takes the thread-safety locks and runs the API's
-  # entry callback. Checks run here when the call itself might crash.
-  def on_entry(m,hostname, context,payload)
-    set_last_entry(self, context, payload) #sets the per-thread callstack of the APIs
-      @lock_shared_object_on_entry[m[1]].each { |l|
-                  l.call(self, context, payload)
-      }
-    #modifies the state based on entry fields. Needed because some fields are easier to access it from the entry
-    l = $upon_entry[m[1]]
-    l.call(self,context,payload) if l
+  # Framework hooks preserve the original Level Zero ordering: push, lock,
+  # entry rules; then unlock, success/error rules, exit rules, verify, pop.
+  def current_call(context)
+    get_last_entry(context)
   end
 
-  def on_exit(m,hostname,context,payload)
-    #unlock the shared object if the api name matches the predefined in api_metadata.yaml
-    @unlock_shared_object_on_exit[m[1]].reverse_each { |l|
-      l.call(self, context, payload)
-    }
+  def begin_api_call(context, payload)
+    set_last_entry(self, context, payload)
+  end
 
-    #check if the return code indicates successful return from the API call
-    if validate_result(payload)
-      l = $on_successful_exit[m[1]] #This might be a problem for tracking erroneous exits.
-      l.call(self, context, payload) if l
-    else
-      l = $on_erroneous_exit[m[1]]
-      l.call(self, context, payload) if l
+  def before_entry_rules(context, payload)
+    @lock_shared_object_on_entry[context.fetch('api')].each do |lock|
+      lock.call(self, context, payload)
+    end
+  end
+
+  def before_exit_rules(context, payload)
+    @unlock_shared_object_on_exit[context.fetch('api')].reverse_each do |unlock|
+      unlock.call(self, context, payload)
+    end
+  end
+
+  def successful_result?(payload)
+    validate_result(payload)
+  end
+
+  def finish_api_call(context)
+    check_last_entry(context)
+    reset_last_entry(context)
+  end
+
+  # Compatibility for callers that dispatch API phases directly.
+  def on_entry(_match, _hostname, context, payload)
+    dispatch_api_entry(context, payload)
+  end
+
+  def on_exit(_match, _hostname, context, payload)
+    dispatch_api_exit(context, payload)
+  end
+
+  # Babeltrace message handling is inherited from the shared runtime.
+  # Level Zero only interprets API names and its queue-property payloads.
+  def on_event(event)
+    match = event.name.match(/:(z.*)_(entry|exit)/)
+    if match
+      context = event.context.merge('api' => match[1])
+      check_initialization(context)
+      print_deprecation_warning(context, match[1]) if @deprecated[match[1]]
+      if match[2] == 'entry'
+        on_entry(match, context['hostname'], context, event.payload)
+      else
+        on_exit(match, context['hostname'], context, event.payload)
+      end
+      pump_deferred
+    elsif event.name.match(/lttng_ust_ze_properties:command_queue_group/)
+      record_command_queue_groups(event.payload)
+    end
+  end
+
+  def record_command_queue_groups(payload)
+    count = payload["pCount"]
+    device = payload["hDevice"]
+    blob = payload["pGroupProperties_vals"]
+    ptr = FFI::MemoryPointer.from_string(blob)
+    size = ZE::ZECommandQueueGroupProperties.size
+    groups = (0...count).map do |i|
+      ZE::ZECommandQueueGroupProperties.new(ptr + i * size)
     end
 
-    check_last_entry(context)  #When we return from _exit, we need to see what we saw in _entry for the current thread_id
-    reset_last_entry(context)  #Reset the callstack for current thread_id
+    groups.each_with_index do |group, ordinal|
+      @device_properties[device][ordinal] = {}
+      @device_properties[device][ordinal]['flags'] = group[:flags]
+      @device_properties[device][ordinal]['numQueues'] = group[:numQueues]
+    end
   end
 
-  # The main loop: returns the lambda called with each batch of decoded
-  # messages.
-  def consume = lambda { |iterator, _|
-        iterator.next_messages.each do |m|
-          next unless m.type == :BT_MESSAGE_TYPE_EVENT
-          e = m.event
-          #splits "lttng_ust_ze:zeMemAllocDevice_entry" into the API name (m[1])
-          #and the phase (m[2]); anything else is ignored
-          m = e.name.match(/:(z.*)_(entry|exit)/)
-          device_property = e.name.match(/lttng_ust_ze_properties:command_queue_group/) 
-          if m
-            hostname = e.stream.trace.get_environment_entry_value_by_name('hostname').value
-            context = e.get_common_context_field.value
-            #the event's own fields: input args at _entry, results at _exit
-            payload = e.payload_field.value
-            context['hostname'] = hostname
-            context['api'] = m[1]
-			      #zeDriversInit or zeInit must be the first one to be called before any api calls
-            check_initialization(context)
-            print_deprecation_warning(context, m[1]) if @deprecated[m[1]]
-
-            if m[2] == 'entry'
-              on_entry(m, hostname, context, payload)
-            elsif m[2] == 'exit'
-              on_exit(m, hostname, context, payload)
-            end
-            # Runs the blocked commands, if the wait-event(s) are satisfied
-            pump_deferred 
-          elsif device_property
-            payload = e.payload_field.value
-            count = payload["pCount"]
-            device = payload["hDevice"]
-            blob  = payload["pGroupProperties_vals"]
-            ptr   = FFI::MemoryPointer.from_string(blob)
-            size  = ZE::ZECommandQueueGroupProperties.size 
-            groups = (0...count).map do |i| ZE::ZECommandQueueGroupProperties.new(ptr + i * size) end
-
-            groups.each_with_index do |g, ordinal|
-              @device_properties[device][ordinal] = {}
-              @device_properties[device][ordinal]['flags'] = g[:flags]
-              @device_properties[device][ordinal]['numQueues'] = g[:numQueues]
-            end
-
-          end
-        end
-      }
-
 end
+
+end # ZEValidator
+
+# Preserve existing standalone integrations. New code uses the qualified name.
+StateObject = ZEValidator::StateObject unless defined?(StateObject)

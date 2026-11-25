@@ -390,11 +390,12 @@ module ZEModel
   end
 
   class ApiCall
-    attr_reader :name, :params
+    attr_reader :name, :params, :locals
 
     def initialize(name, params)
       @name = name
       @params = params
+      @locals = {}
     end
   end
 

@@ -1,0 +1,17 @@
+#include "lttng/tracepoint_gen.h"
+
+TRACEPOINT_EVENT(
+  lttng_ust_cxi_sampling,
+  cxi,
+  TP_ARGS(
+    const char *, interface_name,
+    const char *, counter,
+    uint64_t, value
+  ),
+  TP_FIELDS(
+    ctf_string(interface_name, interface_name)
+    ctf_string(counter, counter)
+    ctf_integer(uint64_t, value, value)
+  )
+)
+

@@ -1,0 +1,23 @@
+#include "lttng/tracepoint_gen.h"
+
+TRACEPOINT_EVENT(
+  lttng_ust_sampling,
+  heartbeat,
+  TP_ARGS(
+    uint64_t, foo
+  ),
+  TP_FIELDS(
+    ctf_integer(uint64_t, foo, foo)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_sampling,
+  heartbeat2,
+  TP_ARGS(
+    void
+  ),
+  TP_FIELDS(
+  )
+)
+

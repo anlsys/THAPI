@@ -1,0 +1,238 @@
+---
+:environment:
+  :entries:
+  - :name: hostname
+    :type: string
+:stream_classes:
+- :name: thapi_itt
+  :default_clock_class: {}
+  :packet_context_field_class:
+    :type: structure
+    :members:
+    - :name: cpu_id
+      :field_class:
+        :type: integer_unsigned
+        :cast_type: uint64_t
+        :field_value_range: 32
+  :event_common_context_field_class:
+    :type: structure
+    :members:
+    - :name: vpid
+      :field_class:
+        :type: integer_signed
+        :cast_type: int64_t
+        :field_value_range: 64
+    - :name: vtid
+      :field_class:
+        :type: integer_unsigned
+        :cast_type: uint64_t
+        :field_value_range: 64
+  :event_classes:
+  - :name: lttng_ust_itt:__itt_domain_create
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: ittResult
+        :field_class:
+          :cast_type: __itt_domain *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: name
+        :field_class:
+          :cast_type: char *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_itt:__itt_string_handle_create
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: ittResult
+        :field_class:
+          :cast_type: __itt_string_handle *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: name
+        :field_class:
+          :cast_type: char *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_itt:__itt_task_begin
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: domain
+        :field_class:
+          :cast_type: __itt_domain *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: taskid
+        :metadata:
+          :be_class: ITT::IttId
+        :field_class:
+          :cast_type: __itt_id
+          :type: string
+          :cast_type_is_struct: true
+      - :name: parentid
+        :metadata:
+          :be_class: ITT::IttId
+        :field_class:
+          :cast_type: __itt_id
+          :type: string
+          :cast_type_is_struct: true
+      - :name: name
+        :field_class:
+          :cast_type: __itt_string_handle *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: domain__nameA_val
+        :field_class:
+          :cast_type: char *
+          :type: string
+      - :name: name__strA_val
+        :field_class:
+          :cast_type: char *
+          :type: string
+  - :name: lttng_ust_itt:__itt_task_end
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: domain
+        :field_class:
+          :cast_type: __itt_domain *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_itt:__itt_metadata_add
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: domain
+        :field_class:
+          :cast_type: __itt_domain *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: id
+        :metadata:
+          :be_class: ITT::IttId
+        :field_class:
+          :cast_type: __itt_id
+          :type: string
+          :cast_type_is_struct: true
+      - :name: key
+        :field_class:
+          :cast_type: __itt_string_handle *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: type
+        :metadata:
+          :be_class: ITT::IttMetadataType
+        :field_class:
+          :cast_type: __itt_metadata_type
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: count
+        :field_class:
+          :cast_type: size_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: data
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: key__strA_val
+        :field_class:
+          :cast_type: char *
+          :type: string
+  - :name: lttng_ust_itt:__itt_event_create
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: ittResult
+        :field_class:
+          :cast_type: __itt_event
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: name
+        :field_class:
+          :cast_type: char *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: namelen
+        :field_class:
+          :cast_type: int
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: name_val
+        :field_class:
+          :cast_type: char *
+          :type: string
+  - :name: lttng_ust_itt:__itt_event_start
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: ittResult
+        :field_class:
+          :cast_type: int
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: event
+        :field_class:
+          :cast_type: __itt_event
+          :type: integer_signed
+          :field_value_range: 32
+  - :name: lttng_ust_itt:__itt_event_end
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: ittResult
+        :field_class:
+          :cast_type: int
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: event
+        :field_class:
+          :cast_type: __itt_event
+          :type: integer_signed
+          :field_value_range: 32
+  - :name: lttng_ust_itt_metadata:metadata
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: type
+        :metadata:
+          :be_class: ITT::IttMetadataType
+        :field_class:
+          :cast_type: __itt_metadata_type
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: count
+        :field_class:
+          :cast_type: size_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: data
+        :field_class:
+          :cast_type: void*
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: _data_val_length
+        :field_class:
+          :cast_type: size_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: data_val
+        :field_class:
+          :cast_type: void*
+          :type: string

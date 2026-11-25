@@ -1,0 +1,46 @@
+#include "lttng/tracepoint_gen.h"
+#include "cl.h.include"
+
+TRACEPOINT_EVENT(
+  lttng_ust_opencl_source,
+  program_string,
+  TP_ARGS(
+    int, index,
+    size_t, length,
+    char *, path
+  ),
+  TP_FIELDS(
+    ctf_integer(int, index, index)
+    ctf_integer(size_t, length, length)
+    ctf_string(path, path)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_opencl_source,
+  program_binary,
+  TP_ARGS(
+    int, index,
+    size_t, length,
+    char *, path
+  ),
+  TP_FIELDS(
+    ctf_integer(int, index, index)
+    ctf_integer(size_t, length, length)
+    ctf_string(path, path)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_opencl_source,
+  program_il,
+  TP_ARGS(
+    size_t, length,
+    char *, path
+  ),
+  TP_FIELDS(
+    ctf_integer(size_t, length, length)
+    ctf_string(path, path)
+  )
+)
+

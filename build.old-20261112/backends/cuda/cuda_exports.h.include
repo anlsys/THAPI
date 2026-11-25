@@ -1,0 +1,20 @@
+#ifndef _CUDA_EXPORTS_H_INCLUDE
+#define _CUDA_EXPORTS_H_INCLUDE
+
+typedef struct cuexp_function_arg_desc_query_st {
+  size_t sz;
+  size_t argSize;
+  size_t argOffset;
+  size_t u1;
+  size_t u2;
+} cuexp_function_arg_desc_query;
+
+typedef struct cuexp_7cb63f9b_1e0_struct_st {
+  int unknown;
+  unsigned int stride;
+  unsigned int countOut;
+  unsigned int capacity;
+  void *data;
+} cuexp_7cb63f9b_1e0_struct;
+
+#endif

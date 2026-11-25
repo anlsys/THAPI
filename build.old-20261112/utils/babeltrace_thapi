@@ -1,0 +1,505 @@
+#!/usr/bin/env ruby
+DATADIR = File.join('/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/ici', 'share')
+$LOAD_PATH.unshift(DATADIR) if File.directory?(DATADIR)
+require 'babeltrace2'
+require 'find'
+require 'optparse_thapi'
+require 'yaml'
+require 'logger'
+require 'fileutils'
+
+module BTComponentClassRefinement
+  refine(BT2::BTComponentClass) do
+    attr_accessor :plugin
+  end
+
+  refine(BT2::BTPlugin.singleton_class) do
+    def find_all_from_dir(path, recurse: false, fail_on_load_error: true)
+      # I guess print a warning if recurse?
+      ps = super
+      ps.each do |p|
+        p.path = path
+      end
+      ps
+    end
+  end
+
+  refine(BT2::BTPlugin) do
+    attr_accessor :path
+
+    def get_source_component_class_by_name(name)
+      c = super
+      c.plugin = self if c
+      c
+    end
+
+    def get_filter_component_class_by_name(name)
+      c = super
+      c.plugin = self if c
+      c
+    end
+
+    def get_sink_component_class_by_name(name)
+      c = super
+      c.plugin = self if c
+      c
+    end
+
+    def source_component_classes
+      cs = super
+      cs.each { |c| c.plugin = self }
+      cs
+    end
+
+    def filter_component_classes
+      cs = super
+      cs.each { |c| c.plugin = self }
+      cs
+    end
+
+    def sink_component_classes
+      cs = super
+      cs.each { |c| c.plugin = self }
+      cs
+    end
+  end
+  refine(BT2::BTGraph.singleton_class) do
+    def new(handle = nil, retain: true, auto_release: true,
+            mip_version: 0)
+      obj = super
+      obj.plugins_path = []
+      obj.cli_v = []
+      obj
+    end
+  end
+
+  refine(BT2::BTGraph) do
+    attr_accessor :plugins_path, :cli_v
+
+    def bt2_escape(str)
+      str.gsub(/([*?\[.:\\])/, '\\\\\1')
+    end
+
+    def add(component_class, name, params: {},
+            logging_level: BT2::BTLogging.default_level,
+            initialize_method_data: nil)
+      @plugins_path << component_class.plugin.path
+      @cli_v << "--component #{name}:#{component_class.type.to_s.split('_').last.downcase}.#{component_class.plugin.name}.#{component_class.name}"
+
+      # https://babeltrace.org/docs/v2.0/man1/babeltrace2-run.1/#doc-opt--params
+      str_params = params.filter_map do |k, v|
+        v = v.to_s
+        v = %("#{v}") if v.include?(',')
+        "#{k}=#{v}"
+      end.join(',')
+      @cli_v << "--params '#{str_params}'" unless str_params.empty?
+      super
+    end
+
+    def connect_ports(upstream_port, downstream_port)
+      # https://babeltrace.org/docs/v2.0/man1/babeltrace2-run.1/#doc-connect-comps
+      # UP-COMP-PAT[.UP-PORT-PAT]:DOWN-COMP-PAT[.DOWN-PORT-PAT]
+      up_comp = bt2_escape(upstream_port.component.name)
+      up_port = bt2_escape(upstream_port.name)
+      down_comp = bt2_escape(downstream_port.component.name)
+      down_port = bt2_escape(downstream_port.name)
+      @cli_v << "--connect \"#{up_comp}.#{up_port}:#{down_comp}.#{down_port}\""
+      super
+    end
+
+    def cli
+      l = ['babeltrace2']
+      ps_u = @plugins_path.uniq.compact.sort
+      l << "--plugin-path=#{ps_u.join(',')}" unless ps_u.empty?
+      l << 'run'
+      l += @cli_v
+      l.join(" \\\n")
+    end
+  end
+end
+
+using BTComponentClassRefinement
+
+# Don't complain about broken pipe
+Signal.trap('SIGPIPE', 'SYSTEM_DEFAULT')
+
+NameComp = Struct.new(:name, :comp)
+
+def get_components(names)
+  # BT "native" component classes
+  components_classes = {
+    'source.ctf.fs' => BT2::BTPlugin.find('ctf').get_source_component_class_by_name('fs'),
+    'source.ctf.lttng_live' => BT2::BTPlugin.find('ctf').get_source_component_class_by_name('lttng-live'),
+    'source.ctf.lttng_archive' => BT2::BTPlugin.find('ctf').get_source_component_class_by_name('lttng-archive'),
+    'filter.utils.muxer' => BT2::BTPlugin.find('utils').get_filter_component_class_by_name('muxer'),
+    'sink.text.pretty' => BT2::BTPlugin.find('text').get_sink_component_class_by_name('pretty'),
+    'sink.ctf.fs' => BT2::BTPlugin.find('ctf').get_sink_component_class_by_name('fs'),
+    'sink.utils.dummy' => BT2::BTPlugin.find('utils').get_sink_component_class_by_name('dummy'),
+  }
+
+  # THAPI components
+  thapi_plugins = BT2::BTPlugin.find_all_from_dir(File.join('/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/ici', 'lib', 'thapi', 'bt2'))
+  thapi_plugins.map do |pg|
+    pg.source_component_classes.each { |c| components_classes["source.#{pg.name}.#{c.name}"] = c }
+    pg.filter_component_classes.each { |c| components_classes["filter.#{pg.name}.#{c.name}"] = c }
+    pg.sink_component_classes.each { |c| components_classes["sink.#{pg.name}.#{c.name}"] = c }
+  end
+
+  names.flat_map do |name|
+    case name
+    when 'filter.intervals.interval'
+      $options[:'backend-names'].map { |b| NameComp.new(b, components_classes["filter.#{b}interval.interval"]) }
+    when 'sink.text.rubypretty'
+      # Yaml and event_lambdas are required by babeltrace*_lib
+      $event_lambdas = {}
+      require 'babeltrace_mpi_lib' if $options[:'backend-names'].include?('mpi')
+      require 'babeltrace_omp_lib' if $options[:'backend-names'].include?('omp')
+      require 'babeltrace_opencl_lib' if $options[:'backend-names'].include?('cl')
+      require 'babeltrace_ze_lib' if $options[:'backend-names'].include?('ze')
+      require 'babeltrace_cuda_lib' if $options[:'backend-names'].include?('cuda')
+      require 'babeltrace_hip_lib' if $options[:'backend-names'].include?('hip')
+      require 'babeltrace_itt_lib' if $options[:'backend-names'].include?('itt')
+      require 'babeltrace_tracegrind_lib' # gated by `iprof --valgrind`
+      f = lambda { |iterator, _|
+        iterator.next_messages.each do |m|
+          next unless m.type == :BT_MESSAGE_TYPE_EVENT
+
+          e = m.event
+          l = $event_lambdas[e.name]
+          next unless l || !$options[:restrict]
+
+          str = Time.at(0, m.get_default_clock_snapshot.ns_from_origin, :nsec).strftime('%H:%M:%S.%9L').to_s
+          if $options[:context]
+            str << " - #{e.stream.trace.get_environment_entry_value_by_name('hostname')}"
+            common_context_field = e.get_common_context_field
+            if common_context_field
+              str << ' - ' << common_context_field.value.collect do |k, v|
+                "#{k}: #{v}"
+              end.join(', ')
+            end
+          end
+          str << " - #{e.name}: "
+          str << (l ? l.call(e.payload_field.value) : e.payload_field.to_s)
+          puts str
+        end
+      }
+      NameComp.new('sink.text.rubypretty', f)
+    else
+      NameComp.new(name, components_classes[name])
+    end
+  end
+end
+
+def get_and_add_components(graph, names, l_inputs)
+  get_components(names).filter_map do |nc|
+    name = nc.name
+    comp = nc.comp
+    raise "#{name} plugins was not found" unless comp
+
+    case name
+    when 'sink.text.rubypretty'
+      graph.add_simple_sink('rubypretty', comp)
+    when 'source.ctf.lttng_live'
+      graph.add(comp, 'source_live',
+                params: { 'inputs' => $options[:inputs],
+                          'session-not-found-action' => 'end' })
+    when 'source.ctf.lttng_archive'
+      graph.add(comp, 'source_archive',
+                params: { 'session-name' => $options[:archive],
+                          'session-found-file-path' => $options[:'archive-session-found-file-path'] })
+    when 'source.ctf.fs'
+      s = Find.find(*l_inputs)
+              .reject { |path| FileTest.directory?(path) }
+              .filter_map { |path| File.dirname(path) if File.basename(path) == 'metadata' }
+              .select do |path|
+                qe = BT2::BTQueryExecutor.new(component_class: comp, object_name: 'babeltrace.support-info',
+                                              params: { 'input' => path, 'type' => 'directory' })
+                qe.query.value['weight'] > 0.5
+          end
+              .each_with_index.map do |trace_location, i|
+        graph.add(comp, "source_#{i}",
+                  params: { 'inputs' => [trace_location] })
+      end
+      if s.empty?
+        LOGGER.warn("No source found in #{ARGV}")
+        raise ArgumentError
+      end
+      s
+    when 'sink.ctf.fs'
+
+      params = { 'path' => $options[:output],
+                 'assume-single-trace' => false,
+                 'quiet' => $options[:debug] ? false : true }
+
+      semantic_version_str = [BT2.bt_version_get_major, BT2.bt_version_get_minor,
+                              BT2.bt_version_get_patch].join('.')
+      semantic_version_str += BT2.bt_version_get_development_stage if BT2.bt_version_get_development_stage
+
+      params['ctf-version'] = '1.8' if Gem::Version.new(semantic_version_str) >= Gem::Version.new('2.1.0')
+      graph.add(comp, 'ctf_sink', params: params)
+    when 'sink.btx_tally.tally'
+      graph.add(comp, 'tally',
+                params: { 'display' => $options[:display],
+                          'name' => $options[:name],
+                          'display_mode' => $options[:'display-mode'],
+                          'display_metadata' => $options[:'display-metadata'],
+                          'display_name_max_size' => $options[:'display-name-max-size'],
+                          'display_kernel_verbose' => $options[:'display-kernel-verbose'],
+                          'backend_levels' => $options[:backends].join(',') })
+    when 'sink.btx_timeline.timeline'
+      graph.add(comp, 'timeline',
+                params: { 'output_path' => $options[:'output-path'],
+                          'offset' => $options[:'output-offset'] })
+    when 'filter.utils.muxer'
+      graph.add(comp, name)
+    when 'filter.btx_aggreg.aggreg'
+      graph.add(comp, 'aggreg',
+                params: { 'discard_metadata' => $options[:'discard-metadata'] })
+    else
+      # `.` is not allowed in the babeltrace components name when using the CLI
+      graph.add(comp, name.gsub('.', '_'))
+    end
+  end
+end
+
+def connects(graph, comps)
+  comps.each_cons(2) do |out, in_|
+    [out].flatten.flat_map(&:output_ports).each_with_index do |op, i|
+      ip = in_.input_port(i)
+      graph.connect_ports(op, ip)
+    end
+  end
+end
+
+THAPI_METADATA_FILE = 'thapi_metadata.yaml'
+
+def thapi_metadata(trace)
+  @thapi_metadata ||= {}
+  return @thapi_metadata[trace] if @thapi_metadata.include?(trace)
+
+  full_path = File.join(trace, THAPI_METADATA_FILE)
+
+  data = if File.file?(full_path)
+           YAML.load_file(full_path)
+         else
+           warn("Warning: #{trace} isn't a valid trace (missing #{THAPI_METADATA_FILE}), we will assume a lttng trace")
+           { type: 'lttng' }
+         end
+
+  @thapi_metadata[trace] = data
+end
+
+def modify_metadata(command, trace)
+  y = thapi_metadata(trace)
+  case command
+  when 'to_interval'
+    y[:type] = 'interval'
+  when 'to_aggreg'
+    y[:type] = 'aggreg'
+  else
+    return
+  end
+  # This folder may not have been created in case of `no source`.
+  FileUtils.mkdir_p($options[:output])
+  File.write(File.join($options[:output], THAPI_METADATA_FILE), y.to_yaml)
+end
+
+def bt_graphs(inputs)
+  @bt_graphs ||= {}
+  @bt_graphs[inputs] ||= begin
+    g_comps = [if $options[:live]
+                 'source.ctf.lttng_live'
+               elsif $options[:archive]
+                 'source.ctf.lttng_archive'
+               else
+                 'source.ctf.fs'
+               end]
+
+    if $options[:muxer] || inputs.any? { |trace| thapi_metadata(trace)[:type] == 'lttng' }
+      g_comps << 'filter.utils.muxer'
+    end
+
+    { 'tally' => ['filter.intervals.interval',
+                  'filter.btx_aggreg.aggreg', 'sink.btx_tally.tally'],
+      'timeline' => ['filter.intervals.interval',
+                     'sink.btx_timeline.timeline'],
+      'trace' => ['sink.text.rubypretty'],
+      'to_interval' => ['filter.intervals.interval',
+                        'filter.btx_stripper.stripper', 'sink.ctf.fs'],
+      'to_aggreg' => ['filter.intervals.interval', 'filter.btx_aggreg.aggreg',
+                      'filter.btx_stripper.stripper', 'sink.ctf.fs'] }.transform_values { |l| g_comps + l }
+  end
+end
+
+def create_and_run_graph(command, graph_str, inputs)
+  # In case of move, no need to call babeltrace, just move
+  if command == 'move'
+    raise "The 'move' command can move only one file, but #{inputs.size} were provided" unless inputs.size == 1
+    if File.exist?($options[:output])
+      raise "Cannot move file(#{inputs}): the output path '#{$options[:output]}' already exists. Please remove it or choose a different output path"
+    end
+
+    FileUtils.mkdir_p(File.dirname($options[:output]))
+    FileUtils.mv(inputs.first, $options[:output], force: true)
+    return 0
+  end
+
+  def no_gc(command, graph_str, inputs)
+    graph = BT2::BTGraph.new
+    comp = get_and_add_components(graph, graph_str, inputs)
+    connects(graph, comp)
+
+    if $options[:debug]
+      cli = graph.cli
+      name = "babeltrace_thapi_cli_#{command}.sh"
+      # puts cli
+      puts "babeltrace_thapi: babeltrace2 cli command will be saved in ./#{name}"
+      $stdout.flush
+      File.write(name, cli)
+    end
+    graph.run
+  end
+
+  begin
+    no_gc(command, graph_str, inputs)
+  rescue ArgumentError
+  ensure
+    GC.start
+  end
+
+  # Always generate a "trace". User responsiblity to grep for
+  # "WARN -- : No source found" is required
+  modify_metadata(command, inputs.first)
+  0
+end
+
+#    _                       _    ___
+#   |_) _. ._ _ o ._   _    /  |   |
+#   |  (_| | _> | | | (_|   \_ |_ _|_
+#                      _|
+def raise_if_command_invalid(command, trace)
+  case command
+  when 'trace'
+    if %w[interval aggreg].include?(thapi_metadata(trace)[:type])
+      raise('THAPI Trace: Cannot show the trace of an interval or aggregated trace')
+    end
+  when 'timeline'
+    if %w[aggreg].include?(thapi_metadata(trace)[:type])
+      raise('THAPI Timeline: Cannot show the timeline of an aggregated trace')
+    end
+  end
+end
+
+class BabeltraceParserThapi < OptionParserWithDefaultAndValidation
+  def initialize
+    super
+    on('-h', '--help', 'Prints this help') { print_help_and_exit(self, exit_code: 0) }
+    on('-b', '--backends BACKENDS', Array, "Select which and how backends' need to handled.",
+       'Format: backend_name[:backend_level],...',
+       default: ['mpi:3', 'omp:2', 'cl:1', 'ze:1', 'cuda:1', 'hip:1', 'cxi:4', 'itt:5'])
+    on('--debug', default: false)
+    on('--archive SESSION-NAME')
+    on('--archive-session-found-file-path PATH')
+    on('--[no-]muxer')
+    on('-v', '--version', 'Print the version string') do
+      puts File.read(File.join(DATADIR, 'thapi_version'))
+      exit
+    end
+  end
+end
+
+def print_help_and_exit(parser = nil, exit_code: 1)
+  if parser
+    puts(parser.help)
+  else
+    puts(<<~EOF
+      Usage: babeltrace_thapi [COMMAND] trace_directory...
+           trace:     Display the trace
+           tally:     Display the tally
+           timeline:  Dump the timeline
+
+        See 'babeltrace_thapi COMMAND --help' for more information on a specific command.
+    EOF
+        )
+  end
+
+  puts(<<~EOF
+                                                          __
+    For complaints, praises, or bug reports please use: <(o )___
+       https://github.com/argonne-lcf/THAPI              ( ._> /
+       or send email to {apl,bvideau}@anl.gov             `---'
+  EOF
+      )
+  exit(exit_code)
+end
+
+subcommands = {
+  'trace' =>
+    BabeltraceParserThapi.new do |parser|
+      parser.banner = 'Usage: babeltrace_thapi trace [OPTIONS] trace_directory...'
+      parser.on('-c', '--[no-]context', 'Add context information')
+      parser.on('-r', '--[no-]restrict', 'Restrict output to recognized events')
+      parser.on('--live', 'Enable live display of the trace')
+    end,
+  'to_interval' =>
+    BabeltraceParserThapi.new do |parser|
+      parser.banner = 'Usage: babeltrace_thapi to_interval [OPTIONS] trace_directory...'
+      parser.on('--output OUTPUT')
+    end,
+  'to_aggreg' =>
+    BabeltraceParserThapi.new do |parser|
+      parser.banner = 'Usage: babeltrace_thapi to_aggreg [OPTIONS] trace_directory...'
+      parser.on('--[no-]discard-metadata', default: true)
+      parser.on('--output OUTPUT')
+    end,
+  'move' =>
+    BabeltraceParserThapi.new do |parser|
+      parser.banner = 'Usage: babeltrace_thapi move [OPTIONS] trace_directory...'
+      parser.on('--output OUTPUT')
+    end,
+  'tally' =>
+    BabeltraceParserThapi.new do |parser|
+      parser.banner = 'Usage: babeltrace_thapi tally [OPTIONS] trace_directory...'
+      parser.on('--display TYPE', String, default: 'compact', allowed: %w[compact extended])
+      parser.on('--name TYPE', String, default: 'demangle', allowed: %w[demangle mangle])
+      parser.on('--display-mode MODE', String, default: 'human', allowed: %w[human json])
+      parser.on('--display-metadata', default: false)
+      parser.on('--display-name-max-size SIZE', Integer, default: 80)
+      parser.on('--display-kernel-verbose', default: false)
+      parser.on('--[no-]discard-metadata', default: false)
+    end,
+  'timeline' =>
+    BabeltraceParserThapi.new do |parser|
+      parser.banner = 'Usage: babeltrace_thapi timeline [OPTIONS] trace_directory...'
+      parser.on('--output-path PATH', String, default: 'out.pftrace')
+      parser.on('--output-offset OFFSET', Integer, default: 0)
+    end,
+}
+print_help_and_exit if ARGV.empty? || ARGV[0] == '--help'
+ARGV.insert(0, 'trace') unless subcommands.include?(ARGV.first)
+command = ARGV.shift
+
+$options = {}
+parser = subcommands[command]
+begin
+  parser.parse!(into: $options)
+rescue StandardError => e
+  puts("ERROR: #{e}")
+  print_help_and_exit(parser)
+end
+
+# Fix segfault
+ARGV.uniq!
+
+raise_if_command_invalid(command, ARGV.first)
+
+$options[:'backend-names'] = $options[:backends].map { |name_level| name_level.split(':').first }
+
+#    _
+#   |_)     ._
+#   | \ |_| | |
+#
+# Setup Logger
+LOGGER = Logger.new($stdout)
+ec = create_and_run_graph(command, bt_graphs(ARGV)[command], ARGV)
+exit(ec)

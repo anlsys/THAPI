@@ -1,0 +1,31 @@
+#include "lttng/tracepoint_gen.h"
+#include "cl.h.include"
+
+TRACEPOINT_EVENT(
+  lttng_ust_opencl_devices,
+  device_name,
+  TP_ARGS(
+    cl_device_id, device,
+    char *, name
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, device, (uintptr_t)device)
+    ctf_string(name, name)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_opencl_devices,
+  device_timer,
+  TP_ARGS(
+    cl_device_id, device,
+    cl_ulong, device_timestamp,
+    cl_ulong, host_timestamp
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, device, (uintptr_t)device)
+    ctf_integer(cl_ulong, device_timestamp, device_timestamp)
+    ctf_integer(cl_ulong, host_timestamp, host_timestamp)
+  )
+)
+

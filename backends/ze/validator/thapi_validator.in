@@ -1,0 +1,95 @@
+#!/usr/bin/env ruby
+# coding: utf-8
+DATADIR = File.join("@prefix@", "share")
+BINDIR = File.join("@prefix@", "bin")
+$:.unshift(DATADIR) if File.directory?(DATADIR)
+require 'optparse'
+require 'ze/validator/backend'
+
+# Don't complain about broken pipe
+Signal.trap('SIGPIPE', 'SYSTEM_DEFAULT')
+
+$options = { live: false, csv_export: nil, report_leaks: true, rules: nil, backend: 'level_zero', plugins: [], list_backends: false }
+
+DEFAULT_CSV_EXPORT = 'thapi_validator.csv'
+
+parser = OptionParser.new do |opts|
+  opts.banner = 'Usage: thapi_validator [OPTIONS] trace_directory...'
+
+  opts.on('-h', '--help', 'Prints this help') do
+    puts opts
+    exit
+  end
+
+  opts.on('--backend=NAME', 'Select an explicitly registered backend (default: level_zero)') do |name|
+    $options[:backend] = name
+  end
+
+  opts.on('--plugin=RUBY-FILE', 'Load a trusted backend plugin (repeatable)') do |file|
+    $options[:plugins] << file
+  end
+
+  opts.on('--list-backends', 'List registered backends; only Level Zero is built in') do
+    $options[:list_backends] = true
+  end
+
+  opts.on('--rules=YAML-FILE', 'Append user rules to the built-in validator rules') do |file|
+    $options[:rules] = file
+  end
+
+  opts.on('--live', 'Enable live processing of the trace') do
+    $options[:live] = true
+  end
+
+  opts.on('--[no-]report-leaks',
+          'Report end-of-trace object and memory leaks (default: enabled)') do |v|
+    $options[:report_leaks] = v
+  end
+
+  opts.on('--csv-export[=CSV-FILE]',
+          'Write the per-error-type counts to CSV, one row per diagnostic ' \
+          "(default: #{DEFAULT_CSV_EXPORT})") do |file|
+    $options[:csv_export] = file || DEFAULT_CSV_EXPORT
+  end
+end
+parser.parse!
+
+# Shared trace ingestion is independent of the selected model's checks.
+def build_and_run_graph(source_location, sink_object)
+  THAPIValidator::TraceGraph.run(source_location, sink_object, live: $options[:live])
+end
+
+# Run the selected adapter only when invoked as the main script.
+if __FILE__ == $0
+  begin
+    $options[:plugins].each { |path| load File.expand_path(path) }
+  rescue StandardError, LoadError => e
+    warn "thapi_validator: #{e.message}"
+    exit 1
+  end
+  if $options[:list_backends]
+    puts THAPIValidator::Backends.names
+    exit 0
+  end
+  if ARGV.empty?
+    puts parser
+    exit 1
+  end
+
+  begin
+    sink_obj = THAPIValidator::Backends.build(
+      $options[:backend], csv_export: $options[:csv_export],
+      report_leaks: $options[:report_leaks], rules: $options[:rules])
+  rescue ZEValidator::ConfigurationError => e
+    warn "thapi_validator: #{e.message}"
+    exit 1
+  end
+  ARGV.uniq!
+  source_location = ARGV
+  begin
+    exit build_and_run_graph(source_location, sink_obj)
+  rescue THAPIValidator::ConfigurationError => e
+    warn "thapi_validator: #{e.message}"
+    exit 1
+  end
+end

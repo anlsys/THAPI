@@ -1,0 +1,1082 @@
+---
+:environment:
+  :entries:
+  - :name: hostname
+    :type: string
+:stream_classes:
+- :name: thapi_omp
+  :default_clock_class: {}
+  :packet_context_field_class:
+    :type: structure
+    :members:
+    - :name: cpu_id
+      :field_class:
+        :type: integer_unsigned
+        :cast_type: uint64_t
+        :field_value_range: 32
+  :event_common_context_field_class:
+    :type: structure
+    :members:
+    - :name: vpid
+      :field_class:
+        :type: integer_signed
+        :cast_type: int64_t
+        :field_value_range: 64
+    - :name: vtid
+      :field_class:
+        :type: integer_unsigned
+        :cast_type: uint64_t
+        :field_value_range: 64
+  :event_classes:
+  - :name: lttng_ust_ompt:ompt_callback_thread_begin
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: thread_type
+        :metadata:
+          :be_class: OMP::OMPTThread
+        :field_class:
+          :cast_type: ompt_thread_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: thread_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_thread_end
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: thread_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_parallel_begin
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: encountering_task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: encountering_task_frame
+        :field_class:
+          :cast_type: ompt_frame_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: parallel_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: requested_parallelism
+        :field_class:
+          :cast_type: unsigned int
+          :type: integer_unsigned
+          :field_value_range: 32
+      - :name: flags
+        :metadata:
+          :be_class: OMP::OMPTParallelFlags
+        :field_class:
+          :cast_type: ompt_parallel_flags_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_parallel_end
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: parallel_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: encountering_task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: flags
+        :metadata:
+          :be_class: OMP::OMPTParallelFlags
+        :field_class:
+          :cast_type: ompt_parallel_flags_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_work
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: work_type
+        :metadata:
+          :be_class: OMP::OMPTWork
+        :field_class:
+          :cast_type: ompt_work_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: endpoint
+        :metadata:
+          :be_class: OMP::OMPTScopeEndpoint
+        :field_class:
+          :cast_type: ompt_scope_endpoint_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: parallel_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: count
+        :field_class:
+          :cast_type: uint64_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_dispatch
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: parallel_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: kind
+        :metadata:
+          :be_class: OMP::OMPTDispatch
+        :field_class:
+          :cast_type: ompt_dispatch_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: instance
+        :field_class:
+          :cast_type: ompt_data_t
+          :type: string
+          :cast_type_is_struct: true
+  - :name: lttng_ust_ompt:ompt_callback_task_create
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: encountering_task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: encountering_task_frame
+        :field_class:
+          :cast_type: ompt_frame_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: new_task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: flags
+        :metadata:
+          :be_class: OMP::OMPTTaskFlags
+        :field_class:
+          :cast_type: ompt_task_flags_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: has_dependences
+        :field_class:
+          :cast_type: int
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_dependences
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: deps
+        :field_class:
+          :cast_type: ompt_dependence_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: ndeps
+        :field_class:
+          :cast_type: int
+          :type: integer_signed
+          :field_value_range: 32
+  - :name: lttng_ust_ompt:ompt_callback_task_dependence
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: src_task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: sink_task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_task_schedule
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: prior_task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: prior_task_status
+        :metadata:
+          :be_class: OMP::OMPTTaskStatus
+        :field_class:
+          :cast_type: ompt_task_status_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: next_task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_implicit_task
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: endpoint
+        :metadata:
+          :be_class: OMP::OMPTScopeEndpoint
+        :field_class:
+          :cast_type: ompt_scope_endpoint_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: parallel_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: actual_parallelism
+        :field_class:
+          :cast_type: unsigned int
+          :type: integer_unsigned
+          :field_value_range: 32
+      - :name: index
+        :field_class:
+          :cast_type: unsigned int
+          :type: integer_unsigned
+          :field_value_range: 32
+      - :name: flags
+        :metadata:
+          :be_class: OMP::OMPTTaskFlags
+        :field_class:
+          :cast_type: ompt_task_flags_t
+          :type: integer_signed
+          :field_value_range: 32
+  - :name: lttng_ust_ompt:ompt_callback_masked
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: endpoint
+        :metadata:
+          :be_class: OMP::OMPTScopeEndpoint
+        :field_class:
+          :cast_type: ompt_scope_endpoint_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: parallel_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_sync_region
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: kind
+        :metadata:
+          :be_class: OMP::OMPTSyncRegion
+        :field_class:
+          :cast_type: ompt_sync_region_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: endpoint
+        :metadata:
+          :be_class: OMP::OMPTScopeEndpoint
+        :field_class:
+          :cast_type: ompt_scope_endpoint_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: parallel_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_mutex_acquire
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: kind
+        :metadata:
+          :be_class: OMP::OMPTMutex
+        :field_class:
+          :cast_type: ompt_mutex_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: hint
+        :field_class:
+          :cast_type: unsigned int
+          :type: integer_unsigned
+          :field_value_range: 32
+      - :name: impl
+        :field_class:
+          :cast_type: unsigned int
+          :type: integer_unsigned
+          :field_value_range: 32
+      - :name: wait_id
+        :field_class:
+          :cast_type: ompt_wait_id_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_mutex
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: kind
+        :metadata:
+          :be_class: OMP::OMPTMutex
+        :field_class:
+          :cast_type: ompt_mutex_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: wait_id
+        :field_class:
+          :cast_type: ompt_wait_id_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_nest_lock
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: endpoint
+        :metadata:
+          :be_class: OMP::OMPTScopeEndpoint
+        :field_class:
+          :cast_type: ompt_scope_endpoint_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: wait_id
+        :field_class:
+          :cast_type: ompt_wait_id_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_flush
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: thread_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_cancel
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: flags
+        :metadata:
+          :be_class: OMP::OMPTCancelFlags
+        :field_class:
+          :cast_type: ompt_cancel_flags_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_device_initialize
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: device_num
+        :field_class:
+          :cast_type: int
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: type
+        :field_class:
+          :cast_type: char *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: device
+        :field_class:
+          :cast_type: ompt_device_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: lookup
+        :field_class:
+          :cast_type: ompt_function_lookup_t
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: documentation
+        :field_class:
+          :cast_type: char *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_device_finalize
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: device_num
+        :field_class:
+          :cast_type: int
+          :type: integer_signed
+          :field_value_range: 32
+  - :name: lttng_ust_ompt:ompt_callback_device_load
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: device_num
+        :field_class:
+          :cast_type: int
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: filename
+        :field_class:
+          :cast_type: char *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: offset_in_file
+        :field_class:
+          :cast_type: int64_t
+          :type: integer_signed
+          :field_value_range: 64
+      - :name: vma_in_file
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: bytes
+        :field_class:
+          :cast_type: size_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: host_addr
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: device_addr
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: module_id
+        :field_class:
+          :cast_type: uint64_t
+          :type: integer_unsigned
+          :field_value_range: 64
+  - :name: lttng_ust_ompt:ompt_callback_device_unload
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: device_num
+        :field_class:
+          :cast_type: int
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: module_id
+        :field_class:
+          :cast_type: uint64_t
+          :type: integer_unsigned
+          :field_value_range: 64
+  - :name: lttng_ust_ompt:ompt_callback_target_data_op_emi
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: endpoint
+        :metadata:
+          :be_class: OMP::OMPTScopeEndpoint
+        :field_class:
+          :cast_type: ompt_scope_endpoint_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: target_task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: target_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: host_op_id
+        :field_class:
+          :cast_type: ompt_id_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: optype
+        :metadata:
+          :be_class: OMP::OMPTTargetDataOp
+        :field_class:
+          :cast_type: ompt_target_data_op_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: src_addr
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: src_device_num
+        :field_class:
+          :cast_type: int
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: dest_addr
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: dest_device_num
+        :field_class:
+          :cast_type: int
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: bytes
+        :field_class:
+          :cast_type: size_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_target_data_op
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: target_id
+        :field_class:
+          :cast_type: ompt_id_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: host_op_id
+        :field_class:
+          :cast_type: ompt_id_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: optype
+        :metadata:
+          :be_class: OMP::OMPTTargetDataOp
+        :field_class:
+          :cast_type: ompt_target_data_op_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: src_addr
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: src_device_num
+        :field_class:
+          :cast_type: int
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: dest_addr
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: dest_device_num
+        :field_class:
+          :cast_type: int
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: bytes
+        :field_class:
+          :cast_type: size_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_target_emi
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: kind
+        :metadata:
+          :be_class: OMP::OMPTTarget
+        :field_class:
+          :cast_type: ompt_target_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: endpoint
+        :metadata:
+          :be_class: OMP::OMPTScopeEndpoint
+        :field_class:
+          :cast_type: ompt_scope_endpoint_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: device_num
+        :field_class:
+          :cast_type: int
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: target_task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: target_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_target
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: kind
+        :metadata:
+          :be_class: OMP::OMPTTarget
+        :field_class:
+          :cast_type: ompt_target_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: endpoint
+        :metadata:
+          :be_class: OMP::OMPTScopeEndpoint
+        :field_class:
+          :cast_type: ompt_scope_endpoint_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: device_num
+        :field_class:
+          :cast_type: int
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: task_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: target_id
+        :field_class:
+          :cast_type: ompt_id_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_target_map_emi
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: target_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: nitems
+        :field_class:
+          :cast_type: unsigned int
+          :type: integer_unsigned
+          :field_value_range: 32
+      - :name: host_addr
+        :field_class:
+          :cast_type: void **
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: device_addr
+        :field_class:
+          :cast_type: void **
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: bytes
+        :field_class:
+          :cast_type: size_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: mapping_flags
+        :field_class:
+          :cast_type: unsigned int *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_target_map
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: target_id
+        :field_class:
+          :cast_type: ompt_id_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: nitems
+        :field_class:
+          :cast_type: unsigned int
+          :type: integer_unsigned
+          :field_value_range: 32
+      - :name: host_addr
+        :field_class:
+          :cast_type: void **
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: device_addr
+        :field_class:
+          :cast_type: void **
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: bytes
+        :field_class:
+          :cast_type: size_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: mapping_flags
+        :field_class:
+          :cast_type: ompt_target_map_flags_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: _host_addr_vals_length
+        :field_class:
+          :cast_type: size_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: host_addr_vals
+        :field_class:
+          :cast_type: void * *
+          :type: array_dynamic
+          :element_field_class:
+            :type: integer_unsigned
+            :field_value_range: 64
+            :preferred_display_base: 16
+            :cast_type: void *
+          :length_field_path: EVENT_PAYLOAD["_host_addr_vals_length"]
+      - :name: _device_addr_vals_length
+        :field_class:
+          :cast_type: size_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: device_addr_vals
+        :field_class:
+          :cast_type: void * *
+          :type: array_dynamic
+          :element_field_class:
+            :type: integer_unsigned
+            :field_value_range: 64
+            :preferred_display_base: 16
+            :cast_type: void *
+          :length_field_path: EVENT_PAYLOAD["_device_addr_vals_length"]
+      - :name: _bytes_vals_length
+        :field_class:
+          :cast_type: size_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: bytes_vals
+        :field_class:
+          :cast_type: size_t *
+          :type: array_dynamic
+          :element_field_class:
+            :type: integer_unsigned
+            :field_value_range: 64
+            :cast_type: size_t
+          :length_field_path: EVENT_PAYLOAD["_bytes_vals_length"]
+      - :name: _mapping_flags_vals_length
+        :field_class:
+          :cast_type: size_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: mapping_flags_vals
+        :field_class:
+          :cast_type: ompt_target_map_flags_t *
+          :type: array_dynamic
+          :element_field_class:
+            :type: integer_unsigned
+            :field_value_range: 32
+            :cast_type: ompt_target_map_flags_t
+          :length_field_path: EVENT_PAYLOAD["_mapping_flags_vals_length"]
+  - :name: lttng_ust_ompt:ompt_callback_target_submit
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: target_id
+        :field_class:
+          :cast_type: ompt_id_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: host_op_id
+        :field_class:
+          :cast_type: ompt_id_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: requested_num_teams
+        :field_class:
+          :cast_type: unsigned int
+          :type: integer_unsigned
+          :field_value_range: 32
+  - :name: lttng_ust_ompt:ompt_callback_target_submit_emi
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: endpoint
+        :metadata:
+          :be_class: OMP::OMPTScopeEndpoint
+        :field_class:
+          :cast_type: ompt_scope_endpoint_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: target_data
+        :field_class:
+          :cast_type: ompt_data_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: host_op_id
+        :field_class:
+          :cast_type: ompt_id_t *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: requested_num_teams
+        :field_class:
+          :cast_type: unsigned int
+          :type: integer_unsigned
+          :field_value_range: 32
+  - :name: lttng_ust_ompt:ompt_callback_control_tool
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: ompResult
+        :field_class:
+          :cast_type: int
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: command
+        :field_class:
+          :cast_type: uint64_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: modifier
+        :field_class:
+          :cast_type: uint64_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: arg
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+  - :name: lttng_ust_ompt:ompt_callback_error
+    :payload_field_class:
+      :type: structure
+      :members:
+      - :name: severity
+        :metadata:
+          :be_class: OMP::OMPTSeverity
+        :field_class:
+          :cast_type: ompt_severity_t
+          :type: integer_signed
+          :field_value_range: 32
+      - :name: message
+        :field_class:
+          :cast_type: char *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16
+      - :name: length
+        :field_class:
+          :cast_type: size_t
+          :type: integer_unsigned
+          :field_value_range: 64
+      - :name: codeptr_ra
+        :field_class:
+          :cast_type: void *
+          :type: integer_unsigned
+          :field_value_range: 64
+          :preferred_display_base: 16

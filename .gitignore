@@ -736,7 +736,7 @@ backends/ze/libzetracepoints_la-zet_tracepoints.lo
 backends/ze/libzetracepoints_la-zex_structs_tracepoints.lo
 backends/ze/libzetracepoints_la-zex_tracepoints.lo
 backends/ze/tracer_ze.sh
-backends/ze/validator/ze_validator
+backends/ze/validator/thapi_validator
 config.log
 config.status
 libtool

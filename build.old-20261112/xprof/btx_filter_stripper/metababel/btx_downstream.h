@@ -1,0 +1,41 @@
+#pragma once
+#include <babeltrace2/babeltrace.h>
+#include <metababel/btx_component.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+void btx_downstream_move_messages(
+    btx_message_iterator_t *message_iterator_private_data,
+    bt_message_array_const messages, uint64_t capacity, uint64_t *count);
+
+void btx_downstream_push_message(
+    btx_message_iterator_t *message_iterator_private_data,
+    const bt_message *message);
+
+bt_trace_class *
+btx_downstream_trace_class_create_rec(bt_self_component *self_component);
+
+bt_trace *btx_downstream_trace_create_rec(bt_trace_class *trace_class);
+
+void btx_streams_get_ref(bt_trace *trace);
+void btx_streams_put_ref(bt_trace *trace);
+
+void btx_push_messages_stream_beginning(
+    bt_self_message_iterator *self_message_iterator,
+    btx_message_iterator_t *message_iterator_private_data);
+void btx_push_messages_stream_end(
+    bt_self_message_iterator *self_message_iterator,
+    btx_message_iterator_t *message_iterator_private_data);
+
+
+void btx_push_message(void *btx_handle, const bt_message *message);
+
+typedef void on_downstream_message_callback_f(void *btx_handle, void *usr_data,
+                                              const bt_message *message);
+void btx_register_on_downstream_message_callback(
+    void *btx_handle, on_downstream_message_callback_f *callback);
+
+
+#ifdef __cplusplus
+}
+#endif

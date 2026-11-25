@@ -1,0 +1,7636 @@
+#include <pthread.h>
+#include <sys/mman.h>
+#include <string.h>
+#include "hip_tracepoints.h"
+#define HIP_CREATE_CHANNEL_DESC_PTR hipCreateChannelDesc_ptr
+#define __HIP_GET_PCH_PTR __hipGetPCH_ptr
+#define HIP_INIT_PTR hipInit_ptr
+#define HIP_DRIVER_GET_VERSION_PTR hipDriverGetVersion_ptr
+#define HIP_RUNTIME_GET_VERSION_PTR hipRuntimeGetVersion_ptr
+#define HIP_DEVICE_GET_PTR hipDeviceGet_ptr
+#define HIP_DEVICE_COMPUTE_CAPABILITY_PTR hipDeviceComputeCapability_ptr
+#define HIP_DEVICE_GET_NAME_PTR hipDeviceGetName_ptr
+#define HIP_DEVICE_GET_UUID_PTR hipDeviceGetUuid_ptr
+#define HIP_DEVICE_GET_P2PATTRIBUTE_PTR hipDeviceGetP2PAttribute_ptr
+#define HIP_DEVICE_GET_PCIBUS_ID_PTR hipDeviceGetPCIBusId_ptr
+#define HIP_DEVICE_GET_BY_PCIBUS_ID_PTR hipDeviceGetByPCIBusId_ptr
+#define HIP_DEVICE_TOTAL_MEM_PTR hipDeviceTotalMem_ptr
+#define HIP_DEVICE_SYNCHRONIZE_PTR hipDeviceSynchronize_ptr
+#define HIP_DEVICE_RESET_PTR hipDeviceReset_ptr
+#define HIP_SET_DEVICE_PTR hipSetDevice_ptr
+#define HIP_GET_DEVICE_PTR hipGetDevice_ptr
+#define HIP_GET_DEVICE_COUNT_PTR hipGetDeviceCount_ptr
+#define HIP_DEVICE_GET_ATTRIBUTE_PTR hipDeviceGetAttribute_ptr
+#define HIP_DEVICE_GET_DEFAULT_MEM_POOL_PTR hipDeviceGetDefaultMemPool_ptr
+#define HIP_DEVICE_SET_MEM_POOL_PTR hipDeviceSetMemPool_ptr
+#define HIP_DEVICE_GET_MEM_POOL_PTR hipDeviceGetMemPool_ptr
+#define HIP_GET_DEVICE_PROPERTIES_PTR hipGetDeviceProperties_ptr
+#define HIP_DEVICE_SET_CACHE_CONFIG_PTR hipDeviceSetCacheConfig_ptr
+#define HIP_DEVICE_GET_CACHE_CONFIG_PTR hipDeviceGetCacheConfig_ptr
+#define HIP_DEVICE_GET_LIMIT_PTR hipDeviceGetLimit_ptr
+#define HIP_DEVICE_SET_LIMIT_PTR hipDeviceSetLimit_ptr
+#define HIP_DEVICE_GET_SHARED_MEM_CONFIG_PTR hipDeviceGetSharedMemConfig_ptr
+#define HIP_GET_DEVICE_FLAGS_PTR hipGetDeviceFlags_ptr
+#define HIP_DEVICE_SET_SHARED_MEM_CONFIG_PTR hipDeviceSetSharedMemConfig_ptr
+#define HIP_SET_DEVICE_FLAGS_PTR hipSetDeviceFlags_ptr
+#define HIP_CHOOSE_DEVICE_PTR hipChooseDevice_ptr
+#define HIP_EXT_GET_LINK_TYPE_AND_HOP_COUNT_PTR hipExtGetLinkTypeAndHopCount_ptr
+#define HIP_IPC_GET_MEM_HANDLE_PTR hipIpcGetMemHandle_ptr
+#define HIP_IPC_OPEN_MEM_HANDLE_PTR hipIpcOpenMemHandle_ptr
+#define HIP_IPC_CLOSE_MEM_HANDLE_PTR hipIpcCloseMemHandle_ptr
+#define HIP_IPC_GET_EVENT_HANDLE_PTR hipIpcGetEventHandle_ptr
+#define HIP_IPC_OPEN_EVENT_HANDLE_PTR hipIpcOpenEventHandle_ptr
+#define HIP_FUNC_SET_ATTRIBUTE_PTR hipFuncSetAttribute_ptr
+#define HIP_FUNC_SET_CACHE_CONFIG_PTR hipFuncSetCacheConfig_ptr
+#define HIP_FUNC_SET_SHARED_MEM_CONFIG_PTR hipFuncSetSharedMemConfig_ptr
+#define HIP_GET_LAST_ERROR_PTR hipGetLastError_ptr
+#define HIP_PEEK_AT_LAST_ERROR_PTR hipPeekAtLastError_ptr
+#define HIP_GET_ERROR_NAME_PTR hipGetErrorName_ptr
+#define HIP_GET_ERROR_STRING_PTR hipGetErrorString_ptr
+#define HIP_DRV_GET_ERROR_NAME_PTR hipDrvGetErrorName_ptr
+#define HIP_DRV_GET_ERROR_STRING_PTR hipDrvGetErrorString_ptr
+#define HIP_STREAM_CREATE_PTR hipStreamCreate_ptr
+#define HIP_STREAM_CREATE_WITH_FLAGS_PTR hipStreamCreateWithFlags_ptr
+#define HIP_STREAM_CREATE_WITH_PRIORITY_PTR hipStreamCreateWithPriority_ptr
+#define HIP_DEVICE_GET_STREAM_PRIORITY_RANGE_PTR hipDeviceGetStreamPriorityRange_ptr
+#define HIP_STREAM_DESTROY_PTR hipStreamDestroy_ptr
+#define HIP_STREAM_QUERY_PTR hipStreamQuery_ptr
+#define HIP_STREAM_SYNCHRONIZE_PTR hipStreamSynchronize_ptr
+#define HIP_STREAM_WAIT_EVENT_PTR hipStreamWaitEvent_ptr
+#define HIP_STREAM_GET_FLAGS_PTR hipStreamGetFlags_ptr
+#define HIP_STREAM_GET_PRIORITY_PTR hipStreamGetPriority_ptr
+#define HIP_EXT_STREAM_CREATE_WITH_CUMASK_PTR hipExtStreamCreateWithCUMask_ptr
+#define HIP_EXT_STREAM_GET_CUMASK_PTR hipExtStreamGetCUMask_ptr
+#define HIP_STREAM_ADD_CALLBACK_PTR hipStreamAddCallback_ptr
+#define HIP_STREAM_WAIT_VALUE32_PTR hipStreamWaitValue32_ptr
+#define HIP_STREAM_WAIT_VALUE64_PTR hipStreamWaitValue64_ptr
+#define HIP_STREAM_WRITE_VALUE32_PTR hipStreamWriteValue32_ptr
+#define HIP_STREAM_WRITE_VALUE64_PTR hipStreamWriteValue64_ptr
+#define HIP_EVENT_CREATE_WITH_FLAGS_PTR hipEventCreateWithFlags_ptr
+#define HIP_EVENT_CREATE_PTR hipEventCreate_ptr
+#define HIP_EVENT_RECORD_PTR hipEventRecord_ptr
+#define HIP_EVENT_DESTROY_PTR hipEventDestroy_ptr
+#define HIP_EVENT_SYNCHRONIZE_PTR hipEventSynchronize_ptr
+#define HIP_EVENT_ELAPSED_TIME_PTR hipEventElapsedTime_ptr
+#define HIP_EVENT_QUERY_PTR hipEventQuery_ptr
+#define HIP_POINTER_GET_ATTRIBUTES_PTR hipPointerGetAttributes_ptr
+#define HIP_POINTER_GET_ATTRIBUTE_PTR hipPointerGetAttribute_ptr
+#define HIP_DRV_POINTER_GET_ATTRIBUTES_PTR hipDrvPointerGetAttributes_ptr
+#define HIP_IMPORT_EXTERNAL_SEMAPHORE_PTR hipImportExternalSemaphore_ptr
+#define HIP_SIGNAL_EXTERNAL_SEMAPHORES_ASYNC_PTR hipSignalExternalSemaphoresAsync_ptr
+#define HIP_WAIT_EXTERNAL_SEMAPHORES_ASYNC_PTR hipWaitExternalSemaphoresAsync_ptr
+#define HIP_DESTROY_EXTERNAL_SEMAPHORE_PTR hipDestroyExternalSemaphore_ptr
+#define HIP_IMPORT_EXTERNAL_MEMORY_PTR hipImportExternalMemory_ptr
+#define HIP_EXTERNAL_MEMORY_GET_MAPPED_BUFFER_PTR hipExternalMemoryGetMappedBuffer_ptr
+#define HIP_DESTROY_EXTERNAL_MEMORY_PTR hipDestroyExternalMemory_ptr
+#define HIP_MALLOC_PTR hipMalloc_ptr
+#define HIP_EXT_MALLOC_WITH_FLAGS_PTR hipExtMallocWithFlags_ptr
+#define HIP_MALLOC_HOST_PTR hipMallocHost_ptr
+#define HIP_MEM_ALLOC_HOST_PTR hipMemAllocHost_ptr
+#define HIP_HOST_MALLOC_PTR hipHostMalloc_ptr
+#define HIP_MALLOC_MANAGED_PTR hipMallocManaged_ptr
+#define HIP_MEM_PREFETCH_ASYNC_PTR hipMemPrefetchAsync_ptr
+#define HIP_MEM_ADVISE_PTR hipMemAdvise_ptr
+#define HIP_MEM_RANGE_GET_ATTRIBUTE_PTR hipMemRangeGetAttribute_ptr
+#define HIP_MEM_RANGE_GET_ATTRIBUTES_PTR hipMemRangeGetAttributes_ptr
+#define HIP_STREAM_ATTACH_MEM_ASYNC_PTR hipStreamAttachMemAsync_ptr
+#define HIP_MALLOC_ASYNC_PTR hipMallocAsync_ptr
+#define HIP_FREE_ASYNC_PTR hipFreeAsync_ptr
+#define HIP_MEM_POOL_TRIM_TO_PTR hipMemPoolTrimTo_ptr
+#define HIP_MEM_POOL_SET_ATTRIBUTE_PTR hipMemPoolSetAttribute_ptr
+#define HIP_MEM_POOL_GET_ATTRIBUTE_PTR hipMemPoolGetAttribute_ptr
+#define HIP_MEM_POOL_SET_ACCESS_PTR hipMemPoolSetAccess_ptr
+#define HIP_MEM_POOL_GET_ACCESS_PTR hipMemPoolGetAccess_ptr
+#define HIP_MEM_POOL_CREATE_PTR hipMemPoolCreate_ptr
+#define HIP_MEM_POOL_DESTROY_PTR hipMemPoolDestroy_ptr
+#define HIP_MALLOC_FROM_POOL_ASYNC_PTR hipMallocFromPoolAsync_ptr
+#define HIP_MEM_POOL_EXPORT_TO_SHAREABLE_HANDLE_PTR hipMemPoolExportToShareableHandle_ptr
+#define HIP_MEM_POOL_IMPORT_FROM_SHAREABLE_HANDLE_PTR hipMemPoolImportFromShareableHandle_ptr
+#define HIP_MEM_POOL_EXPORT_POINTER_PTR hipMemPoolExportPointer_ptr
+#define HIP_MEM_POOL_IMPORT_POINTER_PTR hipMemPoolImportPointer_ptr
+#define HIP_HOST_ALLOC_PTR hipHostAlloc_ptr
+#define HIP_HOST_GET_DEVICE_POINTER_PTR hipHostGetDevicePointer_ptr
+#define HIP_HOST_GET_FLAGS_PTR hipHostGetFlags_ptr
+#define HIP_HOST_REGISTER_PTR hipHostRegister_ptr
+#define HIP_HOST_UNREGISTER_PTR hipHostUnregister_ptr
+#define HIP_MALLOC_PITCH_PTR hipMallocPitch_ptr
+#define HIP_MEM_ALLOC_PITCH_PTR hipMemAllocPitch_ptr
+#define HIP_FREE_PTR hipFree_ptr
+#define HIP_FREE_HOST_PTR hipFreeHost_ptr
+#define HIP_HOST_FREE_PTR hipHostFree_ptr
+#define HIP_MEMCPY_PTR hipMemcpy_ptr
+#define HIP_MEMCPY_WITH_STREAM_PTR hipMemcpyWithStream_ptr
+#define HIP_MEMCPY_HTO_D_PTR hipMemcpyHtoD_ptr
+#define HIP_MEMCPY_DTO_H_PTR hipMemcpyDtoH_ptr
+#define HIP_MEMCPY_DTO_D_PTR hipMemcpyDtoD_ptr
+#define HIP_MEMCPY_HTO_DASYNC_PTR hipMemcpyHtoDAsync_ptr
+#define HIP_MEMCPY_DTO_HASYNC_PTR hipMemcpyDtoHAsync_ptr
+#define HIP_MEMCPY_DTO_DASYNC_PTR hipMemcpyDtoDAsync_ptr
+#define HIP_MODULE_GET_GLOBAL_PTR hipModuleGetGlobal_ptr
+#define HIP_GET_SYMBOL_ADDRESS_PTR hipGetSymbolAddress_ptr
+#define HIP_GET_SYMBOL_SIZE_PTR hipGetSymbolSize_ptr
+#define HIP_MEMCPY_TO_SYMBOL_PTR hipMemcpyToSymbol_ptr
+#define HIP_MEMCPY_TO_SYMBOL_ASYNC_PTR hipMemcpyToSymbolAsync_ptr
+#define HIP_MEMCPY_FROM_SYMBOL_PTR hipMemcpyFromSymbol_ptr
+#define HIP_MEMCPY_FROM_SYMBOL_ASYNC_PTR hipMemcpyFromSymbolAsync_ptr
+#define HIP_MEMCPY_ASYNC_PTR hipMemcpyAsync_ptr
+#define HIP_MEMSET_PTR hipMemset_ptr
+#define HIP_MEMSET_D8_PTR hipMemsetD8_ptr
+#define HIP_MEMSET_D8ASYNC_PTR hipMemsetD8Async_ptr
+#define HIP_MEMSET_D16_PTR hipMemsetD16_ptr
+#define HIP_MEMSET_D16ASYNC_PTR hipMemsetD16Async_ptr
+#define HIP_MEMSET_D32_PTR hipMemsetD32_ptr
+#define HIP_MEMSET_ASYNC_PTR hipMemsetAsync_ptr
+#define HIP_MEMSET_D32ASYNC_PTR hipMemsetD32Async_ptr
+#define HIP_MEMSET2_D_PTR hipMemset2D_ptr
+#define HIP_MEMSET2_DASYNC_PTR hipMemset2DAsync_ptr
+#define HIP_MEMSET3_D_PTR hipMemset3D_ptr
+#define HIP_MEMSET3_DASYNC_PTR hipMemset3DAsync_ptr
+#define HIP_MEM_GET_INFO_PTR hipMemGetInfo_ptr
+#define HIP_MEM_PTR_GET_INFO_PTR hipMemPtrGetInfo_ptr
+#define HIP_MALLOC_ARRAY_PTR hipMallocArray_ptr
+#define HIP_ARRAY_CREATE_PTR hipArrayCreate_ptr
+#define HIP_ARRAY_DESTROY_PTR hipArrayDestroy_ptr
+#define HIP_ARRAY3_DCREATE_PTR hipArray3DCreate_ptr
+#define HIP_MALLOC3_D_PTR hipMalloc3D_ptr
+#define HIP_FREE_ARRAY_PTR hipFreeArray_ptr
+#define HIP_FREE_MIPMAPPED_ARRAY_PTR hipFreeMipmappedArray_ptr
+#define HIP_MALLOC3_DARRAY_PTR hipMalloc3DArray_ptr
+#define HIP_MALLOC_MIPMAPPED_ARRAY_PTR hipMallocMipmappedArray_ptr
+#define HIP_GET_MIPMAPPED_ARRAY_LEVEL_PTR hipGetMipmappedArrayLevel_ptr
+#define HIP_MEMCPY2_D_PTR hipMemcpy2D_ptr
+#define HIP_MEMCPY_PARAM2_D_PTR hipMemcpyParam2D_ptr
+#define HIP_MEMCPY_PARAM2_DASYNC_PTR hipMemcpyParam2DAsync_ptr
+#define HIP_MEMCPY2_DASYNC_PTR hipMemcpy2DAsync_ptr
+#define HIP_MEMCPY2_DTO_ARRAY_PTR hipMemcpy2DToArray_ptr
+#define HIP_MEMCPY2_DTO_ARRAY_ASYNC_PTR hipMemcpy2DToArrayAsync_ptr
+#define HIP_MEMCPY_TO_ARRAY_PTR hipMemcpyToArray_ptr
+#define HIP_MEMCPY_FROM_ARRAY_PTR hipMemcpyFromArray_ptr
+#define HIP_MEMCPY2_DFROM_ARRAY_PTR hipMemcpy2DFromArray_ptr
+#define HIP_MEMCPY2_DFROM_ARRAY_ASYNC_PTR hipMemcpy2DFromArrayAsync_ptr
+#define HIP_MEMCPY_ATO_H_PTR hipMemcpyAtoH_ptr
+#define HIP_MEMCPY_HTO_A_PTR hipMemcpyHtoA_ptr
+#define HIP_MEMCPY3_D_PTR hipMemcpy3D_ptr
+#define HIP_MEMCPY3_DASYNC_PTR hipMemcpy3DAsync_ptr
+#define HIP_DRV_MEMCPY3_D_PTR hipDrvMemcpy3D_ptr
+#define HIP_DRV_MEMCPY3_DASYNC_PTR hipDrvMemcpy3DAsync_ptr
+#define HIP_DEVICE_CAN_ACCESS_PEER_PTR hipDeviceCanAccessPeer_ptr
+#define HIP_DEVICE_ENABLE_PEER_ACCESS_PTR hipDeviceEnablePeerAccess_ptr
+#define HIP_DEVICE_DISABLE_PEER_ACCESS_PTR hipDeviceDisablePeerAccess_ptr
+#define HIP_MEM_GET_ADDRESS_RANGE_PTR hipMemGetAddressRange_ptr
+#define HIP_MEMCPY_PEER_PTR hipMemcpyPeer_ptr
+#define HIP_MEMCPY_PEER_ASYNC_PTR hipMemcpyPeerAsync_ptr
+#define HIP_CTX_CREATE_PTR hipCtxCreate_ptr
+#define HIP_CTX_DESTROY_PTR hipCtxDestroy_ptr
+#define HIP_CTX_POP_CURRENT_PTR hipCtxPopCurrent_ptr
+#define HIP_CTX_PUSH_CURRENT_PTR hipCtxPushCurrent_ptr
+#define HIP_CTX_SET_CURRENT_PTR hipCtxSetCurrent_ptr
+#define HIP_CTX_GET_CURRENT_PTR hipCtxGetCurrent_ptr
+#define HIP_CTX_GET_DEVICE_PTR hipCtxGetDevice_ptr
+#define HIP_CTX_GET_API_VERSION_PTR hipCtxGetApiVersion_ptr
+#define HIP_CTX_GET_CACHE_CONFIG_PTR hipCtxGetCacheConfig_ptr
+#define HIP_CTX_SET_CACHE_CONFIG_PTR hipCtxSetCacheConfig_ptr
+#define HIP_CTX_SET_SHARED_MEM_CONFIG_PTR hipCtxSetSharedMemConfig_ptr
+#define HIP_CTX_GET_SHARED_MEM_CONFIG_PTR hipCtxGetSharedMemConfig_ptr
+#define HIP_CTX_SYNCHRONIZE_PTR hipCtxSynchronize_ptr
+#define HIP_CTX_GET_FLAGS_PTR hipCtxGetFlags_ptr
+#define HIP_CTX_ENABLE_PEER_ACCESS_PTR hipCtxEnablePeerAccess_ptr
+#define HIP_CTX_DISABLE_PEER_ACCESS_PTR hipCtxDisablePeerAccess_ptr
+#define HIP_DEVICE_PRIMARY_CTX_GET_STATE_PTR hipDevicePrimaryCtxGetState_ptr
+#define HIP_DEVICE_PRIMARY_CTX_RELEASE_PTR hipDevicePrimaryCtxRelease_ptr
+#define HIP_DEVICE_PRIMARY_CTX_RETAIN_PTR hipDevicePrimaryCtxRetain_ptr
+#define HIP_DEVICE_PRIMARY_CTX_RESET_PTR hipDevicePrimaryCtxReset_ptr
+#define HIP_DEVICE_PRIMARY_CTX_SET_FLAGS_PTR hipDevicePrimaryCtxSetFlags_ptr
+#define HIP_MODULE_LOAD_PTR hipModuleLoad_ptr
+#define HIP_MODULE_UNLOAD_PTR hipModuleUnload_ptr
+#define HIP_MODULE_GET_FUNCTION_PTR hipModuleGetFunction_ptr
+#define HIP_FUNC_GET_ATTRIBUTES_PTR hipFuncGetAttributes_ptr
+#define HIP_FUNC_GET_ATTRIBUTE_PTR hipFuncGetAttribute_ptr
+#define HIP_MODULE_GET_TEX_REF_PTR hipModuleGetTexRef_ptr
+#define HIP_MODULE_LOAD_DATA_PTR hipModuleLoadData_ptr
+#define HIP_MODULE_LOAD_DATA_EX_PTR hipModuleLoadDataEx_ptr
+#define HIP_MODULE_LAUNCH_KERNEL_PTR hipModuleLaunchKernel_ptr
+#define HIP_LAUNCH_COOPERATIVE_KERNEL_PTR hipLaunchCooperativeKernel_ptr
+#define HIP_LAUNCH_COOPERATIVE_KERNEL_MULTI_DEVICE_PTR hipLaunchCooperativeKernelMultiDevice_ptr
+#define HIP_EXT_LAUNCH_MULTI_KERNEL_MULTI_DEVICE_PTR hipExtLaunchMultiKernelMultiDevice_ptr
+#define HIP_MODULE_OCCUPANCY_MAX_POTENTIAL_BLOCK_SIZE_PTR hipModuleOccupancyMaxPotentialBlockSize_ptr
+#define HIP_MODULE_OCCUPANCY_MAX_POTENTIAL_BLOCK_SIZE_WITH_FLAGS_PTR hipModuleOccupancyMaxPotentialBlockSizeWithFlags_ptr
+#define HIP_MODULE_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_PTR hipModuleOccupancyMaxActiveBlocksPerMultiprocessor_ptr
+#define HIP_MODULE_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_WITH_FLAGS_PTR hipModuleOccupancyMaxActiveBlocksPerMultiprocessorWithFlags_ptr
+#define HIP_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_PTR hipOccupancyMaxActiveBlocksPerMultiprocessor_ptr
+#define HIP_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_WITH_FLAGS_PTR hipOccupancyMaxActiveBlocksPerMultiprocessorWithFlags_ptr
+#define HIP_OCCUPANCY_MAX_POTENTIAL_BLOCK_SIZE_PTR hipOccupancyMaxPotentialBlockSize_ptr
+#define HIP_PROFILER_START_PTR hipProfilerStart_ptr
+#define HIP_PROFILER_STOP_PTR hipProfilerStop_ptr
+#define HIP_CONFIGURE_CALL_PTR hipConfigureCall_ptr
+#define HIP_SETUP_ARGUMENT_PTR hipSetupArgument_ptr
+#define HIP_LAUNCH_BY_PTR_PTR hipLaunchByPtr_ptr
+#define __HIP_PUSH_CALL_CONFIGURATION_PTR __hipPushCallConfiguration_ptr
+#define __HIP_POP_CALL_CONFIGURATION_PTR __hipPopCallConfiguration_ptr
+#define HIP_LAUNCH_KERNEL_PTR hipLaunchKernel_ptr
+#define HIP_DRV_MEMCPY2_DUNALIGNED_PTR hipDrvMemcpy2DUnaligned_ptr
+#define HIP_EXT_LAUNCH_KERNEL_PTR hipExtLaunchKernel_ptr
+#define HIP_BIND_TEXTURE_TO_MIPMAPPED_ARRAY_PTR hipBindTextureToMipmappedArray_ptr
+#define HIP_CREATE_TEXTURE_OBJECT_PTR hipCreateTextureObject_ptr
+#define HIP_DESTROY_TEXTURE_OBJECT_PTR hipDestroyTextureObject_ptr
+#define HIP_GET_CHANNEL_DESC_PTR hipGetChannelDesc_ptr
+#define HIP_GET_TEXTURE_OBJECT_RESOURCE_DESC_PTR hipGetTextureObjectResourceDesc_ptr
+#define HIP_GET_TEXTURE_OBJECT_RESOURCE_VIEW_DESC_PTR hipGetTextureObjectResourceViewDesc_ptr
+#define HIP_GET_TEXTURE_OBJECT_TEXTURE_DESC_PTR hipGetTextureObjectTextureDesc_ptr
+#define HIP_TEX_OBJECT_CREATE_PTR hipTexObjectCreate_ptr
+#define HIP_TEX_OBJECT_DESTROY_PTR hipTexObjectDestroy_ptr
+#define HIP_TEX_OBJECT_GET_RESOURCE_DESC_PTR hipTexObjectGetResourceDesc_ptr
+#define HIP_TEX_OBJECT_GET_RESOURCE_VIEW_DESC_PTR hipTexObjectGetResourceViewDesc_ptr
+#define HIP_TEX_OBJECT_GET_TEXTURE_DESC_PTR hipTexObjectGetTextureDesc_ptr
+#define HIP_GET_TEXTURE_REFERENCE_PTR hipGetTextureReference_ptr
+#define HIP_TEX_REF_SET_ADDRESS_MODE_PTR hipTexRefSetAddressMode_ptr
+#define HIP_TEX_REF_SET_ARRAY_PTR hipTexRefSetArray_ptr
+#define HIP_TEX_REF_SET_FILTER_MODE_PTR hipTexRefSetFilterMode_ptr
+#define HIP_TEX_REF_SET_FLAGS_PTR hipTexRefSetFlags_ptr
+#define HIP_TEX_REF_SET_FORMAT_PTR hipTexRefSetFormat_ptr
+#define HIP_BIND_TEXTURE_PTR hipBindTexture_ptr
+#define HIP_BIND_TEXTURE2_D_PTR hipBindTexture2D_ptr
+#define HIP_BIND_TEXTURE_TO_ARRAY_PTR hipBindTextureToArray_ptr
+#define HIP_GET_TEXTURE_ALIGNMENT_OFFSET_PTR hipGetTextureAlignmentOffset_ptr
+#define HIP_UNBIND_TEXTURE_PTR hipUnbindTexture_ptr
+#define HIP_TEX_REF_GET_ADDRESS_PTR hipTexRefGetAddress_ptr
+#define HIP_TEX_REF_GET_ADDRESS_MODE_PTR hipTexRefGetAddressMode_ptr
+#define HIP_TEX_REF_GET_FILTER_MODE_PTR hipTexRefGetFilterMode_ptr
+#define HIP_TEX_REF_GET_FLAGS_PTR hipTexRefGetFlags_ptr
+#define HIP_TEX_REF_GET_FORMAT_PTR hipTexRefGetFormat_ptr
+#define HIP_TEX_REF_GET_MAX_ANISOTROPY_PTR hipTexRefGetMaxAnisotropy_ptr
+#define HIP_TEX_REF_GET_MIPMAP_FILTER_MODE_PTR hipTexRefGetMipmapFilterMode_ptr
+#define HIP_TEX_REF_GET_MIPMAP_LEVEL_BIAS_PTR hipTexRefGetMipmapLevelBias_ptr
+#define HIP_TEX_REF_GET_MIPMAP_LEVEL_CLAMP_PTR hipTexRefGetMipmapLevelClamp_ptr
+#define HIP_TEX_REF_GET_MIP_MAPPED_ARRAY_PTR hipTexRefGetMipMappedArray_ptr
+#define HIP_TEX_REF_SET_ADDRESS_PTR hipTexRefSetAddress_ptr
+#define HIP_TEX_REF_SET_ADDRESS2_D_PTR hipTexRefSetAddress2D_ptr
+#define HIP_TEX_REF_SET_MAX_ANISOTROPY_PTR hipTexRefSetMaxAnisotropy_ptr
+#define HIP_TEX_REF_SET_BORDER_COLOR_PTR hipTexRefSetBorderColor_ptr
+#define HIP_TEX_REF_SET_MIPMAP_FILTER_MODE_PTR hipTexRefSetMipmapFilterMode_ptr
+#define HIP_TEX_REF_SET_MIPMAP_LEVEL_BIAS_PTR hipTexRefSetMipmapLevelBias_ptr
+#define HIP_TEX_REF_SET_MIPMAP_LEVEL_CLAMP_PTR hipTexRefSetMipmapLevelClamp_ptr
+#define HIP_TEX_REF_SET_MIPMAPPED_ARRAY_PTR hipTexRefSetMipmappedArray_ptr
+#define HIP_MIPMAPPED_ARRAY_CREATE_PTR hipMipmappedArrayCreate_ptr
+#define HIP_MIPMAPPED_ARRAY_DESTROY_PTR hipMipmappedArrayDestroy_ptr
+#define HIP_MIPMAPPED_ARRAY_GET_LEVEL_PTR hipMipmappedArrayGetLevel_ptr
+#define HIP_API_NAME_PTR hipApiName_ptr
+#define HIP_KERNEL_NAME_REF_PTR hipKernelNameRef_ptr
+#define HIP_KERNEL_NAME_REF_BY_PTR_PTR hipKernelNameRefByPtr_ptr
+#define HIP_GET_STREAM_DEVICE_ID_PTR hipGetStreamDeviceId_ptr
+#define HIP_STREAM_BEGIN_CAPTURE_PTR hipStreamBeginCapture_ptr
+#define HIP_STREAM_END_CAPTURE_PTR hipStreamEndCapture_ptr
+#define HIP_STREAM_GET_CAPTURE_INFO_PTR hipStreamGetCaptureInfo_ptr
+#define HIP_STREAM_GET_CAPTURE_INFO_V2_PTR hipStreamGetCaptureInfo_v2_ptr
+#define HIP_STREAM_IS_CAPTURING_PTR hipStreamIsCapturing_ptr
+#define HIP_STREAM_UPDATE_CAPTURE_DEPENDENCIES_PTR hipStreamUpdateCaptureDependencies_ptr
+#define HIP_LAUNCH_HOST_FUNC_PTR hipLaunchHostFunc_ptr
+#define HIP_THREAD_EXCHANGE_STREAM_CAPTURE_MODE_PTR hipThreadExchangeStreamCaptureMode_ptr
+#define HIP_GRAPH_CREATE_PTR hipGraphCreate_ptr
+#define HIP_GRAPH_DESTROY_PTR hipGraphDestroy_ptr
+#define HIP_GRAPH_ADD_DEPENDENCIES_PTR hipGraphAddDependencies_ptr
+#define HIP_GRAPH_REMOVE_DEPENDENCIES_PTR hipGraphRemoveDependencies_ptr
+#define HIP_GRAPH_GET_EDGES_PTR hipGraphGetEdges_ptr
+#define HIP_GRAPH_GET_NODES_PTR hipGraphGetNodes_ptr
+#define HIP_GRAPH_GET_ROOT_NODES_PTR hipGraphGetRootNodes_ptr
+#define HIP_GRAPH_NODE_GET_DEPENDENCIES_PTR hipGraphNodeGetDependencies_ptr
+#define HIP_GRAPH_NODE_GET_DEPENDENT_NODES_PTR hipGraphNodeGetDependentNodes_ptr
+#define HIP_GRAPH_NODE_GET_TYPE_PTR hipGraphNodeGetType_ptr
+#define HIP_GRAPH_DESTROY_NODE_PTR hipGraphDestroyNode_ptr
+#define HIP_GRAPH_CLONE_PTR hipGraphClone_ptr
+#define HIP_GRAPH_NODE_FIND_IN_CLONE_PTR hipGraphNodeFindInClone_ptr
+#define HIP_GRAPH_INSTANTIATE_PTR hipGraphInstantiate_ptr
+#define HIP_GRAPH_INSTANTIATE_WITH_FLAGS_PTR hipGraphInstantiateWithFlags_ptr
+#define HIP_GRAPH_LAUNCH_PTR hipGraphLaunch_ptr
+#define HIP_GRAPH_UPLOAD_PTR hipGraphUpload_ptr
+#define HIP_GRAPH_EXEC_DESTROY_PTR hipGraphExecDestroy_ptr
+#define HIP_GRAPH_EXEC_UPDATE_PTR hipGraphExecUpdate_ptr
+#define HIP_GRAPH_ADD_KERNEL_NODE_PTR hipGraphAddKernelNode_ptr
+#define HIP_GRAPH_KERNEL_NODE_GET_PARAMS_PTR hipGraphKernelNodeGetParams_ptr
+#define HIP_GRAPH_KERNEL_NODE_SET_PARAMS_PTR hipGraphKernelNodeSetParams_ptr
+#define HIP_GRAPH_EXEC_KERNEL_NODE_SET_PARAMS_PTR hipGraphExecKernelNodeSetParams_ptr
+#define HIP_GRAPH_ADD_MEMCPY_NODE_PTR hipGraphAddMemcpyNode_ptr
+#define HIP_GRAPH_MEMCPY_NODE_GET_PARAMS_PTR hipGraphMemcpyNodeGetParams_ptr
+#define HIP_GRAPH_MEMCPY_NODE_SET_PARAMS_PTR hipGraphMemcpyNodeSetParams_ptr
+#define HIP_GRAPH_KERNEL_NODE_SET_ATTRIBUTE_PTR hipGraphKernelNodeSetAttribute_ptr
+#define HIP_GRAPH_KERNEL_NODE_GET_ATTRIBUTE_PTR hipGraphKernelNodeGetAttribute_ptr
+#define HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS_PTR hipGraphExecMemcpyNodeSetParams_ptr
+#define HIP_GRAPH_ADD_MEMCPY_NODE1_D_PTR hipGraphAddMemcpyNode1D_ptr
+#define HIP_GRAPH_MEMCPY_NODE_SET_PARAMS1_D_PTR hipGraphMemcpyNodeSetParams1D_ptr
+#define HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS1_D_PTR hipGraphExecMemcpyNodeSetParams1D_ptr
+#define HIP_GRAPH_ADD_MEMCPY_NODE_FROM_SYMBOL_PTR hipGraphAddMemcpyNodeFromSymbol_ptr
+#define HIP_GRAPH_MEMCPY_NODE_SET_PARAMS_FROM_SYMBOL_PTR hipGraphMemcpyNodeSetParamsFromSymbol_ptr
+#define HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS_FROM_SYMBOL_PTR hipGraphExecMemcpyNodeSetParamsFromSymbol_ptr
+#define HIP_GRAPH_ADD_MEMCPY_NODE_TO_SYMBOL_PTR hipGraphAddMemcpyNodeToSymbol_ptr
+#define HIP_GRAPH_MEMCPY_NODE_SET_PARAMS_TO_SYMBOL_PTR hipGraphMemcpyNodeSetParamsToSymbol_ptr
+#define HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS_TO_SYMBOL_PTR hipGraphExecMemcpyNodeSetParamsToSymbol_ptr
+#define HIP_GRAPH_ADD_MEMSET_NODE_PTR hipGraphAddMemsetNode_ptr
+#define HIP_GRAPH_MEMSET_NODE_GET_PARAMS_PTR hipGraphMemsetNodeGetParams_ptr
+#define HIP_GRAPH_MEMSET_NODE_SET_PARAMS_PTR hipGraphMemsetNodeSetParams_ptr
+#define HIP_GRAPH_EXEC_MEMSET_NODE_SET_PARAMS_PTR hipGraphExecMemsetNodeSetParams_ptr
+#define HIP_GRAPH_ADD_HOST_NODE_PTR hipGraphAddHostNode_ptr
+#define HIP_GRAPH_HOST_NODE_GET_PARAMS_PTR hipGraphHostNodeGetParams_ptr
+#define HIP_GRAPH_HOST_NODE_SET_PARAMS_PTR hipGraphHostNodeSetParams_ptr
+#define HIP_GRAPH_EXEC_HOST_NODE_SET_PARAMS_PTR hipGraphExecHostNodeSetParams_ptr
+#define HIP_GRAPH_ADD_CHILD_GRAPH_NODE_PTR hipGraphAddChildGraphNode_ptr
+#define HIP_GRAPH_CHILD_GRAPH_NODE_GET_GRAPH_PTR hipGraphChildGraphNodeGetGraph_ptr
+#define HIP_GRAPH_EXEC_CHILD_GRAPH_NODE_SET_PARAMS_PTR hipGraphExecChildGraphNodeSetParams_ptr
+#define HIP_GRAPH_ADD_EMPTY_NODE_PTR hipGraphAddEmptyNode_ptr
+#define HIP_GRAPH_ADD_EVENT_RECORD_NODE_PTR hipGraphAddEventRecordNode_ptr
+#define HIP_GRAPH_EVENT_RECORD_NODE_GET_EVENT_PTR hipGraphEventRecordNodeGetEvent_ptr
+#define HIP_GRAPH_EVENT_RECORD_NODE_SET_EVENT_PTR hipGraphEventRecordNodeSetEvent_ptr
+#define HIP_GRAPH_EXEC_EVENT_RECORD_NODE_SET_EVENT_PTR hipGraphExecEventRecordNodeSetEvent_ptr
+#define HIP_GRAPH_ADD_EVENT_WAIT_NODE_PTR hipGraphAddEventWaitNode_ptr
+#define HIP_GRAPH_EVENT_WAIT_NODE_GET_EVENT_PTR hipGraphEventWaitNodeGetEvent_ptr
+#define HIP_GRAPH_EVENT_WAIT_NODE_SET_EVENT_PTR hipGraphEventWaitNodeSetEvent_ptr
+#define HIP_GRAPH_EXEC_EVENT_WAIT_NODE_SET_EVENT_PTR hipGraphExecEventWaitNodeSetEvent_ptr
+#define HIP_DEVICE_GET_GRAPH_MEM_ATTRIBUTE_PTR hipDeviceGetGraphMemAttribute_ptr
+#define HIP_DEVICE_SET_GRAPH_MEM_ATTRIBUTE_PTR hipDeviceSetGraphMemAttribute_ptr
+#define HIP_DEVICE_GRAPH_MEM_TRIM_PTR hipDeviceGraphMemTrim_ptr
+#define HIP_USER_OBJECT_CREATE_PTR hipUserObjectCreate_ptr
+#define HIP_USER_OBJECT_RELEASE_PTR hipUserObjectRelease_ptr
+#define HIP_USER_OBJECT_RETAIN_PTR hipUserObjectRetain_ptr
+#define HIP_GRAPH_RETAIN_USER_OBJECT_PTR hipGraphRetainUserObject_ptr
+#define HIP_GRAPH_RELEASE_USER_OBJECT_PTR hipGraphReleaseUserObject_ptr
+#define HIP_MEM_ADDRESS_FREE_PTR hipMemAddressFree_ptr
+#define HIP_MEM_ADDRESS_RESERVE_PTR hipMemAddressReserve_ptr
+#define HIP_MEM_CREATE_PTR hipMemCreate_ptr
+#define HIP_MEM_EXPORT_TO_SHAREABLE_HANDLE_PTR hipMemExportToShareableHandle_ptr
+#define HIP_MEM_GET_ACCESS_PTR hipMemGetAccess_ptr
+#define HIP_MEM_GET_ALLOCATION_GRANULARITY_PTR hipMemGetAllocationGranularity_ptr
+#define HIP_MEM_GET_ALLOCATION_PROPERTIES_FROM_HANDLE_PTR hipMemGetAllocationPropertiesFromHandle_ptr
+#define HIP_MEM_IMPORT_FROM_SHAREABLE_HANDLE_PTR hipMemImportFromShareableHandle_ptr
+#define HIP_MEM_MAP_PTR hipMemMap_ptr
+#define HIP_MEM_MAP_ARRAY_ASYNC_PTR hipMemMapArrayAsync_ptr
+#define HIP_MEM_RELEASE_PTR hipMemRelease_ptr
+#define HIP_MEM_RETAIN_ALLOCATION_HANDLE_PTR hipMemRetainAllocationHandle_ptr
+#define HIP_MEM_SET_ACCESS_PTR hipMemSetAccess_ptr
+#define HIP_MEM_UNMAP_PTR hipMemUnmap_ptr
+#define HIP_GLGET_DEVICES_PTR hipGLGetDevices_ptr
+#define HIP_GRAPHICS_GLREGISTER_BUFFER_PTR hipGraphicsGLRegisterBuffer_ptr
+#define HIP_GRAPHICS_GLREGISTER_IMAGE_PTR hipGraphicsGLRegisterImage_ptr
+#define HIP_GRAPHICS_MAP_RESOURCES_PTR hipGraphicsMapResources_ptr
+#define HIP_GRAPHICS_SUB_RESOURCE_GET_MAPPED_ARRAY_PTR hipGraphicsSubResourceGetMappedArray_ptr
+#define HIP_GRAPHICS_RESOURCE_GET_MAPPED_POINTER_PTR hipGraphicsResourceGetMappedPointer_ptr
+#define HIP_GRAPHICS_UNMAP_RESOURCES_PTR hipGraphicsUnmapResources_ptr
+#define HIP_GRAPHICS_UNREGISTER_RESOURCE_PTR hipGraphicsUnregisterResource_ptr
+#define HIP_MEMCPY_SPT_PTR hipMemcpy_spt_ptr
+#define HIP_MEMCPY_TO_SYMBOL_SPT_PTR hipMemcpyToSymbol_spt_ptr
+#define HIP_MEMCPY_FROM_SYMBOL_SPT_PTR hipMemcpyFromSymbol_spt_ptr
+#define HIP_MEMCPY2_D_SPT_PTR hipMemcpy2D_spt_ptr
+#define HIP_MEMCPY2_DFROM_ARRAY_SPT_PTR hipMemcpy2DFromArray_spt_ptr
+#define HIP_MEMCPY3_D_SPT_PTR hipMemcpy3D_spt_ptr
+#define HIP_MEMSET_SPT_PTR hipMemset_spt_ptr
+#define HIP_MEMSET_ASYNC_SPT_PTR hipMemsetAsync_spt_ptr
+#define HIP_MEMSET2_D_SPT_PTR hipMemset2D_spt_ptr
+#define HIP_MEMSET2_DASYNC_SPT_PTR hipMemset2DAsync_spt_ptr
+#define HIP_MEMSET3_DASYNC_SPT_PTR hipMemset3DAsync_spt_ptr
+#define HIP_MEMSET3_D_SPT_PTR hipMemset3D_spt_ptr
+#define HIP_MEMCPY_ASYNC_SPT_PTR hipMemcpyAsync_spt_ptr
+#define HIP_MEMCPY3_DASYNC_SPT_PTR hipMemcpy3DAsync_spt_ptr
+#define HIP_MEMCPY2_DASYNC_SPT_PTR hipMemcpy2DAsync_spt_ptr
+#define HIP_MEMCPY_FROM_SYMBOL_ASYNC_SPT_PTR hipMemcpyFromSymbolAsync_spt_ptr
+#define HIP_MEMCPY_TO_SYMBOL_ASYNC_SPT_PTR hipMemcpyToSymbolAsync_spt_ptr
+#define HIP_MEMCPY_FROM_ARRAY_SPT_PTR hipMemcpyFromArray_spt_ptr
+#define HIP_MEMCPY2_DTO_ARRAY_SPT_PTR hipMemcpy2DToArray_spt_ptr
+#define HIP_MEMCPY2_DFROM_ARRAY_ASYNC_SPT_PTR hipMemcpy2DFromArrayAsync_spt_ptr
+#define HIP_MEMCPY2_DTO_ARRAY_ASYNC_SPT_PTR hipMemcpy2DToArrayAsync_spt_ptr
+#define HIP_STREAM_QUERY_SPT_PTR hipStreamQuery_spt_ptr
+#define HIP_STREAM_SYNCHRONIZE_SPT_PTR hipStreamSynchronize_spt_ptr
+#define HIP_STREAM_GET_PRIORITY_SPT_PTR hipStreamGetPriority_spt_ptr
+#define HIP_STREAM_WAIT_EVENT_SPT_PTR hipStreamWaitEvent_spt_ptr
+#define HIP_STREAM_GET_FLAGS_SPT_PTR hipStreamGetFlags_spt_ptr
+#define HIP_STREAM_ADD_CALLBACK_SPT_PTR hipStreamAddCallback_spt_ptr
+#define HIP_EVENT_RECORD_SPT_PTR hipEventRecord_spt_ptr
+#define HIP_LAUNCH_COOPERATIVE_KERNEL_SPT_PTR hipLaunchCooperativeKernel_spt_ptr
+#define HIP_LAUNCH_KERNEL_SPT_PTR hipLaunchKernel_spt_ptr
+#define HIP_GRAPH_LAUNCH_SPT_PTR hipGraphLaunch_spt_ptr
+#define HIP_STREAM_BEGIN_CAPTURE_SPT_PTR hipStreamBeginCapture_spt_ptr
+#define HIP_STREAM_END_CAPTURE_SPT_PTR hipStreamEndCapture_spt_ptr
+#define HIP_STREAM_IS_CAPTURING_SPT_PTR hipStreamIsCapturing_spt_ptr
+#define HIP_STREAM_GET_CAPTURE_INFO_SPT_PTR hipStreamGetCaptureInfo_spt_ptr
+#define HIP_STREAM_GET_CAPTURE_INFO_V2_SPT_PTR hipStreamGetCaptureInfo_v2_spt_ptr
+#define HIP_LAUNCH_HOST_FUNC_SPT_PTR hipLaunchHostFunc_spt_ptr
+#define HIPRTC_GET_ERROR_STRING_PTR hiprtcGetErrorString_ptr
+#define HIPRTC_VERSION_PTR hiprtcVersion_ptr
+#define HIPRTC_ADD_NAME_EXPRESSION_PTR hiprtcAddNameExpression_ptr
+#define HIPRTC_COMPILE_PROGRAM_PTR hiprtcCompileProgram_ptr
+#define HIPRTC_CREATE_PROGRAM_PTR hiprtcCreateProgram_ptr
+#define HIPRTC_DESTROY_PROGRAM_PTR hiprtcDestroyProgram_ptr
+#define HIPRTC_GET_LOWERED_NAME_PTR hiprtcGetLoweredName_ptr
+#define HIPRTC_GET_PROGRAM_LOG_PTR hiprtcGetProgramLog_ptr
+#define HIPRTC_GET_PROGRAM_LOG_SIZE_PTR hiprtcGetProgramLogSize_ptr
+#define HIPRTC_GET_CODE_PTR hiprtcGetCode_ptr
+#define HIPRTC_GET_CODE_SIZE_PTR hiprtcGetCodeSize_ptr
+#define HIPRTC_GET_BITCODE_PTR hiprtcGetBitcode_ptr
+#define HIPRTC_GET_BITCODE_SIZE_PTR hiprtcGetBitcodeSize_ptr
+#define HIPRTC_LINK_CREATE_PTR hiprtcLinkCreate_ptr
+#define HIPRTC_LINK_ADD_FILE_PTR hiprtcLinkAddFile_ptr
+#define HIPRTC_LINK_ADD_DATA_PTR hiprtcLinkAddData_ptr
+#define HIPRTC_LINK_COMPLETE_PTR hiprtcLinkComplete_ptr
+#define HIPRTC_LINK_DESTROY_PTR hiprtcLinkDestroy_ptr
+#define AMD_DBGAPI_GET_BUILD_NAME_PTR amd_dbgapi_get_build_name_ptr
+#define AMD_DBGAPI_GET_GIT_HASH_PTR amd_dbgapi_get_git_hash_ptr
+#define AMD_DBGAPI_GET_BUILD_ID_PTR amd_dbgapi_get_build_id_ptr
+#define HIP_EXT_MODULE_LAUNCH_KERNEL_PTR hipExtModuleLaunchKernel_ptr
+#define HIP_HCC_MODULE_LAUNCH_KERNEL_PTR hipHccModuleLaunchKernel_ptr
+#define __ZN8HIP_IMPL22HIP_LAUNCH_KERNEL_GGLIMPL_EM_RK4DIM3_S2_J_P12IHIP_STREAM_T_PPV_PTR _ZN8hip_impl22hipLaunchKernelGGLImplEmRK4dim3S2_jP12ihipStream_tPPv_ptr
+#define __Z22HIP_CREATE_SURFACE_OBJECT_PP13__HIP_SURFACE_PK15HIP_RESOURCE_DESC_PTR _Z22hipCreateSurfaceObjectPP13__hip_surfacePK15hipResourceDesc_ptr
+#define __Z23HIP_DESTROY_SURFACE_OBJECT_P13__HIP_SURFACE_PTR _Z23hipDestroySurfaceObjectP13__hip_surface_ptr
+#define __Z24HIP_HCC_MODULE_LAUNCH_KERNEL_P18IHIP_MODULE_SYMBOL_TJJJJJJM_P12IHIP_STREAM_T_PPV_S4__P11IHIP_EVENT_T_S6__PTR _Z24hipHccModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6__ptr
+#define __Z24HIP_EXT_MODULE_LAUNCH_KERNEL_P18IHIP_MODULE_SYMBOL_TJJJJJJM_P12IHIP_STREAM_T_PPV_S4__P11IHIP_EVENT_T_S6_J_PTR _Z24hipExtModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6_j_ptr
+#define HIP_GRAPH_DEBUG_DOT_PRINT_PTR hipGraphDebugDotPrint_ptr
+#define __HIP_REGISTER_FAT_BINARY_PTR __hipRegisterFatBinary_ptr
+#define __HIP_REGISTER_FUNCTION_PTR __hipRegisterFunction_ptr
+#define __HIP_REGISTER_MANAGED_VAR_PTR __hipRegisterManagedVar_ptr
+#define __HIP_REGISTER_SURFACE_PTR __hipRegisterSurface_ptr
+#define __HIP_REGISTER_TEXTURE_PTR __hipRegisterTexture_ptr
+#define __HIP_REGISTER_VAR_PTR __hipRegisterVar_ptr
+#define __HIP_UNREGISTER_FAT_BINARY_PTR __hipUnregisterFatBinary_ptr
+#define HIP_GET_CMD_NAME_PTR hipGetCmdName_ptr
+#define HIP_REGISTER_TRACER_CALLBACK_PTR hipRegisterTracerCallback_ptr
+
+typedef struct hipChannelFormatDesc (*hipCreateChannelDesc_t)(int x, int y, int z, int w, enum hipChannelFormatKind f);
+static hipCreateChannelDesc_t HIP_CREATE_CHANNEL_DESC_PTR = (void *) 0x0;
+
+typedef void (*__hipGetPCH_t)(const char **pch, unsigned int *size);
+static __hipGetPCH_t __HIP_GET_PCH_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipInit_t)(unsigned int flags);
+static hipInit_t HIP_INIT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDriverGetVersion_t)(int *driverVersion);
+static hipDriverGetVersion_t HIP_DRIVER_GET_VERSION_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipRuntimeGetVersion_t)(int *runtimeVersion);
+static hipRuntimeGetVersion_t HIP_RUNTIME_GET_VERSION_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceGet_t)(hipDevice_t *device, int ordinal);
+static hipDeviceGet_t HIP_DEVICE_GET_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceComputeCapability_t)(int *major, int *minor, hipDevice_t device);
+static hipDeviceComputeCapability_t HIP_DEVICE_COMPUTE_CAPABILITY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceGetName_t)(char *name, int len, hipDevice_t device);
+static hipDeviceGetName_t HIP_DEVICE_GET_NAME_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceGetUuid_t)(hipUUID *uuid, hipDevice_t device);
+static hipDeviceGetUuid_t HIP_DEVICE_GET_UUID_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceGetP2PAttribute_t)(int *value, hipDeviceP2PAttr attr, int srcDevice, int dstDevice);
+static hipDeviceGetP2PAttribute_t HIP_DEVICE_GET_P2PATTRIBUTE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceGetPCIBusId_t)(char *pciBusId, int len, int device);
+static hipDeviceGetPCIBusId_t HIP_DEVICE_GET_PCIBUS_ID_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceGetByPCIBusId_t)(int *device, const char *pciBusId);
+static hipDeviceGetByPCIBusId_t HIP_DEVICE_GET_BY_PCIBUS_ID_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceTotalMem_t)(size_t *bytes, hipDevice_t device);
+static hipDeviceTotalMem_t HIP_DEVICE_TOTAL_MEM_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceSynchronize_t)(void);
+static hipDeviceSynchronize_t HIP_DEVICE_SYNCHRONIZE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceReset_t)(void);
+static hipDeviceReset_t HIP_DEVICE_RESET_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipSetDevice_t)(int deviceId);
+static hipSetDevice_t HIP_SET_DEVICE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGetDevice_t)(int *deviceId);
+static hipGetDevice_t HIP_GET_DEVICE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGetDeviceCount_t)(int *count);
+static hipGetDeviceCount_t HIP_GET_DEVICE_COUNT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceGetAttribute_t)(int *pi, hipDeviceAttribute_t attr, int deviceId);
+static hipDeviceGetAttribute_t HIP_DEVICE_GET_ATTRIBUTE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceGetDefaultMemPool_t)(hipMemPool_t *mem_pool, int device);
+static hipDeviceGetDefaultMemPool_t HIP_DEVICE_GET_DEFAULT_MEM_POOL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceSetMemPool_t)(int device, hipMemPool_t mem_pool);
+static hipDeviceSetMemPool_t HIP_DEVICE_SET_MEM_POOL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceGetMemPool_t)(hipMemPool_t *mem_pool, int device);
+static hipDeviceGetMemPool_t HIP_DEVICE_GET_MEM_POOL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGetDeviceProperties_t)(hipDeviceProp_t *prop, int deviceId);
+static hipGetDeviceProperties_t HIP_GET_DEVICE_PROPERTIES_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceSetCacheConfig_t)(hipFuncCache_t cacheConfig);
+static hipDeviceSetCacheConfig_t HIP_DEVICE_SET_CACHE_CONFIG_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceGetCacheConfig_t)(hipFuncCache_t *cacheConfig);
+static hipDeviceGetCacheConfig_t HIP_DEVICE_GET_CACHE_CONFIG_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceGetLimit_t)(size_t *pValue, enum hipLimit_t limit);
+static hipDeviceGetLimit_t HIP_DEVICE_GET_LIMIT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceSetLimit_t)(enum hipLimit_t limit, size_t value);
+static hipDeviceSetLimit_t HIP_DEVICE_SET_LIMIT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceGetSharedMemConfig_t)(hipSharedMemConfig *pConfig);
+static hipDeviceGetSharedMemConfig_t HIP_DEVICE_GET_SHARED_MEM_CONFIG_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGetDeviceFlags_t)(unsigned int *flags);
+static hipGetDeviceFlags_t HIP_GET_DEVICE_FLAGS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceSetSharedMemConfig_t)(hipSharedMemConfig config);
+static hipDeviceSetSharedMemConfig_t HIP_DEVICE_SET_SHARED_MEM_CONFIG_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipSetDeviceFlags_t)(unsigned int flags);
+static hipSetDeviceFlags_t HIP_SET_DEVICE_FLAGS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipChooseDevice_t)(int *device, const hipDeviceProp_t *prop);
+static hipChooseDevice_t HIP_CHOOSE_DEVICE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipExtGetLinkTypeAndHopCount_t)(int device1, int device2, uint32_t *linktype, uint32_t *hopcount);
+static hipExtGetLinkTypeAndHopCount_t HIP_EXT_GET_LINK_TYPE_AND_HOP_COUNT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipIpcGetMemHandle_t)(hipIpcMemHandle_t *handle, void *devPtr);
+static hipIpcGetMemHandle_t HIP_IPC_GET_MEM_HANDLE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipIpcOpenMemHandle_t)(void **devPtr, hipIpcMemHandle_t handle, unsigned int flags);
+static hipIpcOpenMemHandle_t HIP_IPC_OPEN_MEM_HANDLE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipIpcCloseMemHandle_t)(void *devPtr);
+static hipIpcCloseMemHandle_t HIP_IPC_CLOSE_MEM_HANDLE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipIpcGetEventHandle_t)(hipIpcEventHandle_t *handle, hipEvent_t event);
+static hipIpcGetEventHandle_t HIP_IPC_GET_EVENT_HANDLE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipIpcOpenEventHandle_t)(hipEvent_t *event, hipIpcEventHandle_t handle);
+static hipIpcOpenEventHandle_t HIP_IPC_OPEN_EVENT_HANDLE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipFuncSetAttribute_t)(const void *func, hipFuncAttribute attr, int value);
+static hipFuncSetAttribute_t HIP_FUNC_SET_ATTRIBUTE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipFuncSetCacheConfig_t)(const void *func, hipFuncCache_t config);
+static hipFuncSetCacheConfig_t HIP_FUNC_SET_CACHE_CONFIG_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipFuncSetSharedMemConfig_t)(const void *func, hipSharedMemConfig config);
+static hipFuncSetSharedMemConfig_t HIP_FUNC_SET_SHARED_MEM_CONFIG_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGetLastError_t)(void);
+static hipGetLastError_t HIP_GET_LAST_ERROR_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipPeekAtLastError_t)(void);
+static hipPeekAtLastError_t HIP_PEEK_AT_LAST_ERROR_PTR = (void *) 0x0;
+
+typedef const char *(*hipGetErrorName_t)(hipError_t hip_error);
+static hipGetErrorName_t HIP_GET_ERROR_NAME_PTR = (void *) 0x0;
+
+typedef const char *(*hipGetErrorString_t)(hipError_t hipError);
+static hipGetErrorString_t HIP_GET_ERROR_STRING_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDrvGetErrorName_t)(hipError_t hipError, const char **errorString);
+static hipDrvGetErrorName_t HIP_DRV_GET_ERROR_NAME_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDrvGetErrorString_t)(hipError_t hipError, const char **errorString);
+static hipDrvGetErrorString_t HIP_DRV_GET_ERROR_STRING_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamCreate_t)(hipStream_t *stream);
+static hipStreamCreate_t HIP_STREAM_CREATE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamCreateWithFlags_t)(hipStream_t *stream, unsigned int flags);
+static hipStreamCreateWithFlags_t HIP_STREAM_CREATE_WITH_FLAGS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamCreateWithPriority_t)(hipStream_t *stream, unsigned int flags, int priority);
+static hipStreamCreateWithPriority_t HIP_STREAM_CREATE_WITH_PRIORITY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceGetStreamPriorityRange_t)(int *leastPriority, int *greatestPriority);
+static hipDeviceGetStreamPriorityRange_t HIP_DEVICE_GET_STREAM_PRIORITY_RANGE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamDestroy_t)(hipStream_t stream);
+static hipStreamDestroy_t HIP_STREAM_DESTROY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamQuery_t)(hipStream_t stream);
+static hipStreamQuery_t HIP_STREAM_QUERY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamSynchronize_t)(hipStream_t stream);
+static hipStreamSynchronize_t HIP_STREAM_SYNCHRONIZE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamWaitEvent_t)(hipStream_t stream, hipEvent_t event, unsigned int flags);
+static hipStreamWaitEvent_t HIP_STREAM_WAIT_EVENT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamGetFlags_t)(hipStream_t stream, unsigned int *flags);
+static hipStreamGetFlags_t HIP_STREAM_GET_FLAGS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamGetPriority_t)(hipStream_t stream, int *priority);
+static hipStreamGetPriority_t HIP_STREAM_GET_PRIORITY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipExtStreamCreateWithCUMask_t)(hipStream_t *stream, uint32_t cuMaskSize, const uint32_t *cuMask);
+static hipExtStreamCreateWithCUMask_t HIP_EXT_STREAM_CREATE_WITH_CUMASK_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipExtStreamGetCUMask_t)(hipStream_t stream, uint32_t cuMaskSize, uint32_t *cuMask);
+static hipExtStreamGetCUMask_t HIP_EXT_STREAM_GET_CUMASK_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamAddCallback_t)(hipStream_t stream, hipStreamCallback_t callback, void *userData, unsigned int flags);
+static hipStreamAddCallback_t HIP_STREAM_ADD_CALLBACK_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamWaitValue32_t)(hipStream_t stream, void *ptr, uint32_t value, unsigned int flags, uint32_t mask);
+static hipStreamWaitValue32_t HIP_STREAM_WAIT_VALUE32_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamWaitValue64_t)(hipStream_t stream, void *ptr, uint64_t value, unsigned int flags, uint64_t mask);
+static hipStreamWaitValue64_t HIP_STREAM_WAIT_VALUE64_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamWriteValue32_t)(hipStream_t stream, void *ptr, uint32_t value, unsigned int flags);
+static hipStreamWriteValue32_t HIP_STREAM_WRITE_VALUE32_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamWriteValue64_t)(hipStream_t stream, void *ptr, uint64_t value, unsigned int flags);
+static hipStreamWriteValue64_t HIP_STREAM_WRITE_VALUE64_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipEventCreateWithFlags_t)(hipEvent_t *event, unsigned int flags);
+static hipEventCreateWithFlags_t HIP_EVENT_CREATE_WITH_FLAGS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipEventCreate_t)(hipEvent_t *event);
+static hipEventCreate_t HIP_EVENT_CREATE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipEventRecord_t)(hipEvent_t event, hipStream_t stream);
+static hipEventRecord_t HIP_EVENT_RECORD_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipEventDestroy_t)(hipEvent_t event);
+static hipEventDestroy_t HIP_EVENT_DESTROY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipEventSynchronize_t)(hipEvent_t event);
+static hipEventSynchronize_t HIP_EVENT_SYNCHRONIZE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipEventElapsedTime_t)(float *ms, hipEvent_t start, hipEvent_t stop);
+static hipEventElapsedTime_t HIP_EVENT_ELAPSED_TIME_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipEventQuery_t)(hipEvent_t event);
+static hipEventQuery_t HIP_EVENT_QUERY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipPointerGetAttributes_t)(hipPointerAttribute_t *attributes, const void *ptr);
+static hipPointerGetAttributes_t HIP_POINTER_GET_ATTRIBUTES_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipPointerGetAttribute_t)(void *data, hipPointer_attribute attribute, hipDeviceptr_t ptr);
+static hipPointerGetAttribute_t HIP_POINTER_GET_ATTRIBUTE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDrvPointerGetAttributes_t)(unsigned int numAttributes, hipPointer_attribute *attributes, void **data, hipDeviceptr_t ptr);
+static hipDrvPointerGetAttributes_t HIP_DRV_POINTER_GET_ATTRIBUTES_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipImportExternalSemaphore_t)(hipExternalSemaphore_t *extSem_out, const hipExternalSemaphoreHandleDesc *semHandleDesc);
+static hipImportExternalSemaphore_t HIP_IMPORT_EXTERNAL_SEMAPHORE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipSignalExternalSemaphoresAsync_t)(const hipExternalSemaphore_t *extSemArray, const hipExternalSemaphoreSignalParams *paramsArray, unsigned int numExtSems, hipStream_t stream);
+static hipSignalExternalSemaphoresAsync_t HIP_SIGNAL_EXTERNAL_SEMAPHORES_ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipWaitExternalSemaphoresAsync_t)(const hipExternalSemaphore_t *extSemArray, const hipExternalSemaphoreWaitParams *paramsArray, unsigned int numExtSems, hipStream_t stream);
+static hipWaitExternalSemaphoresAsync_t HIP_WAIT_EXTERNAL_SEMAPHORES_ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDestroyExternalSemaphore_t)(hipExternalSemaphore_t extSem);
+static hipDestroyExternalSemaphore_t HIP_DESTROY_EXTERNAL_SEMAPHORE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipImportExternalMemory_t)(hipExternalMemory_t *extMem_out, const hipExternalMemoryHandleDesc *memHandleDesc);
+static hipImportExternalMemory_t HIP_IMPORT_EXTERNAL_MEMORY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipExternalMemoryGetMappedBuffer_t)(void **devPtr, hipExternalMemory_t extMem, const hipExternalMemoryBufferDesc *bufferDesc);
+static hipExternalMemoryGetMappedBuffer_t HIP_EXTERNAL_MEMORY_GET_MAPPED_BUFFER_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDestroyExternalMemory_t)(hipExternalMemory_t extMem);
+static hipDestroyExternalMemory_t HIP_DESTROY_EXTERNAL_MEMORY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMalloc_t)(void **ptr, size_t size);
+static hipMalloc_t HIP_MALLOC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipExtMallocWithFlags_t)(void **ptr, size_t sizeBytes, unsigned int flags);
+static hipExtMallocWithFlags_t HIP_EXT_MALLOC_WITH_FLAGS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMallocHost_t)(void **ptr, size_t size);
+static hipMallocHost_t HIP_MALLOC_HOST_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemAllocHost_t)(void **ptr, size_t size);
+static hipMemAllocHost_t HIP_MEM_ALLOC_HOST_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipHostMalloc_t)(void **ptr, size_t size, unsigned int flags);
+static hipHostMalloc_t HIP_HOST_MALLOC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMallocManaged_t)(void **dev_ptr, size_t size, unsigned int flags);
+static hipMallocManaged_t HIP_MALLOC_MANAGED_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemPrefetchAsync_t)(const void *dev_ptr, size_t count, int device, hipStream_t stream);
+static hipMemPrefetchAsync_t HIP_MEM_PREFETCH_ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemAdvise_t)(const void *dev_ptr, size_t count, hipMemoryAdvise advice, int device);
+static hipMemAdvise_t HIP_MEM_ADVISE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemRangeGetAttribute_t)(void *data, size_t data_size, hipMemRangeAttribute attribute, const void *dev_ptr, size_t count);
+static hipMemRangeGetAttribute_t HIP_MEM_RANGE_GET_ATTRIBUTE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemRangeGetAttributes_t)(void **data, size_t *data_sizes, hipMemRangeAttribute *attributes, size_t num_attributes, const void *dev_ptr, size_t count);
+static hipMemRangeGetAttributes_t HIP_MEM_RANGE_GET_ATTRIBUTES_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamAttachMemAsync_t)(hipStream_t stream, void *dev_ptr, size_t length, unsigned int flags);
+static hipStreamAttachMemAsync_t HIP_STREAM_ATTACH_MEM_ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMallocAsync_t)(void **dev_ptr, size_t size, hipStream_t stream);
+static hipMallocAsync_t HIP_MALLOC_ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipFreeAsync_t)(void *dev_ptr, hipStream_t stream);
+static hipFreeAsync_t HIP_FREE_ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemPoolTrimTo_t)(hipMemPool_t mem_pool, size_t min_bytes_to_hold);
+static hipMemPoolTrimTo_t HIP_MEM_POOL_TRIM_TO_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemPoolSetAttribute_t)(hipMemPool_t mem_pool, hipMemPoolAttr attr, void *value);
+static hipMemPoolSetAttribute_t HIP_MEM_POOL_SET_ATTRIBUTE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemPoolGetAttribute_t)(hipMemPool_t mem_pool, hipMemPoolAttr attr, void *value);
+static hipMemPoolGetAttribute_t HIP_MEM_POOL_GET_ATTRIBUTE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemPoolSetAccess_t)(hipMemPool_t mem_pool, const hipMemAccessDesc *desc_list, size_t count);
+static hipMemPoolSetAccess_t HIP_MEM_POOL_SET_ACCESS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemPoolGetAccess_t)(hipMemAccessFlags *flags, hipMemPool_t mem_pool, hipMemLocation *location);
+static hipMemPoolGetAccess_t HIP_MEM_POOL_GET_ACCESS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemPoolCreate_t)(hipMemPool_t *mem_pool, const hipMemPoolProps *pool_props);
+static hipMemPoolCreate_t HIP_MEM_POOL_CREATE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemPoolDestroy_t)(hipMemPool_t mem_pool);
+static hipMemPoolDestroy_t HIP_MEM_POOL_DESTROY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMallocFromPoolAsync_t)(void **dev_ptr, size_t size, hipMemPool_t mem_pool, hipStream_t stream);
+static hipMallocFromPoolAsync_t HIP_MALLOC_FROM_POOL_ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemPoolExportToShareableHandle_t)(void *shared_handle, hipMemPool_t mem_pool, hipMemAllocationHandleType handle_type, unsigned int flags);
+static hipMemPoolExportToShareableHandle_t HIP_MEM_POOL_EXPORT_TO_SHAREABLE_HANDLE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemPoolImportFromShareableHandle_t)(hipMemPool_t *mem_pool, void *shared_handle, hipMemAllocationHandleType handle_type, unsigned int flags);
+static hipMemPoolImportFromShareableHandle_t HIP_MEM_POOL_IMPORT_FROM_SHAREABLE_HANDLE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemPoolExportPointer_t)(hipMemPoolPtrExportData *export_data, void *dev_ptr);
+static hipMemPoolExportPointer_t HIP_MEM_POOL_EXPORT_POINTER_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemPoolImportPointer_t)(void **dev_ptr, hipMemPool_t mem_pool, hipMemPoolPtrExportData *export_data);
+static hipMemPoolImportPointer_t HIP_MEM_POOL_IMPORT_POINTER_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipHostAlloc_t)(void **ptr, size_t size, unsigned int flags);
+static hipHostAlloc_t HIP_HOST_ALLOC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipHostGetDevicePointer_t)(void **devPtr, void *hstPtr, unsigned int flags);
+static hipHostGetDevicePointer_t HIP_HOST_GET_DEVICE_POINTER_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipHostGetFlags_t)(unsigned int *flagsPtr, void *hostPtr);
+static hipHostGetFlags_t HIP_HOST_GET_FLAGS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipHostRegister_t)(void *hostPtr, size_t sizeBytes, unsigned int flags);
+static hipHostRegister_t HIP_HOST_REGISTER_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipHostUnregister_t)(void *hostPtr);
+static hipHostUnregister_t HIP_HOST_UNREGISTER_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMallocPitch_t)(void **ptr, size_t *pitch, size_t width, size_t height);
+static hipMallocPitch_t HIP_MALLOC_PITCH_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemAllocPitch_t)(hipDeviceptr_t *dptr, size_t *pitch, size_t widthInBytes, size_t height, unsigned int elementSizeBytes);
+static hipMemAllocPitch_t HIP_MEM_ALLOC_PITCH_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipFree_t)(void *ptr);
+static hipFree_t HIP_FREE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipFreeHost_t)(void *ptr);
+static hipFreeHost_t HIP_FREE_HOST_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipHostFree_t)(void *ptr);
+static hipHostFree_t HIP_HOST_FREE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy_t)(void *dst, const void *src, size_t sizeBytes, hipMemcpyKind kind);
+static hipMemcpy_t HIP_MEMCPY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyWithStream_t)(void *dst, const void *src, size_t sizeBytes, hipMemcpyKind kind, hipStream_t stream);
+static hipMemcpyWithStream_t HIP_MEMCPY_WITH_STREAM_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyHtoD_t)(hipDeviceptr_t dst, void *src, size_t sizeBytes);
+static hipMemcpyHtoD_t HIP_MEMCPY_HTO_D_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyDtoH_t)(void *dst, hipDeviceptr_t src, size_t sizeBytes);
+static hipMemcpyDtoH_t HIP_MEMCPY_DTO_H_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyDtoD_t)(hipDeviceptr_t dst, hipDeviceptr_t src, size_t sizeBytes);
+static hipMemcpyDtoD_t HIP_MEMCPY_DTO_D_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyHtoDAsync_t)(hipDeviceptr_t dst, void *src, size_t sizeBytes, hipStream_t stream);
+static hipMemcpyHtoDAsync_t HIP_MEMCPY_HTO_DASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyDtoHAsync_t)(void *dst, hipDeviceptr_t src, size_t sizeBytes, hipStream_t stream);
+static hipMemcpyDtoHAsync_t HIP_MEMCPY_DTO_HASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyDtoDAsync_t)(hipDeviceptr_t dst, hipDeviceptr_t src, size_t sizeBytes, hipStream_t stream);
+static hipMemcpyDtoDAsync_t HIP_MEMCPY_DTO_DASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipModuleGetGlobal_t)(hipDeviceptr_t *dptr, size_t *bytes, hipModule_t hmod, const char *name);
+static hipModuleGetGlobal_t HIP_MODULE_GET_GLOBAL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGetSymbolAddress_t)(void **devPtr, const void *symbol);
+static hipGetSymbolAddress_t HIP_GET_SYMBOL_ADDRESS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGetSymbolSize_t)(size_t *size, const void *symbol);
+static hipGetSymbolSize_t HIP_GET_SYMBOL_SIZE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyToSymbol_t)(const void *symbol, const void *src, size_t sizeBytes, size_t offset, hipMemcpyKind kind);
+static hipMemcpyToSymbol_t HIP_MEMCPY_TO_SYMBOL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyToSymbolAsync_t)(const void *symbol, const void *src, size_t sizeBytes, size_t offset, hipMemcpyKind kind, hipStream_t stream);
+static hipMemcpyToSymbolAsync_t HIP_MEMCPY_TO_SYMBOL_ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyFromSymbol_t)(void *dst, const void *symbol, size_t sizeBytes, size_t offset, hipMemcpyKind kind);
+static hipMemcpyFromSymbol_t HIP_MEMCPY_FROM_SYMBOL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyFromSymbolAsync_t)(void *dst, const void *symbol, size_t sizeBytes, size_t offset, hipMemcpyKind kind, hipStream_t stream);
+static hipMemcpyFromSymbolAsync_t HIP_MEMCPY_FROM_SYMBOL_ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyAsync_t)(void *dst, const void *src, size_t sizeBytes, hipMemcpyKind kind, hipStream_t stream);
+static hipMemcpyAsync_t HIP_MEMCPY_ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemset_t)(void *dst, int value, size_t sizeBytes);
+static hipMemset_t HIP_MEMSET_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemsetD8_t)(hipDeviceptr_t dest, unsigned char value, size_t count);
+static hipMemsetD8_t HIP_MEMSET_D8_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemsetD8Async_t)(hipDeviceptr_t dest, unsigned char value, size_t count, hipStream_t stream);
+static hipMemsetD8Async_t HIP_MEMSET_D8ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemsetD16_t)(hipDeviceptr_t dest, unsigned short int value, size_t count);
+static hipMemsetD16_t HIP_MEMSET_D16_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemsetD16Async_t)(hipDeviceptr_t dest, unsigned short int value, size_t count, hipStream_t stream);
+static hipMemsetD16Async_t HIP_MEMSET_D16ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemsetD32_t)(hipDeviceptr_t dest, int value, size_t count);
+static hipMemsetD32_t HIP_MEMSET_D32_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemsetAsync_t)(void *dst, int value, size_t sizeBytes, hipStream_t stream);
+static hipMemsetAsync_t HIP_MEMSET_ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemsetD32Async_t)(hipDeviceptr_t dst, int value, size_t count, hipStream_t stream);
+static hipMemsetD32Async_t HIP_MEMSET_D32ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemset2D_t)(void *dst, size_t pitch, int value, size_t width, size_t height);
+static hipMemset2D_t HIP_MEMSET2_D_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemset2DAsync_t)(void *dst, size_t pitch, int value, size_t width, size_t height, hipStream_t stream);
+static hipMemset2DAsync_t HIP_MEMSET2_DASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemset3D_t)(hipPitchedPtr pitchedDevPtr, int value, hipExtent extent);
+static hipMemset3D_t HIP_MEMSET3_D_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemset3DAsync_t)(hipPitchedPtr pitchedDevPtr, int value, hipExtent extent, hipStream_t stream);
+static hipMemset3DAsync_t HIP_MEMSET3_DASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemGetInfo_t)(size_t *free, size_t *total);
+static hipMemGetInfo_t HIP_MEM_GET_INFO_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemPtrGetInfo_t)(void *ptr, size_t *size);
+static hipMemPtrGetInfo_t HIP_MEM_PTR_GET_INFO_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMallocArray_t)(hipArray **array, const hipChannelFormatDesc *desc, size_t width, size_t height, unsigned int flags);
+static hipMallocArray_t HIP_MALLOC_ARRAY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipArrayCreate_t)(hipArray **pHandle, const HIP_ARRAY_DESCRIPTOR *pAllocateArray);
+static hipArrayCreate_t HIP_ARRAY_CREATE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipArrayDestroy_t)(hipArray *array);
+static hipArrayDestroy_t HIP_ARRAY_DESTROY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipArray3DCreate_t)(hipArray **array, const HIP_ARRAY3D_DESCRIPTOR *pAllocateArray);
+static hipArray3DCreate_t HIP_ARRAY3_DCREATE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMalloc3D_t)(hipPitchedPtr *pitchedDevPtr, hipExtent extent);
+static hipMalloc3D_t HIP_MALLOC3_D_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipFreeArray_t)(hipArray *array);
+static hipFreeArray_t HIP_FREE_ARRAY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipFreeMipmappedArray_t)(hipMipmappedArray_t mipmappedArray);
+static hipFreeMipmappedArray_t HIP_FREE_MIPMAPPED_ARRAY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMalloc3DArray_t)(hipArray **array, const struct hipChannelFormatDesc *desc, struct hipExtent extent, unsigned int flags);
+static hipMalloc3DArray_t HIP_MALLOC3_DARRAY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMallocMipmappedArray_t)(hipMipmappedArray_t *mipmappedArray, const struct hipChannelFormatDesc *desc, struct hipExtent extent, unsigned int numLevels, unsigned int flags);
+static hipMallocMipmappedArray_t HIP_MALLOC_MIPMAPPED_ARRAY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGetMipmappedArrayLevel_t)(hipArray_t *levelArray, hipMipmappedArray_const_t mipmappedArray, unsigned int level);
+static hipGetMipmappedArrayLevel_t HIP_GET_MIPMAPPED_ARRAY_LEVEL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy2D_t)(void *dst, size_t dpitch, const void *src, size_t spitch, size_t width, size_t height, hipMemcpyKind kind);
+static hipMemcpy2D_t HIP_MEMCPY2_D_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyParam2D_t)(const hip_Memcpy2D *pCopy);
+static hipMemcpyParam2D_t HIP_MEMCPY_PARAM2_D_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyParam2DAsync_t)(const hip_Memcpy2D *pCopy, hipStream_t stream);
+static hipMemcpyParam2DAsync_t HIP_MEMCPY_PARAM2_DASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy2DAsync_t)(void *dst, size_t dpitch, const void *src, size_t spitch, size_t width, size_t height, hipMemcpyKind kind, hipStream_t stream);
+static hipMemcpy2DAsync_t HIP_MEMCPY2_DASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy2DToArray_t)(hipArray *dst, size_t wOffset, size_t hOffset, const void *src, size_t spitch, size_t width, size_t height, hipMemcpyKind kind);
+static hipMemcpy2DToArray_t HIP_MEMCPY2_DTO_ARRAY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy2DToArrayAsync_t)(hipArray *dst, size_t wOffset, size_t hOffset, const void *src, size_t spitch, size_t width, size_t height, hipMemcpyKind kind, hipStream_t stream);
+static hipMemcpy2DToArrayAsync_t HIP_MEMCPY2_DTO_ARRAY_ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyToArray_t)(hipArray *dst, size_t wOffset, size_t hOffset, const void *src, size_t count, hipMemcpyKind kind);
+static hipMemcpyToArray_t HIP_MEMCPY_TO_ARRAY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyFromArray_t)(void *dst, hipArray_const_t srcArray, size_t wOffset, size_t hOffset, size_t count, hipMemcpyKind kind);
+static hipMemcpyFromArray_t HIP_MEMCPY_FROM_ARRAY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy2DFromArray_t)(void *dst, size_t dpitch, hipArray_const_t src, size_t wOffset, size_t hOffset, size_t width, size_t height, hipMemcpyKind kind);
+static hipMemcpy2DFromArray_t HIP_MEMCPY2_DFROM_ARRAY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy2DFromArrayAsync_t)(void *dst, size_t dpitch, hipArray_const_t src, size_t wOffset, size_t hOffset, size_t width, size_t height, hipMemcpyKind kind, hipStream_t stream);
+static hipMemcpy2DFromArrayAsync_t HIP_MEMCPY2_DFROM_ARRAY_ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyAtoH_t)(void *dst, hipArray *srcArray, size_t srcOffset, size_t count);
+static hipMemcpyAtoH_t HIP_MEMCPY_ATO_H_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyHtoA_t)(hipArray *dstArray, size_t dstOffset, const void *srcHost, size_t count);
+static hipMemcpyHtoA_t HIP_MEMCPY_HTO_A_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy3D_t)(const struct hipMemcpy3DParms *p);
+static hipMemcpy3D_t HIP_MEMCPY3_D_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy3DAsync_t)(const struct hipMemcpy3DParms *p, hipStream_t stream);
+static hipMemcpy3DAsync_t HIP_MEMCPY3_DASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDrvMemcpy3D_t)(const HIP_MEMCPY3D *pCopy);
+static hipDrvMemcpy3D_t HIP_DRV_MEMCPY3_D_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDrvMemcpy3DAsync_t)(const HIP_MEMCPY3D *pCopy, hipStream_t stream);
+static hipDrvMemcpy3DAsync_t HIP_DRV_MEMCPY3_DASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceCanAccessPeer_t)(int *canAccessPeer, int deviceId, int peerDeviceId);
+static hipDeviceCanAccessPeer_t HIP_DEVICE_CAN_ACCESS_PEER_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceEnablePeerAccess_t)(int peerDeviceId, unsigned int flags);
+static hipDeviceEnablePeerAccess_t HIP_DEVICE_ENABLE_PEER_ACCESS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceDisablePeerAccess_t)(int peerDeviceId);
+static hipDeviceDisablePeerAccess_t HIP_DEVICE_DISABLE_PEER_ACCESS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemGetAddressRange_t)(hipDeviceptr_t *pbase, size_t *psize, hipDeviceptr_t dptr);
+static hipMemGetAddressRange_t HIP_MEM_GET_ADDRESS_RANGE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyPeer_t)(void *dst, int dstDeviceId, const void *src, int srcDeviceId, size_t sizeBytes);
+static hipMemcpyPeer_t HIP_MEMCPY_PEER_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyPeerAsync_t)(void *dst, int dstDeviceId, const void *src, int srcDevice, size_t sizeBytes, hipStream_t stream);
+static hipMemcpyPeerAsync_t HIP_MEMCPY_PEER_ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipCtxCreate_t)(hipCtx_t *ctx, unsigned int flags, hipDevice_t device);
+static hipCtxCreate_t HIP_CTX_CREATE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipCtxDestroy_t)(hipCtx_t ctx);
+static hipCtxDestroy_t HIP_CTX_DESTROY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipCtxPopCurrent_t)(hipCtx_t *ctx);
+static hipCtxPopCurrent_t HIP_CTX_POP_CURRENT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipCtxPushCurrent_t)(hipCtx_t ctx);
+static hipCtxPushCurrent_t HIP_CTX_PUSH_CURRENT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipCtxSetCurrent_t)(hipCtx_t ctx);
+static hipCtxSetCurrent_t HIP_CTX_SET_CURRENT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipCtxGetCurrent_t)(hipCtx_t *ctx);
+static hipCtxGetCurrent_t HIP_CTX_GET_CURRENT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipCtxGetDevice_t)(hipDevice_t *device);
+static hipCtxGetDevice_t HIP_CTX_GET_DEVICE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipCtxGetApiVersion_t)(hipCtx_t ctx, int *apiVersion);
+static hipCtxGetApiVersion_t HIP_CTX_GET_API_VERSION_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipCtxGetCacheConfig_t)(hipFuncCache_t *cacheConfig);
+static hipCtxGetCacheConfig_t HIP_CTX_GET_CACHE_CONFIG_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipCtxSetCacheConfig_t)(hipFuncCache_t cacheConfig);
+static hipCtxSetCacheConfig_t HIP_CTX_SET_CACHE_CONFIG_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipCtxSetSharedMemConfig_t)(hipSharedMemConfig config);
+static hipCtxSetSharedMemConfig_t HIP_CTX_SET_SHARED_MEM_CONFIG_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipCtxGetSharedMemConfig_t)(hipSharedMemConfig *pConfig);
+static hipCtxGetSharedMemConfig_t HIP_CTX_GET_SHARED_MEM_CONFIG_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipCtxSynchronize_t)(void);
+static hipCtxSynchronize_t HIP_CTX_SYNCHRONIZE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipCtxGetFlags_t)(unsigned int *flags);
+static hipCtxGetFlags_t HIP_CTX_GET_FLAGS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipCtxEnablePeerAccess_t)(hipCtx_t peerCtx, unsigned int flags);
+static hipCtxEnablePeerAccess_t HIP_CTX_ENABLE_PEER_ACCESS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipCtxDisablePeerAccess_t)(hipCtx_t peerCtx);
+static hipCtxDisablePeerAccess_t HIP_CTX_DISABLE_PEER_ACCESS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDevicePrimaryCtxGetState_t)(hipDevice_t dev, unsigned int *flags, int *active);
+static hipDevicePrimaryCtxGetState_t HIP_DEVICE_PRIMARY_CTX_GET_STATE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDevicePrimaryCtxRelease_t)(hipDevice_t dev);
+static hipDevicePrimaryCtxRelease_t HIP_DEVICE_PRIMARY_CTX_RELEASE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDevicePrimaryCtxRetain_t)(hipCtx_t *pctx, hipDevice_t dev);
+static hipDevicePrimaryCtxRetain_t HIP_DEVICE_PRIMARY_CTX_RETAIN_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDevicePrimaryCtxReset_t)(hipDevice_t dev);
+static hipDevicePrimaryCtxReset_t HIP_DEVICE_PRIMARY_CTX_RESET_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDevicePrimaryCtxSetFlags_t)(hipDevice_t dev, unsigned int flags);
+static hipDevicePrimaryCtxSetFlags_t HIP_DEVICE_PRIMARY_CTX_SET_FLAGS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipModuleLoad_t)(hipModule_t *module, const char *fname);
+static hipModuleLoad_t HIP_MODULE_LOAD_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipModuleUnload_t)(hipModule_t module);
+static hipModuleUnload_t HIP_MODULE_UNLOAD_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipModuleGetFunction_t)(hipFunction_t *function, hipModule_t module, const char *kname);
+static hipModuleGetFunction_t HIP_MODULE_GET_FUNCTION_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipFuncGetAttributes_t)(struct hipFuncAttributes *attr, const void *func);
+static hipFuncGetAttributes_t HIP_FUNC_GET_ATTRIBUTES_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipFuncGetAttribute_t)(int *value, hipFunction_attribute attrib, hipFunction_t hfunc);
+static hipFuncGetAttribute_t HIP_FUNC_GET_ATTRIBUTE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipModuleGetTexRef_t)(textureReference **texRef, hipModule_t hmod, const char *name);
+static hipModuleGetTexRef_t HIP_MODULE_GET_TEX_REF_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipModuleLoadData_t)(hipModule_t *module, const void *image);
+static hipModuleLoadData_t HIP_MODULE_LOAD_DATA_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipModuleLoadDataEx_t)(hipModule_t *module, const void *image, unsigned int numOptions, hipJitOption *options, void **optionValues);
+static hipModuleLoadDataEx_t HIP_MODULE_LOAD_DATA_EX_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipModuleLaunchKernel_t)(hipFunction_t f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, hipStream_t stream, void **kernelParams, void **extra);
+static hipModuleLaunchKernel_t HIP_MODULE_LAUNCH_KERNEL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipLaunchCooperativeKernel_t)(const void *f, dim3 gridDim, dim3 blockDimX, void **kernelParams, unsigned int sharedMemBytes, hipStream_t stream);
+static hipLaunchCooperativeKernel_t HIP_LAUNCH_COOPERATIVE_KERNEL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipLaunchCooperativeKernelMultiDevice_t)(hipLaunchParams *launchParamsList, int numDevices, unsigned int flags);
+static hipLaunchCooperativeKernelMultiDevice_t HIP_LAUNCH_COOPERATIVE_KERNEL_MULTI_DEVICE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipExtLaunchMultiKernelMultiDevice_t)(hipLaunchParams *launchParamsList, int numDevices, unsigned int flags);
+static hipExtLaunchMultiKernelMultiDevice_t HIP_EXT_LAUNCH_MULTI_KERNEL_MULTI_DEVICE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipModuleOccupancyMaxPotentialBlockSize_t)(int *gridSize, int *blockSize, hipFunction_t f, size_t dynSharedMemPerBlk, int blockSizeLimit);
+static hipModuleOccupancyMaxPotentialBlockSize_t HIP_MODULE_OCCUPANCY_MAX_POTENTIAL_BLOCK_SIZE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipModuleOccupancyMaxPotentialBlockSizeWithFlags_t)(int *gridSize, int *blockSize, hipFunction_t f, size_t dynSharedMemPerBlk, int blockSizeLimit, unsigned int flags);
+static hipModuleOccupancyMaxPotentialBlockSizeWithFlags_t HIP_MODULE_OCCUPANCY_MAX_POTENTIAL_BLOCK_SIZE_WITH_FLAGS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipModuleOccupancyMaxActiveBlocksPerMultiprocessor_t)(int *numBlocks, hipFunction_t f, int blockSize, size_t dynSharedMemPerBlk);
+static hipModuleOccupancyMaxActiveBlocksPerMultiprocessor_t HIP_MODULE_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipModuleOccupancyMaxActiveBlocksPerMultiprocessorWithFlags_t)(int *numBlocks, hipFunction_t f, int blockSize, size_t dynSharedMemPerBlk, unsigned int flags);
+static hipModuleOccupancyMaxActiveBlocksPerMultiprocessorWithFlags_t HIP_MODULE_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_WITH_FLAGS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipOccupancyMaxActiveBlocksPerMultiprocessor_t)(int *numBlocks, const void *f, int blockSize, size_t dynSharedMemPerBlk);
+static hipOccupancyMaxActiveBlocksPerMultiprocessor_t HIP_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipOccupancyMaxActiveBlocksPerMultiprocessorWithFlags_t)(int *numBlocks, const void *f, int blockSize, size_t dynSharedMemPerBlk, unsigned int flags);
+static hipOccupancyMaxActiveBlocksPerMultiprocessorWithFlags_t HIP_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_WITH_FLAGS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipOccupancyMaxPotentialBlockSize_t)(int *gridSize, int *blockSize, const void *f, size_t dynSharedMemPerBlk, int blockSizeLimit);
+static hipOccupancyMaxPotentialBlockSize_t HIP_OCCUPANCY_MAX_POTENTIAL_BLOCK_SIZE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipProfilerStart_t)();
+static hipProfilerStart_t HIP_PROFILER_START_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipProfilerStop_t)();
+static hipProfilerStop_t HIP_PROFILER_STOP_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipConfigureCall_t)(dim3 gridDim, dim3 blockDim, size_t sharedMem, hipStream_t stream);
+static hipConfigureCall_t HIP_CONFIGURE_CALL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipSetupArgument_t)(const void *arg, size_t size, size_t offset);
+static hipSetupArgument_t HIP_SETUP_ARGUMENT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipLaunchByPtr_t)(const void *func);
+static hipLaunchByPtr_t HIP_LAUNCH_BY_PTR_PTR = (void *) 0x0;
+
+typedef hipError_t (*__hipPushCallConfiguration_t)(dim3 gridDim, dim3 blockDim, size_t sharedMem, hipStream_t stream);
+static __hipPushCallConfiguration_t __HIP_PUSH_CALL_CONFIGURATION_PTR = (void *) 0x0;
+
+typedef hipError_t (*__hipPopCallConfiguration_t)(dim3 *gridDim, dim3 *blockDim, size_t *sharedMem, hipStream_t *stream);
+static __hipPopCallConfiguration_t __HIP_POP_CALL_CONFIGURATION_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipLaunchKernel_t)(const void *function_address, dim3 numBlocks, dim3 dimBlocks, void **args, size_t sharedMemBytes, hipStream_t stream);
+static hipLaunchKernel_t HIP_LAUNCH_KERNEL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDrvMemcpy2DUnaligned_t)(const hip_Memcpy2D *pCopy);
+static hipDrvMemcpy2DUnaligned_t HIP_DRV_MEMCPY2_DUNALIGNED_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipExtLaunchKernel_t)(const void *function_address, dim3 numBlocks, dim3 dimBlocks, void **args, size_t sharedMemBytes, hipStream_t stream, hipEvent_t startEvent, hipEvent_t stopEvent, int flags);
+static hipExtLaunchKernel_t HIP_EXT_LAUNCH_KERNEL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipBindTextureToMipmappedArray_t)(const textureReference *tex, hipMipmappedArray_const_t mipmappedArray, const hipChannelFormatDesc *desc);
+static hipBindTextureToMipmappedArray_t HIP_BIND_TEXTURE_TO_MIPMAPPED_ARRAY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipCreateTextureObject_t)(hipTextureObject_t *pTexObject, const hipResourceDesc *pResDesc, const hipTextureDesc *pTexDesc, const struct hipResourceViewDesc *pResViewDesc);
+static hipCreateTextureObject_t HIP_CREATE_TEXTURE_OBJECT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDestroyTextureObject_t)(hipTextureObject_t textureObject);
+static hipDestroyTextureObject_t HIP_DESTROY_TEXTURE_OBJECT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGetChannelDesc_t)(hipChannelFormatDesc *desc, hipArray_const_t array);
+static hipGetChannelDesc_t HIP_GET_CHANNEL_DESC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGetTextureObjectResourceDesc_t)(hipResourceDesc *pResDesc, hipTextureObject_t textureObject);
+static hipGetTextureObjectResourceDesc_t HIP_GET_TEXTURE_OBJECT_RESOURCE_DESC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGetTextureObjectResourceViewDesc_t)(struct hipResourceViewDesc *pResViewDesc, hipTextureObject_t textureObject);
+static hipGetTextureObjectResourceViewDesc_t HIP_GET_TEXTURE_OBJECT_RESOURCE_VIEW_DESC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGetTextureObjectTextureDesc_t)(hipTextureDesc *pTexDesc, hipTextureObject_t textureObject);
+static hipGetTextureObjectTextureDesc_t HIP_GET_TEXTURE_OBJECT_TEXTURE_DESC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexObjectCreate_t)(hipTextureObject_t *pTexObject, const HIP_RESOURCE_DESC *pResDesc, const HIP_TEXTURE_DESC *pTexDesc, const HIP_RESOURCE_VIEW_DESC *pResViewDesc);
+static hipTexObjectCreate_t HIP_TEX_OBJECT_CREATE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexObjectDestroy_t)(hipTextureObject_t texObject);
+static hipTexObjectDestroy_t HIP_TEX_OBJECT_DESTROY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexObjectGetResourceDesc_t)(HIP_RESOURCE_DESC *pResDesc, hipTextureObject_t texObject);
+static hipTexObjectGetResourceDesc_t HIP_TEX_OBJECT_GET_RESOURCE_DESC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexObjectGetResourceViewDesc_t)(HIP_RESOURCE_VIEW_DESC *pResViewDesc, hipTextureObject_t texObject);
+static hipTexObjectGetResourceViewDesc_t HIP_TEX_OBJECT_GET_RESOURCE_VIEW_DESC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexObjectGetTextureDesc_t)(HIP_TEXTURE_DESC *pTexDesc, hipTextureObject_t texObject);
+static hipTexObjectGetTextureDesc_t HIP_TEX_OBJECT_GET_TEXTURE_DESC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGetTextureReference_t)(const textureReference **texref, const void *symbol);
+static hipGetTextureReference_t HIP_GET_TEXTURE_REFERENCE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefSetAddressMode_t)(textureReference *texRef, int dim, enum hipTextureAddressMode am);
+static hipTexRefSetAddressMode_t HIP_TEX_REF_SET_ADDRESS_MODE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefSetArray_t)(textureReference *tex, hipArray_const_t array, unsigned int flags);
+static hipTexRefSetArray_t HIP_TEX_REF_SET_ARRAY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefSetFilterMode_t)(textureReference *texRef, enum hipTextureFilterMode fm);
+static hipTexRefSetFilterMode_t HIP_TEX_REF_SET_FILTER_MODE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefSetFlags_t)(textureReference *texRef, unsigned int Flags);
+static hipTexRefSetFlags_t HIP_TEX_REF_SET_FLAGS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefSetFormat_t)(textureReference *texRef, hipArray_Format fmt, int NumPackedComponents);
+static hipTexRefSetFormat_t HIP_TEX_REF_SET_FORMAT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipBindTexture_t)(size_t *offset, const textureReference *tex, const void *devPtr, const hipChannelFormatDesc *desc, size_t size);
+static hipBindTexture_t HIP_BIND_TEXTURE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipBindTexture2D_t)(size_t *offset, const textureReference *tex, const void *devPtr, const hipChannelFormatDesc *desc, size_t width, size_t height, size_t pitch);
+static hipBindTexture2D_t HIP_BIND_TEXTURE2_D_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipBindTextureToArray_t)(const textureReference *tex, hipArray_const_t array, const hipChannelFormatDesc *desc);
+static hipBindTextureToArray_t HIP_BIND_TEXTURE_TO_ARRAY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGetTextureAlignmentOffset_t)(size_t *offset, const textureReference *texref);
+static hipGetTextureAlignmentOffset_t HIP_GET_TEXTURE_ALIGNMENT_OFFSET_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipUnbindTexture_t)(const textureReference *tex);
+static hipUnbindTexture_t HIP_UNBIND_TEXTURE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefGetAddress_t)(hipDeviceptr_t *dev_ptr, const textureReference *texRef);
+static hipTexRefGetAddress_t HIP_TEX_REF_GET_ADDRESS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefGetAddressMode_t)(enum hipTextureAddressMode *pam, const textureReference *texRef, int dim);
+static hipTexRefGetAddressMode_t HIP_TEX_REF_GET_ADDRESS_MODE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefGetFilterMode_t)(enum hipTextureFilterMode *pfm, const textureReference *texRef);
+static hipTexRefGetFilterMode_t HIP_TEX_REF_GET_FILTER_MODE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefGetFlags_t)(unsigned int *pFlags, const textureReference *texRef);
+static hipTexRefGetFlags_t HIP_TEX_REF_GET_FLAGS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefGetFormat_t)(hipArray_Format *pFormat, int *pNumChannels, const textureReference *texRef);
+static hipTexRefGetFormat_t HIP_TEX_REF_GET_FORMAT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefGetMaxAnisotropy_t)(int *pmaxAnsio, const textureReference *texRef);
+static hipTexRefGetMaxAnisotropy_t HIP_TEX_REF_GET_MAX_ANISOTROPY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefGetMipmapFilterMode_t)(enum hipTextureFilterMode *pfm, const textureReference *texRef);
+static hipTexRefGetMipmapFilterMode_t HIP_TEX_REF_GET_MIPMAP_FILTER_MODE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefGetMipmapLevelBias_t)(float *pbias, const textureReference *texRef);
+static hipTexRefGetMipmapLevelBias_t HIP_TEX_REF_GET_MIPMAP_LEVEL_BIAS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefGetMipmapLevelClamp_t)(float *pminMipmapLevelClamp, float *pmaxMipmapLevelClamp, const textureReference *texRef);
+static hipTexRefGetMipmapLevelClamp_t HIP_TEX_REF_GET_MIPMAP_LEVEL_CLAMP_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefGetMipMappedArray_t)(hipMipmappedArray_t *pArray, const textureReference *texRef);
+static hipTexRefGetMipMappedArray_t HIP_TEX_REF_GET_MIP_MAPPED_ARRAY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefSetAddress_t)(size_t *ByteOffset, textureReference *texRef, hipDeviceptr_t dptr, size_t bytes);
+static hipTexRefSetAddress_t HIP_TEX_REF_SET_ADDRESS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefSetAddress2D_t)(textureReference *texRef, const HIP_ARRAY_DESCRIPTOR *desc, hipDeviceptr_t dptr, size_t Pitch);
+static hipTexRefSetAddress2D_t HIP_TEX_REF_SET_ADDRESS2_D_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefSetMaxAnisotropy_t)(textureReference *texRef, unsigned int maxAniso);
+static hipTexRefSetMaxAnisotropy_t HIP_TEX_REF_SET_MAX_ANISOTROPY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefSetBorderColor_t)(textureReference *texRef, float *pBorderColor);
+static hipTexRefSetBorderColor_t HIP_TEX_REF_SET_BORDER_COLOR_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefSetMipmapFilterMode_t)(textureReference *texRef, enum hipTextureFilterMode fm);
+static hipTexRefSetMipmapFilterMode_t HIP_TEX_REF_SET_MIPMAP_FILTER_MODE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefSetMipmapLevelBias_t)(textureReference *texRef, float bias);
+static hipTexRefSetMipmapLevelBias_t HIP_TEX_REF_SET_MIPMAP_LEVEL_BIAS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefSetMipmapLevelClamp_t)(textureReference *texRef, float minMipMapLevelClamp, float maxMipMapLevelClamp);
+static hipTexRefSetMipmapLevelClamp_t HIP_TEX_REF_SET_MIPMAP_LEVEL_CLAMP_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipTexRefSetMipmappedArray_t)(textureReference *texRef, struct hipMipmappedArray *mipmappedArray, unsigned int Flags);
+static hipTexRefSetMipmappedArray_t HIP_TEX_REF_SET_MIPMAPPED_ARRAY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMipmappedArrayCreate_t)(hipMipmappedArray_t *pHandle, HIP_ARRAY3D_DESCRIPTOR *pMipmappedArrayDesc, unsigned int numMipmapLevels);
+static hipMipmappedArrayCreate_t HIP_MIPMAPPED_ARRAY_CREATE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMipmappedArrayDestroy_t)(hipMipmappedArray_t hMipmappedArray);
+static hipMipmappedArrayDestroy_t HIP_MIPMAPPED_ARRAY_DESTROY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMipmappedArrayGetLevel_t)(hipArray_t *pLevelArray, hipMipmappedArray_t hMipMappedArray, unsigned int level);
+static hipMipmappedArrayGetLevel_t HIP_MIPMAPPED_ARRAY_GET_LEVEL_PTR = (void *) 0x0;
+
+typedef const char *(*hipApiName_t)(uint32_t id);
+static hipApiName_t HIP_API_NAME_PTR = (void *) 0x0;
+
+typedef const char *(*hipKernelNameRef_t)(const hipFunction_t f);
+static hipKernelNameRef_t HIP_KERNEL_NAME_REF_PTR = (void *) 0x0;
+
+typedef const char *(*hipKernelNameRefByPtr_t)(const void *hostFunction, hipStream_t stream);
+static hipKernelNameRefByPtr_t HIP_KERNEL_NAME_REF_BY_PTR_PTR = (void *) 0x0;
+
+typedef int (*hipGetStreamDeviceId_t)(hipStream_t stream);
+static hipGetStreamDeviceId_t HIP_GET_STREAM_DEVICE_ID_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamBeginCapture_t)(hipStream_t stream, hipStreamCaptureMode mode);
+static hipStreamBeginCapture_t HIP_STREAM_BEGIN_CAPTURE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamEndCapture_t)(hipStream_t stream, hipGraph_t *pGraph);
+static hipStreamEndCapture_t HIP_STREAM_END_CAPTURE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamGetCaptureInfo_t)(hipStream_t stream, hipStreamCaptureStatus *pCaptureStatus, unsigned long long int *pId);
+static hipStreamGetCaptureInfo_t HIP_STREAM_GET_CAPTURE_INFO_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamGetCaptureInfo_v2_t)(hipStream_t stream, hipStreamCaptureStatus *captureStatus_out, unsigned long long int *id_out, hipGraph_t *graph_out, const hipGraphNode_t **dependencies_out, size_t *numDependencies_out);
+static hipStreamGetCaptureInfo_v2_t HIP_STREAM_GET_CAPTURE_INFO_V2_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamIsCapturing_t)(hipStream_t stream, hipStreamCaptureStatus *pCaptureStatus);
+static hipStreamIsCapturing_t HIP_STREAM_IS_CAPTURING_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamUpdateCaptureDependencies_t)(hipStream_t stream, hipGraphNode_t *dependencies, size_t numDependencies, unsigned int flags);
+static hipStreamUpdateCaptureDependencies_t HIP_STREAM_UPDATE_CAPTURE_DEPENDENCIES_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipLaunchHostFunc_t)(hipStream_t stream, hipHostFn_t fn, void *userData);
+static hipLaunchHostFunc_t HIP_LAUNCH_HOST_FUNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipThreadExchangeStreamCaptureMode_t)(hipStreamCaptureMode *mode);
+static hipThreadExchangeStreamCaptureMode_t HIP_THREAD_EXCHANGE_STREAM_CAPTURE_MODE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphCreate_t)(hipGraph_t *pGraph, unsigned int flags);
+static hipGraphCreate_t HIP_GRAPH_CREATE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphDestroy_t)(hipGraph_t graph);
+static hipGraphDestroy_t HIP_GRAPH_DESTROY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphAddDependencies_t)(hipGraph_t graph, const hipGraphNode_t *from, const hipGraphNode_t *to, size_t numDependencies);
+static hipGraphAddDependencies_t HIP_GRAPH_ADD_DEPENDENCIES_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphRemoveDependencies_t)(hipGraph_t graph, const hipGraphNode_t *from, const hipGraphNode_t *to, size_t numDependencies);
+static hipGraphRemoveDependencies_t HIP_GRAPH_REMOVE_DEPENDENCIES_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphGetEdges_t)(hipGraph_t graph, hipGraphNode_t *from, hipGraphNode_t *to, size_t *numEdges);
+static hipGraphGetEdges_t HIP_GRAPH_GET_EDGES_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphGetNodes_t)(hipGraph_t graph, hipGraphNode_t *nodes, size_t *numNodes);
+static hipGraphGetNodes_t HIP_GRAPH_GET_NODES_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphGetRootNodes_t)(hipGraph_t graph, hipGraphNode_t *pRootNodes, size_t *pNumRootNodes);
+static hipGraphGetRootNodes_t HIP_GRAPH_GET_ROOT_NODES_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphNodeGetDependencies_t)(hipGraphNode_t node, hipGraphNode_t *pDependencies, size_t *pNumDependencies);
+static hipGraphNodeGetDependencies_t HIP_GRAPH_NODE_GET_DEPENDENCIES_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphNodeGetDependentNodes_t)(hipGraphNode_t node, hipGraphNode_t *pDependentNodes, size_t *pNumDependentNodes);
+static hipGraphNodeGetDependentNodes_t HIP_GRAPH_NODE_GET_DEPENDENT_NODES_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphNodeGetType_t)(hipGraphNode_t node, hipGraphNodeType *pType);
+static hipGraphNodeGetType_t HIP_GRAPH_NODE_GET_TYPE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphDestroyNode_t)(hipGraphNode_t node);
+static hipGraphDestroyNode_t HIP_GRAPH_DESTROY_NODE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphClone_t)(hipGraph_t *pGraphClone, hipGraph_t originalGraph);
+static hipGraphClone_t HIP_GRAPH_CLONE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphNodeFindInClone_t)(hipGraphNode_t *pNode, hipGraphNode_t originalNode, hipGraph_t clonedGraph);
+static hipGraphNodeFindInClone_t HIP_GRAPH_NODE_FIND_IN_CLONE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphInstantiate_t)(hipGraphExec_t *pGraphExec, hipGraph_t graph, hipGraphNode_t *pErrorNode, char *pLogBuffer, size_t bufferSize);
+static hipGraphInstantiate_t HIP_GRAPH_INSTANTIATE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphInstantiateWithFlags_t)(hipGraphExec_t *pGraphExec, hipGraph_t graph, unsigned long long int flags);
+static hipGraphInstantiateWithFlags_t HIP_GRAPH_INSTANTIATE_WITH_FLAGS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphLaunch_t)(hipGraphExec_t graphExec, hipStream_t stream);
+static hipGraphLaunch_t HIP_GRAPH_LAUNCH_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphUpload_t)(hipGraphExec_t graphExec, hipStream_t stream);
+static hipGraphUpload_t HIP_GRAPH_UPLOAD_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphExecDestroy_t)(hipGraphExec_t graphExec);
+static hipGraphExecDestroy_t HIP_GRAPH_EXEC_DESTROY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphExecUpdate_t)(hipGraphExec_t hGraphExec, hipGraph_t hGraph, hipGraphNode_t *hErrorNode_out, hipGraphExecUpdateResult *updateResult_out);
+static hipGraphExecUpdate_t HIP_GRAPH_EXEC_UPDATE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphAddKernelNode_t)(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, const hipKernelNodeParams *pNodeParams);
+static hipGraphAddKernelNode_t HIP_GRAPH_ADD_KERNEL_NODE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphKernelNodeGetParams_t)(hipGraphNode_t node, hipKernelNodeParams *pNodeParams);
+static hipGraphKernelNodeGetParams_t HIP_GRAPH_KERNEL_NODE_GET_PARAMS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphKernelNodeSetParams_t)(hipGraphNode_t node, const hipKernelNodeParams *pNodeParams);
+static hipGraphKernelNodeSetParams_t HIP_GRAPH_KERNEL_NODE_SET_PARAMS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphExecKernelNodeSetParams_t)(hipGraphExec_t hGraphExec, hipGraphNode_t node, const hipKernelNodeParams *pNodeParams);
+static hipGraphExecKernelNodeSetParams_t HIP_GRAPH_EXEC_KERNEL_NODE_SET_PARAMS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphAddMemcpyNode_t)(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, const hipMemcpy3DParms *pCopyParams);
+static hipGraphAddMemcpyNode_t HIP_GRAPH_ADD_MEMCPY_NODE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphMemcpyNodeGetParams_t)(hipGraphNode_t node, hipMemcpy3DParms *pNodeParams);
+static hipGraphMemcpyNodeGetParams_t HIP_GRAPH_MEMCPY_NODE_GET_PARAMS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphMemcpyNodeSetParams_t)(hipGraphNode_t node, const hipMemcpy3DParms *pNodeParams);
+static hipGraphMemcpyNodeSetParams_t HIP_GRAPH_MEMCPY_NODE_SET_PARAMS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphKernelNodeSetAttribute_t)(hipGraphNode_t hNode, hipKernelNodeAttrID attr, const hipKernelNodeAttrValue *value);
+static hipGraphKernelNodeSetAttribute_t HIP_GRAPH_KERNEL_NODE_SET_ATTRIBUTE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphKernelNodeGetAttribute_t)(hipGraphNode_t hNode, hipKernelNodeAttrID attr, hipKernelNodeAttrValue *value);
+static hipGraphKernelNodeGetAttribute_t HIP_GRAPH_KERNEL_NODE_GET_ATTRIBUTE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphExecMemcpyNodeSetParams_t)(hipGraphExec_t hGraphExec, hipGraphNode_t node, hipMemcpy3DParms *pNodeParams);
+static hipGraphExecMemcpyNodeSetParams_t HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphAddMemcpyNode1D_t)(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, void *dst, const void *src, size_t count, hipMemcpyKind kind);
+static hipGraphAddMemcpyNode1D_t HIP_GRAPH_ADD_MEMCPY_NODE1_D_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphMemcpyNodeSetParams1D_t)(hipGraphNode_t node, void *dst, const void *src, size_t count, hipMemcpyKind kind);
+static hipGraphMemcpyNodeSetParams1D_t HIP_GRAPH_MEMCPY_NODE_SET_PARAMS1_D_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphExecMemcpyNodeSetParams1D_t)(hipGraphExec_t hGraphExec, hipGraphNode_t node, void *dst, const void *src, size_t count, hipMemcpyKind kind);
+static hipGraphExecMemcpyNodeSetParams1D_t HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS1_D_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphAddMemcpyNodeFromSymbol_t)(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, void *dst, const void *symbol, size_t count, size_t offset, hipMemcpyKind kind);
+static hipGraphAddMemcpyNodeFromSymbol_t HIP_GRAPH_ADD_MEMCPY_NODE_FROM_SYMBOL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphMemcpyNodeSetParamsFromSymbol_t)(hipGraphNode_t node, void *dst, const void *symbol, size_t count, size_t offset, hipMemcpyKind kind);
+static hipGraphMemcpyNodeSetParamsFromSymbol_t HIP_GRAPH_MEMCPY_NODE_SET_PARAMS_FROM_SYMBOL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphExecMemcpyNodeSetParamsFromSymbol_t)(hipGraphExec_t hGraphExec, hipGraphNode_t node, void *dst, const void *symbol, size_t count, size_t offset, hipMemcpyKind kind);
+static hipGraphExecMemcpyNodeSetParamsFromSymbol_t HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS_FROM_SYMBOL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphAddMemcpyNodeToSymbol_t)(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, const void *symbol, const void *src, size_t count, size_t offset, hipMemcpyKind kind);
+static hipGraphAddMemcpyNodeToSymbol_t HIP_GRAPH_ADD_MEMCPY_NODE_TO_SYMBOL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphMemcpyNodeSetParamsToSymbol_t)(hipGraphNode_t node, const void *symbol, const void *src, size_t count, size_t offset, hipMemcpyKind kind);
+static hipGraphMemcpyNodeSetParamsToSymbol_t HIP_GRAPH_MEMCPY_NODE_SET_PARAMS_TO_SYMBOL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphExecMemcpyNodeSetParamsToSymbol_t)(hipGraphExec_t hGraphExec, hipGraphNode_t node, const void *symbol, const void *src, size_t count, size_t offset, hipMemcpyKind kind);
+static hipGraphExecMemcpyNodeSetParamsToSymbol_t HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS_TO_SYMBOL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphAddMemsetNode_t)(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, const hipMemsetParams *pMemsetParams);
+static hipGraphAddMemsetNode_t HIP_GRAPH_ADD_MEMSET_NODE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphMemsetNodeGetParams_t)(hipGraphNode_t node, hipMemsetParams *pNodeParams);
+static hipGraphMemsetNodeGetParams_t HIP_GRAPH_MEMSET_NODE_GET_PARAMS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphMemsetNodeSetParams_t)(hipGraphNode_t node, const hipMemsetParams *pNodeParams);
+static hipGraphMemsetNodeSetParams_t HIP_GRAPH_MEMSET_NODE_SET_PARAMS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphExecMemsetNodeSetParams_t)(hipGraphExec_t hGraphExec, hipGraphNode_t node, const hipMemsetParams *pNodeParams);
+static hipGraphExecMemsetNodeSetParams_t HIP_GRAPH_EXEC_MEMSET_NODE_SET_PARAMS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphAddHostNode_t)(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, const hipHostNodeParams *pNodeParams);
+static hipGraphAddHostNode_t HIP_GRAPH_ADD_HOST_NODE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphHostNodeGetParams_t)(hipGraphNode_t node, hipHostNodeParams *pNodeParams);
+static hipGraphHostNodeGetParams_t HIP_GRAPH_HOST_NODE_GET_PARAMS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphHostNodeSetParams_t)(hipGraphNode_t node, const hipHostNodeParams *pNodeParams);
+static hipGraphHostNodeSetParams_t HIP_GRAPH_HOST_NODE_SET_PARAMS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphExecHostNodeSetParams_t)(hipGraphExec_t hGraphExec, hipGraphNode_t node, const hipHostNodeParams *pNodeParams);
+static hipGraphExecHostNodeSetParams_t HIP_GRAPH_EXEC_HOST_NODE_SET_PARAMS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphAddChildGraphNode_t)(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, hipGraph_t childGraph);
+static hipGraphAddChildGraphNode_t HIP_GRAPH_ADD_CHILD_GRAPH_NODE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphChildGraphNodeGetGraph_t)(hipGraphNode_t node, hipGraph_t *pGraph);
+static hipGraphChildGraphNodeGetGraph_t HIP_GRAPH_CHILD_GRAPH_NODE_GET_GRAPH_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphExecChildGraphNodeSetParams_t)(hipGraphExec_t hGraphExec, hipGraphNode_t node, hipGraph_t childGraph);
+static hipGraphExecChildGraphNodeSetParams_t HIP_GRAPH_EXEC_CHILD_GRAPH_NODE_SET_PARAMS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphAddEmptyNode_t)(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies);
+static hipGraphAddEmptyNode_t HIP_GRAPH_ADD_EMPTY_NODE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphAddEventRecordNode_t)(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, hipEvent_t event);
+static hipGraphAddEventRecordNode_t HIP_GRAPH_ADD_EVENT_RECORD_NODE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphEventRecordNodeGetEvent_t)(hipGraphNode_t node, hipEvent_t *event_out);
+static hipGraphEventRecordNodeGetEvent_t HIP_GRAPH_EVENT_RECORD_NODE_GET_EVENT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphEventRecordNodeSetEvent_t)(hipGraphNode_t node, hipEvent_t event);
+static hipGraphEventRecordNodeSetEvent_t HIP_GRAPH_EVENT_RECORD_NODE_SET_EVENT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphExecEventRecordNodeSetEvent_t)(hipGraphExec_t hGraphExec, hipGraphNode_t hNode, hipEvent_t event);
+static hipGraphExecEventRecordNodeSetEvent_t HIP_GRAPH_EXEC_EVENT_RECORD_NODE_SET_EVENT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphAddEventWaitNode_t)(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, hipEvent_t event);
+static hipGraphAddEventWaitNode_t HIP_GRAPH_ADD_EVENT_WAIT_NODE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphEventWaitNodeGetEvent_t)(hipGraphNode_t node, hipEvent_t *event_out);
+static hipGraphEventWaitNodeGetEvent_t HIP_GRAPH_EVENT_WAIT_NODE_GET_EVENT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphEventWaitNodeSetEvent_t)(hipGraphNode_t node, hipEvent_t event);
+static hipGraphEventWaitNodeSetEvent_t HIP_GRAPH_EVENT_WAIT_NODE_SET_EVENT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphExecEventWaitNodeSetEvent_t)(hipGraphExec_t hGraphExec, hipGraphNode_t hNode, hipEvent_t event);
+static hipGraphExecEventWaitNodeSetEvent_t HIP_GRAPH_EXEC_EVENT_WAIT_NODE_SET_EVENT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceGetGraphMemAttribute_t)(int device, hipGraphMemAttributeType attr, void *value);
+static hipDeviceGetGraphMemAttribute_t HIP_DEVICE_GET_GRAPH_MEM_ATTRIBUTE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceSetGraphMemAttribute_t)(int device, hipGraphMemAttributeType attr, void *value);
+static hipDeviceSetGraphMemAttribute_t HIP_DEVICE_SET_GRAPH_MEM_ATTRIBUTE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipDeviceGraphMemTrim_t)(int device);
+static hipDeviceGraphMemTrim_t HIP_DEVICE_GRAPH_MEM_TRIM_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipUserObjectCreate_t)(hipUserObject_t *object_out, void *ptr, hipHostFn_t destroy, unsigned int initialRefcount, unsigned int flags);
+static hipUserObjectCreate_t HIP_USER_OBJECT_CREATE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipUserObjectRelease_t)(hipUserObject_t object, unsigned int count);
+static hipUserObjectRelease_t HIP_USER_OBJECT_RELEASE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipUserObjectRetain_t)(hipUserObject_t object, unsigned int count);
+static hipUserObjectRetain_t HIP_USER_OBJECT_RETAIN_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphRetainUserObject_t)(hipGraph_t graph, hipUserObject_t object, unsigned int count, unsigned int flags);
+static hipGraphRetainUserObject_t HIP_GRAPH_RETAIN_USER_OBJECT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphReleaseUserObject_t)(hipGraph_t graph, hipUserObject_t object, unsigned int count);
+static hipGraphReleaseUserObject_t HIP_GRAPH_RELEASE_USER_OBJECT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemAddressFree_t)(void *devPtr, size_t size);
+static hipMemAddressFree_t HIP_MEM_ADDRESS_FREE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemAddressReserve_t)(void **ptr, size_t size, size_t alignment, void *addr, unsigned long long int flags);
+static hipMemAddressReserve_t HIP_MEM_ADDRESS_RESERVE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemCreate_t)(hipMemGenericAllocationHandle_t *handle, size_t size, const hipMemAllocationProp *prop, unsigned long long int flags);
+static hipMemCreate_t HIP_MEM_CREATE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemExportToShareableHandle_t)(void *shareableHandle, hipMemGenericAllocationHandle_t handle, hipMemAllocationHandleType handleType, unsigned long long int flags);
+static hipMemExportToShareableHandle_t HIP_MEM_EXPORT_TO_SHAREABLE_HANDLE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemGetAccess_t)(unsigned long long int *flags, const hipMemLocation *location, void *ptr);
+static hipMemGetAccess_t HIP_MEM_GET_ACCESS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemGetAllocationGranularity_t)(size_t *granularity, const hipMemAllocationProp *prop, hipMemAllocationGranularity_flags option);
+static hipMemGetAllocationGranularity_t HIP_MEM_GET_ALLOCATION_GRANULARITY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemGetAllocationPropertiesFromHandle_t)(hipMemAllocationProp *prop, hipMemGenericAllocationHandle_t handle);
+static hipMemGetAllocationPropertiesFromHandle_t HIP_MEM_GET_ALLOCATION_PROPERTIES_FROM_HANDLE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemImportFromShareableHandle_t)(hipMemGenericAllocationHandle_t *handle, void *osHandle, hipMemAllocationHandleType shHandleType);
+static hipMemImportFromShareableHandle_t HIP_MEM_IMPORT_FROM_SHAREABLE_HANDLE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemMap_t)(void *ptr, size_t size, size_t offset, hipMemGenericAllocationHandle_t handle, unsigned long long int flags);
+static hipMemMap_t HIP_MEM_MAP_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemMapArrayAsync_t)(hipArrayMapInfo *mapInfoList, unsigned int count, hipStream_t stream);
+static hipMemMapArrayAsync_t HIP_MEM_MAP_ARRAY_ASYNC_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemRelease_t)(hipMemGenericAllocationHandle_t handle);
+static hipMemRelease_t HIP_MEM_RELEASE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemRetainAllocationHandle_t)(hipMemGenericAllocationHandle_t *handle, void *addr);
+static hipMemRetainAllocationHandle_t HIP_MEM_RETAIN_ALLOCATION_HANDLE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemSetAccess_t)(void *ptr, size_t size, const hipMemAccessDesc *desc, size_t count);
+static hipMemSetAccess_t HIP_MEM_SET_ACCESS_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemUnmap_t)(void *ptr, size_t size);
+static hipMemUnmap_t HIP_MEM_UNMAP_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGLGetDevices_t)(unsigned int *pHipDeviceCount, int *pHipDevices, unsigned int hipDeviceCount, hipGLDeviceList deviceList);
+static hipGLGetDevices_t HIP_GLGET_DEVICES_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphicsGLRegisterBuffer_t)(hipGraphicsResource **resource, GLuint buffer, unsigned int flags);
+static hipGraphicsGLRegisterBuffer_t HIP_GRAPHICS_GLREGISTER_BUFFER_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphicsGLRegisterImage_t)(hipGraphicsResource **resource, GLuint image, GLenum target, unsigned int flags);
+static hipGraphicsGLRegisterImage_t HIP_GRAPHICS_GLREGISTER_IMAGE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphicsMapResources_t)(int count, hipGraphicsResource_t *resources, hipStream_t stream);
+static hipGraphicsMapResources_t HIP_GRAPHICS_MAP_RESOURCES_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphicsSubResourceGetMappedArray_t)(hipArray_t *array, hipGraphicsResource_t resource, unsigned int arrayIndex, unsigned int mipLevel);
+static hipGraphicsSubResourceGetMappedArray_t HIP_GRAPHICS_SUB_RESOURCE_GET_MAPPED_ARRAY_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphicsResourceGetMappedPointer_t)(void **devPtr, size_t *size, hipGraphicsResource_t resource);
+static hipGraphicsResourceGetMappedPointer_t HIP_GRAPHICS_RESOURCE_GET_MAPPED_POINTER_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphicsUnmapResources_t)(int count, hipGraphicsResource_t *resources, hipStream_t stream);
+static hipGraphicsUnmapResources_t HIP_GRAPHICS_UNMAP_RESOURCES_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphicsUnregisterResource_t)(hipGraphicsResource_t resource);
+static hipGraphicsUnregisterResource_t HIP_GRAPHICS_UNREGISTER_RESOURCE_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy_spt_t)(void *dst, const void *src, size_t sizeBytes, hipMemcpyKind kind);
+static hipMemcpy_spt_t HIP_MEMCPY_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyToSymbol_spt_t)(const void *symbol, const void *src, size_t sizeBytes, size_t offset, hipMemcpyKind kind);
+static hipMemcpyToSymbol_spt_t HIP_MEMCPY_TO_SYMBOL_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyFromSymbol_spt_t)(void *dst, const void *symbol, size_t sizeBytes, size_t offset, hipMemcpyKind kind);
+static hipMemcpyFromSymbol_spt_t HIP_MEMCPY_FROM_SYMBOL_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy2D_spt_t)(void *dst, size_t dpitch, const void *src, size_t spitch, size_t width, size_t height, hipMemcpyKind kind);
+static hipMemcpy2D_spt_t HIP_MEMCPY2_D_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy2DFromArray_spt_t)(void *dst, size_t dpitch, hipArray_const_t src, size_t wOffset, size_t hOffset, size_t width, size_t height, hipMemcpyKind kind);
+static hipMemcpy2DFromArray_spt_t HIP_MEMCPY2_DFROM_ARRAY_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy3D_spt_t)(const struct hipMemcpy3DParms *p);
+static hipMemcpy3D_spt_t HIP_MEMCPY3_D_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemset_spt_t)(void *dst, int value, size_t sizeBytes);
+static hipMemset_spt_t HIP_MEMSET_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemsetAsync_spt_t)(void *dst, int value, size_t sizeBytes, hipStream_t stream);
+static hipMemsetAsync_spt_t HIP_MEMSET_ASYNC_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemset2D_spt_t)(void *dst, size_t pitch, int value, size_t width, size_t height);
+static hipMemset2D_spt_t HIP_MEMSET2_D_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemset2DAsync_spt_t)(void *dst, size_t pitch, int value, size_t width, size_t height, hipStream_t stream);
+static hipMemset2DAsync_spt_t HIP_MEMSET2_DASYNC_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemset3DAsync_spt_t)(hipPitchedPtr pitchedDevPtr, int value, hipExtent extent, hipStream_t stream);
+static hipMemset3DAsync_spt_t HIP_MEMSET3_DASYNC_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemset3D_spt_t)(hipPitchedPtr pitchedDevPtr, int value, hipExtent extent);
+static hipMemset3D_spt_t HIP_MEMSET3_D_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyAsync_spt_t)(void *dst, const void *src, size_t sizeBytes, hipMemcpyKind kind, hipStream_t stream);
+static hipMemcpyAsync_spt_t HIP_MEMCPY_ASYNC_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy3DAsync_spt_t)(const hipMemcpy3DParms *p, hipStream_t stream);
+static hipMemcpy3DAsync_spt_t HIP_MEMCPY3_DASYNC_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy2DAsync_spt_t)(void *dst, size_t dpitch, const void *src, size_t spitch, size_t width, size_t height, hipMemcpyKind kind, hipStream_t stream);
+static hipMemcpy2DAsync_spt_t HIP_MEMCPY2_DASYNC_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyFromSymbolAsync_spt_t)(void *dst, const void *symbol, size_t sizeBytes, size_t offset, hipMemcpyKind kind, hipStream_t stream);
+static hipMemcpyFromSymbolAsync_spt_t HIP_MEMCPY_FROM_SYMBOL_ASYNC_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyToSymbolAsync_spt_t)(const void *symbol, const void *src, size_t sizeBytes, size_t offset, hipMemcpyKind kind, hipStream_t stream);
+static hipMemcpyToSymbolAsync_spt_t HIP_MEMCPY_TO_SYMBOL_ASYNC_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpyFromArray_spt_t)(void *dst, hipArray_const_t src, size_t wOffsetSrc, size_t hOffset, size_t count, hipMemcpyKind kind);
+static hipMemcpyFromArray_spt_t HIP_MEMCPY_FROM_ARRAY_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy2DToArray_spt_t)(hipArray *dst, size_t wOffset, size_t hOffset, const void *src, size_t spitch, size_t width, size_t height, hipMemcpyKind kind);
+static hipMemcpy2DToArray_spt_t HIP_MEMCPY2_DTO_ARRAY_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy2DFromArrayAsync_spt_t)(void *dst, size_t dpitch, hipArray_const_t src, size_t wOffsetSrc, size_t hOffsetSrc, size_t width, size_t height, hipMemcpyKind kind, hipStream_t stream);
+static hipMemcpy2DFromArrayAsync_spt_t HIP_MEMCPY2_DFROM_ARRAY_ASYNC_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipMemcpy2DToArrayAsync_spt_t)(hipArray *dst, size_t wOffset, size_t hOffset, const void *src, size_t spitch, size_t width, size_t height, hipMemcpyKind kind, hipStream_t stream);
+static hipMemcpy2DToArrayAsync_spt_t HIP_MEMCPY2_DTO_ARRAY_ASYNC_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamQuery_spt_t)(hipStream_t stream);
+static hipStreamQuery_spt_t HIP_STREAM_QUERY_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamSynchronize_spt_t)(hipStream_t stream);
+static hipStreamSynchronize_spt_t HIP_STREAM_SYNCHRONIZE_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamGetPriority_spt_t)(hipStream_t stream, int *priority);
+static hipStreamGetPriority_spt_t HIP_STREAM_GET_PRIORITY_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamWaitEvent_spt_t)(hipStream_t stream, hipEvent_t event, unsigned int flags);
+static hipStreamWaitEvent_spt_t HIP_STREAM_WAIT_EVENT_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamGetFlags_spt_t)(hipStream_t stream, unsigned int *flags);
+static hipStreamGetFlags_spt_t HIP_STREAM_GET_FLAGS_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamAddCallback_spt_t)(hipStream_t stream, hipStreamCallback_t callback, void *userData, unsigned int flags);
+static hipStreamAddCallback_spt_t HIP_STREAM_ADD_CALLBACK_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipEventRecord_spt_t)(hipEvent_t event, hipStream_t stream);
+static hipEventRecord_spt_t HIP_EVENT_RECORD_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipLaunchCooperativeKernel_spt_t)(const void *f, dim3 gridDim, dim3 blockDim, void **kernelParams, uint32_t sharedMemBytes, hipStream_t hStream);
+static hipLaunchCooperativeKernel_spt_t HIP_LAUNCH_COOPERATIVE_KERNEL_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipLaunchKernel_spt_t)(const void *function_address, dim3 numBlocks, dim3 dimBlocks, void **args, size_t sharedMemBytes, hipStream_t stream);
+static hipLaunchKernel_spt_t HIP_LAUNCH_KERNEL_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphLaunch_spt_t)(hipGraphExec_t graphExec, hipStream_t stream);
+static hipGraphLaunch_spt_t HIP_GRAPH_LAUNCH_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamBeginCapture_spt_t)(hipStream_t stream, hipStreamCaptureMode mode);
+static hipStreamBeginCapture_spt_t HIP_STREAM_BEGIN_CAPTURE_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamEndCapture_spt_t)(hipStream_t stream, hipGraph_t *pGraph);
+static hipStreamEndCapture_spt_t HIP_STREAM_END_CAPTURE_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamIsCapturing_spt_t)(hipStream_t stream, hipStreamCaptureStatus *pCaptureStatus);
+static hipStreamIsCapturing_spt_t HIP_STREAM_IS_CAPTURING_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamGetCaptureInfo_spt_t)(hipStream_t stream, hipStreamCaptureStatus *pCaptureStatus, unsigned long long int *pId);
+static hipStreamGetCaptureInfo_spt_t HIP_STREAM_GET_CAPTURE_INFO_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipStreamGetCaptureInfo_v2_spt_t)(hipStream_t stream, hipStreamCaptureStatus *captureStatus_out, unsigned long long int *id_out, hipGraph_t *graph_out, const hipGraphNode_t **dependencies_out, size_t *numDependencies_out);
+static hipStreamGetCaptureInfo_v2_spt_t HIP_STREAM_GET_CAPTURE_INFO_V2_SPT_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipLaunchHostFunc_spt_t)(hipStream_t stream, hipHostFn_t fn, void *userData);
+static hipLaunchHostFunc_spt_t HIP_LAUNCH_HOST_FUNC_SPT_PTR = (void *) 0x0;
+
+typedef const char *(*hiprtcGetErrorString_t)(hiprtcResult result);
+static hiprtcGetErrorString_t HIPRTC_GET_ERROR_STRING_PTR = (void *) 0x0;
+
+typedef hiprtcResult (*hiprtcVersion_t)(int *major, int *minor);
+static hiprtcVersion_t HIPRTC_VERSION_PTR = (void *) 0x0;
+
+typedef hiprtcResult (*hiprtcAddNameExpression_t)(hiprtcProgram prog, const char *name_expression);
+static hiprtcAddNameExpression_t HIPRTC_ADD_NAME_EXPRESSION_PTR = (void *) 0x0;
+
+typedef hiprtcResult (*hiprtcCompileProgram_t)(hiprtcProgram prog, int numOptions, const char **options);
+static hiprtcCompileProgram_t HIPRTC_COMPILE_PROGRAM_PTR = (void *) 0x0;
+
+typedef hiprtcResult (*hiprtcCreateProgram_t)(hiprtcProgram *prog, const char *src, const char *name, int numHeaders, const char **headers, const char **includeNames);
+static hiprtcCreateProgram_t HIPRTC_CREATE_PROGRAM_PTR = (void *) 0x0;
+
+typedef hiprtcResult (*hiprtcDestroyProgram_t)(hiprtcProgram *prog);
+static hiprtcDestroyProgram_t HIPRTC_DESTROY_PROGRAM_PTR = (void *) 0x0;
+
+typedef hiprtcResult (*hiprtcGetLoweredName_t)(hiprtcProgram prog, const char *name_expression, const char **lowered_name);
+static hiprtcGetLoweredName_t HIPRTC_GET_LOWERED_NAME_PTR = (void *) 0x0;
+
+typedef hiprtcResult (*hiprtcGetProgramLog_t)(hiprtcProgram prog, char *log);
+static hiprtcGetProgramLog_t HIPRTC_GET_PROGRAM_LOG_PTR = (void *) 0x0;
+
+typedef hiprtcResult (*hiprtcGetProgramLogSize_t)(hiprtcProgram prog, size_t *logSizeRet);
+static hiprtcGetProgramLogSize_t HIPRTC_GET_PROGRAM_LOG_SIZE_PTR = (void *) 0x0;
+
+typedef hiprtcResult (*hiprtcGetCode_t)(hiprtcProgram prog, char *code);
+static hiprtcGetCode_t HIPRTC_GET_CODE_PTR = (void *) 0x0;
+
+typedef hiprtcResult (*hiprtcGetCodeSize_t)(hiprtcProgram prog, size_t *codeSizeRet);
+static hiprtcGetCodeSize_t HIPRTC_GET_CODE_SIZE_PTR = (void *) 0x0;
+
+typedef hiprtcResult (*hiprtcGetBitcode_t)(hiprtcProgram prog, char *bitcode);
+static hiprtcGetBitcode_t HIPRTC_GET_BITCODE_PTR = (void *) 0x0;
+
+typedef hiprtcResult (*hiprtcGetBitcodeSize_t)(hiprtcProgram prog, size_t *bitcode_size);
+static hiprtcGetBitcodeSize_t HIPRTC_GET_BITCODE_SIZE_PTR = (void *) 0x0;
+
+typedef hiprtcResult (*hiprtcLinkCreate_t)(unsigned int num_options, hiprtcJIT_option *option_ptr, void **option_vals_pptr, hiprtcLinkState *hip_link_state_ptr);
+static hiprtcLinkCreate_t HIPRTC_LINK_CREATE_PTR = (void *) 0x0;
+
+typedef hiprtcResult (*hiprtcLinkAddFile_t)(hiprtcLinkState hip_link_state, hiprtcJITInputType input_type, const char *file_path, unsigned int num_options, hiprtcJIT_option *options_ptr, void **option_values);
+static hiprtcLinkAddFile_t HIPRTC_LINK_ADD_FILE_PTR = (void *) 0x0;
+
+typedef hiprtcResult (*hiprtcLinkAddData_t)(hiprtcLinkState hip_link_state, hiprtcJITInputType input_type, void *image, size_t image_size, const char *name, unsigned int num_options, hiprtcJIT_option *options_ptr, void **option_values);
+static hiprtcLinkAddData_t HIPRTC_LINK_ADD_DATA_PTR = (void *) 0x0;
+
+typedef hiprtcResult (*hiprtcLinkComplete_t)(hiprtcLinkState hip_link_state, void **bin_out, size_t *size_out);
+static hiprtcLinkComplete_t HIPRTC_LINK_COMPLETE_PTR = (void *) 0x0;
+
+typedef hiprtcResult (*hiprtcLinkDestroy_t)(hiprtcLinkState hip_link_state);
+static hiprtcLinkDestroy_t HIPRTC_LINK_DESTROY_PTR = (void *) 0x0;
+
+typedef const char *(*amd_dbgapi_get_build_name_t)();
+static amd_dbgapi_get_build_name_t AMD_DBGAPI_GET_BUILD_NAME_PTR = (void *) 0x0;
+
+typedef const char *(*amd_dbgapi_get_git_hash_t)();
+static amd_dbgapi_get_git_hash_t AMD_DBGAPI_GET_GIT_HASH_PTR = (void *) 0x0;
+
+typedef size_t (*amd_dbgapi_get_build_id_t)();
+static amd_dbgapi_get_build_id_t AMD_DBGAPI_GET_BUILD_ID_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipExtModuleLaunchKernel_t)(hipFunction_t f, uint32_t globalWorkSizeX, uint32_t globalWorkSizeY, uint32_t globalWorkSizeZ, uint32_t localWorkSizeX, uint32_t localWorkSizeY, uint32_t localWorkSizeZ, size_t sharedMemBytes, hipStream_t hStream, void **kernelParams, void **extra, hipEvent_t startEvent, hipEvent_t stopEvent, uint32_t flags);
+static hipExtModuleLaunchKernel_t HIP_EXT_MODULE_LAUNCH_KERNEL_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipHccModuleLaunchKernel_t)(hipFunction_t f, uint32_t globalWorkSizeX, uint32_t globalWorkSizeY, uint32_t globalWorkSizeZ, uint32_t localWorkSizeX, uint32_t localWorkSizeY, uint32_t localWorkSizeZ, size_t sharedMemBytes, hipStream_t hStream, void **kernelParams, void **extra, hipEvent_t startEvent, hipEvent_t stopEvent);
+static hipHccModuleLaunchKernel_t HIP_HCC_MODULE_LAUNCH_KERNEL_PTR = (void *) 0x0;
+
+typedef void (*_ZN8hip_impl22hipLaunchKernelGGLImplEmRK4dim3S2_jP12ihipStream_tPPv_t)(uintptr_t function_address, const dim3 *numBlocks, const dim3 *dimBlocks, uint32_t sharedMemBytes, hipStream_t stream, void **kernarg);
+static _ZN8hip_impl22hipLaunchKernelGGLImplEmRK4dim3S2_jP12ihipStream_tPPv_t __ZN8HIP_IMPL22HIP_LAUNCH_KERNEL_GGLIMPL_EM_RK4DIM3_S2_J_P12IHIP_STREAM_T_PPV_PTR = (void *) 0x0;
+
+typedef hipError_t (*_Z22hipCreateSurfaceObjectPP13__hip_surfacePK15hipResourceDesc_t)(hipSurfaceObject_t *pSurfObject, const hipResourceDesc *pResDesc);
+static _Z22hipCreateSurfaceObjectPP13__hip_surfacePK15hipResourceDesc_t __Z22HIP_CREATE_SURFACE_OBJECT_PP13__HIP_SURFACE_PK15HIP_RESOURCE_DESC_PTR = (void *) 0x0;
+
+typedef hipError_t (*_Z23hipDestroySurfaceObjectP13__hip_surface_t)(hipSurfaceObject_t surfaceObject);
+static _Z23hipDestroySurfaceObjectP13__hip_surface_t __Z23HIP_DESTROY_SURFACE_OBJECT_P13__HIP_SURFACE_PTR = (void *) 0x0;
+
+typedef hipError_t (*_Z24hipHccModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6__t)(hipFunction_t f, uint32_t globalWorkSizeX, uint32_t globalWorkSizeY, uint32_t globalWorkSizeZ, uint32_t localWorkSizeX, uint32_t localWorkSizeY, uint32_t localWorkSizeZ, size_t sharedMemBytes, hipStream_t hStream, void **kernelParams, void **extra, hipEvent_t startEvent, hipEvent_t stopEvent);
+static _Z24hipHccModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6__t __Z24HIP_HCC_MODULE_LAUNCH_KERNEL_P18IHIP_MODULE_SYMBOL_TJJJJJJM_P12IHIP_STREAM_T_PPV_S4__P11IHIP_EVENT_T_S6__PTR = (void *) 0x0;
+
+typedef hipError_t (*_Z24hipExtModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6_j_t)(hipFunction_t f, uint32_t globalWorkSizeX, uint32_t globalWorkSizeY, uint32_t globalWorkSizeZ, uint32_t localWorkSizeX, uint32_t localWorkSizeY, uint32_t localWorkSizeZ, size_t sharedMemBytes, hipStream_t hStream, void **kernelParams, void **extra, hipEvent_t startEvent, hipEvent_t stopEvent, uint32_t flags);
+static _Z24hipExtModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6_j_t __Z24HIP_EXT_MODULE_LAUNCH_KERNEL_P18IHIP_MODULE_SYMBOL_TJJJJJJM_P12IHIP_STREAM_T_PPV_S4__P11IHIP_EVENT_T_S6_J_PTR = (void *) 0x0;
+
+typedef hipError_t (*hipGraphDebugDotPrint_t)(hipGraph_t graph, const char *fName, unsigned int flag);
+static hipGraphDebugDotPrint_t HIP_GRAPH_DEBUG_DOT_PRINT_PTR = (void *) 0x0;
+
+typedef void **(*__hipRegisterFatBinary_t)(const void *data);
+static __hipRegisterFatBinary_t __HIP_REGISTER_FAT_BINARY_PTR = (void *) 0x0;
+
+typedef void (*__hipRegisterFunction_t)(void **modules, const void *hostFunction, char *deviceFunction, const char *deviceName, unsigned int threadLimit, uint3 *tid, uint3 *bid, dim3 *blockDim, dim3 *gridDim, int *wSize);
+static __hipRegisterFunction_t __HIP_REGISTER_FUNCTION_PTR = (void *) 0x0;
+
+typedef void (*__hipRegisterManagedVar_t)(void **modules, void **pointer, void *init_value, const char *name, size_t size, unsigned int align);
+static __hipRegisterManagedVar_t __HIP_REGISTER_MANAGED_VAR_PTR = (void *) 0x0;
+
+typedef void (*__hipRegisterSurface_t)(void **modules, void *var, char *hostVar, char *deviceVar, int type, int ext);
+static __hipRegisterSurface_t __HIP_REGISTER_SURFACE_PTR = (void *) 0x0;
+
+typedef void (*__hipRegisterTexture_t)(void **modules, void *var, char *hostVar, char *deviceVar, int type, int norm, int ext);
+static __hipRegisterTexture_t __HIP_REGISTER_TEXTURE_PTR = (void *) 0x0;
+
+typedef void (*__hipRegisterVar_t)(void **modules, void *var, char *hostVar, char *deviceVar, int ext, size_t size, int constant, int global);
+static __hipRegisterVar_t __HIP_REGISTER_VAR_PTR = (void *) 0x0;
+
+typedef void (*__hipUnregisterFatBinary_t)(void **modules);
+static __hipUnregisterFatBinary_t __HIP_UNREGISTER_FAT_BINARY_PTR = (void *) 0x0;
+
+typedef const char *(*hipGetCmdName_t)(uint32_t id);
+static hipGetCmdName_t HIP_GET_CMD_NAME_PTR = (void *) 0x0;
+
+typedef void (*hipRegisterTracerCallback_t)(hipRegisterTracerCallback_callback_t *function);
+static hipRegisterTracerCallback_t HIP_REGISTER_TRACER_CALLBACK_PTR = (void *) 0x0;
+
+static void find_hip_symbols(void * handle, int verbose) {
+
+  HIP_CREATE_CHANNEL_DESC_PTR = (hipCreateChannelDesc_t)(intptr_t)dlsym(handle, "hipCreateChannelDesc");
+  if (!HIP_CREATE_CHANNEL_DESC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCreateChannelDesc!\n");
+
+  __HIP_GET_PCH_PTR = (__hipGetPCH_t)(intptr_t)dlsym(handle, "__hipGetPCH");
+  if (!__HIP_GET_PCH_PTR && verbose)
+    fprintf(stderr, "Missing symbol __hipGetPCH!\n");
+
+  HIP_INIT_PTR = (hipInit_t)(intptr_t)dlsym(handle, "hipInit");
+  if (!HIP_INIT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipInit!\n");
+
+  HIP_DRIVER_GET_VERSION_PTR = (hipDriverGetVersion_t)(intptr_t)dlsym(handle, "hipDriverGetVersion");
+  if (!HIP_DRIVER_GET_VERSION_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDriverGetVersion!\n");
+
+  HIP_RUNTIME_GET_VERSION_PTR = (hipRuntimeGetVersion_t)(intptr_t)dlsym(handle, "hipRuntimeGetVersion");
+  if (!HIP_RUNTIME_GET_VERSION_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipRuntimeGetVersion!\n");
+
+  HIP_DEVICE_GET_PTR = (hipDeviceGet_t)(intptr_t)dlsym(handle, "hipDeviceGet");
+  if (!HIP_DEVICE_GET_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceGet!\n");
+
+  HIP_DEVICE_COMPUTE_CAPABILITY_PTR = (hipDeviceComputeCapability_t)(intptr_t)dlsym(handle, "hipDeviceComputeCapability");
+  if (!HIP_DEVICE_COMPUTE_CAPABILITY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceComputeCapability!\n");
+
+  HIP_DEVICE_GET_NAME_PTR = (hipDeviceGetName_t)(intptr_t)dlsym(handle, "hipDeviceGetName");
+  if (!HIP_DEVICE_GET_NAME_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceGetName!\n");
+
+  HIP_DEVICE_GET_UUID_PTR = (hipDeviceGetUuid_t)(intptr_t)dlsym(handle, "hipDeviceGetUuid");
+  if (!HIP_DEVICE_GET_UUID_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceGetUuid!\n");
+
+  HIP_DEVICE_GET_P2PATTRIBUTE_PTR = (hipDeviceGetP2PAttribute_t)(intptr_t)dlsym(handle, "hipDeviceGetP2PAttribute");
+  if (!HIP_DEVICE_GET_P2PATTRIBUTE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceGetP2PAttribute!\n");
+
+  HIP_DEVICE_GET_PCIBUS_ID_PTR = (hipDeviceGetPCIBusId_t)(intptr_t)dlsym(handle, "hipDeviceGetPCIBusId");
+  if (!HIP_DEVICE_GET_PCIBUS_ID_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceGetPCIBusId!\n");
+
+  HIP_DEVICE_GET_BY_PCIBUS_ID_PTR = (hipDeviceGetByPCIBusId_t)(intptr_t)dlsym(handle, "hipDeviceGetByPCIBusId");
+  if (!HIP_DEVICE_GET_BY_PCIBUS_ID_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceGetByPCIBusId!\n");
+
+  HIP_DEVICE_TOTAL_MEM_PTR = (hipDeviceTotalMem_t)(intptr_t)dlsym(handle, "hipDeviceTotalMem");
+  if (!HIP_DEVICE_TOTAL_MEM_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceTotalMem!\n");
+
+  HIP_DEVICE_SYNCHRONIZE_PTR = (hipDeviceSynchronize_t)(intptr_t)dlsym(handle, "hipDeviceSynchronize");
+  if (!HIP_DEVICE_SYNCHRONIZE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceSynchronize!\n");
+
+  HIP_DEVICE_RESET_PTR = (hipDeviceReset_t)(intptr_t)dlsym(handle, "hipDeviceReset");
+  if (!HIP_DEVICE_RESET_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceReset!\n");
+
+  HIP_SET_DEVICE_PTR = (hipSetDevice_t)(intptr_t)dlsym(handle, "hipSetDevice");
+  if (!HIP_SET_DEVICE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipSetDevice!\n");
+
+  HIP_GET_DEVICE_PTR = (hipGetDevice_t)(intptr_t)dlsym(handle, "hipGetDevice");
+  if (!HIP_GET_DEVICE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetDevice!\n");
+
+  HIP_GET_DEVICE_COUNT_PTR = (hipGetDeviceCount_t)(intptr_t)dlsym(handle, "hipGetDeviceCount");
+  if (!HIP_GET_DEVICE_COUNT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetDeviceCount!\n");
+
+  HIP_DEVICE_GET_ATTRIBUTE_PTR = (hipDeviceGetAttribute_t)(intptr_t)dlsym(handle, "hipDeviceGetAttribute");
+  if (!HIP_DEVICE_GET_ATTRIBUTE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceGetAttribute!\n");
+
+  HIP_DEVICE_GET_DEFAULT_MEM_POOL_PTR = (hipDeviceGetDefaultMemPool_t)(intptr_t)dlsym(handle, "hipDeviceGetDefaultMemPool");
+  if (!HIP_DEVICE_GET_DEFAULT_MEM_POOL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceGetDefaultMemPool!\n");
+
+  HIP_DEVICE_SET_MEM_POOL_PTR = (hipDeviceSetMemPool_t)(intptr_t)dlsym(handle, "hipDeviceSetMemPool");
+  if (!HIP_DEVICE_SET_MEM_POOL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceSetMemPool!\n");
+
+  HIP_DEVICE_GET_MEM_POOL_PTR = (hipDeviceGetMemPool_t)(intptr_t)dlsym(handle, "hipDeviceGetMemPool");
+  if (!HIP_DEVICE_GET_MEM_POOL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceGetMemPool!\n");
+
+  HIP_GET_DEVICE_PROPERTIES_PTR = (hipGetDeviceProperties_t)(intptr_t)dlsym(handle, "hipGetDeviceProperties");
+  if (!HIP_GET_DEVICE_PROPERTIES_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetDeviceProperties!\n");
+
+  HIP_DEVICE_SET_CACHE_CONFIG_PTR = (hipDeviceSetCacheConfig_t)(intptr_t)dlsym(handle, "hipDeviceSetCacheConfig");
+  if (!HIP_DEVICE_SET_CACHE_CONFIG_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceSetCacheConfig!\n");
+
+  HIP_DEVICE_GET_CACHE_CONFIG_PTR = (hipDeviceGetCacheConfig_t)(intptr_t)dlsym(handle, "hipDeviceGetCacheConfig");
+  if (!HIP_DEVICE_GET_CACHE_CONFIG_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceGetCacheConfig!\n");
+
+  HIP_DEVICE_GET_LIMIT_PTR = (hipDeviceGetLimit_t)(intptr_t)dlsym(handle, "hipDeviceGetLimit");
+  if (!HIP_DEVICE_GET_LIMIT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceGetLimit!\n");
+
+  HIP_DEVICE_SET_LIMIT_PTR = (hipDeviceSetLimit_t)(intptr_t)dlsym(handle, "hipDeviceSetLimit");
+  if (!HIP_DEVICE_SET_LIMIT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceSetLimit!\n");
+
+  HIP_DEVICE_GET_SHARED_MEM_CONFIG_PTR = (hipDeviceGetSharedMemConfig_t)(intptr_t)dlsym(handle, "hipDeviceGetSharedMemConfig");
+  if (!HIP_DEVICE_GET_SHARED_MEM_CONFIG_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceGetSharedMemConfig!\n");
+
+  HIP_GET_DEVICE_FLAGS_PTR = (hipGetDeviceFlags_t)(intptr_t)dlsym(handle, "hipGetDeviceFlags");
+  if (!HIP_GET_DEVICE_FLAGS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetDeviceFlags!\n");
+
+  HIP_DEVICE_SET_SHARED_MEM_CONFIG_PTR = (hipDeviceSetSharedMemConfig_t)(intptr_t)dlsym(handle, "hipDeviceSetSharedMemConfig");
+  if (!HIP_DEVICE_SET_SHARED_MEM_CONFIG_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceSetSharedMemConfig!\n");
+
+  HIP_SET_DEVICE_FLAGS_PTR = (hipSetDeviceFlags_t)(intptr_t)dlsym(handle, "hipSetDeviceFlags");
+  if (!HIP_SET_DEVICE_FLAGS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipSetDeviceFlags!\n");
+
+  HIP_CHOOSE_DEVICE_PTR = (hipChooseDevice_t)(intptr_t)dlsym(handle, "hipChooseDevice");
+  if (!HIP_CHOOSE_DEVICE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipChooseDevice!\n");
+
+  HIP_EXT_GET_LINK_TYPE_AND_HOP_COUNT_PTR = (hipExtGetLinkTypeAndHopCount_t)(intptr_t)dlsym(handle, "hipExtGetLinkTypeAndHopCount");
+  if (!HIP_EXT_GET_LINK_TYPE_AND_HOP_COUNT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipExtGetLinkTypeAndHopCount!\n");
+
+  HIP_IPC_GET_MEM_HANDLE_PTR = (hipIpcGetMemHandle_t)(intptr_t)dlsym(handle, "hipIpcGetMemHandle");
+  if (!HIP_IPC_GET_MEM_HANDLE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipIpcGetMemHandle!\n");
+
+  HIP_IPC_OPEN_MEM_HANDLE_PTR = (hipIpcOpenMemHandle_t)(intptr_t)dlsym(handle, "hipIpcOpenMemHandle");
+  if (!HIP_IPC_OPEN_MEM_HANDLE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipIpcOpenMemHandle!\n");
+
+  HIP_IPC_CLOSE_MEM_HANDLE_PTR = (hipIpcCloseMemHandle_t)(intptr_t)dlsym(handle, "hipIpcCloseMemHandle");
+  if (!HIP_IPC_CLOSE_MEM_HANDLE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipIpcCloseMemHandle!\n");
+
+  HIP_IPC_GET_EVENT_HANDLE_PTR = (hipIpcGetEventHandle_t)(intptr_t)dlsym(handle, "hipIpcGetEventHandle");
+  if (!HIP_IPC_GET_EVENT_HANDLE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipIpcGetEventHandle!\n");
+
+  HIP_IPC_OPEN_EVENT_HANDLE_PTR = (hipIpcOpenEventHandle_t)(intptr_t)dlsym(handle, "hipIpcOpenEventHandle");
+  if (!HIP_IPC_OPEN_EVENT_HANDLE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipIpcOpenEventHandle!\n");
+
+  HIP_FUNC_SET_ATTRIBUTE_PTR = (hipFuncSetAttribute_t)(intptr_t)dlsym(handle, "hipFuncSetAttribute");
+  if (!HIP_FUNC_SET_ATTRIBUTE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipFuncSetAttribute!\n");
+
+  HIP_FUNC_SET_CACHE_CONFIG_PTR = (hipFuncSetCacheConfig_t)(intptr_t)dlsym(handle, "hipFuncSetCacheConfig");
+  if (!HIP_FUNC_SET_CACHE_CONFIG_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipFuncSetCacheConfig!\n");
+
+  HIP_FUNC_SET_SHARED_MEM_CONFIG_PTR = (hipFuncSetSharedMemConfig_t)(intptr_t)dlsym(handle, "hipFuncSetSharedMemConfig");
+  if (!HIP_FUNC_SET_SHARED_MEM_CONFIG_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipFuncSetSharedMemConfig!\n");
+
+  HIP_GET_LAST_ERROR_PTR = (hipGetLastError_t)(intptr_t)dlsym(handle, "hipGetLastError");
+  if (!HIP_GET_LAST_ERROR_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetLastError!\n");
+
+  HIP_PEEK_AT_LAST_ERROR_PTR = (hipPeekAtLastError_t)(intptr_t)dlsym(handle, "hipPeekAtLastError");
+  if (!HIP_PEEK_AT_LAST_ERROR_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipPeekAtLastError!\n");
+
+  HIP_GET_ERROR_NAME_PTR = (hipGetErrorName_t)(intptr_t)dlsym(handle, "hipGetErrorName");
+  if (!HIP_GET_ERROR_NAME_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetErrorName!\n");
+
+  HIP_GET_ERROR_STRING_PTR = (hipGetErrorString_t)(intptr_t)dlsym(handle, "hipGetErrorString");
+  if (!HIP_GET_ERROR_STRING_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetErrorString!\n");
+
+  HIP_DRV_GET_ERROR_NAME_PTR = (hipDrvGetErrorName_t)(intptr_t)dlsym(handle, "hipDrvGetErrorName");
+  if (!HIP_DRV_GET_ERROR_NAME_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDrvGetErrorName!\n");
+
+  HIP_DRV_GET_ERROR_STRING_PTR = (hipDrvGetErrorString_t)(intptr_t)dlsym(handle, "hipDrvGetErrorString");
+  if (!HIP_DRV_GET_ERROR_STRING_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDrvGetErrorString!\n");
+
+  HIP_STREAM_CREATE_PTR = (hipStreamCreate_t)(intptr_t)dlsym(handle, "hipStreamCreate");
+  if (!HIP_STREAM_CREATE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamCreate!\n");
+
+  HIP_STREAM_CREATE_WITH_FLAGS_PTR = (hipStreamCreateWithFlags_t)(intptr_t)dlsym(handle, "hipStreamCreateWithFlags");
+  if (!HIP_STREAM_CREATE_WITH_FLAGS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamCreateWithFlags!\n");
+
+  HIP_STREAM_CREATE_WITH_PRIORITY_PTR = (hipStreamCreateWithPriority_t)(intptr_t)dlsym(handle, "hipStreamCreateWithPriority");
+  if (!HIP_STREAM_CREATE_WITH_PRIORITY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamCreateWithPriority!\n");
+
+  HIP_DEVICE_GET_STREAM_PRIORITY_RANGE_PTR = (hipDeviceGetStreamPriorityRange_t)(intptr_t)dlsym(handle, "hipDeviceGetStreamPriorityRange");
+  if (!HIP_DEVICE_GET_STREAM_PRIORITY_RANGE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceGetStreamPriorityRange!\n");
+
+  HIP_STREAM_DESTROY_PTR = (hipStreamDestroy_t)(intptr_t)dlsym(handle, "hipStreamDestroy");
+  if (!HIP_STREAM_DESTROY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamDestroy!\n");
+
+  HIP_STREAM_QUERY_PTR = (hipStreamQuery_t)(intptr_t)dlsym(handle, "hipStreamQuery");
+  if (!HIP_STREAM_QUERY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamQuery!\n");
+
+  HIP_STREAM_SYNCHRONIZE_PTR = (hipStreamSynchronize_t)(intptr_t)dlsym(handle, "hipStreamSynchronize");
+  if (!HIP_STREAM_SYNCHRONIZE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamSynchronize!\n");
+
+  HIP_STREAM_WAIT_EVENT_PTR = (hipStreamWaitEvent_t)(intptr_t)dlsym(handle, "hipStreamWaitEvent");
+  if (!HIP_STREAM_WAIT_EVENT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamWaitEvent!\n");
+
+  HIP_STREAM_GET_FLAGS_PTR = (hipStreamGetFlags_t)(intptr_t)dlsym(handle, "hipStreamGetFlags");
+  if (!HIP_STREAM_GET_FLAGS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamGetFlags!\n");
+
+  HIP_STREAM_GET_PRIORITY_PTR = (hipStreamGetPriority_t)(intptr_t)dlsym(handle, "hipStreamGetPriority");
+  if (!HIP_STREAM_GET_PRIORITY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamGetPriority!\n");
+
+  HIP_EXT_STREAM_CREATE_WITH_CUMASK_PTR = (hipExtStreamCreateWithCUMask_t)(intptr_t)dlsym(handle, "hipExtStreamCreateWithCUMask");
+  if (!HIP_EXT_STREAM_CREATE_WITH_CUMASK_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipExtStreamCreateWithCUMask!\n");
+
+  HIP_EXT_STREAM_GET_CUMASK_PTR = (hipExtStreamGetCUMask_t)(intptr_t)dlsym(handle, "hipExtStreamGetCUMask");
+  if (!HIP_EXT_STREAM_GET_CUMASK_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipExtStreamGetCUMask!\n");
+
+  HIP_STREAM_ADD_CALLBACK_PTR = (hipStreamAddCallback_t)(intptr_t)dlsym(handle, "hipStreamAddCallback");
+  if (!HIP_STREAM_ADD_CALLBACK_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamAddCallback!\n");
+
+  HIP_STREAM_WAIT_VALUE32_PTR = (hipStreamWaitValue32_t)(intptr_t)dlsym(handle, "hipStreamWaitValue32");
+  if (!HIP_STREAM_WAIT_VALUE32_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamWaitValue32!\n");
+
+  HIP_STREAM_WAIT_VALUE64_PTR = (hipStreamWaitValue64_t)(intptr_t)dlsym(handle, "hipStreamWaitValue64");
+  if (!HIP_STREAM_WAIT_VALUE64_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamWaitValue64!\n");
+
+  HIP_STREAM_WRITE_VALUE32_PTR = (hipStreamWriteValue32_t)(intptr_t)dlsym(handle, "hipStreamWriteValue32");
+  if (!HIP_STREAM_WRITE_VALUE32_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamWriteValue32!\n");
+
+  HIP_STREAM_WRITE_VALUE64_PTR = (hipStreamWriteValue64_t)(intptr_t)dlsym(handle, "hipStreamWriteValue64");
+  if (!HIP_STREAM_WRITE_VALUE64_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamWriteValue64!\n");
+
+  HIP_EVENT_CREATE_WITH_FLAGS_PTR = (hipEventCreateWithFlags_t)(intptr_t)dlsym(handle, "hipEventCreateWithFlags");
+  if (!HIP_EVENT_CREATE_WITH_FLAGS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipEventCreateWithFlags!\n");
+
+  HIP_EVENT_CREATE_PTR = (hipEventCreate_t)(intptr_t)dlsym(handle, "hipEventCreate");
+  if (!HIP_EVENT_CREATE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipEventCreate!\n");
+
+  HIP_EVENT_RECORD_PTR = (hipEventRecord_t)(intptr_t)dlsym(handle, "hipEventRecord");
+  if (!HIP_EVENT_RECORD_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipEventRecord!\n");
+
+  HIP_EVENT_DESTROY_PTR = (hipEventDestroy_t)(intptr_t)dlsym(handle, "hipEventDestroy");
+  if (!HIP_EVENT_DESTROY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipEventDestroy!\n");
+
+  HIP_EVENT_SYNCHRONIZE_PTR = (hipEventSynchronize_t)(intptr_t)dlsym(handle, "hipEventSynchronize");
+  if (!HIP_EVENT_SYNCHRONIZE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipEventSynchronize!\n");
+
+  HIP_EVENT_ELAPSED_TIME_PTR = (hipEventElapsedTime_t)(intptr_t)dlsym(handle, "hipEventElapsedTime");
+  if (!HIP_EVENT_ELAPSED_TIME_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipEventElapsedTime!\n");
+
+  HIP_EVENT_QUERY_PTR = (hipEventQuery_t)(intptr_t)dlsym(handle, "hipEventQuery");
+  if (!HIP_EVENT_QUERY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipEventQuery!\n");
+
+  HIP_POINTER_GET_ATTRIBUTES_PTR = (hipPointerGetAttributes_t)(intptr_t)dlsym(handle, "hipPointerGetAttributes");
+  if (!HIP_POINTER_GET_ATTRIBUTES_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipPointerGetAttributes!\n");
+
+  HIP_POINTER_GET_ATTRIBUTE_PTR = (hipPointerGetAttribute_t)(intptr_t)dlsym(handle, "hipPointerGetAttribute");
+  if (!HIP_POINTER_GET_ATTRIBUTE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipPointerGetAttribute!\n");
+
+  HIP_DRV_POINTER_GET_ATTRIBUTES_PTR = (hipDrvPointerGetAttributes_t)(intptr_t)dlsym(handle, "hipDrvPointerGetAttributes");
+  if (!HIP_DRV_POINTER_GET_ATTRIBUTES_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDrvPointerGetAttributes!\n");
+
+  HIP_IMPORT_EXTERNAL_SEMAPHORE_PTR = (hipImportExternalSemaphore_t)(intptr_t)dlsym(handle, "hipImportExternalSemaphore");
+  if (!HIP_IMPORT_EXTERNAL_SEMAPHORE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipImportExternalSemaphore!\n");
+
+  HIP_SIGNAL_EXTERNAL_SEMAPHORES_ASYNC_PTR = (hipSignalExternalSemaphoresAsync_t)(intptr_t)dlsym(handle, "hipSignalExternalSemaphoresAsync");
+  if (!HIP_SIGNAL_EXTERNAL_SEMAPHORES_ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipSignalExternalSemaphoresAsync!\n");
+
+  HIP_WAIT_EXTERNAL_SEMAPHORES_ASYNC_PTR = (hipWaitExternalSemaphoresAsync_t)(intptr_t)dlsym(handle, "hipWaitExternalSemaphoresAsync");
+  if (!HIP_WAIT_EXTERNAL_SEMAPHORES_ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipWaitExternalSemaphoresAsync!\n");
+
+  HIP_DESTROY_EXTERNAL_SEMAPHORE_PTR = (hipDestroyExternalSemaphore_t)(intptr_t)dlsym(handle, "hipDestroyExternalSemaphore");
+  if (!HIP_DESTROY_EXTERNAL_SEMAPHORE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDestroyExternalSemaphore!\n");
+
+  HIP_IMPORT_EXTERNAL_MEMORY_PTR = (hipImportExternalMemory_t)(intptr_t)dlsym(handle, "hipImportExternalMemory");
+  if (!HIP_IMPORT_EXTERNAL_MEMORY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipImportExternalMemory!\n");
+
+  HIP_EXTERNAL_MEMORY_GET_MAPPED_BUFFER_PTR = (hipExternalMemoryGetMappedBuffer_t)(intptr_t)dlsym(handle, "hipExternalMemoryGetMappedBuffer");
+  if (!HIP_EXTERNAL_MEMORY_GET_MAPPED_BUFFER_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipExternalMemoryGetMappedBuffer!\n");
+
+  HIP_DESTROY_EXTERNAL_MEMORY_PTR = (hipDestroyExternalMemory_t)(intptr_t)dlsym(handle, "hipDestroyExternalMemory");
+  if (!HIP_DESTROY_EXTERNAL_MEMORY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDestroyExternalMemory!\n");
+
+  HIP_MALLOC_PTR = (hipMalloc_t)(intptr_t)dlsym(handle, "hipMalloc");
+  if (!HIP_MALLOC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMalloc!\n");
+
+  HIP_EXT_MALLOC_WITH_FLAGS_PTR = (hipExtMallocWithFlags_t)(intptr_t)dlsym(handle, "hipExtMallocWithFlags");
+  if (!HIP_EXT_MALLOC_WITH_FLAGS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipExtMallocWithFlags!\n");
+
+  HIP_MALLOC_HOST_PTR = (hipMallocHost_t)(intptr_t)dlsym(handle, "hipMallocHost");
+  if (!HIP_MALLOC_HOST_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMallocHost!\n");
+
+  HIP_MEM_ALLOC_HOST_PTR = (hipMemAllocHost_t)(intptr_t)dlsym(handle, "hipMemAllocHost");
+  if (!HIP_MEM_ALLOC_HOST_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemAllocHost!\n");
+
+  HIP_HOST_MALLOC_PTR = (hipHostMalloc_t)(intptr_t)dlsym(handle, "hipHostMalloc");
+  if (!HIP_HOST_MALLOC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipHostMalloc!\n");
+
+  HIP_MALLOC_MANAGED_PTR = (hipMallocManaged_t)(intptr_t)dlsym(handle, "hipMallocManaged");
+  if (!HIP_MALLOC_MANAGED_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMallocManaged!\n");
+
+  HIP_MEM_PREFETCH_ASYNC_PTR = (hipMemPrefetchAsync_t)(intptr_t)dlsym(handle, "hipMemPrefetchAsync");
+  if (!HIP_MEM_PREFETCH_ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemPrefetchAsync!\n");
+
+  HIP_MEM_ADVISE_PTR = (hipMemAdvise_t)(intptr_t)dlsym(handle, "hipMemAdvise");
+  if (!HIP_MEM_ADVISE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemAdvise!\n");
+
+  HIP_MEM_RANGE_GET_ATTRIBUTE_PTR = (hipMemRangeGetAttribute_t)(intptr_t)dlsym(handle, "hipMemRangeGetAttribute");
+  if (!HIP_MEM_RANGE_GET_ATTRIBUTE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemRangeGetAttribute!\n");
+
+  HIP_MEM_RANGE_GET_ATTRIBUTES_PTR = (hipMemRangeGetAttributes_t)(intptr_t)dlsym(handle, "hipMemRangeGetAttributes");
+  if (!HIP_MEM_RANGE_GET_ATTRIBUTES_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemRangeGetAttributes!\n");
+
+  HIP_STREAM_ATTACH_MEM_ASYNC_PTR = (hipStreamAttachMemAsync_t)(intptr_t)dlsym(handle, "hipStreamAttachMemAsync");
+  if (!HIP_STREAM_ATTACH_MEM_ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamAttachMemAsync!\n");
+
+  HIP_MALLOC_ASYNC_PTR = (hipMallocAsync_t)(intptr_t)dlsym(handle, "hipMallocAsync");
+  if (!HIP_MALLOC_ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMallocAsync!\n");
+
+  HIP_FREE_ASYNC_PTR = (hipFreeAsync_t)(intptr_t)dlsym(handle, "hipFreeAsync");
+  if (!HIP_FREE_ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipFreeAsync!\n");
+
+  HIP_MEM_POOL_TRIM_TO_PTR = (hipMemPoolTrimTo_t)(intptr_t)dlsym(handle, "hipMemPoolTrimTo");
+  if (!HIP_MEM_POOL_TRIM_TO_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemPoolTrimTo!\n");
+
+  HIP_MEM_POOL_SET_ATTRIBUTE_PTR = (hipMemPoolSetAttribute_t)(intptr_t)dlsym(handle, "hipMemPoolSetAttribute");
+  if (!HIP_MEM_POOL_SET_ATTRIBUTE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemPoolSetAttribute!\n");
+
+  HIP_MEM_POOL_GET_ATTRIBUTE_PTR = (hipMemPoolGetAttribute_t)(intptr_t)dlsym(handle, "hipMemPoolGetAttribute");
+  if (!HIP_MEM_POOL_GET_ATTRIBUTE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemPoolGetAttribute!\n");
+
+  HIP_MEM_POOL_SET_ACCESS_PTR = (hipMemPoolSetAccess_t)(intptr_t)dlsym(handle, "hipMemPoolSetAccess");
+  if (!HIP_MEM_POOL_SET_ACCESS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemPoolSetAccess!\n");
+
+  HIP_MEM_POOL_GET_ACCESS_PTR = (hipMemPoolGetAccess_t)(intptr_t)dlsym(handle, "hipMemPoolGetAccess");
+  if (!HIP_MEM_POOL_GET_ACCESS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemPoolGetAccess!\n");
+
+  HIP_MEM_POOL_CREATE_PTR = (hipMemPoolCreate_t)(intptr_t)dlsym(handle, "hipMemPoolCreate");
+  if (!HIP_MEM_POOL_CREATE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemPoolCreate!\n");
+
+  HIP_MEM_POOL_DESTROY_PTR = (hipMemPoolDestroy_t)(intptr_t)dlsym(handle, "hipMemPoolDestroy");
+  if (!HIP_MEM_POOL_DESTROY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemPoolDestroy!\n");
+
+  HIP_MALLOC_FROM_POOL_ASYNC_PTR = (hipMallocFromPoolAsync_t)(intptr_t)dlsym(handle, "hipMallocFromPoolAsync");
+  if (!HIP_MALLOC_FROM_POOL_ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMallocFromPoolAsync!\n");
+
+  HIP_MEM_POOL_EXPORT_TO_SHAREABLE_HANDLE_PTR = (hipMemPoolExportToShareableHandle_t)(intptr_t)dlsym(handle, "hipMemPoolExportToShareableHandle");
+  if (!HIP_MEM_POOL_EXPORT_TO_SHAREABLE_HANDLE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemPoolExportToShareableHandle!\n");
+
+  HIP_MEM_POOL_IMPORT_FROM_SHAREABLE_HANDLE_PTR = (hipMemPoolImportFromShareableHandle_t)(intptr_t)dlsym(handle, "hipMemPoolImportFromShareableHandle");
+  if (!HIP_MEM_POOL_IMPORT_FROM_SHAREABLE_HANDLE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemPoolImportFromShareableHandle!\n");
+
+  HIP_MEM_POOL_EXPORT_POINTER_PTR = (hipMemPoolExportPointer_t)(intptr_t)dlsym(handle, "hipMemPoolExportPointer");
+  if (!HIP_MEM_POOL_EXPORT_POINTER_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemPoolExportPointer!\n");
+
+  HIP_MEM_POOL_IMPORT_POINTER_PTR = (hipMemPoolImportPointer_t)(intptr_t)dlsym(handle, "hipMemPoolImportPointer");
+  if (!HIP_MEM_POOL_IMPORT_POINTER_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemPoolImportPointer!\n");
+
+  HIP_HOST_ALLOC_PTR = (hipHostAlloc_t)(intptr_t)dlsym(handle, "hipHostAlloc");
+  if (!HIP_HOST_ALLOC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipHostAlloc!\n");
+
+  HIP_HOST_GET_DEVICE_POINTER_PTR = (hipHostGetDevicePointer_t)(intptr_t)dlsym(handle, "hipHostGetDevicePointer");
+  if (!HIP_HOST_GET_DEVICE_POINTER_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipHostGetDevicePointer!\n");
+
+  HIP_HOST_GET_FLAGS_PTR = (hipHostGetFlags_t)(intptr_t)dlsym(handle, "hipHostGetFlags");
+  if (!HIP_HOST_GET_FLAGS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipHostGetFlags!\n");
+
+  HIP_HOST_REGISTER_PTR = (hipHostRegister_t)(intptr_t)dlsym(handle, "hipHostRegister");
+  if (!HIP_HOST_REGISTER_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipHostRegister!\n");
+
+  HIP_HOST_UNREGISTER_PTR = (hipHostUnregister_t)(intptr_t)dlsym(handle, "hipHostUnregister");
+  if (!HIP_HOST_UNREGISTER_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipHostUnregister!\n");
+
+  HIP_MALLOC_PITCH_PTR = (hipMallocPitch_t)(intptr_t)dlsym(handle, "hipMallocPitch");
+  if (!HIP_MALLOC_PITCH_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMallocPitch!\n");
+
+  HIP_MEM_ALLOC_PITCH_PTR = (hipMemAllocPitch_t)(intptr_t)dlsym(handle, "hipMemAllocPitch");
+  if (!HIP_MEM_ALLOC_PITCH_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemAllocPitch!\n");
+
+  HIP_FREE_PTR = (hipFree_t)(intptr_t)dlsym(handle, "hipFree");
+  if (!HIP_FREE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipFree!\n");
+
+  HIP_FREE_HOST_PTR = (hipFreeHost_t)(intptr_t)dlsym(handle, "hipFreeHost");
+  if (!HIP_FREE_HOST_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipFreeHost!\n");
+
+  HIP_HOST_FREE_PTR = (hipHostFree_t)(intptr_t)dlsym(handle, "hipHostFree");
+  if (!HIP_HOST_FREE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipHostFree!\n");
+
+  HIP_MEMCPY_PTR = (hipMemcpy_t)(intptr_t)dlsym(handle, "hipMemcpy");
+  if (!HIP_MEMCPY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy!\n");
+
+  HIP_MEMCPY_WITH_STREAM_PTR = (hipMemcpyWithStream_t)(intptr_t)dlsym(handle, "hipMemcpyWithStream");
+  if (!HIP_MEMCPY_WITH_STREAM_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyWithStream!\n");
+
+  HIP_MEMCPY_HTO_D_PTR = (hipMemcpyHtoD_t)(intptr_t)dlsym(handle, "hipMemcpyHtoD");
+  if (!HIP_MEMCPY_HTO_D_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyHtoD!\n");
+
+  HIP_MEMCPY_DTO_H_PTR = (hipMemcpyDtoH_t)(intptr_t)dlsym(handle, "hipMemcpyDtoH");
+  if (!HIP_MEMCPY_DTO_H_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyDtoH!\n");
+
+  HIP_MEMCPY_DTO_D_PTR = (hipMemcpyDtoD_t)(intptr_t)dlsym(handle, "hipMemcpyDtoD");
+  if (!HIP_MEMCPY_DTO_D_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyDtoD!\n");
+
+  HIP_MEMCPY_HTO_DASYNC_PTR = (hipMemcpyHtoDAsync_t)(intptr_t)dlsym(handle, "hipMemcpyHtoDAsync");
+  if (!HIP_MEMCPY_HTO_DASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyHtoDAsync!\n");
+
+  HIP_MEMCPY_DTO_HASYNC_PTR = (hipMemcpyDtoHAsync_t)(intptr_t)dlsym(handle, "hipMemcpyDtoHAsync");
+  if (!HIP_MEMCPY_DTO_HASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyDtoHAsync!\n");
+
+  HIP_MEMCPY_DTO_DASYNC_PTR = (hipMemcpyDtoDAsync_t)(intptr_t)dlsym(handle, "hipMemcpyDtoDAsync");
+  if (!HIP_MEMCPY_DTO_DASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyDtoDAsync!\n");
+
+  HIP_MODULE_GET_GLOBAL_PTR = (hipModuleGetGlobal_t)(intptr_t)dlsym(handle, "hipModuleGetGlobal");
+  if (!HIP_MODULE_GET_GLOBAL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipModuleGetGlobal!\n");
+
+  HIP_GET_SYMBOL_ADDRESS_PTR = (hipGetSymbolAddress_t)(intptr_t)dlsym(handle, "hipGetSymbolAddress");
+  if (!HIP_GET_SYMBOL_ADDRESS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetSymbolAddress!\n");
+
+  HIP_GET_SYMBOL_SIZE_PTR = (hipGetSymbolSize_t)(intptr_t)dlsym(handle, "hipGetSymbolSize");
+  if (!HIP_GET_SYMBOL_SIZE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetSymbolSize!\n");
+
+  HIP_MEMCPY_TO_SYMBOL_PTR = (hipMemcpyToSymbol_t)(intptr_t)dlsym(handle, "hipMemcpyToSymbol");
+  if (!HIP_MEMCPY_TO_SYMBOL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyToSymbol!\n");
+
+  HIP_MEMCPY_TO_SYMBOL_ASYNC_PTR = (hipMemcpyToSymbolAsync_t)(intptr_t)dlsym(handle, "hipMemcpyToSymbolAsync");
+  if (!HIP_MEMCPY_TO_SYMBOL_ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyToSymbolAsync!\n");
+
+  HIP_MEMCPY_FROM_SYMBOL_PTR = (hipMemcpyFromSymbol_t)(intptr_t)dlsym(handle, "hipMemcpyFromSymbol");
+  if (!HIP_MEMCPY_FROM_SYMBOL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyFromSymbol!\n");
+
+  HIP_MEMCPY_FROM_SYMBOL_ASYNC_PTR = (hipMemcpyFromSymbolAsync_t)(intptr_t)dlsym(handle, "hipMemcpyFromSymbolAsync");
+  if (!HIP_MEMCPY_FROM_SYMBOL_ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyFromSymbolAsync!\n");
+
+  HIP_MEMCPY_ASYNC_PTR = (hipMemcpyAsync_t)(intptr_t)dlsym(handle, "hipMemcpyAsync");
+  if (!HIP_MEMCPY_ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyAsync!\n");
+
+  HIP_MEMSET_PTR = (hipMemset_t)(intptr_t)dlsym(handle, "hipMemset");
+  if (!HIP_MEMSET_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemset!\n");
+
+  HIP_MEMSET_D8_PTR = (hipMemsetD8_t)(intptr_t)dlsym(handle, "hipMemsetD8");
+  if (!HIP_MEMSET_D8_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemsetD8!\n");
+
+  HIP_MEMSET_D8ASYNC_PTR = (hipMemsetD8Async_t)(intptr_t)dlsym(handle, "hipMemsetD8Async");
+  if (!HIP_MEMSET_D8ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemsetD8Async!\n");
+
+  HIP_MEMSET_D16_PTR = (hipMemsetD16_t)(intptr_t)dlsym(handle, "hipMemsetD16");
+  if (!HIP_MEMSET_D16_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemsetD16!\n");
+
+  HIP_MEMSET_D16ASYNC_PTR = (hipMemsetD16Async_t)(intptr_t)dlsym(handle, "hipMemsetD16Async");
+  if (!HIP_MEMSET_D16ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemsetD16Async!\n");
+
+  HIP_MEMSET_D32_PTR = (hipMemsetD32_t)(intptr_t)dlsym(handle, "hipMemsetD32");
+  if (!HIP_MEMSET_D32_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemsetD32!\n");
+
+  HIP_MEMSET_ASYNC_PTR = (hipMemsetAsync_t)(intptr_t)dlsym(handle, "hipMemsetAsync");
+  if (!HIP_MEMSET_ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemsetAsync!\n");
+
+  HIP_MEMSET_D32ASYNC_PTR = (hipMemsetD32Async_t)(intptr_t)dlsym(handle, "hipMemsetD32Async");
+  if (!HIP_MEMSET_D32ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemsetD32Async!\n");
+
+  HIP_MEMSET2_D_PTR = (hipMemset2D_t)(intptr_t)dlsym(handle, "hipMemset2D");
+  if (!HIP_MEMSET2_D_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemset2D!\n");
+
+  HIP_MEMSET2_DASYNC_PTR = (hipMemset2DAsync_t)(intptr_t)dlsym(handle, "hipMemset2DAsync");
+  if (!HIP_MEMSET2_DASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemset2DAsync!\n");
+
+  HIP_MEMSET3_D_PTR = (hipMemset3D_t)(intptr_t)dlsym(handle, "hipMemset3D");
+  if (!HIP_MEMSET3_D_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemset3D!\n");
+
+  HIP_MEMSET3_DASYNC_PTR = (hipMemset3DAsync_t)(intptr_t)dlsym(handle, "hipMemset3DAsync");
+  if (!HIP_MEMSET3_DASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemset3DAsync!\n");
+
+  HIP_MEM_GET_INFO_PTR = (hipMemGetInfo_t)(intptr_t)dlsym(handle, "hipMemGetInfo");
+  if (!HIP_MEM_GET_INFO_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemGetInfo!\n");
+
+  HIP_MEM_PTR_GET_INFO_PTR = (hipMemPtrGetInfo_t)(intptr_t)dlsym(handle, "hipMemPtrGetInfo");
+  if (!HIP_MEM_PTR_GET_INFO_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemPtrGetInfo!\n");
+
+  HIP_MALLOC_ARRAY_PTR = (hipMallocArray_t)(intptr_t)dlsym(handle, "hipMallocArray");
+  if (!HIP_MALLOC_ARRAY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMallocArray!\n");
+
+  HIP_ARRAY_CREATE_PTR = (hipArrayCreate_t)(intptr_t)dlsym(handle, "hipArrayCreate");
+  if (!HIP_ARRAY_CREATE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipArrayCreate!\n");
+
+  HIP_ARRAY_DESTROY_PTR = (hipArrayDestroy_t)(intptr_t)dlsym(handle, "hipArrayDestroy");
+  if (!HIP_ARRAY_DESTROY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipArrayDestroy!\n");
+
+  HIP_ARRAY3_DCREATE_PTR = (hipArray3DCreate_t)(intptr_t)dlsym(handle, "hipArray3DCreate");
+  if (!HIP_ARRAY3_DCREATE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipArray3DCreate!\n");
+
+  HIP_MALLOC3_D_PTR = (hipMalloc3D_t)(intptr_t)dlsym(handle, "hipMalloc3D");
+  if (!HIP_MALLOC3_D_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMalloc3D!\n");
+
+  HIP_FREE_ARRAY_PTR = (hipFreeArray_t)(intptr_t)dlsym(handle, "hipFreeArray");
+  if (!HIP_FREE_ARRAY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipFreeArray!\n");
+
+  HIP_FREE_MIPMAPPED_ARRAY_PTR = (hipFreeMipmappedArray_t)(intptr_t)dlsym(handle, "hipFreeMipmappedArray");
+  if (!HIP_FREE_MIPMAPPED_ARRAY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipFreeMipmappedArray!\n");
+
+  HIP_MALLOC3_DARRAY_PTR = (hipMalloc3DArray_t)(intptr_t)dlsym(handle, "hipMalloc3DArray");
+  if (!HIP_MALLOC3_DARRAY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMalloc3DArray!\n");
+
+  HIP_MALLOC_MIPMAPPED_ARRAY_PTR = (hipMallocMipmappedArray_t)(intptr_t)dlsym(handle, "hipMallocMipmappedArray");
+  if (!HIP_MALLOC_MIPMAPPED_ARRAY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMallocMipmappedArray!\n");
+
+  HIP_GET_MIPMAPPED_ARRAY_LEVEL_PTR = (hipGetMipmappedArrayLevel_t)(intptr_t)dlsym(handle, "hipGetMipmappedArrayLevel");
+  if (!HIP_GET_MIPMAPPED_ARRAY_LEVEL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetMipmappedArrayLevel!\n");
+
+  HIP_MEMCPY2_D_PTR = (hipMemcpy2D_t)(intptr_t)dlsym(handle, "hipMemcpy2D");
+  if (!HIP_MEMCPY2_D_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy2D!\n");
+
+  HIP_MEMCPY_PARAM2_D_PTR = (hipMemcpyParam2D_t)(intptr_t)dlsym(handle, "hipMemcpyParam2D");
+  if (!HIP_MEMCPY_PARAM2_D_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyParam2D!\n");
+
+  HIP_MEMCPY_PARAM2_DASYNC_PTR = (hipMemcpyParam2DAsync_t)(intptr_t)dlsym(handle, "hipMemcpyParam2DAsync");
+  if (!HIP_MEMCPY_PARAM2_DASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyParam2DAsync!\n");
+
+  HIP_MEMCPY2_DASYNC_PTR = (hipMemcpy2DAsync_t)(intptr_t)dlsym(handle, "hipMemcpy2DAsync");
+  if (!HIP_MEMCPY2_DASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy2DAsync!\n");
+
+  HIP_MEMCPY2_DTO_ARRAY_PTR = (hipMemcpy2DToArray_t)(intptr_t)dlsym(handle, "hipMemcpy2DToArray");
+  if (!HIP_MEMCPY2_DTO_ARRAY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy2DToArray!\n");
+
+  HIP_MEMCPY2_DTO_ARRAY_ASYNC_PTR = (hipMemcpy2DToArrayAsync_t)(intptr_t)dlsym(handle, "hipMemcpy2DToArrayAsync");
+  if (!HIP_MEMCPY2_DTO_ARRAY_ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy2DToArrayAsync!\n");
+
+  HIP_MEMCPY_TO_ARRAY_PTR = (hipMemcpyToArray_t)(intptr_t)dlsym(handle, "hipMemcpyToArray");
+  if (!HIP_MEMCPY_TO_ARRAY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyToArray!\n");
+
+  HIP_MEMCPY_FROM_ARRAY_PTR = (hipMemcpyFromArray_t)(intptr_t)dlsym(handle, "hipMemcpyFromArray");
+  if (!HIP_MEMCPY_FROM_ARRAY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyFromArray!\n");
+
+  HIP_MEMCPY2_DFROM_ARRAY_PTR = (hipMemcpy2DFromArray_t)(intptr_t)dlsym(handle, "hipMemcpy2DFromArray");
+  if (!HIP_MEMCPY2_DFROM_ARRAY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy2DFromArray!\n");
+
+  HIP_MEMCPY2_DFROM_ARRAY_ASYNC_PTR = (hipMemcpy2DFromArrayAsync_t)(intptr_t)dlsym(handle, "hipMemcpy2DFromArrayAsync");
+  if (!HIP_MEMCPY2_DFROM_ARRAY_ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy2DFromArrayAsync!\n");
+
+  HIP_MEMCPY_ATO_H_PTR = (hipMemcpyAtoH_t)(intptr_t)dlsym(handle, "hipMemcpyAtoH");
+  if (!HIP_MEMCPY_ATO_H_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyAtoH!\n");
+
+  HIP_MEMCPY_HTO_A_PTR = (hipMemcpyHtoA_t)(intptr_t)dlsym(handle, "hipMemcpyHtoA");
+  if (!HIP_MEMCPY_HTO_A_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyHtoA!\n");
+
+  HIP_MEMCPY3_D_PTR = (hipMemcpy3D_t)(intptr_t)dlsym(handle, "hipMemcpy3D");
+  if (!HIP_MEMCPY3_D_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy3D!\n");
+
+  HIP_MEMCPY3_DASYNC_PTR = (hipMemcpy3DAsync_t)(intptr_t)dlsym(handle, "hipMemcpy3DAsync");
+  if (!HIP_MEMCPY3_DASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy3DAsync!\n");
+
+  HIP_DRV_MEMCPY3_D_PTR = (hipDrvMemcpy3D_t)(intptr_t)dlsym(handle, "hipDrvMemcpy3D");
+  if (!HIP_DRV_MEMCPY3_D_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDrvMemcpy3D!\n");
+
+  HIP_DRV_MEMCPY3_DASYNC_PTR = (hipDrvMemcpy3DAsync_t)(intptr_t)dlsym(handle, "hipDrvMemcpy3DAsync");
+  if (!HIP_DRV_MEMCPY3_DASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDrvMemcpy3DAsync!\n");
+
+  HIP_DEVICE_CAN_ACCESS_PEER_PTR = (hipDeviceCanAccessPeer_t)(intptr_t)dlsym(handle, "hipDeviceCanAccessPeer");
+  if (!HIP_DEVICE_CAN_ACCESS_PEER_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceCanAccessPeer!\n");
+
+  HIP_DEVICE_ENABLE_PEER_ACCESS_PTR = (hipDeviceEnablePeerAccess_t)(intptr_t)dlsym(handle, "hipDeviceEnablePeerAccess");
+  if (!HIP_DEVICE_ENABLE_PEER_ACCESS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceEnablePeerAccess!\n");
+
+  HIP_DEVICE_DISABLE_PEER_ACCESS_PTR = (hipDeviceDisablePeerAccess_t)(intptr_t)dlsym(handle, "hipDeviceDisablePeerAccess");
+  if (!HIP_DEVICE_DISABLE_PEER_ACCESS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceDisablePeerAccess!\n");
+
+  HIP_MEM_GET_ADDRESS_RANGE_PTR = (hipMemGetAddressRange_t)(intptr_t)dlsym(handle, "hipMemGetAddressRange");
+  if (!HIP_MEM_GET_ADDRESS_RANGE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemGetAddressRange!\n");
+
+  HIP_MEMCPY_PEER_PTR = (hipMemcpyPeer_t)(intptr_t)dlsym(handle, "hipMemcpyPeer");
+  if (!HIP_MEMCPY_PEER_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyPeer!\n");
+
+  HIP_MEMCPY_PEER_ASYNC_PTR = (hipMemcpyPeerAsync_t)(intptr_t)dlsym(handle, "hipMemcpyPeerAsync");
+  if (!HIP_MEMCPY_PEER_ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyPeerAsync!\n");
+
+  HIP_CTX_CREATE_PTR = (hipCtxCreate_t)(intptr_t)dlsym(handle, "hipCtxCreate");
+  if (!HIP_CTX_CREATE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCtxCreate!\n");
+
+  HIP_CTX_DESTROY_PTR = (hipCtxDestroy_t)(intptr_t)dlsym(handle, "hipCtxDestroy");
+  if (!HIP_CTX_DESTROY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCtxDestroy!\n");
+
+  HIP_CTX_POP_CURRENT_PTR = (hipCtxPopCurrent_t)(intptr_t)dlsym(handle, "hipCtxPopCurrent");
+  if (!HIP_CTX_POP_CURRENT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCtxPopCurrent!\n");
+
+  HIP_CTX_PUSH_CURRENT_PTR = (hipCtxPushCurrent_t)(intptr_t)dlsym(handle, "hipCtxPushCurrent");
+  if (!HIP_CTX_PUSH_CURRENT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCtxPushCurrent!\n");
+
+  HIP_CTX_SET_CURRENT_PTR = (hipCtxSetCurrent_t)(intptr_t)dlsym(handle, "hipCtxSetCurrent");
+  if (!HIP_CTX_SET_CURRENT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCtxSetCurrent!\n");
+
+  HIP_CTX_GET_CURRENT_PTR = (hipCtxGetCurrent_t)(intptr_t)dlsym(handle, "hipCtxGetCurrent");
+  if (!HIP_CTX_GET_CURRENT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCtxGetCurrent!\n");
+
+  HIP_CTX_GET_DEVICE_PTR = (hipCtxGetDevice_t)(intptr_t)dlsym(handle, "hipCtxGetDevice");
+  if (!HIP_CTX_GET_DEVICE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCtxGetDevice!\n");
+
+  HIP_CTX_GET_API_VERSION_PTR = (hipCtxGetApiVersion_t)(intptr_t)dlsym(handle, "hipCtxGetApiVersion");
+  if (!HIP_CTX_GET_API_VERSION_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCtxGetApiVersion!\n");
+
+  HIP_CTX_GET_CACHE_CONFIG_PTR = (hipCtxGetCacheConfig_t)(intptr_t)dlsym(handle, "hipCtxGetCacheConfig");
+  if (!HIP_CTX_GET_CACHE_CONFIG_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCtxGetCacheConfig!\n");
+
+  HIP_CTX_SET_CACHE_CONFIG_PTR = (hipCtxSetCacheConfig_t)(intptr_t)dlsym(handle, "hipCtxSetCacheConfig");
+  if (!HIP_CTX_SET_CACHE_CONFIG_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCtxSetCacheConfig!\n");
+
+  HIP_CTX_SET_SHARED_MEM_CONFIG_PTR = (hipCtxSetSharedMemConfig_t)(intptr_t)dlsym(handle, "hipCtxSetSharedMemConfig");
+  if (!HIP_CTX_SET_SHARED_MEM_CONFIG_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCtxSetSharedMemConfig!\n");
+
+  HIP_CTX_GET_SHARED_MEM_CONFIG_PTR = (hipCtxGetSharedMemConfig_t)(intptr_t)dlsym(handle, "hipCtxGetSharedMemConfig");
+  if (!HIP_CTX_GET_SHARED_MEM_CONFIG_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCtxGetSharedMemConfig!\n");
+
+  HIP_CTX_SYNCHRONIZE_PTR = (hipCtxSynchronize_t)(intptr_t)dlsym(handle, "hipCtxSynchronize");
+  if (!HIP_CTX_SYNCHRONIZE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCtxSynchronize!\n");
+
+  HIP_CTX_GET_FLAGS_PTR = (hipCtxGetFlags_t)(intptr_t)dlsym(handle, "hipCtxGetFlags");
+  if (!HIP_CTX_GET_FLAGS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCtxGetFlags!\n");
+
+  HIP_CTX_ENABLE_PEER_ACCESS_PTR = (hipCtxEnablePeerAccess_t)(intptr_t)dlsym(handle, "hipCtxEnablePeerAccess");
+  if (!HIP_CTX_ENABLE_PEER_ACCESS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCtxEnablePeerAccess!\n");
+
+  HIP_CTX_DISABLE_PEER_ACCESS_PTR = (hipCtxDisablePeerAccess_t)(intptr_t)dlsym(handle, "hipCtxDisablePeerAccess");
+  if (!HIP_CTX_DISABLE_PEER_ACCESS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCtxDisablePeerAccess!\n");
+
+  HIP_DEVICE_PRIMARY_CTX_GET_STATE_PTR = (hipDevicePrimaryCtxGetState_t)(intptr_t)dlsym(handle, "hipDevicePrimaryCtxGetState");
+  if (!HIP_DEVICE_PRIMARY_CTX_GET_STATE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDevicePrimaryCtxGetState!\n");
+
+  HIP_DEVICE_PRIMARY_CTX_RELEASE_PTR = (hipDevicePrimaryCtxRelease_t)(intptr_t)dlsym(handle, "hipDevicePrimaryCtxRelease");
+  if (!HIP_DEVICE_PRIMARY_CTX_RELEASE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDevicePrimaryCtxRelease!\n");
+
+  HIP_DEVICE_PRIMARY_CTX_RETAIN_PTR = (hipDevicePrimaryCtxRetain_t)(intptr_t)dlsym(handle, "hipDevicePrimaryCtxRetain");
+  if (!HIP_DEVICE_PRIMARY_CTX_RETAIN_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDevicePrimaryCtxRetain!\n");
+
+  HIP_DEVICE_PRIMARY_CTX_RESET_PTR = (hipDevicePrimaryCtxReset_t)(intptr_t)dlsym(handle, "hipDevicePrimaryCtxReset");
+  if (!HIP_DEVICE_PRIMARY_CTX_RESET_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDevicePrimaryCtxReset!\n");
+
+  HIP_DEVICE_PRIMARY_CTX_SET_FLAGS_PTR = (hipDevicePrimaryCtxSetFlags_t)(intptr_t)dlsym(handle, "hipDevicePrimaryCtxSetFlags");
+  if (!HIP_DEVICE_PRIMARY_CTX_SET_FLAGS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDevicePrimaryCtxSetFlags!\n");
+
+  HIP_MODULE_LOAD_PTR = (hipModuleLoad_t)(intptr_t)dlsym(handle, "hipModuleLoad");
+  if (!HIP_MODULE_LOAD_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipModuleLoad!\n");
+
+  HIP_MODULE_UNLOAD_PTR = (hipModuleUnload_t)(intptr_t)dlsym(handle, "hipModuleUnload");
+  if (!HIP_MODULE_UNLOAD_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipModuleUnload!\n");
+
+  HIP_MODULE_GET_FUNCTION_PTR = (hipModuleGetFunction_t)(intptr_t)dlsym(handle, "hipModuleGetFunction");
+  if (!HIP_MODULE_GET_FUNCTION_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipModuleGetFunction!\n");
+
+  HIP_FUNC_GET_ATTRIBUTES_PTR = (hipFuncGetAttributes_t)(intptr_t)dlsym(handle, "hipFuncGetAttributes");
+  if (!HIP_FUNC_GET_ATTRIBUTES_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipFuncGetAttributes!\n");
+
+  HIP_FUNC_GET_ATTRIBUTE_PTR = (hipFuncGetAttribute_t)(intptr_t)dlsym(handle, "hipFuncGetAttribute");
+  if (!HIP_FUNC_GET_ATTRIBUTE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipFuncGetAttribute!\n");
+
+  HIP_MODULE_GET_TEX_REF_PTR = (hipModuleGetTexRef_t)(intptr_t)dlsym(handle, "hipModuleGetTexRef");
+  if (!HIP_MODULE_GET_TEX_REF_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipModuleGetTexRef!\n");
+
+  HIP_MODULE_LOAD_DATA_PTR = (hipModuleLoadData_t)(intptr_t)dlsym(handle, "hipModuleLoadData");
+  if (!HIP_MODULE_LOAD_DATA_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipModuleLoadData!\n");
+
+  HIP_MODULE_LOAD_DATA_EX_PTR = (hipModuleLoadDataEx_t)(intptr_t)dlsym(handle, "hipModuleLoadDataEx");
+  if (!HIP_MODULE_LOAD_DATA_EX_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipModuleLoadDataEx!\n");
+
+  HIP_MODULE_LAUNCH_KERNEL_PTR = (hipModuleLaunchKernel_t)(intptr_t)dlsym(handle, "hipModuleLaunchKernel");
+  if (!HIP_MODULE_LAUNCH_KERNEL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipModuleLaunchKernel!\n");
+
+  HIP_LAUNCH_COOPERATIVE_KERNEL_PTR = (hipLaunchCooperativeKernel_t)(intptr_t)dlsym(handle, "hipLaunchCooperativeKernel");
+  if (!HIP_LAUNCH_COOPERATIVE_KERNEL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipLaunchCooperativeKernel!\n");
+
+  HIP_LAUNCH_COOPERATIVE_KERNEL_MULTI_DEVICE_PTR = (hipLaunchCooperativeKernelMultiDevice_t)(intptr_t)dlsym(handle, "hipLaunchCooperativeKernelMultiDevice");
+  if (!HIP_LAUNCH_COOPERATIVE_KERNEL_MULTI_DEVICE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipLaunchCooperativeKernelMultiDevice!\n");
+
+  HIP_EXT_LAUNCH_MULTI_KERNEL_MULTI_DEVICE_PTR = (hipExtLaunchMultiKernelMultiDevice_t)(intptr_t)dlsym(handle, "hipExtLaunchMultiKernelMultiDevice");
+  if (!HIP_EXT_LAUNCH_MULTI_KERNEL_MULTI_DEVICE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipExtLaunchMultiKernelMultiDevice!\n");
+
+  HIP_MODULE_OCCUPANCY_MAX_POTENTIAL_BLOCK_SIZE_PTR = (hipModuleOccupancyMaxPotentialBlockSize_t)(intptr_t)dlsym(handle, "hipModuleOccupancyMaxPotentialBlockSize");
+  if (!HIP_MODULE_OCCUPANCY_MAX_POTENTIAL_BLOCK_SIZE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipModuleOccupancyMaxPotentialBlockSize!\n");
+
+  HIP_MODULE_OCCUPANCY_MAX_POTENTIAL_BLOCK_SIZE_WITH_FLAGS_PTR = (hipModuleOccupancyMaxPotentialBlockSizeWithFlags_t)(intptr_t)dlsym(handle, "hipModuleOccupancyMaxPotentialBlockSizeWithFlags");
+  if (!HIP_MODULE_OCCUPANCY_MAX_POTENTIAL_BLOCK_SIZE_WITH_FLAGS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipModuleOccupancyMaxPotentialBlockSizeWithFlags!\n");
+
+  HIP_MODULE_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_PTR = (hipModuleOccupancyMaxActiveBlocksPerMultiprocessor_t)(intptr_t)dlsym(handle, "hipModuleOccupancyMaxActiveBlocksPerMultiprocessor");
+  if (!HIP_MODULE_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipModuleOccupancyMaxActiveBlocksPerMultiprocessor!\n");
+
+  HIP_MODULE_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_WITH_FLAGS_PTR = (hipModuleOccupancyMaxActiveBlocksPerMultiprocessorWithFlags_t)(intptr_t)dlsym(handle, "hipModuleOccupancyMaxActiveBlocksPerMultiprocessorWithFlags");
+  if (!HIP_MODULE_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_WITH_FLAGS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipModuleOccupancyMaxActiveBlocksPerMultiprocessorWithFlags!\n");
+
+  HIP_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_PTR = (hipOccupancyMaxActiveBlocksPerMultiprocessor_t)(intptr_t)dlsym(handle, "hipOccupancyMaxActiveBlocksPerMultiprocessor");
+  if (!HIP_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipOccupancyMaxActiveBlocksPerMultiprocessor!\n");
+
+  HIP_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_WITH_FLAGS_PTR = (hipOccupancyMaxActiveBlocksPerMultiprocessorWithFlags_t)(intptr_t)dlsym(handle, "hipOccupancyMaxActiveBlocksPerMultiprocessorWithFlags");
+  if (!HIP_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_WITH_FLAGS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipOccupancyMaxActiveBlocksPerMultiprocessorWithFlags!\n");
+
+  HIP_OCCUPANCY_MAX_POTENTIAL_BLOCK_SIZE_PTR = (hipOccupancyMaxPotentialBlockSize_t)(intptr_t)dlsym(handle, "hipOccupancyMaxPotentialBlockSize");
+  if (!HIP_OCCUPANCY_MAX_POTENTIAL_BLOCK_SIZE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipOccupancyMaxPotentialBlockSize!\n");
+
+  HIP_PROFILER_START_PTR = (hipProfilerStart_t)(intptr_t)dlsym(handle, "hipProfilerStart");
+  if (!HIP_PROFILER_START_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipProfilerStart!\n");
+
+  HIP_PROFILER_STOP_PTR = (hipProfilerStop_t)(intptr_t)dlsym(handle, "hipProfilerStop");
+  if (!HIP_PROFILER_STOP_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipProfilerStop!\n");
+
+  HIP_CONFIGURE_CALL_PTR = (hipConfigureCall_t)(intptr_t)dlsym(handle, "hipConfigureCall");
+  if (!HIP_CONFIGURE_CALL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipConfigureCall!\n");
+
+  HIP_SETUP_ARGUMENT_PTR = (hipSetupArgument_t)(intptr_t)dlsym(handle, "hipSetupArgument");
+  if (!HIP_SETUP_ARGUMENT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipSetupArgument!\n");
+
+  HIP_LAUNCH_BY_PTR_PTR = (hipLaunchByPtr_t)(intptr_t)dlsym(handle, "hipLaunchByPtr");
+  if (!HIP_LAUNCH_BY_PTR_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipLaunchByPtr!\n");
+
+  __HIP_PUSH_CALL_CONFIGURATION_PTR = (__hipPushCallConfiguration_t)(intptr_t)dlsym(handle, "__hipPushCallConfiguration");
+  if (!__HIP_PUSH_CALL_CONFIGURATION_PTR && verbose)
+    fprintf(stderr, "Missing symbol __hipPushCallConfiguration!\n");
+
+  __HIP_POP_CALL_CONFIGURATION_PTR = (__hipPopCallConfiguration_t)(intptr_t)dlsym(handle, "__hipPopCallConfiguration");
+  if (!__HIP_POP_CALL_CONFIGURATION_PTR && verbose)
+    fprintf(stderr, "Missing symbol __hipPopCallConfiguration!\n");
+
+  HIP_LAUNCH_KERNEL_PTR = (hipLaunchKernel_t)(intptr_t)dlsym(handle, "hipLaunchKernel");
+  if (!HIP_LAUNCH_KERNEL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipLaunchKernel!\n");
+
+  HIP_DRV_MEMCPY2_DUNALIGNED_PTR = (hipDrvMemcpy2DUnaligned_t)(intptr_t)dlsym(handle, "hipDrvMemcpy2DUnaligned");
+  if (!HIP_DRV_MEMCPY2_DUNALIGNED_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDrvMemcpy2DUnaligned!\n");
+
+  HIP_EXT_LAUNCH_KERNEL_PTR = (hipExtLaunchKernel_t)(intptr_t)dlsym(handle, "hipExtLaunchKernel");
+  if (!HIP_EXT_LAUNCH_KERNEL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipExtLaunchKernel!\n");
+
+  HIP_BIND_TEXTURE_TO_MIPMAPPED_ARRAY_PTR = (hipBindTextureToMipmappedArray_t)(intptr_t)dlsym(handle, "hipBindTextureToMipmappedArray");
+  if (!HIP_BIND_TEXTURE_TO_MIPMAPPED_ARRAY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipBindTextureToMipmappedArray!\n");
+
+  HIP_CREATE_TEXTURE_OBJECT_PTR = (hipCreateTextureObject_t)(intptr_t)dlsym(handle, "hipCreateTextureObject");
+  if (!HIP_CREATE_TEXTURE_OBJECT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipCreateTextureObject!\n");
+
+  HIP_DESTROY_TEXTURE_OBJECT_PTR = (hipDestroyTextureObject_t)(intptr_t)dlsym(handle, "hipDestroyTextureObject");
+  if (!HIP_DESTROY_TEXTURE_OBJECT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDestroyTextureObject!\n");
+
+  HIP_GET_CHANNEL_DESC_PTR = (hipGetChannelDesc_t)(intptr_t)dlsym(handle, "hipGetChannelDesc");
+  if (!HIP_GET_CHANNEL_DESC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetChannelDesc!\n");
+
+  HIP_GET_TEXTURE_OBJECT_RESOURCE_DESC_PTR = (hipGetTextureObjectResourceDesc_t)(intptr_t)dlsym(handle, "hipGetTextureObjectResourceDesc");
+  if (!HIP_GET_TEXTURE_OBJECT_RESOURCE_DESC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetTextureObjectResourceDesc!\n");
+
+  HIP_GET_TEXTURE_OBJECT_RESOURCE_VIEW_DESC_PTR = (hipGetTextureObjectResourceViewDesc_t)(intptr_t)dlsym(handle, "hipGetTextureObjectResourceViewDesc");
+  if (!HIP_GET_TEXTURE_OBJECT_RESOURCE_VIEW_DESC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetTextureObjectResourceViewDesc!\n");
+
+  HIP_GET_TEXTURE_OBJECT_TEXTURE_DESC_PTR = (hipGetTextureObjectTextureDesc_t)(intptr_t)dlsym(handle, "hipGetTextureObjectTextureDesc");
+  if (!HIP_GET_TEXTURE_OBJECT_TEXTURE_DESC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetTextureObjectTextureDesc!\n");
+
+  HIP_TEX_OBJECT_CREATE_PTR = (hipTexObjectCreate_t)(intptr_t)dlsym(handle, "hipTexObjectCreate");
+  if (!HIP_TEX_OBJECT_CREATE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexObjectCreate!\n");
+
+  HIP_TEX_OBJECT_DESTROY_PTR = (hipTexObjectDestroy_t)(intptr_t)dlsym(handle, "hipTexObjectDestroy");
+  if (!HIP_TEX_OBJECT_DESTROY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexObjectDestroy!\n");
+
+  HIP_TEX_OBJECT_GET_RESOURCE_DESC_PTR = (hipTexObjectGetResourceDesc_t)(intptr_t)dlsym(handle, "hipTexObjectGetResourceDesc");
+  if (!HIP_TEX_OBJECT_GET_RESOURCE_DESC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexObjectGetResourceDesc!\n");
+
+  HIP_TEX_OBJECT_GET_RESOURCE_VIEW_DESC_PTR = (hipTexObjectGetResourceViewDesc_t)(intptr_t)dlsym(handle, "hipTexObjectGetResourceViewDesc");
+  if (!HIP_TEX_OBJECT_GET_RESOURCE_VIEW_DESC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexObjectGetResourceViewDesc!\n");
+
+  HIP_TEX_OBJECT_GET_TEXTURE_DESC_PTR = (hipTexObjectGetTextureDesc_t)(intptr_t)dlsym(handle, "hipTexObjectGetTextureDesc");
+  if (!HIP_TEX_OBJECT_GET_TEXTURE_DESC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexObjectGetTextureDesc!\n");
+
+  HIP_GET_TEXTURE_REFERENCE_PTR = (hipGetTextureReference_t)(intptr_t)dlsym(handle, "hipGetTextureReference");
+  if (!HIP_GET_TEXTURE_REFERENCE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetTextureReference!\n");
+
+  HIP_TEX_REF_SET_ADDRESS_MODE_PTR = (hipTexRefSetAddressMode_t)(intptr_t)dlsym(handle, "hipTexRefSetAddressMode");
+  if (!HIP_TEX_REF_SET_ADDRESS_MODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefSetAddressMode!\n");
+
+  HIP_TEX_REF_SET_ARRAY_PTR = (hipTexRefSetArray_t)(intptr_t)dlsym(handle, "hipTexRefSetArray");
+  if (!HIP_TEX_REF_SET_ARRAY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefSetArray!\n");
+
+  HIP_TEX_REF_SET_FILTER_MODE_PTR = (hipTexRefSetFilterMode_t)(intptr_t)dlsym(handle, "hipTexRefSetFilterMode");
+  if (!HIP_TEX_REF_SET_FILTER_MODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefSetFilterMode!\n");
+
+  HIP_TEX_REF_SET_FLAGS_PTR = (hipTexRefSetFlags_t)(intptr_t)dlsym(handle, "hipTexRefSetFlags");
+  if (!HIP_TEX_REF_SET_FLAGS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefSetFlags!\n");
+
+  HIP_TEX_REF_SET_FORMAT_PTR = (hipTexRefSetFormat_t)(intptr_t)dlsym(handle, "hipTexRefSetFormat");
+  if (!HIP_TEX_REF_SET_FORMAT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefSetFormat!\n");
+
+  HIP_BIND_TEXTURE_PTR = (hipBindTexture_t)(intptr_t)dlsym(handle, "hipBindTexture");
+  if (!HIP_BIND_TEXTURE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipBindTexture!\n");
+
+  HIP_BIND_TEXTURE2_D_PTR = (hipBindTexture2D_t)(intptr_t)dlsym(handle, "hipBindTexture2D");
+  if (!HIP_BIND_TEXTURE2_D_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipBindTexture2D!\n");
+
+  HIP_BIND_TEXTURE_TO_ARRAY_PTR = (hipBindTextureToArray_t)(intptr_t)dlsym(handle, "hipBindTextureToArray");
+  if (!HIP_BIND_TEXTURE_TO_ARRAY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipBindTextureToArray!\n");
+
+  HIP_GET_TEXTURE_ALIGNMENT_OFFSET_PTR = (hipGetTextureAlignmentOffset_t)(intptr_t)dlsym(handle, "hipGetTextureAlignmentOffset");
+  if (!HIP_GET_TEXTURE_ALIGNMENT_OFFSET_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetTextureAlignmentOffset!\n");
+
+  HIP_UNBIND_TEXTURE_PTR = (hipUnbindTexture_t)(intptr_t)dlsym(handle, "hipUnbindTexture");
+  if (!HIP_UNBIND_TEXTURE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipUnbindTexture!\n");
+
+  HIP_TEX_REF_GET_ADDRESS_PTR = (hipTexRefGetAddress_t)(intptr_t)dlsym(handle, "hipTexRefGetAddress");
+  if (!HIP_TEX_REF_GET_ADDRESS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefGetAddress!\n");
+
+  HIP_TEX_REF_GET_ADDRESS_MODE_PTR = (hipTexRefGetAddressMode_t)(intptr_t)dlsym(handle, "hipTexRefGetAddressMode");
+  if (!HIP_TEX_REF_GET_ADDRESS_MODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefGetAddressMode!\n");
+
+  HIP_TEX_REF_GET_FILTER_MODE_PTR = (hipTexRefGetFilterMode_t)(intptr_t)dlsym(handle, "hipTexRefGetFilterMode");
+  if (!HIP_TEX_REF_GET_FILTER_MODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefGetFilterMode!\n");
+
+  HIP_TEX_REF_GET_FLAGS_PTR = (hipTexRefGetFlags_t)(intptr_t)dlsym(handle, "hipTexRefGetFlags");
+  if (!HIP_TEX_REF_GET_FLAGS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefGetFlags!\n");
+
+  HIP_TEX_REF_GET_FORMAT_PTR = (hipTexRefGetFormat_t)(intptr_t)dlsym(handle, "hipTexRefGetFormat");
+  if (!HIP_TEX_REF_GET_FORMAT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefGetFormat!\n");
+
+  HIP_TEX_REF_GET_MAX_ANISOTROPY_PTR = (hipTexRefGetMaxAnisotropy_t)(intptr_t)dlsym(handle, "hipTexRefGetMaxAnisotropy");
+  if (!HIP_TEX_REF_GET_MAX_ANISOTROPY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefGetMaxAnisotropy!\n");
+
+  HIP_TEX_REF_GET_MIPMAP_FILTER_MODE_PTR = (hipTexRefGetMipmapFilterMode_t)(intptr_t)dlsym(handle, "hipTexRefGetMipmapFilterMode");
+  if (!HIP_TEX_REF_GET_MIPMAP_FILTER_MODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefGetMipmapFilterMode!\n");
+
+  HIP_TEX_REF_GET_MIPMAP_LEVEL_BIAS_PTR = (hipTexRefGetMipmapLevelBias_t)(intptr_t)dlsym(handle, "hipTexRefGetMipmapLevelBias");
+  if (!HIP_TEX_REF_GET_MIPMAP_LEVEL_BIAS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefGetMipmapLevelBias!\n");
+
+  HIP_TEX_REF_GET_MIPMAP_LEVEL_CLAMP_PTR = (hipTexRefGetMipmapLevelClamp_t)(intptr_t)dlsym(handle, "hipTexRefGetMipmapLevelClamp");
+  if (!HIP_TEX_REF_GET_MIPMAP_LEVEL_CLAMP_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefGetMipmapLevelClamp!\n");
+
+  HIP_TEX_REF_GET_MIP_MAPPED_ARRAY_PTR = (hipTexRefGetMipMappedArray_t)(intptr_t)dlsym(handle, "hipTexRefGetMipMappedArray");
+  if (!HIP_TEX_REF_GET_MIP_MAPPED_ARRAY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefGetMipMappedArray!\n");
+
+  HIP_TEX_REF_SET_ADDRESS_PTR = (hipTexRefSetAddress_t)(intptr_t)dlsym(handle, "hipTexRefSetAddress");
+  if (!HIP_TEX_REF_SET_ADDRESS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefSetAddress!\n");
+
+  HIP_TEX_REF_SET_ADDRESS2_D_PTR = (hipTexRefSetAddress2D_t)(intptr_t)dlsym(handle, "hipTexRefSetAddress2D");
+  if (!HIP_TEX_REF_SET_ADDRESS2_D_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefSetAddress2D!\n");
+
+  HIP_TEX_REF_SET_MAX_ANISOTROPY_PTR = (hipTexRefSetMaxAnisotropy_t)(intptr_t)dlsym(handle, "hipTexRefSetMaxAnisotropy");
+  if (!HIP_TEX_REF_SET_MAX_ANISOTROPY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefSetMaxAnisotropy!\n");
+
+  HIP_TEX_REF_SET_BORDER_COLOR_PTR = (hipTexRefSetBorderColor_t)(intptr_t)dlsym(handle, "hipTexRefSetBorderColor");
+  if (!HIP_TEX_REF_SET_BORDER_COLOR_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefSetBorderColor!\n");
+
+  HIP_TEX_REF_SET_MIPMAP_FILTER_MODE_PTR = (hipTexRefSetMipmapFilterMode_t)(intptr_t)dlsym(handle, "hipTexRefSetMipmapFilterMode");
+  if (!HIP_TEX_REF_SET_MIPMAP_FILTER_MODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefSetMipmapFilterMode!\n");
+
+  HIP_TEX_REF_SET_MIPMAP_LEVEL_BIAS_PTR = (hipTexRefSetMipmapLevelBias_t)(intptr_t)dlsym(handle, "hipTexRefSetMipmapLevelBias");
+  if (!HIP_TEX_REF_SET_MIPMAP_LEVEL_BIAS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefSetMipmapLevelBias!\n");
+
+  HIP_TEX_REF_SET_MIPMAP_LEVEL_CLAMP_PTR = (hipTexRefSetMipmapLevelClamp_t)(intptr_t)dlsym(handle, "hipTexRefSetMipmapLevelClamp");
+  if (!HIP_TEX_REF_SET_MIPMAP_LEVEL_CLAMP_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefSetMipmapLevelClamp!\n");
+
+  HIP_TEX_REF_SET_MIPMAPPED_ARRAY_PTR = (hipTexRefSetMipmappedArray_t)(intptr_t)dlsym(handle, "hipTexRefSetMipmappedArray");
+  if (!HIP_TEX_REF_SET_MIPMAPPED_ARRAY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipTexRefSetMipmappedArray!\n");
+
+  HIP_MIPMAPPED_ARRAY_CREATE_PTR = (hipMipmappedArrayCreate_t)(intptr_t)dlsym(handle, "hipMipmappedArrayCreate");
+  if (!HIP_MIPMAPPED_ARRAY_CREATE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMipmappedArrayCreate!\n");
+
+  HIP_MIPMAPPED_ARRAY_DESTROY_PTR = (hipMipmappedArrayDestroy_t)(intptr_t)dlsym(handle, "hipMipmappedArrayDestroy");
+  if (!HIP_MIPMAPPED_ARRAY_DESTROY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMipmappedArrayDestroy!\n");
+
+  HIP_MIPMAPPED_ARRAY_GET_LEVEL_PTR = (hipMipmappedArrayGetLevel_t)(intptr_t)dlsym(handle, "hipMipmappedArrayGetLevel");
+  if (!HIP_MIPMAPPED_ARRAY_GET_LEVEL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMipmappedArrayGetLevel!\n");
+
+  HIP_API_NAME_PTR = (hipApiName_t)(intptr_t)dlsym(handle, "hipApiName");
+  if (!HIP_API_NAME_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipApiName!\n");
+
+  HIP_KERNEL_NAME_REF_PTR = (hipKernelNameRef_t)(intptr_t)dlsym(handle, "hipKernelNameRef");
+  if (!HIP_KERNEL_NAME_REF_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipKernelNameRef!\n");
+
+  HIP_KERNEL_NAME_REF_BY_PTR_PTR = (hipKernelNameRefByPtr_t)(intptr_t)dlsym(handle, "hipKernelNameRefByPtr");
+  if (!HIP_KERNEL_NAME_REF_BY_PTR_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipKernelNameRefByPtr!\n");
+
+  HIP_GET_STREAM_DEVICE_ID_PTR = (hipGetStreamDeviceId_t)(intptr_t)dlsym(handle, "hipGetStreamDeviceId");
+  if (!HIP_GET_STREAM_DEVICE_ID_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetStreamDeviceId!\n");
+
+  HIP_STREAM_BEGIN_CAPTURE_PTR = (hipStreamBeginCapture_t)(intptr_t)dlsym(handle, "hipStreamBeginCapture");
+  if (!HIP_STREAM_BEGIN_CAPTURE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamBeginCapture!\n");
+
+  HIP_STREAM_END_CAPTURE_PTR = (hipStreamEndCapture_t)(intptr_t)dlsym(handle, "hipStreamEndCapture");
+  if (!HIP_STREAM_END_CAPTURE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamEndCapture!\n");
+
+  HIP_STREAM_GET_CAPTURE_INFO_PTR = (hipStreamGetCaptureInfo_t)(intptr_t)dlsym(handle, "hipStreamGetCaptureInfo");
+  if (!HIP_STREAM_GET_CAPTURE_INFO_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamGetCaptureInfo!\n");
+
+  HIP_STREAM_GET_CAPTURE_INFO_V2_PTR = (hipStreamGetCaptureInfo_v2_t)(intptr_t)dlsym(handle, "hipStreamGetCaptureInfo_v2");
+  if (!HIP_STREAM_GET_CAPTURE_INFO_V2_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamGetCaptureInfo_v2!\n");
+
+  HIP_STREAM_IS_CAPTURING_PTR = (hipStreamIsCapturing_t)(intptr_t)dlsym(handle, "hipStreamIsCapturing");
+  if (!HIP_STREAM_IS_CAPTURING_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamIsCapturing!\n");
+
+  HIP_STREAM_UPDATE_CAPTURE_DEPENDENCIES_PTR = (hipStreamUpdateCaptureDependencies_t)(intptr_t)dlsym(handle, "hipStreamUpdateCaptureDependencies");
+  if (!HIP_STREAM_UPDATE_CAPTURE_DEPENDENCIES_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamUpdateCaptureDependencies!\n");
+
+  HIP_LAUNCH_HOST_FUNC_PTR = (hipLaunchHostFunc_t)(intptr_t)dlsym(handle, "hipLaunchHostFunc");
+  if (!HIP_LAUNCH_HOST_FUNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipLaunchHostFunc!\n");
+
+  HIP_THREAD_EXCHANGE_STREAM_CAPTURE_MODE_PTR = (hipThreadExchangeStreamCaptureMode_t)(intptr_t)dlsym(handle, "hipThreadExchangeStreamCaptureMode");
+  if (!HIP_THREAD_EXCHANGE_STREAM_CAPTURE_MODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipThreadExchangeStreamCaptureMode!\n");
+
+  HIP_GRAPH_CREATE_PTR = (hipGraphCreate_t)(intptr_t)dlsym(handle, "hipGraphCreate");
+  if (!HIP_GRAPH_CREATE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphCreate!\n");
+
+  HIP_GRAPH_DESTROY_PTR = (hipGraphDestroy_t)(intptr_t)dlsym(handle, "hipGraphDestroy");
+  if (!HIP_GRAPH_DESTROY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphDestroy!\n");
+
+  HIP_GRAPH_ADD_DEPENDENCIES_PTR = (hipGraphAddDependencies_t)(intptr_t)dlsym(handle, "hipGraphAddDependencies");
+  if (!HIP_GRAPH_ADD_DEPENDENCIES_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphAddDependencies!\n");
+
+  HIP_GRAPH_REMOVE_DEPENDENCIES_PTR = (hipGraphRemoveDependencies_t)(intptr_t)dlsym(handle, "hipGraphRemoveDependencies");
+  if (!HIP_GRAPH_REMOVE_DEPENDENCIES_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphRemoveDependencies!\n");
+
+  HIP_GRAPH_GET_EDGES_PTR = (hipGraphGetEdges_t)(intptr_t)dlsym(handle, "hipGraphGetEdges");
+  if (!HIP_GRAPH_GET_EDGES_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphGetEdges!\n");
+
+  HIP_GRAPH_GET_NODES_PTR = (hipGraphGetNodes_t)(intptr_t)dlsym(handle, "hipGraphGetNodes");
+  if (!HIP_GRAPH_GET_NODES_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphGetNodes!\n");
+
+  HIP_GRAPH_GET_ROOT_NODES_PTR = (hipGraphGetRootNodes_t)(intptr_t)dlsym(handle, "hipGraphGetRootNodes");
+  if (!HIP_GRAPH_GET_ROOT_NODES_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphGetRootNodes!\n");
+
+  HIP_GRAPH_NODE_GET_DEPENDENCIES_PTR = (hipGraphNodeGetDependencies_t)(intptr_t)dlsym(handle, "hipGraphNodeGetDependencies");
+  if (!HIP_GRAPH_NODE_GET_DEPENDENCIES_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphNodeGetDependencies!\n");
+
+  HIP_GRAPH_NODE_GET_DEPENDENT_NODES_PTR = (hipGraphNodeGetDependentNodes_t)(intptr_t)dlsym(handle, "hipGraphNodeGetDependentNodes");
+  if (!HIP_GRAPH_NODE_GET_DEPENDENT_NODES_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphNodeGetDependentNodes!\n");
+
+  HIP_GRAPH_NODE_GET_TYPE_PTR = (hipGraphNodeGetType_t)(intptr_t)dlsym(handle, "hipGraphNodeGetType");
+  if (!HIP_GRAPH_NODE_GET_TYPE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphNodeGetType!\n");
+
+  HIP_GRAPH_DESTROY_NODE_PTR = (hipGraphDestroyNode_t)(intptr_t)dlsym(handle, "hipGraphDestroyNode");
+  if (!HIP_GRAPH_DESTROY_NODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphDestroyNode!\n");
+
+  HIP_GRAPH_CLONE_PTR = (hipGraphClone_t)(intptr_t)dlsym(handle, "hipGraphClone");
+  if (!HIP_GRAPH_CLONE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphClone!\n");
+
+  HIP_GRAPH_NODE_FIND_IN_CLONE_PTR = (hipGraphNodeFindInClone_t)(intptr_t)dlsym(handle, "hipGraphNodeFindInClone");
+  if (!HIP_GRAPH_NODE_FIND_IN_CLONE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphNodeFindInClone!\n");
+
+  HIP_GRAPH_INSTANTIATE_PTR = (hipGraphInstantiate_t)(intptr_t)dlsym(handle, "hipGraphInstantiate");
+  if (!HIP_GRAPH_INSTANTIATE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphInstantiate!\n");
+
+  HIP_GRAPH_INSTANTIATE_WITH_FLAGS_PTR = (hipGraphInstantiateWithFlags_t)(intptr_t)dlsym(handle, "hipGraphInstantiateWithFlags");
+  if (!HIP_GRAPH_INSTANTIATE_WITH_FLAGS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphInstantiateWithFlags!\n");
+
+  HIP_GRAPH_LAUNCH_PTR = (hipGraphLaunch_t)(intptr_t)dlsym(handle, "hipGraphLaunch");
+  if (!HIP_GRAPH_LAUNCH_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphLaunch!\n");
+
+  HIP_GRAPH_UPLOAD_PTR = (hipGraphUpload_t)(intptr_t)dlsym(handle, "hipGraphUpload");
+  if (!HIP_GRAPH_UPLOAD_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphUpload!\n");
+
+  HIP_GRAPH_EXEC_DESTROY_PTR = (hipGraphExecDestroy_t)(intptr_t)dlsym(handle, "hipGraphExecDestroy");
+  if (!HIP_GRAPH_EXEC_DESTROY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphExecDestroy!\n");
+
+  HIP_GRAPH_EXEC_UPDATE_PTR = (hipGraphExecUpdate_t)(intptr_t)dlsym(handle, "hipGraphExecUpdate");
+  if (!HIP_GRAPH_EXEC_UPDATE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphExecUpdate!\n");
+
+  HIP_GRAPH_ADD_KERNEL_NODE_PTR = (hipGraphAddKernelNode_t)(intptr_t)dlsym(handle, "hipGraphAddKernelNode");
+  if (!HIP_GRAPH_ADD_KERNEL_NODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphAddKernelNode!\n");
+
+  HIP_GRAPH_KERNEL_NODE_GET_PARAMS_PTR = (hipGraphKernelNodeGetParams_t)(intptr_t)dlsym(handle, "hipGraphKernelNodeGetParams");
+  if (!HIP_GRAPH_KERNEL_NODE_GET_PARAMS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphKernelNodeGetParams!\n");
+
+  HIP_GRAPH_KERNEL_NODE_SET_PARAMS_PTR = (hipGraphKernelNodeSetParams_t)(intptr_t)dlsym(handle, "hipGraphKernelNodeSetParams");
+  if (!HIP_GRAPH_KERNEL_NODE_SET_PARAMS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphKernelNodeSetParams!\n");
+
+  HIP_GRAPH_EXEC_KERNEL_NODE_SET_PARAMS_PTR = (hipGraphExecKernelNodeSetParams_t)(intptr_t)dlsym(handle, "hipGraphExecKernelNodeSetParams");
+  if (!HIP_GRAPH_EXEC_KERNEL_NODE_SET_PARAMS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphExecKernelNodeSetParams!\n");
+
+  HIP_GRAPH_ADD_MEMCPY_NODE_PTR = (hipGraphAddMemcpyNode_t)(intptr_t)dlsym(handle, "hipGraphAddMemcpyNode");
+  if (!HIP_GRAPH_ADD_MEMCPY_NODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphAddMemcpyNode!\n");
+
+  HIP_GRAPH_MEMCPY_NODE_GET_PARAMS_PTR = (hipGraphMemcpyNodeGetParams_t)(intptr_t)dlsym(handle, "hipGraphMemcpyNodeGetParams");
+  if (!HIP_GRAPH_MEMCPY_NODE_GET_PARAMS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphMemcpyNodeGetParams!\n");
+
+  HIP_GRAPH_MEMCPY_NODE_SET_PARAMS_PTR = (hipGraphMemcpyNodeSetParams_t)(intptr_t)dlsym(handle, "hipGraphMemcpyNodeSetParams");
+  if (!HIP_GRAPH_MEMCPY_NODE_SET_PARAMS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphMemcpyNodeSetParams!\n");
+
+  HIP_GRAPH_KERNEL_NODE_SET_ATTRIBUTE_PTR = (hipGraphKernelNodeSetAttribute_t)(intptr_t)dlsym(handle, "hipGraphKernelNodeSetAttribute");
+  if (!HIP_GRAPH_KERNEL_NODE_SET_ATTRIBUTE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphKernelNodeSetAttribute!\n");
+
+  HIP_GRAPH_KERNEL_NODE_GET_ATTRIBUTE_PTR = (hipGraphKernelNodeGetAttribute_t)(intptr_t)dlsym(handle, "hipGraphKernelNodeGetAttribute");
+  if (!HIP_GRAPH_KERNEL_NODE_GET_ATTRIBUTE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphKernelNodeGetAttribute!\n");
+
+  HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS_PTR = (hipGraphExecMemcpyNodeSetParams_t)(intptr_t)dlsym(handle, "hipGraphExecMemcpyNodeSetParams");
+  if (!HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphExecMemcpyNodeSetParams!\n");
+
+  HIP_GRAPH_ADD_MEMCPY_NODE1_D_PTR = (hipGraphAddMemcpyNode1D_t)(intptr_t)dlsym(handle, "hipGraphAddMemcpyNode1D");
+  if (!HIP_GRAPH_ADD_MEMCPY_NODE1_D_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphAddMemcpyNode1D!\n");
+
+  HIP_GRAPH_MEMCPY_NODE_SET_PARAMS1_D_PTR = (hipGraphMemcpyNodeSetParams1D_t)(intptr_t)dlsym(handle, "hipGraphMemcpyNodeSetParams1D");
+  if (!HIP_GRAPH_MEMCPY_NODE_SET_PARAMS1_D_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphMemcpyNodeSetParams1D!\n");
+
+  HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS1_D_PTR = (hipGraphExecMemcpyNodeSetParams1D_t)(intptr_t)dlsym(handle, "hipGraphExecMemcpyNodeSetParams1D");
+  if (!HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS1_D_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphExecMemcpyNodeSetParams1D!\n");
+
+  HIP_GRAPH_ADD_MEMCPY_NODE_FROM_SYMBOL_PTR = (hipGraphAddMemcpyNodeFromSymbol_t)(intptr_t)dlsym(handle, "hipGraphAddMemcpyNodeFromSymbol");
+  if (!HIP_GRAPH_ADD_MEMCPY_NODE_FROM_SYMBOL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphAddMemcpyNodeFromSymbol!\n");
+
+  HIP_GRAPH_MEMCPY_NODE_SET_PARAMS_FROM_SYMBOL_PTR = (hipGraphMemcpyNodeSetParamsFromSymbol_t)(intptr_t)dlsym(handle, "hipGraphMemcpyNodeSetParamsFromSymbol");
+  if (!HIP_GRAPH_MEMCPY_NODE_SET_PARAMS_FROM_SYMBOL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphMemcpyNodeSetParamsFromSymbol!\n");
+
+  HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS_FROM_SYMBOL_PTR = (hipGraphExecMemcpyNodeSetParamsFromSymbol_t)(intptr_t)dlsym(handle, "hipGraphExecMemcpyNodeSetParamsFromSymbol");
+  if (!HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS_FROM_SYMBOL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphExecMemcpyNodeSetParamsFromSymbol!\n");
+
+  HIP_GRAPH_ADD_MEMCPY_NODE_TO_SYMBOL_PTR = (hipGraphAddMemcpyNodeToSymbol_t)(intptr_t)dlsym(handle, "hipGraphAddMemcpyNodeToSymbol");
+  if (!HIP_GRAPH_ADD_MEMCPY_NODE_TO_SYMBOL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphAddMemcpyNodeToSymbol!\n");
+
+  HIP_GRAPH_MEMCPY_NODE_SET_PARAMS_TO_SYMBOL_PTR = (hipGraphMemcpyNodeSetParamsToSymbol_t)(intptr_t)dlsym(handle, "hipGraphMemcpyNodeSetParamsToSymbol");
+  if (!HIP_GRAPH_MEMCPY_NODE_SET_PARAMS_TO_SYMBOL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphMemcpyNodeSetParamsToSymbol!\n");
+
+  HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS_TO_SYMBOL_PTR = (hipGraphExecMemcpyNodeSetParamsToSymbol_t)(intptr_t)dlsym(handle, "hipGraphExecMemcpyNodeSetParamsToSymbol");
+  if (!HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS_TO_SYMBOL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphExecMemcpyNodeSetParamsToSymbol!\n");
+
+  HIP_GRAPH_ADD_MEMSET_NODE_PTR = (hipGraphAddMemsetNode_t)(intptr_t)dlsym(handle, "hipGraphAddMemsetNode");
+  if (!HIP_GRAPH_ADD_MEMSET_NODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphAddMemsetNode!\n");
+
+  HIP_GRAPH_MEMSET_NODE_GET_PARAMS_PTR = (hipGraphMemsetNodeGetParams_t)(intptr_t)dlsym(handle, "hipGraphMemsetNodeGetParams");
+  if (!HIP_GRAPH_MEMSET_NODE_GET_PARAMS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphMemsetNodeGetParams!\n");
+
+  HIP_GRAPH_MEMSET_NODE_SET_PARAMS_PTR = (hipGraphMemsetNodeSetParams_t)(intptr_t)dlsym(handle, "hipGraphMemsetNodeSetParams");
+  if (!HIP_GRAPH_MEMSET_NODE_SET_PARAMS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphMemsetNodeSetParams!\n");
+
+  HIP_GRAPH_EXEC_MEMSET_NODE_SET_PARAMS_PTR = (hipGraphExecMemsetNodeSetParams_t)(intptr_t)dlsym(handle, "hipGraphExecMemsetNodeSetParams");
+  if (!HIP_GRAPH_EXEC_MEMSET_NODE_SET_PARAMS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphExecMemsetNodeSetParams!\n");
+
+  HIP_GRAPH_ADD_HOST_NODE_PTR = (hipGraphAddHostNode_t)(intptr_t)dlsym(handle, "hipGraphAddHostNode");
+  if (!HIP_GRAPH_ADD_HOST_NODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphAddHostNode!\n");
+
+  HIP_GRAPH_HOST_NODE_GET_PARAMS_PTR = (hipGraphHostNodeGetParams_t)(intptr_t)dlsym(handle, "hipGraphHostNodeGetParams");
+  if (!HIP_GRAPH_HOST_NODE_GET_PARAMS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphHostNodeGetParams!\n");
+
+  HIP_GRAPH_HOST_NODE_SET_PARAMS_PTR = (hipGraphHostNodeSetParams_t)(intptr_t)dlsym(handle, "hipGraphHostNodeSetParams");
+  if (!HIP_GRAPH_HOST_NODE_SET_PARAMS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphHostNodeSetParams!\n");
+
+  HIP_GRAPH_EXEC_HOST_NODE_SET_PARAMS_PTR = (hipGraphExecHostNodeSetParams_t)(intptr_t)dlsym(handle, "hipGraphExecHostNodeSetParams");
+  if (!HIP_GRAPH_EXEC_HOST_NODE_SET_PARAMS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphExecHostNodeSetParams!\n");
+
+  HIP_GRAPH_ADD_CHILD_GRAPH_NODE_PTR = (hipGraphAddChildGraphNode_t)(intptr_t)dlsym(handle, "hipGraphAddChildGraphNode");
+  if (!HIP_GRAPH_ADD_CHILD_GRAPH_NODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphAddChildGraphNode!\n");
+
+  HIP_GRAPH_CHILD_GRAPH_NODE_GET_GRAPH_PTR = (hipGraphChildGraphNodeGetGraph_t)(intptr_t)dlsym(handle, "hipGraphChildGraphNodeGetGraph");
+  if (!HIP_GRAPH_CHILD_GRAPH_NODE_GET_GRAPH_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphChildGraphNodeGetGraph!\n");
+
+  HIP_GRAPH_EXEC_CHILD_GRAPH_NODE_SET_PARAMS_PTR = (hipGraphExecChildGraphNodeSetParams_t)(intptr_t)dlsym(handle, "hipGraphExecChildGraphNodeSetParams");
+  if (!HIP_GRAPH_EXEC_CHILD_GRAPH_NODE_SET_PARAMS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphExecChildGraphNodeSetParams!\n");
+
+  HIP_GRAPH_ADD_EMPTY_NODE_PTR = (hipGraphAddEmptyNode_t)(intptr_t)dlsym(handle, "hipGraphAddEmptyNode");
+  if (!HIP_GRAPH_ADD_EMPTY_NODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphAddEmptyNode!\n");
+
+  HIP_GRAPH_ADD_EVENT_RECORD_NODE_PTR = (hipGraphAddEventRecordNode_t)(intptr_t)dlsym(handle, "hipGraphAddEventRecordNode");
+  if (!HIP_GRAPH_ADD_EVENT_RECORD_NODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphAddEventRecordNode!\n");
+
+  HIP_GRAPH_EVENT_RECORD_NODE_GET_EVENT_PTR = (hipGraphEventRecordNodeGetEvent_t)(intptr_t)dlsym(handle, "hipGraphEventRecordNodeGetEvent");
+  if (!HIP_GRAPH_EVENT_RECORD_NODE_GET_EVENT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphEventRecordNodeGetEvent!\n");
+
+  HIP_GRAPH_EVENT_RECORD_NODE_SET_EVENT_PTR = (hipGraphEventRecordNodeSetEvent_t)(intptr_t)dlsym(handle, "hipGraphEventRecordNodeSetEvent");
+  if (!HIP_GRAPH_EVENT_RECORD_NODE_SET_EVENT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphEventRecordNodeSetEvent!\n");
+
+  HIP_GRAPH_EXEC_EVENT_RECORD_NODE_SET_EVENT_PTR = (hipGraphExecEventRecordNodeSetEvent_t)(intptr_t)dlsym(handle, "hipGraphExecEventRecordNodeSetEvent");
+  if (!HIP_GRAPH_EXEC_EVENT_RECORD_NODE_SET_EVENT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphExecEventRecordNodeSetEvent!\n");
+
+  HIP_GRAPH_ADD_EVENT_WAIT_NODE_PTR = (hipGraphAddEventWaitNode_t)(intptr_t)dlsym(handle, "hipGraphAddEventWaitNode");
+  if (!HIP_GRAPH_ADD_EVENT_WAIT_NODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphAddEventWaitNode!\n");
+
+  HIP_GRAPH_EVENT_WAIT_NODE_GET_EVENT_PTR = (hipGraphEventWaitNodeGetEvent_t)(intptr_t)dlsym(handle, "hipGraphEventWaitNodeGetEvent");
+  if (!HIP_GRAPH_EVENT_WAIT_NODE_GET_EVENT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphEventWaitNodeGetEvent!\n");
+
+  HIP_GRAPH_EVENT_WAIT_NODE_SET_EVENT_PTR = (hipGraphEventWaitNodeSetEvent_t)(intptr_t)dlsym(handle, "hipGraphEventWaitNodeSetEvent");
+  if (!HIP_GRAPH_EVENT_WAIT_NODE_SET_EVENT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphEventWaitNodeSetEvent!\n");
+
+  HIP_GRAPH_EXEC_EVENT_WAIT_NODE_SET_EVENT_PTR = (hipGraphExecEventWaitNodeSetEvent_t)(intptr_t)dlsym(handle, "hipGraphExecEventWaitNodeSetEvent");
+  if (!HIP_GRAPH_EXEC_EVENT_WAIT_NODE_SET_EVENT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphExecEventWaitNodeSetEvent!\n");
+
+  HIP_DEVICE_GET_GRAPH_MEM_ATTRIBUTE_PTR = (hipDeviceGetGraphMemAttribute_t)(intptr_t)dlsym(handle, "hipDeviceGetGraphMemAttribute");
+  if (!HIP_DEVICE_GET_GRAPH_MEM_ATTRIBUTE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceGetGraphMemAttribute!\n");
+
+  HIP_DEVICE_SET_GRAPH_MEM_ATTRIBUTE_PTR = (hipDeviceSetGraphMemAttribute_t)(intptr_t)dlsym(handle, "hipDeviceSetGraphMemAttribute");
+  if (!HIP_DEVICE_SET_GRAPH_MEM_ATTRIBUTE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceSetGraphMemAttribute!\n");
+
+  HIP_DEVICE_GRAPH_MEM_TRIM_PTR = (hipDeviceGraphMemTrim_t)(intptr_t)dlsym(handle, "hipDeviceGraphMemTrim");
+  if (!HIP_DEVICE_GRAPH_MEM_TRIM_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipDeviceGraphMemTrim!\n");
+
+  HIP_USER_OBJECT_CREATE_PTR = (hipUserObjectCreate_t)(intptr_t)dlsym(handle, "hipUserObjectCreate");
+  if (!HIP_USER_OBJECT_CREATE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipUserObjectCreate!\n");
+
+  HIP_USER_OBJECT_RELEASE_PTR = (hipUserObjectRelease_t)(intptr_t)dlsym(handle, "hipUserObjectRelease");
+  if (!HIP_USER_OBJECT_RELEASE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipUserObjectRelease!\n");
+
+  HIP_USER_OBJECT_RETAIN_PTR = (hipUserObjectRetain_t)(intptr_t)dlsym(handle, "hipUserObjectRetain");
+  if (!HIP_USER_OBJECT_RETAIN_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipUserObjectRetain!\n");
+
+  HIP_GRAPH_RETAIN_USER_OBJECT_PTR = (hipGraphRetainUserObject_t)(intptr_t)dlsym(handle, "hipGraphRetainUserObject");
+  if (!HIP_GRAPH_RETAIN_USER_OBJECT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphRetainUserObject!\n");
+
+  HIP_GRAPH_RELEASE_USER_OBJECT_PTR = (hipGraphReleaseUserObject_t)(intptr_t)dlsym(handle, "hipGraphReleaseUserObject");
+  if (!HIP_GRAPH_RELEASE_USER_OBJECT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphReleaseUserObject!\n");
+
+  HIP_MEM_ADDRESS_FREE_PTR = (hipMemAddressFree_t)(intptr_t)dlsym(handle, "hipMemAddressFree");
+  if (!HIP_MEM_ADDRESS_FREE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemAddressFree!\n");
+
+  HIP_MEM_ADDRESS_RESERVE_PTR = (hipMemAddressReserve_t)(intptr_t)dlsym(handle, "hipMemAddressReserve");
+  if (!HIP_MEM_ADDRESS_RESERVE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemAddressReserve!\n");
+
+  HIP_MEM_CREATE_PTR = (hipMemCreate_t)(intptr_t)dlsym(handle, "hipMemCreate");
+  if (!HIP_MEM_CREATE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemCreate!\n");
+
+  HIP_MEM_EXPORT_TO_SHAREABLE_HANDLE_PTR = (hipMemExportToShareableHandle_t)(intptr_t)dlsym(handle, "hipMemExportToShareableHandle");
+  if (!HIP_MEM_EXPORT_TO_SHAREABLE_HANDLE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemExportToShareableHandle!\n");
+
+  HIP_MEM_GET_ACCESS_PTR = (hipMemGetAccess_t)(intptr_t)dlsym(handle, "hipMemGetAccess");
+  if (!HIP_MEM_GET_ACCESS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemGetAccess!\n");
+
+  HIP_MEM_GET_ALLOCATION_GRANULARITY_PTR = (hipMemGetAllocationGranularity_t)(intptr_t)dlsym(handle, "hipMemGetAllocationGranularity");
+  if (!HIP_MEM_GET_ALLOCATION_GRANULARITY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemGetAllocationGranularity!\n");
+
+  HIP_MEM_GET_ALLOCATION_PROPERTIES_FROM_HANDLE_PTR = (hipMemGetAllocationPropertiesFromHandle_t)(intptr_t)dlsym(handle, "hipMemGetAllocationPropertiesFromHandle");
+  if (!HIP_MEM_GET_ALLOCATION_PROPERTIES_FROM_HANDLE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemGetAllocationPropertiesFromHandle!\n");
+
+  HIP_MEM_IMPORT_FROM_SHAREABLE_HANDLE_PTR = (hipMemImportFromShareableHandle_t)(intptr_t)dlsym(handle, "hipMemImportFromShareableHandle");
+  if (!HIP_MEM_IMPORT_FROM_SHAREABLE_HANDLE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemImportFromShareableHandle!\n");
+
+  HIP_MEM_MAP_PTR = (hipMemMap_t)(intptr_t)dlsym(handle, "hipMemMap");
+  if (!HIP_MEM_MAP_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemMap!\n");
+
+  HIP_MEM_MAP_ARRAY_ASYNC_PTR = (hipMemMapArrayAsync_t)(intptr_t)dlsym(handle, "hipMemMapArrayAsync");
+  if (!HIP_MEM_MAP_ARRAY_ASYNC_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemMapArrayAsync!\n");
+
+  HIP_MEM_RELEASE_PTR = (hipMemRelease_t)(intptr_t)dlsym(handle, "hipMemRelease");
+  if (!HIP_MEM_RELEASE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemRelease!\n");
+
+  HIP_MEM_RETAIN_ALLOCATION_HANDLE_PTR = (hipMemRetainAllocationHandle_t)(intptr_t)dlsym(handle, "hipMemRetainAllocationHandle");
+  if (!HIP_MEM_RETAIN_ALLOCATION_HANDLE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemRetainAllocationHandle!\n");
+
+  HIP_MEM_SET_ACCESS_PTR = (hipMemSetAccess_t)(intptr_t)dlsym(handle, "hipMemSetAccess");
+  if (!HIP_MEM_SET_ACCESS_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemSetAccess!\n");
+
+  HIP_MEM_UNMAP_PTR = (hipMemUnmap_t)(intptr_t)dlsym(handle, "hipMemUnmap");
+  if (!HIP_MEM_UNMAP_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemUnmap!\n");
+
+  HIP_GLGET_DEVICES_PTR = (hipGLGetDevices_t)(intptr_t)dlsym(handle, "hipGLGetDevices");
+  if (!HIP_GLGET_DEVICES_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGLGetDevices!\n");
+
+  HIP_GRAPHICS_GLREGISTER_BUFFER_PTR = (hipGraphicsGLRegisterBuffer_t)(intptr_t)dlsym(handle, "hipGraphicsGLRegisterBuffer");
+  if (!HIP_GRAPHICS_GLREGISTER_BUFFER_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphicsGLRegisterBuffer!\n");
+
+  HIP_GRAPHICS_GLREGISTER_IMAGE_PTR = (hipGraphicsGLRegisterImage_t)(intptr_t)dlsym(handle, "hipGraphicsGLRegisterImage");
+  if (!HIP_GRAPHICS_GLREGISTER_IMAGE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphicsGLRegisterImage!\n");
+
+  HIP_GRAPHICS_MAP_RESOURCES_PTR = (hipGraphicsMapResources_t)(intptr_t)dlsym(handle, "hipGraphicsMapResources");
+  if (!HIP_GRAPHICS_MAP_RESOURCES_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphicsMapResources!\n");
+
+  HIP_GRAPHICS_SUB_RESOURCE_GET_MAPPED_ARRAY_PTR = (hipGraphicsSubResourceGetMappedArray_t)(intptr_t)dlsym(handle, "hipGraphicsSubResourceGetMappedArray");
+  if (!HIP_GRAPHICS_SUB_RESOURCE_GET_MAPPED_ARRAY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphicsSubResourceGetMappedArray!\n");
+
+  HIP_GRAPHICS_RESOURCE_GET_MAPPED_POINTER_PTR = (hipGraphicsResourceGetMappedPointer_t)(intptr_t)dlsym(handle, "hipGraphicsResourceGetMappedPointer");
+  if (!HIP_GRAPHICS_RESOURCE_GET_MAPPED_POINTER_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphicsResourceGetMappedPointer!\n");
+
+  HIP_GRAPHICS_UNMAP_RESOURCES_PTR = (hipGraphicsUnmapResources_t)(intptr_t)dlsym(handle, "hipGraphicsUnmapResources");
+  if (!HIP_GRAPHICS_UNMAP_RESOURCES_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphicsUnmapResources!\n");
+
+  HIP_GRAPHICS_UNREGISTER_RESOURCE_PTR = (hipGraphicsUnregisterResource_t)(intptr_t)dlsym(handle, "hipGraphicsUnregisterResource");
+  if (!HIP_GRAPHICS_UNREGISTER_RESOURCE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphicsUnregisterResource!\n");
+
+  HIP_MEMCPY_SPT_PTR = (hipMemcpy_spt_t)(intptr_t)dlsym(handle, "hipMemcpy_spt");
+  if (!HIP_MEMCPY_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy_spt!\n");
+
+  HIP_MEMCPY_TO_SYMBOL_SPT_PTR = (hipMemcpyToSymbol_spt_t)(intptr_t)dlsym(handle, "hipMemcpyToSymbol_spt");
+  if (!HIP_MEMCPY_TO_SYMBOL_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyToSymbol_spt!\n");
+
+  HIP_MEMCPY_FROM_SYMBOL_SPT_PTR = (hipMemcpyFromSymbol_spt_t)(intptr_t)dlsym(handle, "hipMemcpyFromSymbol_spt");
+  if (!HIP_MEMCPY_FROM_SYMBOL_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyFromSymbol_spt!\n");
+
+  HIP_MEMCPY2_D_SPT_PTR = (hipMemcpy2D_spt_t)(intptr_t)dlsym(handle, "hipMemcpy2D_spt");
+  if (!HIP_MEMCPY2_D_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy2D_spt!\n");
+
+  HIP_MEMCPY2_DFROM_ARRAY_SPT_PTR = (hipMemcpy2DFromArray_spt_t)(intptr_t)dlsym(handle, "hipMemcpy2DFromArray_spt");
+  if (!HIP_MEMCPY2_DFROM_ARRAY_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy2DFromArray_spt!\n");
+
+  HIP_MEMCPY3_D_SPT_PTR = (hipMemcpy3D_spt_t)(intptr_t)dlsym(handle, "hipMemcpy3D_spt");
+  if (!HIP_MEMCPY3_D_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy3D_spt!\n");
+
+  HIP_MEMSET_SPT_PTR = (hipMemset_spt_t)(intptr_t)dlsym(handle, "hipMemset_spt");
+  if (!HIP_MEMSET_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemset_spt!\n");
+
+  HIP_MEMSET_ASYNC_SPT_PTR = (hipMemsetAsync_spt_t)(intptr_t)dlsym(handle, "hipMemsetAsync_spt");
+  if (!HIP_MEMSET_ASYNC_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemsetAsync_spt!\n");
+
+  HIP_MEMSET2_D_SPT_PTR = (hipMemset2D_spt_t)(intptr_t)dlsym(handle, "hipMemset2D_spt");
+  if (!HIP_MEMSET2_D_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemset2D_spt!\n");
+
+  HIP_MEMSET2_DASYNC_SPT_PTR = (hipMemset2DAsync_spt_t)(intptr_t)dlsym(handle, "hipMemset2DAsync_spt");
+  if (!HIP_MEMSET2_DASYNC_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemset2DAsync_spt!\n");
+
+  HIP_MEMSET3_DASYNC_SPT_PTR = (hipMemset3DAsync_spt_t)(intptr_t)dlsym(handle, "hipMemset3DAsync_spt");
+  if (!HIP_MEMSET3_DASYNC_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemset3DAsync_spt!\n");
+
+  HIP_MEMSET3_D_SPT_PTR = (hipMemset3D_spt_t)(intptr_t)dlsym(handle, "hipMemset3D_spt");
+  if (!HIP_MEMSET3_D_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemset3D_spt!\n");
+
+  HIP_MEMCPY_ASYNC_SPT_PTR = (hipMemcpyAsync_spt_t)(intptr_t)dlsym(handle, "hipMemcpyAsync_spt");
+  if (!HIP_MEMCPY_ASYNC_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyAsync_spt!\n");
+
+  HIP_MEMCPY3_DASYNC_SPT_PTR = (hipMemcpy3DAsync_spt_t)(intptr_t)dlsym(handle, "hipMemcpy3DAsync_spt");
+  if (!HIP_MEMCPY3_DASYNC_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy3DAsync_spt!\n");
+
+  HIP_MEMCPY2_DASYNC_SPT_PTR = (hipMemcpy2DAsync_spt_t)(intptr_t)dlsym(handle, "hipMemcpy2DAsync_spt");
+  if (!HIP_MEMCPY2_DASYNC_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy2DAsync_spt!\n");
+
+  HIP_MEMCPY_FROM_SYMBOL_ASYNC_SPT_PTR = (hipMemcpyFromSymbolAsync_spt_t)(intptr_t)dlsym(handle, "hipMemcpyFromSymbolAsync_spt");
+  if (!HIP_MEMCPY_FROM_SYMBOL_ASYNC_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyFromSymbolAsync_spt!\n");
+
+  HIP_MEMCPY_TO_SYMBOL_ASYNC_SPT_PTR = (hipMemcpyToSymbolAsync_spt_t)(intptr_t)dlsym(handle, "hipMemcpyToSymbolAsync_spt");
+  if (!HIP_MEMCPY_TO_SYMBOL_ASYNC_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyToSymbolAsync_spt!\n");
+
+  HIP_MEMCPY_FROM_ARRAY_SPT_PTR = (hipMemcpyFromArray_spt_t)(intptr_t)dlsym(handle, "hipMemcpyFromArray_spt");
+  if (!HIP_MEMCPY_FROM_ARRAY_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpyFromArray_spt!\n");
+
+  HIP_MEMCPY2_DTO_ARRAY_SPT_PTR = (hipMemcpy2DToArray_spt_t)(intptr_t)dlsym(handle, "hipMemcpy2DToArray_spt");
+  if (!HIP_MEMCPY2_DTO_ARRAY_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy2DToArray_spt!\n");
+
+  HIP_MEMCPY2_DFROM_ARRAY_ASYNC_SPT_PTR = (hipMemcpy2DFromArrayAsync_spt_t)(intptr_t)dlsym(handle, "hipMemcpy2DFromArrayAsync_spt");
+  if (!HIP_MEMCPY2_DFROM_ARRAY_ASYNC_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy2DFromArrayAsync_spt!\n");
+
+  HIP_MEMCPY2_DTO_ARRAY_ASYNC_SPT_PTR = (hipMemcpy2DToArrayAsync_spt_t)(intptr_t)dlsym(handle, "hipMemcpy2DToArrayAsync_spt");
+  if (!HIP_MEMCPY2_DTO_ARRAY_ASYNC_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipMemcpy2DToArrayAsync_spt!\n");
+
+  HIP_STREAM_QUERY_SPT_PTR = (hipStreamQuery_spt_t)(intptr_t)dlsym(handle, "hipStreamQuery_spt");
+  if (!HIP_STREAM_QUERY_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamQuery_spt!\n");
+
+  HIP_STREAM_SYNCHRONIZE_SPT_PTR = (hipStreamSynchronize_spt_t)(intptr_t)dlsym(handle, "hipStreamSynchronize_spt");
+  if (!HIP_STREAM_SYNCHRONIZE_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamSynchronize_spt!\n");
+
+  HIP_STREAM_GET_PRIORITY_SPT_PTR = (hipStreamGetPriority_spt_t)(intptr_t)dlsym(handle, "hipStreamGetPriority_spt");
+  if (!HIP_STREAM_GET_PRIORITY_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamGetPriority_spt!\n");
+
+  HIP_STREAM_WAIT_EVENT_SPT_PTR = (hipStreamWaitEvent_spt_t)(intptr_t)dlsym(handle, "hipStreamWaitEvent_spt");
+  if (!HIP_STREAM_WAIT_EVENT_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamWaitEvent_spt!\n");
+
+  HIP_STREAM_GET_FLAGS_SPT_PTR = (hipStreamGetFlags_spt_t)(intptr_t)dlsym(handle, "hipStreamGetFlags_spt");
+  if (!HIP_STREAM_GET_FLAGS_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamGetFlags_spt!\n");
+
+  HIP_STREAM_ADD_CALLBACK_SPT_PTR = (hipStreamAddCallback_spt_t)(intptr_t)dlsym(handle, "hipStreamAddCallback_spt");
+  if (!HIP_STREAM_ADD_CALLBACK_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamAddCallback_spt!\n");
+
+  HIP_EVENT_RECORD_SPT_PTR = (hipEventRecord_spt_t)(intptr_t)dlsym(handle, "hipEventRecord_spt");
+  if (!HIP_EVENT_RECORD_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipEventRecord_spt!\n");
+
+  HIP_LAUNCH_COOPERATIVE_KERNEL_SPT_PTR = (hipLaunchCooperativeKernel_spt_t)(intptr_t)dlsym(handle, "hipLaunchCooperativeKernel_spt");
+  if (!HIP_LAUNCH_COOPERATIVE_KERNEL_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipLaunchCooperativeKernel_spt!\n");
+
+  HIP_LAUNCH_KERNEL_SPT_PTR = (hipLaunchKernel_spt_t)(intptr_t)dlsym(handle, "hipLaunchKernel_spt");
+  if (!HIP_LAUNCH_KERNEL_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipLaunchKernel_spt!\n");
+
+  HIP_GRAPH_LAUNCH_SPT_PTR = (hipGraphLaunch_spt_t)(intptr_t)dlsym(handle, "hipGraphLaunch_spt");
+  if (!HIP_GRAPH_LAUNCH_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphLaunch_spt!\n");
+
+  HIP_STREAM_BEGIN_CAPTURE_SPT_PTR = (hipStreamBeginCapture_spt_t)(intptr_t)dlsym(handle, "hipStreamBeginCapture_spt");
+  if (!HIP_STREAM_BEGIN_CAPTURE_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamBeginCapture_spt!\n");
+
+  HIP_STREAM_END_CAPTURE_SPT_PTR = (hipStreamEndCapture_spt_t)(intptr_t)dlsym(handle, "hipStreamEndCapture_spt");
+  if (!HIP_STREAM_END_CAPTURE_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamEndCapture_spt!\n");
+
+  HIP_STREAM_IS_CAPTURING_SPT_PTR = (hipStreamIsCapturing_spt_t)(intptr_t)dlsym(handle, "hipStreamIsCapturing_spt");
+  if (!HIP_STREAM_IS_CAPTURING_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamIsCapturing_spt!\n");
+
+  HIP_STREAM_GET_CAPTURE_INFO_SPT_PTR = (hipStreamGetCaptureInfo_spt_t)(intptr_t)dlsym(handle, "hipStreamGetCaptureInfo_spt");
+  if (!HIP_STREAM_GET_CAPTURE_INFO_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamGetCaptureInfo_spt!\n");
+
+  HIP_STREAM_GET_CAPTURE_INFO_V2_SPT_PTR = (hipStreamGetCaptureInfo_v2_spt_t)(intptr_t)dlsym(handle, "hipStreamGetCaptureInfo_v2_spt");
+  if (!HIP_STREAM_GET_CAPTURE_INFO_V2_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipStreamGetCaptureInfo_v2_spt!\n");
+
+  HIP_LAUNCH_HOST_FUNC_SPT_PTR = (hipLaunchHostFunc_spt_t)(intptr_t)dlsym(handle, "hipLaunchHostFunc_spt");
+  if (!HIP_LAUNCH_HOST_FUNC_SPT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipLaunchHostFunc_spt!\n");
+
+  HIPRTC_GET_ERROR_STRING_PTR = (hiprtcGetErrorString_t)(intptr_t)dlsym(handle, "hiprtcGetErrorString");
+  if (!HIPRTC_GET_ERROR_STRING_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcGetErrorString!\n");
+
+  HIPRTC_VERSION_PTR = (hiprtcVersion_t)(intptr_t)dlsym(handle, "hiprtcVersion");
+  if (!HIPRTC_VERSION_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcVersion!\n");
+
+  HIPRTC_ADD_NAME_EXPRESSION_PTR = (hiprtcAddNameExpression_t)(intptr_t)dlsym(handle, "hiprtcAddNameExpression");
+  if (!HIPRTC_ADD_NAME_EXPRESSION_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcAddNameExpression!\n");
+
+  HIPRTC_COMPILE_PROGRAM_PTR = (hiprtcCompileProgram_t)(intptr_t)dlsym(handle, "hiprtcCompileProgram");
+  if (!HIPRTC_COMPILE_PROGRAM_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcCompileProgram!\n");
+
+  HIPRTC_CREATE_PROGRAM_PTR = (hiprtcCreateProgram_t)(intptr_t)dlsym(handle, "hiprtcCreateProgram");
+  if (!HIPRTC_CREATE_PROGRAM_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcCreateProgram!\n");
+
+  HIPRTC_DESTROY_PROGRAM_PTR = (hiprtcDestroyProgram_t)(intptr_t)dlsym(handle, "hiprtcDestroyProgram");
+  if (!HIPRTC_DESTROY_PROGRAM_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcDestroyProgram!\n");
+
+  HIPRTC_GET_LOWERED_NAME_PTR = (hiprtcGetLoweredName_t)(intptr_t)dlsym(handle, "hiprtcGetLoweredName");
+  if (!HIPRTC_GET_LOWERED_NAME_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcGetLoweredName!\n");
+
+  HIPRTC_GET_PROGRAM_LOG_PTR = (hiprtcGetProgramLog_t)(intptr_t)dlsym(handle, "hiprtcGetProgramLog");
+  if (!HIPRTC_GET_PROGRAM_LOG_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcGetProgramLog!\n");
+
+  HIPRTC_GET_PROGRAM_LOG_SIZE_PTR = (hiprtcGetProgramLogSize_t)(intptr_t)dlsym(handle, "hiprtcGetProgramLogSize");
+  if (!HIPRTC_GET_PROGRAM_LOG_SIZE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcGetProgramLogSize!\n");
+
+  HIPRTC_GET_CODE_PTR = (hiprtcGetCode_t)(intptr_t)dlsym(handle, "hiprtcGetCode");
+  if (!HIPRTC_GET_CODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcGetCode!\n");
+
+  HIPRTC_GET_CODE_SIZE_PTR = (hiprtcGetCodeSize_t)(intptr_t)dlsym(handle, "hiprtcGetCodeSize");
+  if (!HIPRTC_GET_CODE_SIZE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcGetCodeSize!\n");
+
+  HIPRTC_GET_BITCODE_PTR = (hiprtcGetBitcode_t)(intptr_t)dlsym(handle, "hiprtcGetBitcode");
+  if (!HIPRTC_GET_BITCODE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcGetBitcode!\n");
+
+  HIPRTC_GET_BITCODE_SIZE_PTR = (hiprtcGetBitcodeSize_t)(intptr_t)dlsym(handle, "hiprtcGetBitcodeSize");
+  if (!HIPRTC_GET_BITCODE_SIZE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcGetBitcodeSize!\n");
+
+  HIPRTC_LINK_CREATE_PTR = (hiprtcLinkCreate_t)(intptr_t)dlsym(handle, "hiprtcLinkCreate");
+  if (!HIPRTC_LINK_CREATE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcLinkCreate!\n");
+
+  HIPRTC_LINK_ADD_FILE_PTR = (hiprtcLinkAddFile_t)(intptr_t)dlsym(handle, "hiprtcLinkAddFile");
+  if (!HIPRTC_LINK_ADD_FILE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcLinkAddFile!\n");
+
+  HIPRTC_LINK_ADD_DATA_PTR = (hiprtcLinkAddData_t)(intptr_t)dlsym(handle, "hiprtcLinkAddData");
+  if (!HIPRTC_LINK_ADD_DATA_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcLinkAddData!\n");
+
+  HIPRTC_LINK_COMPLETE_PTR = (hiprtcLinkComplete_t)(intptr_t)dlsym(handle, "hiprtcLinkComplete");
+  if (!HIPRTC_LINK_COMPLETE_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcLinkComplete!\n");
+
+  HIPRTC_LINK_DESTROY_PTR = (hiprtcLinkDestroy_t)(intptr_t)dlsym(handle, "hiprtcLinkDestroy");
+  if (!HIPRTC_LINK_DESTROY_PTR && verbose)
+    fprintf(stderr, "Missing symbol hiprtcLinkDestroy!\n");
+
+  AMD_DBGAPI_GET_BUILD_NAME_PTR = (amd_dbgapi_get_build_name_t)(intptr_t)dlsym(handle, "amd_dbgapi_get_build_name");
+  if (!AMD_DBGAPI_GET_BUILD_NAME_PTR && verbose)
+    fprintf(stderr, "Missing symbol amd_dbgapi_get_build_name!\n");
+
+  AMD_DBGAPI_GET_GIT_HASH_PTR = (amd_dbgapi_get_git_hash_t)(intptr_t)dlsym(handle, "amd_dbgapi_get_git_hash");
+  if (!AMD_DBGAPI_GET_GIT_HASH_PTR && verbose)
+    fprintf(stderr, "Missing symbol amd_dbgapi_get_git_hash!\n");
+
+  AMD_DBGAPI_GET_BUILD_ID_PTR = (amd_dbgapi_get_build_id_t)(intptr_t)dlsym(handle, "amd_dbgapi_get_build_id");
+  if (!AMD_DBGAPI_GET_BUILD_ID_PTR && verbose)
+    fprintf(stderr, "Missing symbol amd_dbgapi_get_build_id!\n");
+
+  HIP_EXT_MODULE_LAUNCH_KERNEL_PTR = (hipExtModuleLaunchKernel_t)(intptr_t)dlsym(handle, "hipExtModuleLaunchKernel");
+  if (!HIP_EXT_MODULE_LAUNCH_KERNEL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipExtModuleLaunchKernel!\n");
+
+  HIP_HCC_MODULE_LAUNCH_KERNEL_PTR = (hipHccModuleLaunchKernel_t)(intptr_t)dlsym(handle, "hipHccModuleLaunchKernel");
+  if (!HIP_HCC_MODULE_LAUNCH_KERNEL_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipHccModuleLaunchKernel!\n");
+
+  __ZN8HIP_IMPL22HIP_LAUNCH_KERNEL_GGLIMPL_EM_RK4DIM3_S2_J_P12IHIP_STREAM_T_PPV_PTR = (_ZN8hip_impl22hipLaunchKernelGGLImplEmRK4dim3S2_jP12ihipStream_tPPv_t)(intptr_t)dlsym(handle, "_ZN8hip_impl22hipLaunchKernelGGLImplEmRK4dim3S2_jP12ihipStream_tPPv");
+  if (!__ZN8HIP_IMPL22HIP_LAUNCH_KERNEL_GGLIMPL_EM_RK4DIM3_S2_J_P12IHIP_STREAM_T_PPV_PTR && verbose)
+    fprintf(stderr, "Missing symbol _ZN8hip_impl22hipLaunchKernelGGLImplEmRK4dim3S2_jP12ihipStream_tPPv!\n");
+
+  __Z22HIP_CREATE_SURFACE_OBJECT_PP13__HIP_SURFACE_PK15HIP_RESOURCE_DESC_PTR = (_Z22hipCreateSurfaceObjectPP13__hip_surfacePK15hipResourceDesc_t)(intptr_t)dlsym(handle, "_Z22hipCreateSurfaceObjectPP13__hip_surfacePK15hipResourceDesc");
+  if (!__Z22HIP_CREATE_SURFACE_OBJECT_PP13__HIP_SURFACE_PK15HIP_RESOURCE_DESC_PTR && verbose)
+    fprintf(stderr, "Missing symbol _Z22hipCreateSurfaceObjectPP13__hip_surfacePK15hipResourceDesc!\n");
+
+  __Z23HIP_DESTROY_SURFACE_OBJECT_P13__HIP_SURFACE_PTR = (_Z23hipDestroySurfaceObjectP13__hip_surface_t)(intptr_t)dlsym(handle, "_Z23hipDestroySurfaceObjectP13__hip_surface");
+  if (!__Z23HIP_DESTROY_SURFACE_OBJECT_P13__HIP_SURFACE_PTR && verbose)
+    fprintf(stderr, "Missing symbol _Z23hipDestroySurfaceObjectP13__hip_surface!\n");
+
+  __Z24HIP_HCC_MODULE_LAUNCH_KERNEL_P18IHIP_MODULE_SYMBOL_TJJJJJJM_P12IHIP_STREAM_T_PPV_S4__P11IHIP_EVENT_T_S6__PTR = (_Z24hipHccModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6__t)(intptr_t)dlsym(handle, "_Z24hipHccModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6_");
+  if (!__Z24HIP_HCC_MODULE_LAUNCH_KERNEL_P18IHIP_MODULE_SYMBOL_TJJJJJJM_P12IHIP_STREAM_T_PPV_S4__P11IHIP_EVENT_T_S6__PTR && verbose)
+    fprintf(stderr, "Missing symbol _Z24hipHccModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6_!\n");
+
+  __Z24HIP_EXT_MODULE_LAUNCH_KERNEL_P18IHIP_MODULE_SYMBOL_TJJJJJJM_P12IHIP_STREAM_T_PPV_S4__P11IHIP_EVENT_T_S6_J_PTR = (_Z24hipExtModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6_j_t)(intptr_t)dlsym(handle, "_Z24hipExtModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6_j");
+  if (!__Z24HIP_EXT_MODULE_LAUNCH_KERNEL_P18IHIP_MODULE_SYMBOL_TJJJJJJM_P12IHIP_STREAM_T_PPV_S4__P11IHIP_EVENT_T_S6_J_PTR && verbose)
+    fprintf(stderr, "Missing symbol _Z24hipExtModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6_j!\n");
+
+  HIP_GRAPH_DEBUG_DOT_PRINT_PTR = (hipGraphDebugDotPrint_t)(intptr_t)dlsym(handle, "hipGraphDebugDotPrint");
+  if (!HIP_GRAPH_DEBUG_DOT_PRINT_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGraphDebugDotPrint!\n");
+
+  __HIP_REGISTER_FAT_BINARY_PTR = (__hipRegisterFatBinary_t)(intptr_t)dlsym(handle, "__hipRegisterFatBinary");
+  if (!__HIP_REGISTER_FAT_BINARY_PTR && verbose)
+    fprintf(stderr, "Missing symbol __hipRegisterFatBinary!\n");
+
+  __HIP_REGISTER_FUNCTION_PTR = (__hipRegisterFunction_t)(intptr_t)dlsym(handle, "__hipRegisterFunction");
+  if (!__HIP_REGISTER_FUNCTION_PTR && verbose)
+    fprintf(stderr, "Missing symbol __hipRegisterFunction!\n");
+
+  __HIP_REGISTER_MANAGED_VAR_PTR = (__hipRegisterManagedVar_t)(intptr_t)dlsym(handle, "__hipRegisterManagedVar");
+  if (!__HIP_REGISTER_MANAGED_VAR_PTR && verbose)
+    fprintf(stderr, "Missing symbol __hipRegisterManagedVar!\n");
+
+  __HIP_REGISTER_SURFACE_PTR = (__hipRegisterSurface_t)(intptr_t)dlsym(handle, "__hipRegisterSurface");
+  if (!__HIP_REGISTER_SURFACE_PTR && verbose)
+    fprintf(stderr, "Missing symbol __hipRegisterSurface!\n");
+
+  __HIP_REGISTER_TEXTURE_PTR = (__hipRegisterTexture_t)(intptr_t)dlsym(handle, "__hipRegisterTexture");
+  if (!__HIP_REGISTER_TEXTURE_PTR && verbose)
+    fprintf(stderr, "Missing symbol __hipRegisterTexture!\n");
+
+  __HIP_REGISTER_VAR_PTR = (__hipRegisterVar_t)(intptr_t)dlsym(handle, "__hipRegisterVar");
+  if (!__HIP_REGISTER_VAR_PTR && verbose)
+    fprintf(stderr, "Missing symbol __hipRegisterVar!\n");
+
+  __HIP_UNREGISTER_FAT_BINARY_PTR = (__hipUnregisterFatBinary_t)(intptr_t)dlsym(handle, "__hipUnregisterFatBinary");
+  if (!__HIP_UNREGISTER_FAT_BINARY_PTR && verbose)
+    fprintf(stderr, "Missing symbol __hipUnregisterFatBinary!\n");
+
+  HIP_GET_CMD_NAME_PTR = (hipGetCmdName_t)(intptr_t)dlsym(handle, "hipGetCmdName");
+  if (!HIP_GET_CMD_NAME_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipGetCmdName!\n");
+
+  HIP_REGISTER_TRACER_CALLBACK_PTR = (hipRegisterTracerCallback_t)(intptr_t)dlsym(handle, "hipRegisterTracerCallback");
+  if (!HIP_REGISTER_TRACER_CALLBACK_PTR && verbose)
+    fprintf(stderr, "Missing symbol hipRegisterTracerCallback!\n");
+}
+
+static pthread_once_t _init = PTHREAD_ONCE_INIT;
+static __thread volatile int in_init = 0;
+static volatile int _initialized = 0;
+
+static void _load_tracer(void) {
+  char *s = NULL;
+  void *handle = NULL;
+  int verbose = 0;
+
+  s = getenv("LTTNG_UST_HIP_LIBAMDHIP64");
+  if (s)
+    handle = dlopen(s, RTLD_LAZY | RTLD_LOCAL);
+  else
+    handle = dlopen("libamdhip64.so", RTLD_LAZY | RTLD_LOCAL);
+  if (handle) {
+    void *ptr = dlsym(handle, "hipSetDevice");
+    if (ptr == (void *)&hipSetDevice) { // opening oneself
+      dlclose(handle);
+      handle = NULL;
+    }
+  }
+
+  if (!handle) {
+    fprintf(stderr, "Failure: could not load hip library!\n");
+    exit(1);
+  }
+
+  s = getenv("LTTNG_UST_HIP_VERBOSE");
+  if (s)
+    verbose = 1;
+
+  find_hip_symbols(handle, verbose);
+}
+
+static inline void _init_tracer(void) {
+  if (__builtin_expect(_initialized, 1))
+    return;
+  /* Avoid reentrancy */
+  if (!in_init) {
+    in_init = 1;
+    __sync_synchronize();
+    pthread_once(&_init, _load_tracer);
+    __sync_synchronize();
+    in_init = 0;
+  }
+  _initialized = 1;
+}
+struct hipChannelFormatDesc hipCreateChannelDesc(int x, int y, int z, int w, enum hipChannelFormatKind f) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCreateChannelDesc_entry, x, y, z, w, f);
+  struct hipChannelFormatDesc _retval;
+  _retval = HIP_CREATE_CHANNEL_DESC_PTR(x, y, z, w, f);
+  tracepoint(lttng_ust_hip, hipCreateChannelDesc_exit, x, y, z, w, f, _retval);
+  return _retval;
+}
+
+void __hipGetPCH(const char **pch, unsigned int *size) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, __hipGetPCH_entry, pch, size);
+  __HIP_GET_PCH_PTR(pch, size);
+  tracepoint(lttng_ust_hip, __hipGetPCH_exit, pch, size);
+}
+
+hipError_t hipInit(unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipInit_entry, flags);
+  hipError_t _retval;
+  _retval = HIP_INIT_PTR(flags);
+  tracepoint(lttng_ust_hip, hipInit_exit, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipDriverGetVersion(int *driverVersion) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDriverGetVersion_entry, driverVersion);
+  hipError_t _retval;
+  _retval = HIP_DRIVER_GET_VERSION_PTR(driverVersion);
+  tracepoint(lttng_ust_hip, hipDriverGetVersion_exit, driverVersion, _retval);
+  return _retval;
+}
+
+hipError_t hipRuntimeGetVersion(int *runtimeVersion) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipRuntimeGetVersion_entry, runtimeVersion);
+  hipError_t _retval;
+  _retval = HIP_RUNTIME_GET_VERSION_PTR(runtimeVersion);
+  tracepoint(lttng_ust_hip, hipRuntimeGetVersion_exit, runtimeVersion, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceGet(hipDevice_t *device, int ordinal) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceGet_entry, device, ordinal);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_GET_PTR(device, ordinal);
+  tracepoint(lttng_ust_hip, hipDeviceGet_exit, device, ordinal, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceComputeCapability(int *major, int *minor, hipDevice_t device) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceComputeCapability_entry, major, minor, device);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_COMPUTE_CAPABILITY_PTR(major, minor, device);
+  tracepoint(lttng_ust_hip, hipDeviceComputeCapability_exit, major, minor, device, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceGetName(char *name, int len, hipDevice_t device) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceGetName_entry, name, len, device);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_GET_NAME_PTR(name, len, device);
+  tracepoint(lttng_ust_hip, hipDeviceGetName_exit, name, len, device, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceGetUuid(hipUUID *uuid, hipDevice_t device) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceGetUuid_entry, uuid, device);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_GET_UUID_PTR(uuid, device);
+  tracepoint(lttng_ust_hip, hipDeviceGetUuid_exit, uuid, device, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceGetP2PAttribute(int *value, hipDeviceP2PAttr attr, int srcDevice, int dstDevice) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceGetP2PAttribute_entry, value, attr, srcDevice, dstDevice);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_GET_P2PATTRIBUTE_PTR(value, attr, srcDevice, dstDevice);
+  tracepoint(lttng_ust_hip, hipDeviceGetP2PAttribute_exit, value, attr, srcDevice, dstDevice, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceGetPCIBusId(char *pciBusId, int len, int device) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceGetPCIBusId_entry, pciBusId, len, device);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_GET_PCIBUS_ID_PTR(pciBusId, len, device);
+  tracepoint(lttng_ust_hip, hipDeviceGetPCIBusId_exit, pciBusId, len, device, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceGetByPCIBusId(int *device, const char *pciBusId) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceGetByPCIBusId_entry, device, pciBusId);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_GET_BY_PCIBUS_ID_PTR(device, pciBusId);
+  tracepoint(lttng_ust_hip, hipDeviceGetByPCIBusId_exit, device, pciBusId, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceTotalMem(size_t *bytes, hipDevice_t device) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceTotalMem_entry, bytes, device);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_TOTAL_MEM_PTR(bytes, device);
+  tracepoint(lttng_ust_hip, hipDeviceTotalMem_exit, bytes, device, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceSynchronize(void) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceSynchronize_entry, );
+  hipError_t _retval;
+  _retval = HIP_DEVICE_SYNCHRONIZE_PTR();
+  tracepoint(lttng_ust_hip, hipDeviceSynchronize_exit, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceReset(void) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceReset_entry, );
+  hipError_t _retval;
+  _retval = HIP_DEVICE_RESET_PTR();
+  tracepoint(lttng_ust_hip, hipDeviceReset_exit, _retval);
+  return _retval;
+}
+
+hipError_t hipSetDevice(int deviceId) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipSetDevice_entry, deviceId);
+  hipError_t _retval;
+  _retval = HIP_SET_DEVICE_PTR(deviceId);
+  tracepoint(lttng_ust_hip, hipSetDevice_exit, deviceId, _retval);
+  return _retval;
+}
+
+hipError_t hipGetDevice(int *deviceId) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetDevice_entry, deviceId);
+  hipError_t _retval;
+  _retval = HIP_GET_DEVICE_PTR(deviceId);
+  tracepoint(lttng_ust_hip, hipGetDevice_exit, deviceId, _retval);
+  return _retval;
+}
+
+hipError_t hipGetDeviceCount(int *count) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetDeviceCount_entry, count);
+  hipError_t _retval;
+  _retval = HIP_GET_DEVICE_COUNT_PTR(count);
+  tracepoint(lttng_ust_hip, hipGetDeviceCount_exit, count, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceGetAttribute(int *pi, hipDeviceAttribute_t attr, int deviceId) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceGetAttribute_entry, pi, attr, deviceId);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_GET_ATTRIBUTE_PTR(pi, attr, deviceId);
+  tracepoint(lttng_ust_hip, hipDeviceGetAttribute_exit, pi, attr, deviceId, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceGetDefaultMemPool(hipMemPool_t *mem_pool, int device) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceGetDefaultMemPool_entry, mem_pool, device);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_GET_DEFAULT_MEM_POOL_PTR(mem_pool, device);
+  tracepoint(lttng_ust_hip, hipDeviceGetDefaultMemPool_exit, mem_pool, device, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceSetMemPool(int device, hipMemPool_t mem_pool) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceSetMemPool_entry, device, mem_pool);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_SET_MEM_POOL_PTR(device, mem_pool);
+  tracepoint(lttng_ust_hip, hipDeviceSetMemPool_exit, device, mem_pool, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceGetMemPool(hipMemPool_t *mem_pool, int device) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceGetMemPool_entry, mem_pool, device);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_GET_MEM_POOL_PTR(mem_pool, device);
+  tracepoint(lttng_ust_hip, hipDeviceGetMemPool_exit, mem_pool, device, _retval);
+  return _retval;
+}
+
+hipError_t hipGetDeviceProperties(hipDeviceProp_t *prop, int deviceId) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetDeviceProperties_entry, prop, deviceId);
+  hipError_t _retval;
+  _retval = HIP_GET_DEVICE_PROPERTIES_PTR(prop, deviceId);
+  tracepoint(lttng_ust_hip, hipGetDeviceProperties_exit, prop, deviceId, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceSetCacheConfig(hipFuncCache_t cacheConfig) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceSetCacheConfig_entry, cacheConfig);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_SET_CACHE_CONFIG_PTR(cacheConfig);
+  tracepoint(lttng_ust_hip, hipDeviceSetCacheConfig_exit, cacheConfig, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceGetCacheConfig(hipFuncCache_t *cacheConfig) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceGetCacheConfig_entry, cacheConfig);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_GET_CACHE_CONFIG_PTR(cacheConfig);
+  tracepoint(lttng_ust_hip, hipDeviceGetCacheConfig_exit, cacheConfig, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceGetLimit(size_t *pValue, enum hipLimit_t limit) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceGetLimit_entry, pValue, limit);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_GET_LIMIT_PTR(pValue, limit);
+  tracepoint(lttng_ust_hip, hipDeviceGetLimit_exit, pValue, limit, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceSetLimit(enum hipLimit_t limit, size_t value) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceSetLimit_entry, limit, value);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_SET_LIMIT_PTR(limit, value);
+  tracepoint(lttng_ust_hip, hipDeviceSetLimit_exit, limit, value, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceGetSharedMemConfig(hipSharedMemConfig *pConfig) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceGetSharedMemConfig_entry, pConfig);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_GET_SHARED_MEM_CONFIG_PTR(pConfig);
+  tracepoint(lttng_ust_hip, hipDeviceGetSharedMemConfig_exit, pConfig, _retval);
+  return _retval;
+}
+
+hipError_t hipGetDeviceFlags(unsigned int *flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetDeviceFlags_entry, flags);
+  hipError_t _retval;
+  _retval = HIP_GET_DEVICE_FLAGS_PTR(flags);
+  tracepoint(lttng_ust_hip, hipGetDeviceFlags_exit, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceSetSharedMemConfig(hipSharedMemConfig config) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceSetSharedMemConfig_entry, config);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_SET_SHARED_MEM_CONFIG_PTR(config);
+  tracepoint(lttng_ust_hip, hipDeviceSetSharedMemConfig_exit, config, _retval);
+  return _retval;
+}
+
+hipError_t hipSetDeviceFlags(unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipSetDeviceFlags_entry, flags);
+  hipError_t _retval;
+  _retval = HIP_SET_DEVICE_FLAGS_PTR(flags);
+  tracepoint(lttng_ust_hip, hipSetDeviceFlags_exit, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipChooseDevice(int *device, const hipDeviceProp_t *prop) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipChooseDevice_entry, device, prop);
+  hipError_t _retval;
+  _retval = HIP_CHOOSE_DEVICE_PTR(device, prop);
+  tracepoint(lttng_ust_hip, hipChooseDevice_exit, device, prop, _retval);
+  return _retval;
+}
+
+hipError_t hipExtGetLinkTypeAndHopCount(int device1, int device2, uint32_t *linktype, uint32_t *hopcount) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipExtGetLinkTypeAndHopCount_entry, device1, device2, linktype, hopcount);
+  hipError_t _retval;
+  _retval = HIP_EXT_GET_LINK_TYPE_AND_HOP_COUNT_PTR(device1, device2, linktype, hopcount);
+  tracepoint(lttng_ust_hip, hipExtGetLinkTypeAndHopCount_exit, device1, device2, linktype, hopcount, _retval);
+  return _retval;
+}
+
+hipError_t hipIpcGetMemHandle(hipIpcMemHandle_t *handle, void *devPtr) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipIpcGetMemHandle_entry, handle, devPtr);
+  hipError_t _retval;
+  _retval = HIP_IPC_GET_MEM_HANDLE_PTR(handle, devPtr);
+  tracepoint(lttng_ust_hip, hipIpcGetMemHandle_exit, handle, devPtr, _retval);
+  return _retval;
+}
+
+hipError_t hipIpcOpenMemHandle(void **devPtr, hipIpcMemHandle_t handle, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipIpcOpenMemHandle_entry, devPtr, handle, flags);
+  hipError_t _retval;
+  _retval = HIP_IPC_OPEN_MEM_HANDLE_PTR(devPtr, handle, flags);
+  tracepoint(lttng_ust_hip, hipIpcOpenMemHandle_exit, devPtr, handle, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipIpcCloseMemHandle(void *devPtr) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipIpcCloseMemHandle_entry, devPtr);
+  hipError_t _retval;
+  _retval = HIP_IPC_CLOSE_MEM_HANDLE_PTR(devPtr);
+  tracepoint(lttng_ust_hip, hipIpcCloseMemHandle_exit, devPtr, _retval);
+  return _retval;
+}
+
+hipError_t hipIpcGetEventHandle(hipIpcEventHandle_t *handle, hipEvent_t event) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipIpcGetEventHandle_entry, handle, event);
+  hipError_t _retval;
+  _retval = HIP_IPC_GET_EVENT_HANDLE_PTR(handle, event);
+  tracepoint(lttng_ust_hip, hipIpcGetEventHandle_exit, handle, event, _retval);
+  return _retval;
+}
+
+hipError_t hipIpcOpenEventHandle(hipEvent_t *event, hipIpcEventHandle_t handle) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipIpcOpenEventHandle_entry, event, handle);
+  hipError_t _retval;
+  _retval = HIP_IPC_OPEN_EVENT_HANDLE_PTR(event, handle);
+  tracepoint(lttng_ust_hip, hipIpcOpenEventHandle_exit, event, handle, _retval);
+  return _retval;
+}
+
+hipError_t hipFuncSetAttribute(const void *func, hipFuncAttribute attr, int value) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipFuncSetAttribute_entry, func, attr, value);
+  hipError_t _retval;
+  _retval = HIP_FUNC_SET_ATTRIBUTE_PTR(func, attr, value);
+  tracepoint(lttng_ust_hip, hipFuncSetAttribute_exit, func, attr, value, _retval);
+  return _retval;
+}
+
+hipError_t hipFuncSetCacheConfig(const void *func, hipFuncCache_t config) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipFuncSetCacheConfig_entry, func, config);
+  hipError_t _retval;
+  _retval = HIP_FUNC_SET_CACHE_CONFIG_PTR(func, config);
+  tracepoint(lttng_ust_hip, hipFuncSetCacheConfig_exit, func, config, _retval);
+  return _retval;
+}
+
+hipError_t hipFuncSetSharedMemConfig(const void *func, hipSharedMemConfig config) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipFuncSetSharedMemConfig_entry, func, config);
+  hipError_t _retval;
+  _retval = HIP_FUNC_SET_SHARED_MEM_CONFIG_PTR(func, config);
+  tracepoint(lttng_ust_hip, hipFuncSetSharedMemConfig_exit, func, config, _retval);
+  return _retval;
+}
+
+hipError_t hipGetLastError(void) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetLastError_entry, );
+  hipError_t _retval;
+  _retval = HIP_GET_LAST_ERROR_PTR();
+  tracepoint(lttng_ust_hip, hipGetLastError_exit, _retval);
+  return _retval;
+}
+
+hipError_t hipPeekAtLastError(void) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipPeekAtLastError_entry, );
+  hipError_t _retval;
+  _retval = HIP_PEEK_AT_LAST_ERROR_PTR();
+  tracepoint(lttng_ust_hip, hipPeekAtLastError_exit, _retval);
+  return _retval;
+}
+
+const char *hipGetErrorName(hipError_t hip_error) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetErrorName_entry, hip_error);
+  const char * _retval;
+  _retval = HIP_GET_ERROR_NAME_PTR(hip_error);
+  tracepoint(lttng_ust_hip, hipGetErrorName_exit, hip_error, _retval);
+  return _retval;
+}
+
+const char *hipGetErrorString(hipError_t hipError) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetErrorString_entry, hipError);
+  const char * _retval;
+  _retval = HIP_GET_ERROR_STRING_PTR(hipError);
+  tracepoint(lttng_ust_hip, hipGetErrorString_exit, hipError, _retval);
+  return _retval;
+}
+
+hipError_t hipDrvGetErrorName(hipError_t hipError, const char **errorString) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDrvGetErrorName_entry, hipError, errorString);
+  hipError_t _retval;
+  _retval = HIP_DRV_GET_ERROR_NAME_PTR(hipError, errorString);
+  tracepoint(lttng_ust_hip, hipDrvGetErrorName_exit, hipError, errorString, _retval);
+  return _retval;
+}
+
+hipError_t hipDrvGetErrorString(hipError_t hipError, const char **errorString) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDrvGetErrorString_entry, hipError, errorString);
+  hipError_t _retval;
+  _retval = HIP_DRV_GET_ERROR_STRING_PTR(hipError, errorString);
+  tracepoint(lttng_ust_hip, hipDrvGetErrorString_exit, hipError, errorString, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamCreate(hipStream_t *stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamCreate_entry, stream);
+  hipError_t _retval;
+  _retval = HIP_STREAM_CREATE_PTR(stream);
+  tracepoint(lttng_ust_hip, hipStreamCreate_exit, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamCreateWithFlags(hipStream_t *stream, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamCreateWithFlags_entry, stream, flags);
+  hipError_t _retval;
+  _retval = HIP_STREAM_CREATE_WITH_FLAGS_PTR(stream, flags);
+  tracepoint(lttng_ust_hip, hipStreamCreateWithFlags_exit, stream, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamCreateWithPriority(hipStream_t *stream, unsigned int flags, int priority) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamCreateWithPriority_entry, stream, flags, priority);
+  hipError_t _retval;
+  _retval = HIP_STREAM_CREATE_WITH_PRIORITY_PTR(stream, flags, priority);
+  tracepoint(lttng_ust_hip, hipStreamCreateWithPriority_exit, stream, flags, priority, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceGetStreamPriorityRange(int *leastPriority, int *greatestPriority) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceGetStreamPriorityRange_entry, leastPriority, greatestPriority);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_GET_STREAM_PRIORITY_RANGE_PTR(leastPriority, greatestPriority);
+  tracepoint(lttng_ust_hip, hipDeviceGetStreamPriorityRange_exit, leastPriority, greatestPriority, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamDestroy(hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamDestroy_entry, stream);
+  hipError_t _retval;
+  _retval = HIP_STREAM_DESTROY_PTR(stream);
+  tracepoint(lttng_ust_hip, hipStreamDestroy_exit, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamQuery(hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamQuery_entry, stream);
+  hipError_t _retval;
+  _retval = HIP_STREAM_QUERY_PTR(stream);
+  tracepoint(lttng_ust_hip, hipStreamQuery_exit, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamSynchronize(hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamSynchronize_entry, stream);
+  hipError_t _retval;
+  _retval = HIP_STREAM_SYNCHRONIZE_PTR(stream);
+  tracepoint(lttng_ust_hip, hipStreamSynchronize_exit, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamWaitEvent(hipStream_t stream, hipEvent_t event, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamWaitEvent_entry, stream, event, flags);
+  hipError_t _retval;
+  _retval = HIP_STREAM_WAIT_EVENT_PTR(stream, event, flags);
+  tracepoint(lttng_ust_hip, hipStreamWaitEvent_exit, stream, event, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamGetFlags(hipStream_t stream, unsigned int *flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamGetFlags_entry, stream, flags);
+  hipError_t _retval;
+  _retval = HIP_STREAM_GET_FLAGS_PTR(stream, flags);
+  tracepoint(lttng_ust_hip, hipStreamGetFlags_exit, stream, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamGetPriority(hipStream_t stream, int *priority) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamGetPriority_entry, stream, priority);
+  hipError_t _retval;
+  _retval = HIP_STREAM_GET_PRIORITY_PTR(stream, priority);
+  tracepoint(lttng_ust_hip, hipStreamGetPriority_exit, stream, priority, _retval);
+  return _retval;
+}
+
+hipError_t hipExtStreamCreateWithCUMask(hipStream_t *stream, uint32_t cuMaskSize, const uint32_t *cuMask) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipExtStreamCreateWithCUMask_entry, stream, cuMaskSize, cuMask);
+  hipError_t _retval;
+  _retval = HIP_EXT_STREAM_CREATE_WITH_CUMASK_PTR(stream, cuMaskSize, cuMask);
+  tracepoint(lttng_ust_hip, hipExtStreamCreateWithCUMask_exit, stream, cuMaskSize, cuMask, _retval);
+  return _retval;
+}
+
+hipError_t hipExtStreamGetCUMask(hipStream_t stream, uint32_t cuMaskSize, uint32_t *cuMask) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipExtStreamGetCUMask_entry, stream, cuMaskSize, cuMask);
+  hipError_t _retval;
+  _retval = HIP_EXT_STREAM_GET_CUMASK_PTR(stream, cuMaskSize, cuMask);
+  tracepoint(lttng_ust_hip, hipExtStreamGetCUMask_exit, stream, cuMaskSize, cuMask, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamAddCallback(hipStream_t stream, hipStreamCallback_t callback, void *userData, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamAddCallback_entry, stream, callback, userData, flags);
+  hipError_t _retval;
+  _retval = HIP_STREAM_ADD_CALLBACK_PTR(stream, callback, userData, flags);
+  tracepoint(lttng_ust_hip, hipStreamAddCallback_exit, stream, callback, userData, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamWaitValue32(hipStream_t stream, void *ptr, uint32_t value, unsigned int flags, uint32_t mask) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamWaitValue32_entry, stream, ptr, value, flags, mask);
+  hipError_t _retval;
+  _retval = HIP_STREAM_WAIT_VALUE32_PTR(stream, ptr, value, flags, mask);
+  tracepoint(lttng_ust_hip, hipStreamWaitValue32_exit, stream, ptr, value, flags, mask, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamWaitValue64(hipStream_t stream, void *ptr, uint64_t value, unsigned int flags, uint64_t mask) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamWaitValue64_entry, stream, ptr, value, flags, mask);
+  hipError_t _retval;
+  _retval = HIP_STREAM_WAIT_VALUE64_PTR(stream, ptr, value, flags, mask);
+  tracepoint(lttng_ust_hip, hipStreamWaitValue64_exit, stream, ptr, value, flags, mask, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamWriteValue32(hipStream_t stream, void *ptr, uint32_t value, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamWriteValue32_entry, stream, ptr, value, flags);
+  hipError_t _retval;
+  _retval = HIP_STREAM_WRITE_VALUE32_PTR(stream, ptr, value, flags);
+  tracepoint(lttng_ust_hip, hipStreamWriteValue32_exit, stream, ptr, value, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamWriteValue64(hipStream_t stream, void *ptr, uint64_t value, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamWriteValue64_entry, stream, ptr, value, flags);
+  hipError_t _retval;
+  _retval = HIP_STREAM_WRITE_VALUE64_PTR(stream, ptr, value, flags);
+  tracepoint(lttng_ust_hip, hipStreamWriteValue64_exit, stream, ptr, value, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipEventCreateWithFlags(hipEvent_t *event, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipEventCreateWithFlags_entry, event, flags);
+  hipError_t _retval;
+  _retval = HIP_EVENT_CREATE_WITH_FLAGS_PTR(event, flags);
+  tracepoint(lttng_ust_hip, hipEventCreateWithFlags_exit, event, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipEventCreate(hipEvent_t *event) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipEventCreate_entry, event);
+  hipError_t _retval;
+  _retval = HIP_EVENT_CREATE_PTR(event);
+  tracepoint(lttng_ust_hip, hipEventCreate_exit, event, _retval);
+  return _retval;
+}
+
+hipError_t hipEventRecord(hipEvent_t event, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipEventRecord_entry, event, stream);
+  hipError_t _retval;
+  _retval = HIP_EVENT_RECORD_PTR(event, stream);
+  tracepoint(lttng_ust_hip, hipEventRecord_exit, event, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipEventDestroy(hipEvent_t event) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipEventDestroy_entry, event);
+  hipError_t _retval;
+  _retval = HIP_EVENT_DESTROY_PTR(event);
+  tracepoint(lttng_ust_hip, hipEventDestroy_exit, event, _retval);
+  return _retval;
+}
+
+hipError_t hipEventSynchronize(hipEvent_t event) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipEventSynchronize_entry, event);
+  hipError_t _retval;
+  _retval = HIP_EVENT_SYNCHRONIZE_PTR(event);
+  tracepoint(lttng_ust_hip, hipEventSynchronize_exit, event, _retval);
+  return _retval;
+}
+
+hipError_t hipEventElapsedTime(float *ms, hipEvent_t start, hipEvent_t stop) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipEventElapsedTime_entry, ms, start, stop);
+  hipError_t _retval;
+  _retval = HIP_EVENT_ELAPSED_TIME_PTR(ms, start, stop);
+  tracepoint(lttng_ust_hip, hipEventElapsedTime_exit, ms, start, stop, _retval);
+  return _retval;
+}
+
+hipError_t hipEventQuery(hipEvent_t event) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipEventQuery_entry, event);
+  hipError_t _retval;
+  _retval = HIP_EVENT_QUERY_PTR(event);
+  tracepoint(lttng_ust_hip, hipEventQuery_exit, event, _retval);
+  return _retval;
+}
+
+hipError_t hipPointerGetAttributes(hipPointerAttribute_t *attributes, const void *ptr) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipPointerGetAttributes_entry, attributes, ptr);
+  hipError_t _retval;
+  _retval = HIP_POINTER_GET_ATTRIBUTES_PTR(attributes, ptr);
+  tracepoint(lttng_ust_hip, hipPointerGetAttributes_exit, attributes, ptr, _retval);
+  return _retval;
+}
+
+hipError_t hipPointerGetAttribute(void *data, hipPointer_attribute attribute, hipDeviceptr_t ptr) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipPointerGetAttribute_entry, data, attribute, ptr);
+  hipError_t _retval;
+  _retval = HIP_POINTER_GET_ATTRIBUTE_PTR(data, attribute, ptr);
+  tracepoint(lttng_ust_hip, hipPointerGetAttribute_exit, data, attribute, ptr, _retval);
+  return _retval;
+}
+
+hipError_t hipDrvPointerGetAttributes(unsigned int numAttributes, hipPointer_attribute *attributes, void **data, hipDeviceptr_t ptr) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDrvPointerGetAttributes_entry, numAttributes, attributes, data, ptr);
+  hipError_t _retval;
+  _retval = HIP_DRV_POINTER_GET_ATTRIBUTES_PTR(numAttributes, attributes, data, ptr);
+  tracepoint(lttng_ust_hip, hipDrvPointerGetAttributes_exit, numAttributes, attributes, data, ptr, _retval);
+  return _retval;
+}
+
+hipError_t hipImportExternalSemaphore(hipExternalSemaphore_t *extSem_out, const hipExternalSemaphoreHandleDesc *semHandleDesc) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipImportExternalSemaphore_entry, extSem_out, semHandleDesc);
+  hipError_t _retval;
+  _retval = HIP_IMPORT_EXTERNAL_SEMAPHORE_PTR(extSem_out, semHandleDesc);
+  tracepoint(lttng_ust_hip, hipImportExternalSemaphore_exit, extSem_out, semHandleDesc, _retval);
+  return _retval;
+}
+
+hipError_t hipSignalExternalSemaphoresAsync(const hipExternalSemaphore_t *extSemArray, const hipExternalSemaphoreSignalParams *paramsArray, unsigned int numExtSems, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipSignalExternalSemaphoresAsync_entry, extSemArray, paramsArray, numExtSems, stream);
+  hipError_t _retval;
+  _retval = HIP_SIGNAL_EXTERNAL_SEMAPHORES_ASYNC_PTR(extSemArray, paramsArray, numExtSems, stream);
+  tracepoint(lttng_ust_hip, hipSignalExternalSemaphoresAsync_exit, extSemArray, paramsArray, numExtSems, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipWaitExternalSemaphoresAsync(const hipExternalSemaphore_t *extSemArray, const hipExternalSemaphoreWaitParams *paramsArray, unsigned int numExtSems, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipWaitExternalSemaphoresAsync_entry, extSemArray, paramsArray, numExtSems, stream);
+  hipError_t _retval;
+  _retval = HIP_WAIT_EXTERNAL_SEMAPHORES_ASYNC_PTR(extSemArray, paramsArray, numExtSems, stream);
+  tracepoint(lttng_ust_hip, hipWaitExternalSemaphoresAsync_exit, extSemArray, paramsArray, numExtSems, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipDestroyExternalSemaphore(hipExternalSemaphore_t extSem) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDestroyExternalSemaphore_entry, extSem);
+  hipError_t _retval;
+  _retval = HIP_DESTROY_EXTERNAL_SEMAPHORE_PTR(extSem);
+  tracepoint(lttng_ust_hip, hipDestroyExternalSemaphore_exit, extSem, _retval);
+  return _retval;
+}
+
+hipError_t hipImportExternalMemory(hipExternalMemory_t *extMem_out, const hipExternalMemoryHandleDesc *memHandleDesc) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipImportExternalMemory_entry, extMem_out, memHandleDesc);
+  hipError_t _retval;
+  _retval = HIP_IMPORT_EXTERNAL_MEMORY_PTR(extMem_out, memHandleDesc);
+  tracepoint(lttng_ust_hip, hipImportExternalMemory_exit, extMem_out, memHandleDesc, _retval);
+  return _retval;
+}
+
+hipError_t hipExternalMemoryGetMappedBuffer(void **devPtr, hipExternalMemory_t extMem, const hipExternalMemoryBufferDesc *bufferDesc) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipExternalMemoryGetMappedBuffer_entry, devPtr, extMem, bufferDesc);
+  hipError_t _retval;
+  _retval = HIP_EXTERNAL_MEMORY_GET_MAPPED_BUFFER_PTR(devPtr, extMem, bufferDesc);
+  tracepoint(lttng_ust_hip, hipExternalMemoryGetMappedBuffer_exit, devPtr, extMem, bufferDesc, _retval);
+  return _retval;
+}
+
+hipError_t hipDestroyExternalMemory(hipExternalMemory_t extMem) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDestroyExternalMemory_entry, extMem);
+  hipError_t _retval;
+  _retval = HIP_DESTROY_EXTERNAL_MEMORY_PTR(extMem);
+  tracepoint(lttng_ust_hip, hipDestroyExternalMemory_exit, extMem, _retval);
+  return _retval;
+}
+
+hipError_t hipMalloc(void **ptr, size_t size) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMalloc_entry, ptr, size);
+  hipError_t _retval;
+  _retval = HIP_MALLOC_PTR(ptr, size);
+  tracepoint(lttng_ust_hip, hipMalloc_exit, ptr, size, _retval);
+  return _retval;
+}
+
+hipError_t hipExtMallocWithFlags(void **ptr, size_t sizeBytes, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipExtMallocWithFlags_entry, ptr, sizeBytes, flags);
+  hipError_t _retval;
+  _retval = HIP_EXT_MALLOC_WITH_FLAGS_PTR(ptr, sizeBytes, flags);
+  tracepoint(lttng_ust_hip, hipExtMallocWithFlags_exit, ptr, sizeBytes, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipMallocHost(void **ptr, size_t size) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMallocHost_entry, ptr, size);
+  hipError_t _retval;
+  _retval = HIP_MALLOC_HOST_PTR(ptr, size);
+  tracepoint(lttng_ust_hip, hipMallocHost_exit, ptr, size, _retval);
+  return _retval;
+}
+
+hipError_t hipMemAllocHost(void **ptr, size_t size) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemAllocHost_entry, ptr, size);
+  hipError_t _retval;
+  _retval = HIP_MEM_ALLOC_HOST_PTR(ptr, size);
+  tracepoint(lttng_ust_hip, hipMemAllocHost_exit, ptr, size, _retval);
+  return _retval;
+}
+
+hipError_t hipHostMalloc(void **ptr, size_t size, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipHostMalloc_entry, ptr, size, flags);
+  hipError_t _retval;
+  _retval = HIP_HOST_MALLOC_PTR(ptr, size, flags);
+  tracepoint(lttng_ust_hip, hipHostMalloc_exit, ptr, size, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipMallocManaged(void **dev_ptr, size_t size, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMallocManaged_entry, dev_ptr, size, flags);
+  hipError_t _retval;
+  _retval = HIP_MALLOC_MANAGED_PTR(dev_ptr, size, flags);
+  tracepoint(lttng_ust_hip, hipMallocManaged_exit, dev_ptr, size, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipMemPrefetchAsync(const void *dev_ptr, size_t count, int device, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemPrefetchAsync_entry, dev_ptr, count, device, stream);
+  hipError_t _retval;
+  _retval = HIP_MEM_PREFETCH_ASYNC_PTR(dev_ptr, count, device, stream);
+  tracepoint(lttng_ust_hip, hipMemPrefetchAsync_exit, dev_ptr, count, device, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemAdvise(const void *dev_ptr, size_t count, hipMemoryAdvise advice, int device) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemAdvise_entry, dev_ptr, count, advice, device);
+  hipError_t _retval;
+  _retval = HIP_MEM_ADVISE_PTR(dev_ptr, count, advice, device);
+  tracepoint(lttng_ust_hip, hipMemAdvise_exit, dev_ptr, count, advice, device, _retval);
+  return _retval;
+}
+
+hipError_t hipMemRangeGetAttribute(void *data, size_t data_size, hipMemRangeAttribute attribute, const void *dev_ptr, size_t count) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemRangeGetAttribute_entry, data, data_size, attribute, dev_ptr, count);
+  hipError_t _retval;
+  _retval = HIP_MEM_RANGE_GET_ATTRIBUTE_PTR(data, data_size, attribute, dev_ptr, count);
+  tracepoint(lttng_ust_hip, hipMemRangeGetAttribute_exit, data, data_size, attribute, dev_ptr, count, _retval);
+  return _retval;
+}
+
+hipError_t hipMemRangeGetAttributes(void **data, size_t *data_sizes, hipMemRangeAttribute *attributes, size_t num_attributes, const void *dev_ptr, size_t count) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemRangeGetAttributes_entry, data, data_sizes, attributes, num_attributes, dev_ptr, count);
+  hipError_t _retval;
+  _retval = HIP_MEM_RANGE_GET_ATTRIBUTES_PTR(data, data_sizes, attributes, num_attributes, dev_ptr, count);
+  tracepoint(lttng_ust_hip, hipMemRangeGetAttributes_exit, data, data_sizes, attributes, num_attributes, dev_ptr, count, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamAttachMemAsync(hipStream_t stream, void *dev_ptr, size_t length, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamAttachMemAsync_entry, stream, dev_ptr, length, flags);
+  hipError_t _retval;
+  _retval = HIP_STREAM_ATTACH_MEM_ASYNC_PTR(stream, dev_ptr, length, flags);
+  tracepoint(lttng_ust_hip, hipStreamAttachMemAsync_exit, stream, dev_ptr, length, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipMallocAsync(void **dev_ptr, size_t size, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMallocAsync_entry, dev_ptr, size, stream);
+  hipError_t _retval;
+  _retval = HIP_MALLOC_ASYNC_PTR(dev_ptr, size, stream);
+  tracepoint(lttng_ust_hip, hipMallocAsync_exit, dev_ptr, size, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipFreeAsync(void *dev_ptr, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipFreeAsync_entry, dev_ptr, stream);
+  hipError_t _retval;
+  _retval = HIP_FREE_ASYNC_PTR(dev_ptr, stream);
+  tracepoint(lttng_ust_hip, hipFreeAsync_exit, dev_ptr, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemPoolTrimTo(hipMemPool_t mem_pool, size_t min_bytes_to_hold) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemPoolTrimTo_entry, mem_pool, min_bytes_to_hold);
+  hipError_t _retval;
+  _retval = HIP_MEM_POOL_TRIM_TO_PTR(mem_pool, min_bytes_to_hold);
+  tracepoint(lttng_ust_hip, hipMemPoolTrimTo_exit, mem_pool, min_bytes_to_hold, _retval);
+  return _retval;
+}
+
+hipError_t hipMemPoolSetAttribute(hipMemPool_t mem_pool, hipMemPoolAttr attr, void *value) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemPoolSetAttribute_entry, mem_pool, attr, value);
+  hipError_t _retval;
+  _retval = HIP_MEM_POOL_SET_ATTRIBUTE_PTR(mem_pool, attr, value);
+  tracepoint(lttng_ust_hip, hipMemPoolSetAttribute_exit, mem_pool, attr, value, _retval);
+  return _retval;
+}
+
+hipError_t hipMemPoolGetAttribute(hipMemPool_t mem_pool, hipMemPoolAttr attr, void *value) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemPoolGetAttribute_entry, mem_pool, attr, value);
+  hipError_t _retval;
+  _retval = HIP_MEM_POOL_GET_ATTRIBUTE_PTR(mem_pool, attr, value);
+  tracepoint(lttng_ust_hip, hipMemPoolGetAttribute_exit, mem_pool, attr, value, _retval);
+  return _retval;
+}
+
+hipError_t hipMemPoolSetAccess(hipMemPool_t mem_pool, const hipMemAccessDesc *desc_list, size_t count) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemPoolSetAccess_entry, mem_pool, desc_list, count);
+  hipError_t _retval;
+  _retval = HIP_MEM_POOL_SET_ACCESS_PTR(mem_pool, desc_list, count);
+  tracepoint(lttng_ust_hip, hipMemPoolSetAccess_exit, mem_pool, desc_list, count, _retval);
+  return _retval;
+}
+
+hipError_t hipMemPoolGetAccess(hipMemAccessFlags *flags, hipMemPool_t mem_pool, hipMemLocation *location) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemPoolGetAccess_entry, flags, mem_pool, location);
+  hipError_t _retval;
+  _retval = HIP_MEM_POOL_GET_ACCESS_PTR(flags, mem_pool, location);
+  tracepoint(lttng_ust_hip, hipMemPoolGetAccess_exit, flags, mem_pool, location, _retval);
+  return _retval;
+}
+
+hipError_t hipMemPoolCreate(hipMemPool_t *mem_pool, const hipMemPoolProps *pool_props) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemPoolCreate_entry, mem_pool, pool_props);
+  hipError_t _retval;
+  _retval = HIP_MEM_POOL_CREATE_PTR(mem_pool, pool_props);
+  tracepoint(lttng_ust_hip, hipMemPoolCreate_exit, mem_pool, pool_props, _retval);
+  return _retval;
+}
+
+hipError_t hipMemPoolDestroy(hipMemPool_t mem_pool) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemPoolDestroy_entry, mem_pool);
+  hipError_t _retval;
+  _retval = HIP_MEM_POOL_DESTROY_PTR(mem_pool);
+  tracepoint(lttng_ust_hip, hipMemPoolDestroy_exit, mem_pool, _retval);
+  return _retval;
+}
+
+hipError_t hipMallocFromPoolAsync(void **dev_ptr, size_t size, hipMemPool_t mem_pool, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMallocFromPoolAsync_entry, dev_ptr, size, mem_pool, stream);
+  hipError_t _retval;
+  _retval = HIP_MALLOC_FROM_POOL_ASYNC_PTR(dev_ptr, size, mem_pool, stream);
+  tracepoint(lttng_ust_hip, hipMallocFromPoolAsync_exit, dev_ptr, size, mem_pool, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemPoolExportToShareableHandle(void *shared_handle, hipMemPool_t mem_pool, hipMemAllocationHandleType handle_type, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemPoolExportToShareableHandle_entry, shared_handle, mem_pool, handle_type, flags);
+  hipError_t _retval;
+  _retval = HIP_MEM_POOL_EXPORT_TO_SHAREABLE_HANDLE_PTR(shared_handle, mem_pool, handle_type, flags);
+  tracepoint(lttng_ust_hip, hipMemPoolExportToShareableHandle_exit, shared_handle, mem_pool, handle_type, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipMemPoolImportFromShareableHandle(hipMemPool_t *mem_pool, void *shared_handle, hipMemAllocationHandleType handle_type, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemPoolImportFromShareableHandle_entry, mem_pool, shared_handle, handle_type, flags);
+  hipError_t _retval;
+  _retval = HIP_MEM_POOL_IMPORT_FROM_SHAREABLE_HANDLE_PTR(mem_pool, shared_handle, handle_type, flags);
+  tracepoint(lttng_ust_hip, hipMemPoolImportFromShareableHandle_exit, mem_pool, shared_handle, handle_type, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipMemPoolExportPointer(hipMemPoolPtrExportData *export_data, void *dev_ptr) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemPoolExportPointer_entry, export_data, dev_ptr);
+  hipError_t _retval;
+  _retval = HIP_MEM_POOL_EXPORT_POINTER_PTR(export_data, dev_ptr);
+  tracepoint(lttng_ust_hip, hipMemPoolExportPointer_exit, export_data, dev_ptr, _retval);
+  return _retval;
+}
+
+hipError_t hipMemPoolImportPointer(void **dev_ptr, hipMemPool_t mem_pool, hipMemPoolPtrExportData *export_data) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemPoolImportPointer_entry, dev_ptr, mem_pool, export_data);
+  hipError_t _retval;
+  _retval = HIP_MEM_POOL_IMPORT_POINTER_PTR(dev_ptr, mem_pool, export_data);
+  tracepoint(lttng_ust_hip, hipMemPoolImportPointer_exit, dev_ptr, mem_pool, export_data, _retval);
+  return _retval;
+}
+
+hipError_t hipHostAlloc(void **ptr, size_t size, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipHostAlloc_entry, ptr, size, flags);
+  hipError_t _retval;
+  _retval = HIP_HOST_ALLOC_PTR(ptr, size, flags);
+  tracepoint(lttng_ust_hip, hipHostAlloc_exit, ptr, size, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipHostGetDevicePointer(void **devPtr, void *hstPtr, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipHostGetDevicePointer_entry, devPtr, hstPtr, flags);
+  hipError_t _retval;
+  _retval = HIP_HOST_GET_DEVICE_POINTER_PTR(devPtr, hstPtr, flags);
+  tracepoint(lttng_ust_hip, hipHostGetDevicePointer_exit, devPtr, hstPtr, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipHostGetFlags(unsigned int *flagsPtr, void *hostPtr) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipHostGetFlags_entry, flagsPtr, hostPtr);
+  hipError_t _retval;
+  _retval = HIP_HOST_GET_FLAGS_PTR(flagsPtr, hostPtr);
+  tracepoint(lttng_ust_hip, hipHostGetFlags_exit, flagsPtr, hostPtr, _retval);
+  return _retval;
+}
+
+hipError_t hipHostRegister(void *hostPtr, size_t sizeBytes, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipHostRegister_entry, hostPtr, sizeBytes, flags);
+  hipError_t _retval;
+  _retval = HIP_HOST_REGISTER_PTR(hostPtr, sizeBytes, flags);
+  tracepoint(lttng_ust_hip, hipHostRegister_exit, hostPtr, sizeBytes, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipHostUnregister(void *hostPtr) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipHostUnregister_entry, hostPtr);
+  hipError_t _retval;
+  _retval = HIP_HOST_UNREGISTER_PTR(hostPtr);
+  tracepoint(lttng_ust_hip, hipHostUnregister_exit, hostPtr, _retval);
+  return _retval;
+}
+
+hipError_t hipMallocPitch(void **ptr, size_t *pitch, size_t width, size_t height) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMallocPitch_entry, ptr, pitch, width, height);
+  hipError_t _retval;
+  _retval = HIP_MALLOC_PITCH_PTR(ptr, pitch, width, height);
+  tracepoint(lttng_ust_hip, hipMallocPitch_exit, ptr, pitch, width, height, _retval);
+  return _retval;
+}
+
+hipError_t hipMemAllocPitch(hipDeviceptr_t *dptr, size_t *pitch, size_t widthInBytes, size_t height, unsigned int elementSizeBytes) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemAllocPitch_entry, dptr, pitch, widthInBytes, height, elementSizeBytes);
+  hipError_t _retval;
+  _retval = HIP_MEM_ALLOC_PITCH_PTR(dptr, pitch, widthInBytes, height, elementSizeBytes);
+  tracepoint(lttng_ust_hip, hipMemAllocPitch_exit, dptr, pitch, widthInBytes, height, elementSizeBytes, _retval);
+  return _retval;
+}
+
+hipError_t hipFree(void *ptr) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipFree_entry, ptr);
+  hipError_t _retval;
+  _retval = HIP_FREE_PTR(ptr);
+  tracepoint(lttng_ust_hip, hipFree_exit, ptr, _retval);
+  return _retval;
+}
+
+hipError_t hipFreeHost(void *ptr) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipFreeHost_entry, ptr);
+  hipError_t _retval;
+  _retval = HIP_FREE_HOST_PTR(ptr);
+  tracepoint(lttng_ust_hip, hipFreeHost_exit, ptr, _retval);
+  return _retval;
+}
+
+hipError_t hipHostFree(void *ptr) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipHostFree_entry, ptr);
+  hipError_t _retval;
+  _retval = HIP_HOST_FREE_PTR(ptr);
+  tracepoint(lttng_ust_hip, hipHostFree_exit, ptr, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy(void *dst, const void *src, size_t sizeBytes, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy_entry, dst, src, sizeBytes, kind);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_PTR(dst, src, sizeBytes, kind);
+  tracepoint(lttng_ust_hip, hipMemcpy_exit, dst, src, sizeBytes, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyWithStream(void *dst, const void *src, size_t sizeBytes, hipMemcpyKind kind, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyWithStream_entry, dst, src, sizeBytes, kind, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_WITH_STREAM_PTR(dst, src, sizeBytes, kind, stream);
+  tracepoint(lttng_ust_hip, hipMemcpyWithStream_exit, dst, src, sizeBytes, kind, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyHtoD(hipDeviceptr_t dst, void *src, size_t sizeBytes) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyHtoD_entry, dst, src, sizeBytes);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_HTO_D_PTR(dst, src, sizeBytes);
+  tracepoint(lttng_ust_hip, hipMemcpyHtoD_exit, dst, src, sizeBytes, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyDtoH(void *dst, hipDeviceptr_t src, size_t sizeBytes) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyDtoH_entry, dst, src, sizeBytes);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_DTO_H_PTR(dst, src, sizeBytes);
+  tracepoint(lttng_ust_hip, hipMemcpyDtoH_exit, dst, src, sizeBytes, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyDtoD(hipDeviceptr_t dst, hipDeviceptr_t src, size_t sizeBytes) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyDtoD_entry, dst, src, sizeBytes);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_DTO_D_PTR(dst, src, sizeBytes);
+  tracepoint(lttng_ust_hip, hipMemcpyDtoD_exit, dst, src, sizeBytes, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyHtoDAsync(hipDeviceptr_t dst, void *src, size_t sizeBytes, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyHtoDAsync_entry, dst, src, sizeBytes, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_HTO_DASYNC_PTR(dst, src, sizeBytes, stream);
+  tracepoint(lttng_ust_hip, hipMemcpyHtoDAsync_exit, dst, src, sizeBytes, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyDtoHAsync(void *dst, hipDeviceptr_t src, size_t sizeBytes, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyDtoHAsync_entry, dst, src, sizeBytes, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_DTO_HASYNC_PTR(dst, src, sizeBytes, stream);
+  tracepoint(lttng_ust_hip, hipMemcpyDtoHAsync_exit, dst, src, sizeBytes, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyDtoDAsync(hipDeviceptr_t dst, hipDeviceptr_t src, size_t sizeBytes, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyDtoDAsync_entry, dst, src, sizeBytes, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_DTO_DASYNC_PTR(dst, src, sizeBytes, stream);
+  tracepoint(lttng_ust_hip, hipMemcpyDtoDAsync_exit, dst, src, sizeBytes, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipModuleGetGlobal(hipDeviceptr_t *dptr, size_t *bytes, hipModule_t hmod, const char *name) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipModuleGetGlobal_entry, dptr, bytes, hmod, name);
+  hipError_t _retval;
+  _retval = HIP_MODULE_GET_GLOBAL_PTR(dptr, bytes, hmod, name);
+  tracepoint(lttng_ust_hip, hipModuleGetGlobal_exit, dptr, bytes, hmod, name, _retval);
+  return _retval;
+}
+
+hipError_t hipGetSymbolAddress(void **devPtr, const void *symbol) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetSymbolAddress_entry, devPtr, symbol);
+  hipError_t _retval;
+  _retval = HIP_GET_SYMBOL_ADDRESS_PTR(devPtr, symbol);
+  tracepoint(lttng_ust_hip, hipGetSymbolAddress_exit, devPtr, symbol, _retval);
+  return _retval;
+}
+
+hipError_t hipGetSymbolSize(size_t *size, const void *symbol) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetSymbolSize_entry, size, symbol);
+  hipError_t _retval;
+  _retval = HIP_GET_SYMBOL_SIZE_PTR(size, symbol);
+  tracepoint(lttng_ust_hip, hipGetSymbolSize_exit, size, symbol, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyToSymbol(const void *symbol, const void *src, size_t sizeBytes, size_t offset, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyToSymbol_entry, symbol, src, sizeBytes, offset, kind);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_TO_SYMBOL_PTR(symbol, src, sizeBytes, offset, kind);
+  tracepoint(lttng_ust_hip, hipMemcpyToSymbol_exit, symbol, src, sizeBytes, offset, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyToSymbolAsync(const void *symbol, const void *src, size_t sizeBytes, size_t offset, hipMemcpyKind kind, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyToSymbolAsync_entry, symbol, src, sizeBytes, offset, kind, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_TO_SYMBOL_ASYNC_PTR(symbol, src, sizeBytes, offset, kind, stream);
+  tracepoint(lttng_ust_hip, hipMemcpyToSymbolAsync_exit, symbol, src, sizeBytes, offset, kind, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyFromSymbol(void *dst, const void *symbol, size_t sizeBytes, size_t offset, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyFromSymbol_entry, dst, symbol, sizeBytes, offset, kind);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_FROM_SYMBOL_PTR(dst, symbol, sizeBytes, offset, kind);
+  tracepoint(lttng_ust_hip, hipMemcpyFromSymbol_exit, dst, symbol, sizeBytes, offset, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyFromSymbolAsync(void *dst, const void *symbol, size_t sizeBytes, size_t offset, hipMemcpyKind kind, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyFromSymbolAsync_entry, dst, symbol, sizeBytes, offset, kind, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_FROM_SYMBOL_ASYNC_PTR(dst, symbol, sizeBytes, offset, kind, stream);
+  tracepoint(lttng_ust_hip, hipMemcpyFromSymbolAsync_exit, dst, symbol, sizeBytes, offset, kind, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyAsync(void *dst, const void *src, size_t sizeBytes, hipMemcpyKind kind, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyAsync_entry, dst, src, sizeBytes, kind, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_ASYNC_PTR(dst, src, sizeBytes, kind, stream);
+  tracepoint(lttng_ust_hip, hipMemcpyAsync_exit, dst, src, sizeBytes, kind, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemset(void *dst, int value, size_t sizeBytes) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemset_entry, dst, value, sizeBytes);
+  hipError_t _retval;
+  _retval = HIP_MEMSET_PTR(dst, value, sizeBytes);
+  tracepoint(lttng_ust_hip, hipMemset_exit, dst, value, sizeBytes, _retval);
+  return _retval;
+}
+
+hipError_t hipMemsetD8(hipDeviceptr_t dest, unsigned char value, size_t count) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemsetD8_entry, dest, value, count);
+  hipError_t _retval;
+  _retval = HIP_MEMSET_D8_PTR(dest, value, count);
+  tracepoint(lttng_ust_hip, hipMemsetD8_exit, dest, value, count, _retval);
+  return _retval;
+}
+
+hipError_t hipMemsetD8Async(hipDeviceptr_t dest, unsigned char value, size_t count, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemsetD8Async_entry, dest, value, count, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMSET_D8ASYNC_PTR(dest, value, count, stream);
+  tracepoint(lttng_ust_hip, hipMemsetD8Async_exit, dest, value, count, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemsetD16(hipDeviceptr_t dest, unsigned short int value, size_t count) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemsetD16_entry, dest, value, count);
+  hipError_t _retval;
+  _retval = HIP_MEMSET_D16_PTR(dest, value, count);
+  tracepoint(lttng_ust_hip, hipMemsetD16_exit, dest, value, count, _retval);
+  return _retval;
+}
+
+hipError_t hipMemsetD16Async(hipDeviceptr_t dest, unsigned short int value, size_t count, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemsetD16Async_entry, dest, value, count, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMSET_D16ASYNC_PTR(dest, value, count, stream);
+  tracepoint(lttng_ust_hip, hipMemsetD16Async_exit, dest, value, count, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemsetD32(hipDeviceptr_t dest, int value, size_t count) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemsetD32_entry, dest, value, count);
+  hipError_t _retval;
+  _retval = HIP_MEMSET_D32_PTR(dest, value, count);
+  tracepoint(lttng_ust_hip, hipMemsetD32_exit, dest, value, count, _retval);
+  return _retval;
+}
+
+hipError_t hipMemsetAsync(void *dst, int value, size_t sizeBytes, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemsetAsync_entry, dst, value, sizeBytes, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMSET_ASYNC_PTR(dst, value, sizeBytes, stream);
+  tracepoint(lttng_ust_hip, hipMemsetAsync_exit, dst, value, sizeBytes, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemsetD32Async(hipDeviceptr_t dst, int value, size_t count, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemsetD32Async_entry, dst, value, count, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMSET_D32ASYNC_PTR(dst, value, count, stream);
+  tracepoint(lttng_ust_hip, hipMemsetD32Async_exit, dst, value, count, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemset2D(void *dst, size_t pitch, int value, size_t width, size_t height) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemset2D_entry, dst, pitch, value, width, height);
+  hipError_t _retval;
+  _retval = HIP_MEMSET2_D_PTR(dst, pitch, value, width, height);
+  tracepoint(lttng_ust_hip, hipMemset2D_exit, dst, pitch, value, width, height, _retval);
+  return _retval;
+}
+
+hipError_t hipMemset2DAsync(void *dst, size_t pitch, int value, size_t width, size_t height, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemset2DAsync_entry, dst, pitch, value, width, height, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMSET2_DASYNC_PTR(dst, pitch, value, width, height, stream);
+  tracepoint(lttng_ust_hip, hipMemset2DAsync_exit, dst, pitch, value, width, height, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemset3D(hipPitchedPtr pitchedDevPtr, int value, hipExtent extent) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemset3D_entry, pitchedDevPtr, value, extent);
+  hipError_t _retval;
+  _retval = HIP_MEMSET3_D_PTR(pitchedDevPtr, value, extent);
+  tracepoint(lttng_ust_hip, hipMemset3D_exit, pitchedDevPtr, value, extent, _retval);
+  return _retval;
+}
+
+hipError_t hipMemset3DAsync(hipPitchedPtr pitchedDevPtr, int value, hipExtent extent, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemset3DAsync_entry, pitchedDevPtr, value, extent, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMSET3_DASYNC_PTR(pitchedDevPtr, value, extent, stream);
+  tracepoint(lttng_ust_hip, hipMemset3DAsync_exit, pitchedDevPtr, value, extent, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemGetInfo(size_t *free, size_t *total) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemGetInfo_entry, free, total);
+  hipError_t _retval;
+  _retval = HIP_MEM_GET_INFO_PTR(free, total);
+  tracepoint(lttng_ust_hip, hipMemGetInfo_exit, free, total, _retval);
+  return _retval;
+}
+
+hipError_t hipMemPtrGetInfo(void *ptr, size_t *size) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemPtrGetInfo_entry, ptr, size);
+  hipError_t _retval;
+  _retval = HIP_MEM_PTR_GET_INFO_PTR(ptr, size);
+  tracepoint(lttng_ust_hip, hipMemPtrGetInfo_exit, ptr, size, _retval);
+  return _retval;
+}
+
+hipError_t hipMallocArray(hipArray **array, const hipChannelFormatDesc *desc, size_t width, size_t height, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMallocArray_entry, array, desc, width, height, flags);
+  hipError_t _retval;
+  _retval = HIP_MALLOC_ARRAY_PTR(array, desc, width, height, flags);
+  tracepoint(lttng_ust_hip, hipMallocArray_exit, array, desc, width, height, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipArrayCreate(hipArray **pHandle, const HIP_ARRAY_DESCRIPTOR *pAllocateArray) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipArrayCreate_entry, pHandle, pAllocateArray);
+  hipError_t _retval;
+  _retval = HIP_ARRAY_CREATE_PTR(pHandle, pAllocateArray);
+  tracepoint(lttng_ust_hip, hipArrayCreate_exit, pHandle, pAllocateArray, _retval);
+  return _retval;
+}
+
+hipError_t hipArrayDestroy(hipArray *array) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipArrayDestroy_entry, array);
+  hipError_t _retval;
+  _retval = HIP_ARRAY_DESTROY_PTR(array);
+  tracepoint(lttng_ust_hip, hipArrayDestroy_exit, array, _retval);
+  return _retval;
+}
+
+hipError_t hipArray3DCreate(hipArray **array, const HIP_ARRAY3D_DESCRIPTOR *pAllocateArray) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipArray3DCreate_entry, array, pAllocateArray);
+  hipError_t _retval;
+  _retval = HIP_ARRAY3_DCREATE_PTR(array, pAllocateArray);
+  tracepoint(lttng_ust_hip, hipArray3DCreate_exit, array, pAllocateArray, _retval);
+  return _retval;
+}
+
+hipError_t hipMalloc3D(hipPitchedPtr *pitchedDevPtr, hipExtent extent) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMalloc3D_entry, pitchedDevPtr, extent);
+  hipError_t _retval;
+  _retval = HIP_MALLOC3_D_PTR(pitchedDevPtr, extent);
+  tracepoint(lttng_ust_hip, hipMalloc3D_exit, pitchedDevPtr, extent, _retval);
+  return _retval;
+}
+
+hipError_t hipFreeArray(hipArray *array) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipFreeArray_entry, array);
+  hipError_t _retval;
+  _retval = HIP_FREE_ARRAY_PTR(array);
+  tracepoint(lttng_ust_hip, hipFreeArray_exit, array, _retval);
+  return _retval;
+}
+
+hipError_t hipFreeMipmappedArray(hipMipmappedArray_t mipmappedArray) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipFreeMipmappedArray_entry, mipmappedArray);
+  hipError_t _retval;
+  _retval = HIP_FREE_MIPMAPPED_ARRAY_PTR(mipmappedArray);
+  tracepoint(lttng_ust_hip, hipFreeMipmappedArray_exit, mipmappedArray, _retval);
+  return _retval;
+}
+
+hipError_t hipMalloc3DArray(hipArray **array, const struct hipChannelFormatDesc *desc, struct hipExtent extent, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMalloc3DArray_entry, array, desc, extent, flags);
+  hipError_t _retval;
+  _retval = HIP_MALLOC3_DARRAY_PTR(array, desc, extent, flags);
+  tracepoint(lttng_ust_hip, hipMalloc3DArray_exit, array, desc, extent, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipMallocMipmappedArray(hipMipmappedArray_t *mipmappedArray, const struct hipChannelFormatDesc *desc, struct hipExtent extent, unsigned int numLevels, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMallocMipmappedArray_entry, mipmappedArray, desc, extent, numLevels, flags);
+  hipError_t _retval;
+  _retval = HIP_MALLOC_MIPMAPPED_ARRAY_PTR(mipmappedArray, desc, extent, numLevels, flags);
+  tracepoint(lttng_ust_hip, hipMallocMipmappedArray_exit, mipmappedArray, desc, extent, numLevels, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipGetMipmappedArrayLevel(hipArray_t *levelArray, hipMipmappedArray_const_t mipmappedArray, unsigned int level) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetMipmappedArrayLevel_entry, levelArray, mipmappedArray, level);
+  hipError_t _retval;
+  _retval = HIP_GET_MIPMAPPED_ARRAY_LEVEL_PTR(levelArray, mipmappedArray, level);
+  tracepoint(lttng_ust_hip, hipGetMipmappedArrayLevel_exit, levelArray, mipmappedArray, level, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy2D(void *dst, size_t dpitch, const void *src, size_t spitch, size_t width, size_t height, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy2D_entry, dst, dpitch, src, spitch, width, height, kind);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY2_D_PTR(dst, dpitch, src, spitch, width, height, kind);
+  tracepoint(lttng_ust_hip, hipMemcpy2D_exit, dst, dpitch, src, spitch, width, height, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyParam2D(const hip_Memcpy2D *pCopy) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyParam2D_entry, pCopy);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_PARAM2_D_PTR(pCopy);
+  tracepoint(lttng_ust_hip, hipMemcpyParam2D_exit, pCopy, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyParam2DAsync(const hip_Memcpy2D *pCopy, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyParam2DAsync_entry, pCopy, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_PARAM2_DASYNC_PTR(pCopy, stream);
+  tracepoint(lttng_ust_hip, hipMemcpyParam2DAsync_exit, pCopy, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy2DAsync(void *dst, size_t dpitch, const void *src, size_t spitch, size_t width, size_t height, hipMemcpyKind kind, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy2DAsync_entry, dst, dpitch, src, spitch, width, height, kind, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY2_DASYNC_PTR(dst, dpitch, src, spitch, width, height, kind, stream);
+  tracepoint(lttng_ust_hip, hipMemcpy2DAsync_exit, dst, dpitch, src, spitch, width, height, kind, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy2DToArray(hipArray *dst, size_t wOffset, size_t hOffset, const void *src, size_t spitch, size_t width, size_t height, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy2DToArray_entry, dst, wOffset, hOffset, src, spitch, width, height, kind);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY2_DTO_ARRAY_PTR(dst, wOffset, hOffset, src, spitch, width, height, kind);
+  tracepoint(lttng_ust_hip, hipMemcpy2DToArray_exit, dst, wOffset, hOffset, src, spitch, width, height, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy2DToArrayAsync(hipArray *dst, size_t wOffset, size_t hOffset, const void *src, size_t spitch, size_t width, size_t height, hipMemcpyKind kind, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy2DToArrayAsync_entry, dst, wOffset, hOffset, src, spitch, width, height, kind, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY2_DTO_ARRAY_ASYNC_PTR(dst, wOffset, hOffset, src, spitch, width, height, kind, stream);
+  tracepoint(lttng_ust_hip, hipMemcpy2DToArrayAsync_exit, dst, wOffset, hOffset, src, spitch, width, height, kind, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyToArray(hipArray *dst, size_t wOffset, size_t hOffset, const void *src, size_t count, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyToArray_entry, dst, wOffset, hOffset, src, count, kind);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_TO_ARRAY_PTR(dst, wOffset, hOffset, src, count, kind);
+  tracepoint(lttng_ust_hip, hipMemcpyToArray_exit, dst, wOffset, hOffset, src, count, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyFromArray(void *dst, hipArray_const_t srcArray, size_t wOffset, size_t hOffset, size_t count, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyFromArray_entry, dst, srcArray, wOffset, hOffset, count, kind);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_FROM_ARRAY_PTR(dst, srcArray, wOffset, hOffset, count, kind);
+  tracepoint(lttng_ust_hip, hipMemcpyFromArray_exit, dst, srcArray, wOffset, hOffset, count, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy2DFromArray(void *dst, size_t dpitch, hipArray_const_t src, size_t wOffset, size_t hOffset, size_t width, size_t height, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy2DFromArray_entry, dst, dpitch, src, wOffset, hOffset, width, height, kind);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY2_DFROM_ARRAY_PTR(dst, dpitch, src, wOffset, hOffset, width, height, kind);
+  tracepoint(lttng_ust_hip, hipMemcpy2DFromArray_exit, dst, dpitch, src, wOffset, hOffset, width, height, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy2DFromArrayAsync(void *dst, size_t dpitch, hipArray_const_t src, size_t wOffset, size_t hOffset, size_t width, size_t height, hipMemcpyKind kind, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy2DFromArrayAsync_entry, dst, dpitch, src, wOffset, hOffset, width, height, kind, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY2_DFROM_ARRAY_ASYNC_PTR(dst, dpitch, src, wOffset, hOffset, width, height, kind, stream);
+  tracepoint(lttng_ust_hip, hipMemcpy2DFromArrayAsync_exit, dst, dpitch, src, wOffset, hOffset, width, height, kind, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyAtoH(void *dst, hipArray *srcArray, size_t srcOffset, size_t count) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyAtoH_entry, dst, srcArray, srcOffset, count);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_ATO_H_PTR(dst, srcArray, srcOffset, count);
+  tracepoint(lttng_ust_hip, hipMemcpyAtoH_exit, dst, srcArray, srcOffset, count, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyHtoA(hipArray *dstArray, size_t dstOffset, const void *srcHost, size_t count) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyHtoA_entry, dstArray, dstOffset, srcHost, count);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_HTO_A_PTR(dstArray, dstOffset, srcHost, count);
+  tracepoint(lttng_ust_hip, hipMemcpyHtoA_exit, dstArray, dstOffset, srcHost, count, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy3D(const struct hipMemcpy3DParms *p) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy3D_entry, p);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY3_D_PTR(p);
+  tracepoint(lttng_ust_hip, hipMemcpy3D_exit, p, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy3DAsync(const struct hipMemcpy3DParms *p, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy3DAsync_entry, p, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY3_DASYNC_PTR(p, stream);
+  tracepoint(lttng_ust_hip, hipMemcpy3DAsync_exit, p, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipDrvMemcpy3D(const HIP_MEMCPY3D *pCopy) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDrvMemcpy3D_entry, pCopy);
+  hipError_t _retval;
+  _retval = HIP_DRV_MEMCPY3_D_PTR(pCopy);
+  tracepoint(lttng_ust_hip, hipDrvMemcpy3D_exit, pCopy, _retval);
+  return _retval;
+}
+
+hipError_t hipDrvMemcpy3DAsync(const HIP_MEMCPY3D *pCopy, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDrvMemcpy3DAsync_entry, pCopy, stream);
+  hipError_t _retval;
+  _retval = HIP_DRV_MEMCPY3_DASYNC_PTR(pCopy, stream);
+  tracepoint(lttng_ust_hip, hipDrvMemcpy3DAsync_exit, pCopy, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceCanAccessPeer(int *canAccessPeer, int deviceId, int peerDeviceId) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceCanAccessPeer_entry, canAccessPeer, deviceId, peerDeviceId);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_CAN_ACCESS_PEER_PTR(canAccessPeer, deviceId, peerDeviceId);
+  tracepoint(lttng_ust_hip, hipDeviceCanAccessPeer_exit, canAccessPeer, deviceId, peerDeviceId, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceEnablePeerAccess(int peerDeviceId, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceEnablePeerAccess_entry, peerDeviceId, flags);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_ENABLE_PEER_ACCESS_PTR(peerDeviceId, flags);
+  tracepoint(lttng_ust_hip, hipDeviceEnablePeerAccess_exit, peerDeviceId, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceDisablePeerAccess(int peerDeviceId) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceDisablePeerAccess_entry, peerDeviceId);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_DISABLE_PEER_ACCESS_PTR(peerDeviceId);
+  tracepoint(lttng_ust_hip, hipDeviceDisablePeerAccess_exit, peerDeviceId, _retval);
+  return _retval;
+}
+
+hipError_t hipMemGetAddressRange(hipDeviceptr_t *pbase, size_t *psize, hipDeviceptr_t dptr) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemGetAddressRange_entry, pbase, psize, dptr);
+  hipError_t _retval;
+  _retval = HIP_MEM_GET_ADDRESS_RANGE_PTR(pbase, psize, dptr);
+  tracepoint(lttng_ust_hip, hipMemGetAddressRange_exit, pbase, psize, dptr, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyPeer(void *dst, int dstDeviceId, const void *src, int srcDeviceId, size_t sizeBytes) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyPeer_entry, dst, dstDeviceId, src, srcDeviceId, sizeBytes);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_PEER_PTR(dst, dstDeviceId, src, srcDeviceId, sizeBytes);
+  tracepoint(lttng_ust_hip, hipMemcpyPeer_exit, dst, dstDeviceId, src, srcDeviceId, sizeBytes, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyPeerAsync(void *dst, int dstDeviceId, const void *src, int srcDevice, size_t sizeBytes, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyPeerAsync_entry, dst, dstDeviceId, src, srcDevice, sizeBytes, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_PEER_ASYNC_PTR(dst, dstDeviceId, src, srcDevice, sizeBytes, stream);
+  tracepoint(lttng_ust_hip, hipMemcpyPeerAsync_exit, dst, dstDeviceId, src, srcDevice, sizeBytes, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipCtxCreate(hipCtx_t *ctx, unsigned int flags, hipDevice_t device) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCtxCreate_entry, ctx, flags, device);
+  hipError_t _retval;
+  _retval = HIP_CTX_CREATE_PTR(ctx, flags, device);
+  tracepoint(lttng_ust_hip, hipCtxCreate_exit, ctx, flags, device, _retval);
+  return _retval;
+}
+
+hipError_t hipCtxDestroy(hipCtx_t ctx) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCtxDestroy_entry, ctx);
+  hipError_t _retval;
+  _retval = HIP_CTX_DESTROY_PTR(ctx);
+  tracepoint(lttng_ust_hip, hipCtxDestroy_exit, ctx, _retval);
+  return _retval;
+}
+
+hipError_t hipCtxPopCurrent(hipCtx_t *ctx) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCtxPopCurrent_entry, ctx);
+  hipError_t _retval;
+  _retval = HIP_CTX_POP_CURRENT_PTR(ctx);
+  tracepoint(lttng_ust_hip, hipCtxPopCurrent_exit, ctx, _retval);
+  return _retval;
+}
+
+hipError_t hipCtxPushCurrent(hipCtx_t ctx) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCtxPushCurrent_entry, ctx);
+  hipError_t _retval;
+  _retval = HIP_CTX_PUSH_CURRENT_PTR(ctx);
+  tracepoint(lttng_ust_hip, hipCtxPushCurrent_exit, ctx, _retval);
+  return _retval;
+}
+
+hipError_t hipCtxSetCurrent(hipCtx_t ctx) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCtxSetCurrent_entry, ctx);
+  hipError_t _retval;
+  _retval = HIP_CTX_SET_CURRENT_PTR(ctx);
+  tracepoint(lttng_ust_hip, hipCtxSetCurrent_exit, ctx, _retval);
+  return _retval;
+}
+
+hipError_t hipCtxGetCurrent(hipCtx_t *ctx) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCtxGetCurrent_entry, ctx);
+  hipError_t _retval;
+  _retval = HIP_CTX_GET_CURRENT_PTR(ctx);
+  tracepoint(lttng_ust_hip, hipCtxGetCurrent_exit, ctx, _retval);
+  return _retval;
+}
+
+hipError_t hipCtxGetDevice(hipDevice_t *device) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCtxGetDevice_entry, device);
+  hipError_t _retval;
+  _retval = HIP_CTX_GET_DEVICE_PTR(device);
+  tracepoint(lttng_ust_hip, hipCtxGetDevice_exit, device, _retval);
+  return _retval;
+}
+
+hipError_t hipCtxGetApiVersion(hipCtx_t ctx, int *apiVersion) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCtxGetApiVersion_entry, ctx, apiVersion);
+  hipError_t _retval;
+  _retval = HIP_CTX_GET_API_VERSION_PTR(ctx, apiVersion);
+  tracepoint(lttng_ust_hip, hipCtxGetApiVersion_exit, ctx, apiVersion, _retval);
+  return _retval;
+}
+
+hipError_t hipCtxGetCacheConfig(hipFuncCache_t *cacheConfig) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCtxGetCacheConfig_entry, cacheConfig);
+  hipError_t _retval;
+  _retval = HIP_CTX_GET_CACHE_CONFIG_PTR(cacheConfig);
+  tracepoint(lttng_ust_hip, hipCtxGetCacheConfig_exit, cacheConfig, _retval);
+  return _retval;
+}
+
+hipError_t hipCtxSetCacheConfig(hipFuncCache_t cacheConfig) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCtxSetCacheConfig_entry, cacheConfig);
+  hipError_t _retval;
+  _retval = HIP_CTX_SET_CACHE_CONFIG_PTR(cacheConfig);
+  tracepoint(lttng_ust_hip, hipCtxSetCacheConfig_exit, cacheConfig, _retval);
+  return _retval;
+}
+
+hipError_t hipCtxSetSharedMemConfig(hipSharedMemConfig config) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCtxSetSharedMemConfig_entry, config);
+  hipError_t _retval;
+  _retval = HIP_CTX_SET_SHARED_MEM_CONFIG_PTR(config);
+  tracepoint(lttng_ust_hip, hipCtxSetSharedMemConfig_exit, config, _retval);
+  return _retval;
+}
+
+hipError_t hipCtxGetSharedMemConfig(hipSharedMemConfig *pConfig) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCtxGetSharedMemConfig_entry, pConfig);
+  hipError_t _retval;
+  _retval = HIP_CTX_GET_SHARED_MEM_CONFIG_PTR(pConfig);
+  tracepoint(lttng_ust_hip, hipCtxGetSharedMemConfig_exit, pConfig, _retval);
+  return _retval;
+}
+
+hipError_t hipCtxSynchronize(void) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCtxSynchronize_entry, );
+  hipError_t _retval;
+  _retval = HIP_CTX_SYNCHRONIZE_PTR();
+  tracepoint(lttng_ust_hip, hipCtxSynchronize_exit, _retval);
+  return _retval;
+}
+
+hipError_t hipCtxGetFlags(unsigned int *flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCtxGetFlags_entry, flags);
+  hipError_t _retval;
+  _retval = HIP_CTX_GET_FLAGS_PTR(flags);
+  tracepoint(lttng_ust_hip, hipCtxGetFlags_exit, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipCtxEnablePeerAccess(hipCtx_t peerCtx, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCtxEnablePeerAccess_entry, peerCtx, flags);
+  hipError_t _retval;
+  _retval = HIP_CTX_ENABLE_PEER_ACCESS_PTR(peerCtx, flags);
+  tracepoint(lttng_ust_hip, hipCtxEnablePeerAccess_exit, peerCtx, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipCtxDisablePeerAccess(hipCtx_t peerCtx) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCtxDisablePeerAccess_entry, peerCtx);
+  hipError_t _retval;
+  _retval = HIP_CTX_DISABLE_PEER_ACCESS_PTR(peerCtx);
+  tracepoint(lttng_ust_hip, hipCtxDisablePeerAccess_exit, peerCtx, _retval);
+  return _retval;
+}
+
+hipError_t hipDevicePrimaryCtxGetState(hipDevice_t dev, unsigned int *flags, int *active) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDevicePrimaryCtxGetState_entry, dev, flags, active);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_PRIMARY_CTX_GET_STATE_PTR(dev, flags, active);
+  tracepoint(lttng_ust_hip, hipDevicePrimaryCtxGetState_exit, dev, flags, active, _retval);
+  return _retval;
+}
+
+hipError_t hipDevicePrimaryCtxRelease(hipDevice_t dev) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDevicePrimaryCtxRelease_entry, dev);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_PRIMARY_CTX_RELEASE_PTR(dev);
+  tracepoint(lttng_ust_hip, hipDevicePrimaryCtxRelease_exit, dev, _retval);
+  return _retval;
+}
+
+hipError_t hipDevicePrimaryCtxRetain(hipCtx_t *pctx, hipDevice_t dev) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDevicePrimaryCtxRetain_entry, pctx, dev);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_PRIMARY_CTX_RETAIN_PTR(pctx, dev);
+  tracepoint(lttng_ust_hip, hipDevicePrimaryCtxRetain_exit, pctx, dev, _retval);
+  return _retval;
+}
+
+hipError_t hipDevicePrimaryCtxReset(hipDevice_t dev) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDevicePrimaryCtxReset_entry, dev);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_PRIMARY_CTX_RESET_PTR(dev);
+  tracepoint(lttng_ust_hip, hipDevicePrimaryCtxReset_exit, dev, _retval);
+  return _retval;
+}
+
+hipError_t hipDevicePrimaryCtxSetFlags(hipDevice_t dev, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDevicePrimaryCtxSetFlags_entry, dev, flags);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_PRIMARY_CTX_SET_FLAGS_PTR(dev, flags);
+  tracepoint(lttng_ust_hip, hipDevicePrimaryCtxSetFlags_exit, dev, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipModuleLoad(hipModule_t *module, const char *fname) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipModuleLoad_entry, module, fname);
+  hipError_t _retval;
+  _retval = HIP_MODULE_LOAD_PTR(module, fname);
+  tracepoint(lttng_ust_hip, hipModuleLoad_exit, module, fname, _retval);
+  return _retval;
+}
+
+hipError_t hipModuleUnload(hipModule_t module) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipModuleUnload_entry, module);
+  hipError_t _retval;
+  _retval = HIP_MODULE_UNLOAD_PTR(module);
+  tracepoint(lttng_ust_hip, hipModuleUnload_exit, module, _retval);
+  return _retval;
+}
+
+hipError_t hipModuleGetFunction(hipFunction_t *function, hipModule_t module, const char *kname) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipModuleGetFunction_entry, function, module, kname);
+  hipError_t _retval;
+  _retval = HIP_MODULE_GET_FUNCTION_PTR(function, module, kname);
+  tracepoint(lttng_ust_hip, hipModuleGetFunction_exit, function, module, kname, _retval);
+  return _retval;
+}
+
+hipError_t hipFuncGetAttributes(struct hipFuncAttributes *attr, const void *func) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipFuncGetAttributes_entry, attr, func);
+  hipError_t _retval;
+  _retval = HIP_FUNC_GET_ATTRIBUTES_PTR(attr, func);
+  tracepoint(lttng_ust_hip, hipFuncGetAttributes_exit, attr, func, _retval);
+  return _retval;
+}
+
+hipError_t hipFuncGetAttribute(int *value, hipFunction_attribute attrib, hipFunction_t hfunc) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipFuncGetAttribute_entry, value, attrib, hfunc);
+  hipError_t _retval;
+  _retval = HIP_FUNC_GET_ATTRIBUTE_PTR(value, attrib, hfunc);
+  tracepoint(lttng_ust_hip, hipFuncGetAttribute_exit, value, attrib, hfunc, _retval);
+  return _retval;
+}
+
+hipError_t hipModuleGetTexRef(textureReference **texRef, hipModule_t hmod, const char *name) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipModuleGetTexRef_entry, texRef, hmod, name);
+  hipError_t _retval;
+  _retval = HIP_MODULE_GET_TEX_REF_PTR(texRef, hmod, name);
+  tracepoint(lttng_ust_hip, hipModuleGetTexRef_exit, texRef, hmod, name, _retval);
+  return _retval;
+}
+
+hipError_t hipModuleLoadData(hipModule_t *module, const void *image) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipModuleLoadData_entry, module, image);
+  hipError_t _retval;
+  _retval = HIP_MODULE_LOAD_DATA_PTR(module, image);
+  tracepoint(lttng_ust_hip, hipModuleLoadData_exit, module, image, _retval);
+  return _retval;
+}
+
+hipError_t hipModuleLoadDataEx(hipModule_t *module, const void *image, unsigned int numOptions, hipJitOption *options, void **optionValues) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipModuleLoadDataEx_entry, module, image, numOptions, options, optionValues);
+  hipError_t _retval;
+  _retval = HIP_MODULE_LOAD_DATA_EX_PTR(module, image, numOptions, options, optionValues);
+  tracepoint(lttng_ust_hip, hipModuleLoadDataEx_exit, module, image, numOptions, options, optionValues, _retval);
+  return _retval;
+}
+
+hipError_t hipModuleLaunchKernel(hipFunction_t f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, hipStream_t stream, void **kernelParams, void **extra) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipModuleLaunchKernel_entry, f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, stream, kernelParams, extra);
+  hipError_t _retval;
+  _retval = HIP_MODULE_LAUNCH_KERNEL_PTR(f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, stream, kernelParams, extra);
+  tracepoint(lttng_ust_hip, hipModuleLaunchKernel_exit, f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, stream, kernelParams, extra, _retval);
+  return _retval;
+}
+
+hipError_t hipLaunchCooperativeKernel(const void *f, dim3 gridDim, dim3 blockDimX, void **kernelParams, unsigned int sharedMemBytes, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipLaunchCooperativeKernel_entry, f, gridDim, blockDimX, kernelParams, sharedMemBytes, stream);
+  hipError_t _retval;
+  _retval = HIP_LAUNCH_COOPERATIVE_KERNEL_PTR(f, gridDim, blockDimX, kernelParams, sharedMemBytes, stream);
+  tracepoint(lttng_ust_hip, hipLaunchCooperativeKernel_exit, f, gridDim, blockDimX, kernelParams, sharedMemBytes, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipLaunchCooperativeKernelMultiDevice(hipLaunchParams *launchParamsList, int numDevices, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipLaunchCooperativeKernelMultiDevice_entry, launchParamsList, numDevices, flags);
+  hipError_t _retval;
+  _retval = HIP_LAUNCH_COOPERATIVE_KERNEL_MULTI_DEVICE_PTR(launchParamsList, numDevices, flags);
+  tracepoint(lttng_ust_hip, hipLaunchCooperativeKernelMultiDevice_exit, launchParamsList, numDevices, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipExtLaunchMultiKernelMultiDevice(hipLaunchParams *launchParamsList, int numDevices, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipExtLaunchMultiKernelMultiDevice_entry, launchParamsList, numDevices, flags);
+  hipError_t _retval;
+  _retval = HIP_EXT_LAUNCH_MULTI_KERNEL_MULTI_DEVICE_PTR(launchParamsList, numDevices, flags);
+  tracepoint(lttng_ust_hip, hipExtLaunchMultiKernelMultiDevice_exit, launchParamsList, numDevices, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipModuleOccupancyMaxPotentialBlockSize(int *gridSize, int *blockSize, hipFunction_t f, size_t dynSharedMemPerBlk, int blockSizeLimit) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipModuleOccupancyMaxPotentialBlockSize_entry, gridSize, blockSize, f, dynSharedMemPerBlk, blockSizeLimit);
+  hipError_t _retval;
+  _retval = HIP_MODULE_OCCUPANCY_MAX_POTENTIAL_BLOCK_SIZE_PTR(gridSize, blockSize, f, dynSharedMemPerBlk, blockSizeLimit);
+  tracepoint(lttng_ust_hip, hipModuleOccupancyMaxPotentialBlockSize_exit, gridSize, blockSize, f, dynSharedMemPerBlk, blockSizeLimit, _retval);
+  return _retval;
+}
+
+hipError_t hipModuleOccupancyMaxPotentialBlockSizeWithFlags(int *gridSize, int *blockSize, hipFunction_t f, size_t dynSharedMemPerBlk, int blockSizeLimit, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipModuleOccupancyMaxPotentialBlockSizeWithFlags_entry, gridSize, blockSize, f, dynSharedMemPerBlk, blockSizeLimit, flags);
+  hipError_t _retval;
+  _retval = HIP_MODULE_OCCUPANCY_MAX_POTENTIAL_BLOCK_SIZE_WITH_FLAGS_PTR(gridSize, blockSize, f, dynSharedMemPerBlk, blockSizeLimit, flags);
+  tracepoint(lttng_ust_hip, hipModuleOccupancyMaxPotentialBlockSizeWithFlags_exit, gridSize, blockSize, f, dynSharedMemPerBlk, blockSizeLimit, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipModuleOccupancyMaxActiveBlocksPerMultiprocessor(int *numBlocks, hipFunction_t f, int blockSize, size_t dynSharedMemPerBlk) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipModuleOccupancyMaxActiveBlocksPerMultiprocessor_entry, numBlocks, f, blockSize, dynSharedMemPerBlk);
+  hipError_t _retval;
+  _retval = HIP_MODULE_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_PTR(numBlocks, f, blockSize, dynSharedMemPerBlk);
+  tracepoint(lttng_ust_hip, hipModuleOccupancyMaxActiveBlocksPerMultiprocessor_exit, numBlocks, f, blockSize, dynSharedMemPerBlk, _retval);
+  return _retval;
+}
+
+hipError_t hipModuleOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int *numBlocks, hipFunction_t f, int blockSize, size_t dynSharedMemPerBlk, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipModuleOccupancyMaxActiveBlocksPerMultiprocessorWithFlags_entry, numBlocks, f, blockSize, dynSharedMemPerBlk, flags);
+  hipError_t _retval;
+  _retval = HIP_MODULE_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_WITH_FLAGS_PTR(numBlocks, f, blockSize, dynSharedMemPerBlk, flags);
+  tracepoint(lttng_ust_hip, hipModuleOccupancyMaxActiveBlocksPerMultiprocessorWithFlags_exit, numBlocks, f, blockSize, dynSharedMemPerBlk, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipOccupancyMaxActiveBlocksPerMultiprocessor(int *numBlocks, const void *f, int blockSize, size_t dynSharedMemPerBlk) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipOccupancyMaxActiveBlocksPerMultiprocessor_entry, numBlocks, f, blockSize, dynSharedMemPerBlk);
+  hipError_t _retval;
+  _retval = HIP_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_PTR(numBlocks, f, blockSize, dynSharedMemPerBlk);
+  tracepoint(lttng_ust_hip, hipOccupancyMaxActiveBlocksPerMultiprocessor_exit, numBlocks, f, blockSize, dynSharedMemPerBlk, _retval);
+  return _retval;
+}
+
+hipError_t hipOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int *numBlocks, const void *f, int blockSize, size_t dynSharedMemPerBlk, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipOccupancyMaxActiveBlocksPerMultiprocessorWithFlags_entry, numBlocks, f, blockSize, dynSharedMemPerBlk, flags);
+  hipError_t _retval;
+  _retval = HIP_OCCUPANCY_MAX_ACTIVE_BLOCKS_PER_MULTIPROCESSOR_WITH_FLAGS_PTR(numBlocks, f, blockSize, dynSharedMemPerBlk, flags);
+  tracepoint(lttng_ust_hip, hipOccupancyMaxActiveBlocksPerMultiprocessorWithFlags_exit, numBlocks, f, blockSize, dynSharedMemPerBlk, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipOccupancyMaxPotentialBlockSize(int *gridSize, int *blockSize, const void *f, size_t dynSharedMemPerBlk, int blockSizeLimit) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipOccupancyMaxPotentialBlockSize_entry, gridSize, blockSize, f, dynSharedMemPerBlk, blockSizeLimit);
+  hipError_t _retval;
+  _retval = HIP_OCCUPANCY_MAX_POTENTIAL_BLOCK_SIZE_PTR(gridSize, blockSize, f, dynSharedMemPerBlk, blockSizeLimit);
+  tracepoint(lttng_ust_hip, hipOccupancyMaxPotentialBlockSize_exit, gridSize, blockSize, f, dynSharedMemPerBlk, blockSizeLimit, _retval);
+  return _retval;
+}
+
+hipError_t hipProfilerStart() {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipProfilerStart_entry, );
+  hipError_t _retval;
+  _retval = HIP_PROFILER_START_PTR();
+  tracepoint(lttng_ust_hip, hipProfilerStart_exit, _retval);
+  return _retval;
+}
+
+hipError_t hipProfilerStop() {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipProfilerStop_entry, );
+  hipError_t _retval;
+  _retval = HIP_PROFILER_STOP_PTR();
+  tracepoint(lttng_ust_hip, hipProfilerStop_exit, _retval);
+  return _retval;
+}
+
+hipError_t hipConfigureCall(dim3 gridDim, dim3 blockDim, size_t sharedMem, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipConfigureCall_entry, gridDim, blockDim, sharedMem, stream);
+  hipError_t _retval;
+  _retval = HIP_CONFIGURE_CALL_PTR(gridDim, blockDim, sharedMem, stream);
+  tracepoint(lttng_ust_hip, hipConfigureCall_exit, gridDim, blockDim, sharedMem, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipSetupArgument(const void *arg, size_t size, size_t offset) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipSetupArgument_entry, arg, size, offset);
+  hipError_t _retval;
+  _retval = HIP_SETUP_ARGUMENT_PTR(arg, size, offset);
+  tracepoint(lttng_ust_hip, hipSetupArgument_exit, arg, size, offset, _retval);
+  return _retval;
+}
+
+hipError_t hipLaunchByPtr(const void *func) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipLaunchByPtr_entry, func);
+  hipError_t _retval;
+  _retval = HIP_LAUNCH_BY_PTR_PTR(func);
+  tracepoint(lttng_ust_hip, hipLaunchByPtr_exit, func, _retval);
+  return _retval;
+}
+
+hipError_t __hipPushCallConfiguration(dim3 gridDim, dim3 blockDim, size_t sharedMem, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, __hipPushCallConfiguration_entry, gridDim, blockDim, sharedMem, stream);
+  hipError_t _retval;
+  _retval = __HIP_PUSH_CALL_CONFIGURATION_PTR(gridDim, blockDim, sharedMem, stream);
+  tracepoint(lttng_ust_hip, __hipPushCallConfiguration_exit, gridDim, blockDim, sharedMem, stream, _retval);
+  return _retval;
+}
+
+hipError_t __hipPopCallConfiguration(dim3 *gridDim, dim3 *blockDim, size_t *sharedMem, hipStream_t *stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, __hipPopCallConfiguration_entry, gridDim, blockDim, sharedMem, stream);
+  hipError_t _retval;
+  _retval = __HIP_POP_CALL_CONFIGURATION_PTR(gridDim, blockDim, sharedMem, stream);
+  tracepoint(lttng_ust_hip, __hipPopCallConfiguration_exit, gridDim, blockDim, sharedMem, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipLaunchKernel(const void *function_address, dim3 numBlocks, dim3 dimBlocks, void **args, size_t sharedMemBytes, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipLaunchKernel_entry, function_address, numBlocks, dimBlocks, args, sharedMemBytes, stream);
+  hipError_t _retval;
+  _retval = HIP_LAUNCH_KERNEL_PTR(function_address, numBlocks, dimBlocks, args, sharedMemBytes, stream);
+  tracepoint(lttng_ust_hip, hipLaunchKernel_exit, function_address, numBlocks, dimBlocks, args, sharedMemBytes, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipDrvMemcpy2DUnaligned(const hip_Memcpy2D *pCopy) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDrvMemcpy2DUnaligned_entry, pCopy);
+  hipError_t _retval;
+  _retval = HIP_DRV_MEMCPY2_DUNALIGNED_PTR(pCopy);
+  tracepoint(lttng_ust_hip, hipDrvMemcpy2DUnaligned_exit, pCopy, _retval);
+  return _retval;
+}
+
+hipError_t hipExtLaunchKernel(const void *function_address, dim3 numBlocks, dim3 dimBlocks, void **args, size_t sharedMemBytes, hipStream_t stream, hipEvent_t startEvent, hipEvent_t stopEvent, int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipExtLaunchKernel_entry, function_address, numBlocks, dimBlocks, args, sharedMemBytes, stream, startEvent, stopEvent, flags);
+  hipError_t _retval;
+  _retval = HIP_EXT_LAUNCH_KERNEL_PTR(function_address, numBlocks, dimBlocks, args, sharedMemBytes, stream, startEvent, stopEvent, flags);
+  tracepoint(lttng_ust_hip, hipExtLaunchKernel_exit, function_address, numBlocks, dimBlocks, args, sharedMemBytes, stream, startEvent, stopEvent, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipBindTextureToMipmappedArray(const textureReference *tex, hipMipmappedArray_const_t mipmappedArray, const hipChannelFormatDesc *desc) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipBindTextureToMipmappedArray_entry, tex, mipmappedArray, desc);
+  hipError_t _retval;
+  _retval = HIP_BIND_TEXTURE_TO_MIPMAPPED_ARRAY_PTR(tex, mipmappedArray, desc);
+  tracepoint(lttng_ust_hip, hipBindTextureToMipmappedArray_exit, tex, mipmappedArray, desc, _retval);
+  return _retval;
+}
+
+hipError_t hipCreateTextureObject(hipTextureObject_t *pTexObject, const hipResourceDesc *pResDesc, const hipTextureDesc *pTexDesc, const struct hipResourceViewDesc *pResViewDesc) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipCreateTextureObject_entry, pTexObject, pResDesc, pTexDesc, pResViewDesc);
+  hipError_t _retval;
+  _retval = HIP_CREATE_TEXTURE_OBJECT_PTR(pTexObject, pResDesc, pTexDesc, pResViewDesc);
+  tracepoint(lttng_ust_hip, hipCreateTextureObject_exit, pTexObject, pResDesc, pTexDesc, pResViewDesc, _retval);
+  return _retval;
+}
+
+hipError_t hipDestroyTextureObject(hipTextureObject_t textureObject) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDestroyTextureObject_entry, textureObject);
+  hipError_t _retval;
+  _retval = HIP_DESTROY_TEXTURE_OBJECT_PTR(textureObject);
+  tracepoint(lttng_ust_hip, hipDestroyTextureObject_exit, textureObject, _retval);
+  return _retval;
+}
+
+hipError_t hipGetChannelDesc(hipChannelFormatDesc *desc, hipArray_const_t array) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetChannelDesc_entry, desc, array);
+  hipError_t _retval;
+  _retval = HIP_GET_CHANNEL_DESC_PTR(desc, array);
+  tracepoint(lttng_ust_hip, hipGetChannelDesc_exit, desc, array, _retval);
+  return _retval;
+}
+
+hipError_t hipGetTextureObjectResourceDesc(hipResourceDesc *pResDesc, hipTextureObject_t textureObject) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetTextureObjectResourceDesc_entry, pResDesc, textureObject);
+  hipError_t _retval;
+  _retval = HIP_GET_TEXTURE_OBJECT_RESOURCE_DESC_PTR(pResDesc, textureObject);
+  tracepoint(lttng_ust_hip, hipGetTextureObjectResourceDesc_exit, pResDesc, textureObject, _retval);
+  return _retval;
+}
+
+hipError_t hipGetTextureObjectResourceViewDesc(struct hipResourceViewDesc *pResViewDesc, hipTextureObject_t textureObject) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetTextureObjectResourceViewDesc_entry, pResViewDesc, textureObject);
+  hipError_t _retval;
+  _retval = HIP_GET_TEXTURE_OBJECT_RESOURCE_VIEW_DESC_PTR(pResViewDesc, textureObject);
+  tracepoint(lttng_ust_hip, hipGetTextureObjectResourceViewDesc_exit, pResViewDesc, textureObject, _retval);
+  return _retval;
+}
+
+hipError_t hipGetTextureObjectTextureDesc(hipTextureDesc *pTexDesc, hipTextureObject_t textureObject) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetTextureObjectTextureDesc_entry, pTexDesc, textureObject);
+  hipError_t _retval;
+  _retval = HIP_GET_TEXTURE_OBJECT_TEXTURE_DESC_PTR(pTexDesc, textureObject);
+  tracepoint(lttng_ust_hip, hipGetTextureObjectTextureDesc_exit, pTexDesc, textureObject, _retval);
+  return _retval;
+}
+
+hipError_t hipTexObjectCreate(hipTextureObject_t *pTexObject, const HIP_RESOURCE_DESC *pResDesc, const HIP_TEXTURE_DESC *pTexDesc, const HIP_RESOURCE_VIEW_DESC *pResViewDesc) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexObjectCreate_entry, pTexObject, pResDesc, pTexDesc, pResViewDesc);
+  hipError_t _retval;
+  _retval = HIP_TEX_OBJECT_CREATE_PTR(pTexObject, pResDesc, pTexDesc, pResViewDesc);
+  tracepoint(lttng_ust_hip, hipTexObjectCreate_exit, pTexObject, pResDesc, pTexDesc, pResViewDesc, _retval);
+  return _retval;
+}
+
+hipError_t hipTexObjectDestroy(hipTextureObject_t texObject) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexObjectDestroy_entry, texObject);
+  hipError_t _retval;
+  _retval = HIP_TEX_OBJECT_DESTROY_PTR(texObject);
+  tracepoint(lttng_ust_hip, hipTexObjectDestroy_exit, texObject, _retval);
+  return _retval;
+}
+
+hipError_t hipTexObjectGetResourceDesc(HIP_RESOURCE_DESC *pResDesc, hipTextureObject_t texObject) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexObjectGetResourceDesc_entry, pResDesc, texObject);
+  hipError_t _retval;
+  _retval = HIP_TEX_OBJECT_GET_RESOURCE_DESC_PTR(pResDesc, texObject);
+  tracepoint(lttng_ust_hip, hipTexObjectGetResourceDesc_exit, pResDesc, texObject, _retval);
+  return _retval;
+}
+
+hipError_t hipTexObjectGetResourceViewDesc(HIP_RESOURCE_VIEW_DESC *pResViewDesc, hipTextureObject_t texObject) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexObjectGetResourceViewDesc_entry, pResViewDesc, texObject);
+  hipError_t _retval;
+  _retval = HIP_TEX_OBJECT_GET_RESOURCE_VIEW_DESC_PTR(pResViewDesc, texObject);
+  tracepoint(lttng_ust_hip, hipTexObjectGetResourceViewDesc_exit, pResViewDesc, texObject, _retval);
+  return _retval;
+}
+
+hipError_t hipTexObjectGetTextureDesc(HIP_TEXTURE_DESC *pTexDesc, hipTextureObject_t texObject) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexObjectGetTextureDesc_entry, pTexDesc, texObject);
+  hipError_t _retval;
+  _retval = HIP_TEX_OBJECT_GET_TEXTURE_DESC_PTR(pTexDesc, texObject);
+  tracepoint(lttng_ust_hip, hipTexObjectGetTextureDesc_exit, pTexDesc, texObject, _retval);
+  return _retval;
+}
+
+hipError_t hipGetTextureReference(const textureReference **texref, const void *symbol) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetTextureReference_entry, texref, symbol);
+  hipError_t _retval;
+  _retval = HIP_GET_TEXTURE_REFERENCE_PTR(texref, symbol);
+  tracepoint(lttng_ust_hip, hipGetTextureReference_exit, texref, symbol, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefSetAddressMode(textureReference *texRef, int dim, enum hipTextureAddressMode am) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefSetAddressMode_entry, texRef, dim, am);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_SET_ADDRESS_MODE_PTR(texRef, dim, am);
+  tracepoint(lttng_ust_hip, hipTexRefSetAddressMode_exit, texRef, dim, am, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefSetArray(textureReference *tex, hipArray_const_t array, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefSetArray_entry, tex, array, flags);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_SET_ARRAY_PTR(tex, array, flags);
+  tracepoint(lttng_ust_hip, hipTexRefSetArray_exit, tex, array, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefSetFilterMode(textureReference *texRef, enum hipTextureFilterMode fm) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefSetFilterMode_entry, texRef, fm);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_SET_FILTER_MODE_PTR(texRef, fm);
+  tracepoint(lttng_ust_hip, hipTexRefSetFilterMode_exit, texRef, fm, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefSetFlags(textureReference *texRef, unsigned int Flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefSetFlags_entry, texRef, Flags);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_SET_FLAGS_PTR(texRef, Flags);
+  tracepoint(lttng_ust_hip, hipTexRefSetFlags_exit, texRef, Flags, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefSetFormat(textureReference *texRef, hipArray_Format fmt, int NumPackedComponents) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefSetFormat_entry, texRef, fmt, NumPackedComponents);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_SET_FORMAT_PTR(texRef, fmt, NumPackedComponents);
+  tracepoint(lttng_ust_hip, hipTexRefSetFormat_exit, texRef, fmt, NumPackedComponents, _retval);
+  return _retval;
+}
+
+hipError_t hipBindTexture(size_t *offset, const textureReference *tex, const void *devPtr, const hipChannelFormatDesc *desc, size_t size) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipBindTexture_entry, offset, tex, devPtr, desc, size);
+  hipError_t _retval;
+  _retval = HIP_BIND_TEXTURE_PTR(offset, tex, devPtr, desc, size);
+  tracepoint(lttng_ust_hip, hipBindTexture_exit, offset, tex, devPtr, desc, size, _retval);
+  return _retval;
+}
+
+hipError_t hipBindTexture2D(size_t *offset, const textureReference *tex, const void *devPtr, const hipChannelFormatDesc *desc, size_t width, size_t height, size_t pitch) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipBindTexture2D_entry, offset, tex, devPtr, desc, width, height, pitch);
+  hipError_t _retval;
+  _retval = HIP_BIND_TEXTURE2_D_PTR(offset, tex, devPtr, desc, width, height, pitch);
+  tracepoint(lttng_ust_hip, hipBindTexture2D_exit, offset, tex, devPtr, desc, width, height, pitch, _retval);
+  return _retval;
+}
+
+hipError_t hipBindTextureToArray(const textureReference *tex, hipArray_const_t array, const hipChannelFormatDesc *desc) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipBindTextureToArray_entry, tex, array, desc);
+  hipError_t _retval;
+  _retval = HIP_BIND_TEXTURE_TO_ARRAY_PTR(tex, array, desc);
+  tracepoint(lttng_ust_hip, hipBindTextureToArray_exit, tex, array, desc, _retval);
+  return _retval;
+}
+
+hipError_t hipGetTextureAlignmentOffset(size_t *offset, const textureReference *texref) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetTextureAlignmentOffset_entry, offset, texref);
+  hipError_t _retval;
+  _retval = HIP_GET_TEXTURE_ALIGNMENT_OFFSET_PTR(offset, texref);
+  tracepoint(lttng_ust_hip, hipGetTextureAlignmentOffset_exit, offset, texref, _retval);
+  return _retval;
+}
+
+hipError_t hipUnbindTexture(const textureReference *tex) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipUnbindTexture_entry, tex);
+  hipError_t _retval;
+  _retval = HIP_UNBIND_TEXTURE_PTR(tex);
+  tracepoint(lttng_ust_hip, hipUnbindTexture_exit, tex, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefGetAddress(hipDeviceptr_t *dev_ptr, const textureReference *texRef) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefGetAddress_entry, dev_ptr, texRef);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_GET_ADDRESS_PTR(dev_ptr, texRef);
+  tracepoint(lttng_ust_hip, hipTexRefGetAddress_exit, dev_ptr, texRef, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefGetAddressMode(enum hipTextureAddressMode *pam, const textureReference *texRef, int dim) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefGetAddressMode_entry, pam, texRef, dim);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_GET_ADDRESS_MODE_PTR(pam, texRef, dim);
+  tracepoint(lttng_ust_hip, hipTexRefGetAddressMode_exit, pam, texRef, dim, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefGetFilterMode(enum hipTextureFilterMode *pfm, const textureReference *texRef) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefGetFilterMode_entry, pfm, texRef);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_GET_FILTER_MODE_PTR(pfm, texRef);
+  tracepoint(lttng_ust_hip, hipTexRefGetFilterMode_exit, pfm, texRef, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefGetFlags(unsigned int *pFlags, const textureReference *texRef) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefGetFlags_entry, pFlags, texRef);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_GET_FLAGS_PTR(pFlags, texRef);
+  tracepoint(lttng_ust_hip, hipTexRefGetFlags_exit, pFlags, texRef, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefGetFormat(hipArray_Format *pFormat, int *pNumChannels, const textureReference *texRef) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefGetFormat_entry, pFormat, pNumChannels, texRef);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_GET_FORMAT_PTR(pFormat, pNumChannels, texRef);
+  tracepoint(lttng_ust_hip, hipTexRefGetFormat_exit, pFormat, pNumChannels, texRef, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefGetMaxAnisotropy(int *pmaxAnsio, const textureReference *texRef) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefGetMaxAnisotropy_entry, pmaxAnsio, texRef);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_GET_MAX_ANISOTROPY_PTR(pmaxAnsio, texRef);
+  tracepoint(lttng_ust_hip, hipTexRefGetMaxAnisotropy_exit, pmaxAnsio, texRef, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefGetMipmapFilterMode(enum hipTextureFilterMode *pfm, const textureReference *texRef) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefGetMipmapFilterMode_entry, pfm, texRef);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_GET_MIPMAP_FILTER_MODE_PTR(pfm, texRef);
+  tracepoint(lttng_ust_hip, hipTexRefGetMipmapFilterMode_exit, pfm, texRef, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefGetMipmapLevelBias(float *pbias, const textureReference *texRef) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefGetMipmapLevelBias_entry, pbias, texRef);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_GET_MIPMAP_LEVEL_BIAS_PTR(pbias, texRef);
+  tracepoint(lttng_ust_hip, hipTexRefGetMipmapLevelBias_exit, pbias, texRef, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefGetMipmapLevelClamp(float *pminMipmapLevelClamp, float *pmaxMipmapLevelClamp, const textureReference *texRef) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefGetMipmapLevelClamp_entry, pminMipmapLevelClamp, pmaxMipmapLevelClamp, texRef);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_GET_MIPMAP_LEVEL_CLAMP_PTR(pminMipmapLevelClamp, pmaxMipmapLevelClamp, texRef);
+  tracepoint(lttng_ust_hip, hipTexRefGetMipmapLevelClamp_exit, pminMipmapLevelClamp, pmaxMipmapLevelClamp, texRef, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefGetMipMappedArray(hipMipmappedArray_t *pArray, const textureReference *texRef) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefGetMipMappedArray_entry, pArray, texRef);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_GET_MIP_MAPPED_ARRAY_PTR(pArray, texRef);
+  tracepoint(lttng_ust_hip, hipTexRefGetMipMappedArray_exit, pArray, texRef, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefSetAddress(size_t *ByteOffset, textureReference *texRef, hipDeviceptr_t dptr, size_t bytes) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefSetAddress_entry, ByteOffset, texRef, dptr, bytes);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_SET_ADDRESS_PTR(ByteOffset, texRef, dptr, bytes);
+  tracepoint(lttng_ust_hip, hipTexRefSetAddress_exit, ByteOffset, texRef, dptr, bytes, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefSetAddress2D(textureReference *texRef, const HIP_ARRAY_DESCRIPTOR *desc, hipDeviceptr_t dptr, size_t Pitch) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefSetAddress2D_entry, texRef, desc, dptr, Pitch);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_SET_ADDRESS2_D_PTR(texRef, desc, dptr, Pitch);
+  tracepoint(lttng_ust_hip, hipTexRefSetAddress2D_exit, texRef, desc, dptr, Pitch, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefSetMaxAnisotropy(textureReference *texRef, unsigned int maxAniso) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefSetMaxAnisotropy_entry, texRef, maxAniso);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_SET_MAX_ANISOTROPY_PTR(texRef, maxAniso);
+  tracepoint(lttng_ust_hip, hipTexRefSetMaxAnisotropy_exit, texRef, maxAniso, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefSetBorderColor(textureReference *texRef, float *pBorderColor) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefSetBorderColor_entry, texRef, pBorderColor);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_SET_BORDER_COLOR_PTR(texRef, pBorderColor);
+  tracepoint(lttng_ust_hip, hipTexRefSetBorderColor_exit, texRef, pBorderColor, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefSetMipmapFilterMode(textureReference *texRef, enum hipTextureFilterMode fm) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefSetMipmapFilterMode_entry, texRef, fm);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_SET_MIPMAP_FILTER_MODE_PTR(texRef, fm);
+  tracepoint(lttng_ust_hip, hipTexRefSetMipmapFilterMode_exit, texRef, fm, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefSetMipmapLevelBias(textureReference *texRef, float bias) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefSetMipmapLevelBias_entry, texRef, bias);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_SET_MIPMAP_LEVEL_BIAS_PTR(texRef, bias);
+  tracepoint(lttng_ust_hip, hipTexRefSetMipmapLevelBias_exit, texRef, bias, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefSetMipmapLevelClamp(textureReference *texRef, float minMipMapLevelClamp, float maxMipMapLevelClamp) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefSetMipmapLevelClamp_entry, texRef, minMipMapLevelClamp, maxMipMapLevelClamp);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_SET_MIPMAP_LEVEL_CLAMP_PTR(texRef, minMipMapLevelClamp, maxMipMapLevelClamp);
+  tracepoint(lttng_ust_hip, hipTexRefSetMipmapLevelClamp_exit, texRef, minMipMapLevelClamp, maxMipMapLevelClamp, _retval);
+  return _retval;
+}
+
+hipError_t hipTexRefSetMipmappedArray(textureReference *texRef, struct hipMipmappedArray *mipmappedArray, unsigned int Flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipTexRefSetMipmappedArray_entry, texRef, mipmappedArray, Flags);
+  hipError_t _retval;
+  _retval = HIP_TEX_REF_SET_MIPMAPPED_ARRAY_PTR(texRef, mipmappedArray, Flags);
+  tracepoint(lttng_ust_hip, hipTexRefSetMipmappedArray_exit, texRef, mipmappedArray, Flags, _retval);
+  return _retval;
+}
+
+hipError_t hipMipmappedArrayCreate(hipMipmappedArray_t *pHandle, HIP_ARRAY3D_DESCRIPTOR *pMipmappedArrayDesc, unsigned int numMipmapLevels) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMipmappedArrayCreate_entry, pHandle, pMipmappedArrayDesc, numMipmapLevels);
+  hipError_t _retval;
+  _retval = HIP_MIPMAPPED_ARRAY_CREATE_PTR(pHandle, pMipmappedArrayDesc, numMipmapLevels);
+  tracepoint(lttng_ust_hip, hipMipmappedArrayCreate_exit, pHandle, pMipmappedArrayDesc, numMipmapLevels, _retval);
+  return _retval;
+}
+
+hipError_t hipMipmappedArrayDestroy(hipMipmappedArray_t hMipmappedArray) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMipmappedArrayDestroy_entry, hMipmappedArray);
+  hipError_t _retval;
+  _retval = HIP_MIPMAPPED_ARRAY_DESTROY_PTR(hMipmappedArray);
+  tracepoint(lttng_ust_hip, hipMipmappedArrayDestroy_exit, hMipmappedArray, _retval);
+  return _retval;
+}
+
+hipError_t hipMipmappedArrayGetLevel(hipArray_t *pLevelArray, hipMipmappedArray_t hMipMappedArray, unsigned int level) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMipmappedArrayGetLevel_entry, pLevelArray, hMipMappedArray, level);
+  hipError_t _retval;
+  _retval = HIP_MIPMAPPED_ARRAY_GET_LEVEL_PTR(pLevelArray, hMipMappedArray, level);
+  tracepoint(lttng_ust_hip, hipMipmappedArrayGetLevel_exit, pLevelArray, hMipMappedArray, level, _retval);
+  return _retval;
+}
+
+const char *hipApiName(uint32_t id) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipApiName_entry, id);
+  const char * _retval;
+  _retval = HIP_API_NAME_PTR(id);
+  tracepoint(lttng_ust_hip, hipApiName_exit, id, _retval);
+  return _retval;
+}
+
+const char *hipKernelNameRef(const hipFunction_t f) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipKernelNameRef_entry, f);
+  const char * _retval;
+  _retval = HIP_KERNEL_NAME_REF_PTR(f);
+  tracepoint(lttng_ust_hip, hipKernelNameRef_exit, f, _retval);
+  return _retval;
+}
+
+const char *hipKernelNameRefByPtr(const void *hostFunction, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipKernelNameRefByPtr_entry, hostFunction, stream);
+  const char * _retval;
+  _retval = HIP_KERNEL_NAME_REF_BY_PTR_PTR(hostFunction, stream);
+  tracepoint(lttng_ust_hip, hipKernelNameRefByPtr_exit, hostFunction, stream, _retval);
+  return _retval;
+}
+
+int hipGetStreamDeviceId(hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetStreamDeviceId_entry, stream);
+  int _retval;
+  _retval = HIP_GET_STREAM_DEVICE_ID_PTR(stream);
+  tracepoint(lttng_ust_hip, hipGetStreamDeviceId_exit, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamBeginCapture(hipStream_t stream, hipStreamCaptureMode mode) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamBeginCapture_entry, stream, mode);
+  hipError_t _retval;
+  _retval = HIP_STREAM_BEGIN_CAPTURE_PTR(stream, mode);
+  tracepoint(lttng_ust_hip, hipStreamBeginCapture_exit, stream, mode, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamEndCapture(hipStream_t stream, hipGraph_t *pGraph) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamEndCapture_entry, stream, pGraph);
+  hipError_t _retval;
+  _retval = HIP_STREAM_END_CAPTURE_PTR(stream, pGraph);
+  tracepoint(lttng_ust_hip, hipStreamEndCapture_exit, stream, pGraph, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamGetCaptureInfo(hipStream_t stream, hipStreamCaptureStatus *pCaptureStatus, unsigned long long int *pId) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamGetCaptureInfo_entry, stream, pCaptureStatus, pId);
+  hipError_t _retval;
+  _retval = HIP_STREAM_GET_CAPTURE_INFO_PTR(stream, pCaptureStatus, pId);
+  tracepoint(lttng_ust_hip, hipStreamGetCaptureInfo_exit, stream, pCaptureStatus, pId, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamGetCaptureInfo_v2(hipStream_t stream, hipStreamCaptureStatus *captureStatus_out, unsigned long long int *id_out, hipGraph_t *graph_out, const hipGraphNode_t **dependencies_out, size_t *numDependencies_out) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamGetCaptureInfo_v2_entry, stream, captureStatus_out, id_out, graph_out, dependencies_out, numDependencies_out);
+  hipError_t _retval;
+  _retval = HIP_STREAM_GET_CAPTURE_INFO_V2_PTR(stream, captureStatus_out, id_out, graph_out, dependencies_out, numDependencies_out);
+  tracepoint(lttng_ust_hip, hipStreamGetCaptureInfo_v2_exit, stream, captureStatus_out, id_out, graph_out, dependencies_out, numDependencies_out, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamIsCapturing(hipStream_t stream, hipStreamCaptureStatus *pCaptureStatus) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamIsCapturing_entry, stream, pCaptureStatus);
+  hipError_t _retval;
+  _retval = HIP_STREAM_IS_CAPTURING_PTR(stream, pCaptureStatus);
+  tracepoint(lttng_ust_hip, hipStreamIsCapturing_exit, stream, pCaptureStatus, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamUpdateCaptureDependencies(hipStream_t stream, hipGraphNode_t *dependencies, size_t numDependencies, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamUpdateCaptureDependencies_entry, stream, dependencies, numDependencies, flags);
+  hipError_t _retval;
+  _retval = HIP_STREAM_UPDATE_CAPTURE_DEPENDENCIES_PTR(stream, dependencies, numDependencies, flags);
+  tracepoint(lttng_ust_hip, hipStreamUpdateCaptureDependencies_exit, stream, dependencies, numDependencies, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipLaunchHostFunc(hipStream_t stream, hipHostFn_t fn, void *userData) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipLaunchHostFunc_entry, stream, fn, userData);
+  hipError_t _retval;
+  _retval = HIP_LAUNCH_HOST_FUNC_PTR(stream, fn, userData);
+  tracepoint(lttng_ust_hip, hipLaunchHostFunc_exit, stream, fn, userData, _retval);
+  return _retval;
+}
+
+hipError_t hipThreadExchangeStreamCaptureMode(hipStreamCaptureMode *mode) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipThreadExchangeStreamCaptureMode_entry, mode);
+  hipError_t _retval;
+  _retval = HIP_THREAD_EXCHANGE_STREAM_CAPTURE_MODE_PTR(mode);
+  tracepoint(lttng_ust_hip, hipThreadExchangeStreamCaptureMode_exit, mode, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphCreate(hipGraph_t *pGraph, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphCreate_entry, pGraph, flags);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_CREATE_PTR(pGraph, flags);
+  tracepoint(lttng_ust_hip, hipGraphCreate_exit, pGraph, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphDestroy(hipGraph_t graph) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphDestroy_entry, graph);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_DESTROY_PTR(graph);
+  tracepoint(lttng_ust_hip, hipGraphDestroy_exit, graph, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphAddDependencies(hipGraph_t graph, const hipGraphNode_t *from, const hipGraphNode_t *to, size_t numDependencies) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphAddDependencies_entry, graph, from, to, numDependencies);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_ADD_DEPENDENCIES_PTR(graph, from, to, numDependencies);
+  tracepoint(lttng_ust_hip, hipGraphAddDependencies_exit, graph, from, to, numDependencies, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphRemoveDependencies(hipGraph_t graph, const hipGraphNode_t *from, const hipGraphNode_t *to, size_t numDependencies) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphRemoveDependencies_entry, graph, from, to, numDependencies);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_REMOVE_DEPENDENCIES_PTR(graph, from, to, numDependencies);
+  tracepoint(lttng_ust_hip, hipGraphRemoveDependencies_exit, graph, from, to, numDependencies, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphGetEdges(hipGraph_t graph, hipGraphNode_t *from, hipGraphNode_t *to, size_t *numEdges) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphGetEdges_entry, graph, from, to, numEdges);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_GET_EDGES_PTR(graph, from, to, numEdges);
+  tracepoint(lttng_ust_hip, hipGraphGetEdges_exit, graph, from, to, numEdges, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphGetNodes(hipGraph_t graph, hipGraphNode_t *nodes, size_t *numNodes) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphGetNodes_entry, graph, nodes, numNodes);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_GET_NODES_PTR(graph, nodes, numNodes);
+  tracepoint(lttng_ust_hip, hipGraphGetNodes_exit, graph, nodes, numNodes, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphGetRootNodes(hipGraph_t graph, hipGraphNode_t *pRootNodes, size_t *pNumRootNodes) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphGetRootNodes_entry, graph, pRootNodes, pNumRootNodes);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_GET_ROOT_NODES_PTR(graph, pRootNodes, pNumRootNodes);
+  tracepoint(lttng_ust_hip, hipGraphGetRootNodes_exit, graph, pRootNodes, pNumRootNodes, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphNodeGetDependencies(hipGraphNode_t node, hipGraphNode_t *pDependencies, size_t *pNumDependencies) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphNodeGetDependencies_entry, node, pDependencies, pNumDependencies);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_NODE_GET_DEPENDENCIES_PTR(node, pDependencies, pNumDependencies);
+  tracepoint(lttng_ust_hip, hipGraphNodeGetDependencies_exit, node, pDependencies, pNumDependencies, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphNodeGetDependentNodes(hipGraphNode_t node, hipGraphNode_t *pDependentNodes, size_t *pNumDependentNodes) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphNodeGetDependentNodes_entry, node, pDependentNodes, pNumDependentNodes);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_NODE_GET_DEPENDENT_NODES_PTR(node, pDependentNodes, pNumDependentNodes);
+  tracepoint(lttng_ust_hip, hipGraphNodeGetDependentNodes_exit, node, pDependentNodes, pNumDependentNodes, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphNodeGetType(hipGraphNode_t node, hipGraphNodeType *pType) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphNodeGetType_entry, node, pType);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_NODE_GET_TYPE_PTR(node, pType);
+  tracepoint(lttng_ust_hip, hipGraphNodeGetType_exit, node, pType, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphDestroyNode(hipGraphNode_t node) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphDestroyNode_entry, node);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_DESTROY_NODE_PTR(node);
+  tracepoint(lttng_ust_hip, hipGraphDestroyNode_exit, node, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphClone(hipGraph_t *pGraphClone, hipGraph_t originalGraph) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphClone_entry, pGraphClone, originalGraph);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_CLONE_PTR(pGraphClone, originalGraph);
+  tracepoint(lttng_ust_hip, hipGraphClone_exit, pGraphClone, originalGraph, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphNodeFindInClone(hipGraphNode_t *pNode, hipGraphNode_t originalNode, hipGraph_t clonedGraph) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphNodeFindInClone_entry, pNode, originalNode, clonedGraph);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_NODE_FIND_IN_CLONE_PTR(pNode, originalNode, clonedGraph);
+  tracepoint(lttng_ust_hip, hipGraphNodeFindInClone_exit, pNode, originalNode, clonedGraph, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphInstantiate(hipGraphExec_t *pGraphExec, hipGraph_t graph, hipGraphNode_t *pErrorNode, char *pLogBuffer, size_t bufferSize) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphInstantiate_entry, pGraphExec, graph, pErrorNode, pLogBuffer, bufferSize);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_INSTANTIATE_PTR(pGraphExec, graph, pErrorNode, pLogBuffer, bufferSize);
+  tracepoint(lttng_ust_hip, hipGraphInstantiate_exit, pGraphExec, graph, pErrorNode, pLogBuffer, bufferSize, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphInstantiateWithFlags(hipGraphExec_t *pGraphExec, hipGraph_t graph, unsigned long long int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphInstantiateWithFlags_entry, pGraphExec, graph, flags);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_INSTANTIATE_WITH_FLAGS_PTR(pGraphExec, graph, flags);
+  tracepoint(lttng_ust_hip, hipGraphInstantiateWithFlags_exit, pGraphExec, graph, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphLaunch(hipGraphExec_t graphExec, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphLaunch_entry, graphExec, stream);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_LAUNCH_PTR(graphExec, stream);
+  tracepoint(lttng_ust_hip, hipGraphLaunch_exit, graphExec, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphUpload(hipGraphExec_t graphExec, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphUpload_entry, graphExec, stream);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_UPLOAD_PTR(graphExec, stream);
+  tracepoint(lttng_ust_hip, hipGraphUpload_exit, graphExec, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphExecDestroy(hipGraphExec_t graphExec) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphExecDestroy_entry, graphExec);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_EXEC_DESTROY_PTR(graphExec);
+  tracepoint(lttng_ust_hip, hipGraphExecDestroy_exit, graphExec, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphExecUpdate(hipGraphExec_t hGraphExec, hipGraph_t hGraph, hipGraphNode_t *hErrorNode_out, hipGraphExecUpdateResult *updateResult_out) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphExecUpdate_entry, hGraphExec, hGraph, hErrorNode_out, updateResult_out);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_EXEC_UPDATE_PTR(hGraphExec, hGraph, hErrorNode_out, updateResult_out);
+  tracepoint(lttng_ust_hip, hipGraphExecUpdate_exit, hGraphExec, hGraph, hErrorNode_out, updateResult_out, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphAddKernelNode(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, const hipKernelNodeParams *pNodeParams) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphAddKernelNode_entry, pGraphNode, graph, pDependencies, numDependencies, pNodeParams);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_ADD_KERNEL_NODE_PTR(pGraphNode, graph, pDependencies, numDependencies, pNodeParams);
+  tracepoint(lttng_ust_hip, hipGraphAddKernelNode_exit, pGraphNode, graph, pDependencies, numDependencies, pNodeParams, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphKernelNodeGetParams(hipGraphNode_t node, hipKernelNodeParams *pNodeParams) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphKernelNodeGetParams_entry, node, pNodeParams);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_KERNEL_NODE_GET_PARAMS_PTR(node, pNodeParams);
+  tracepoint(lttng_ust_hip, hipGraphKernelNodeGetParams_exit, node, pNodeParams, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphKernelNodeSetParams(hipGraphNode_t node, const hipKernelNodeParams *pNodeParams) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphKernelNodeSetParams_entry, node, pNodeParams);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_KERNEL_NODE_SET_PARAMS_PTR(node, pNodeParams);
+  tracepoint(lttng_ust_hip, hipGraphKernelNodeSetParams_exit, node, pNodeParams, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphExecKernelNodeSetParams(hipGraphExec_t hGraphExec, hipGraphNode_t node, const hipKernelNodeParams *pNodeParams) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphExecKernelNodeSetParams_entry, hGraphExec, node, pNodeParams);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_EXEC_KERNEL_NODE_SET_PARAMS_PTR(hGraphExec, node, pNodeParams);
+  tracepoint(lttng_ust_hip, hipGraphExecKernelNodeSetParams_exit, hGraphExec, node, pNodeParams, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphAddMemcpyNode(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, const hipMemcpy3DParms *pCopyParams) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphAddMemcpyNode_entry, pGraphNode, graph, pDependencies, numDependencies, pCopyParams);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_ADD_MEMCPY_NODE_PTR(pGraphNode, graph, pDependencies, numDependencies, pCopyParams);
+  tracepoint(lttng_ust_hip, hipGraphAddMemcpyNode_exit, pGraphNode, graph, pDependencies, numDependencies, pCopyParams, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphMemcpyNodeGetParams(hipGraphNode_t node, hipMemcpy3DParms *pNodeParams) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphMemcpyNodeGetParams_entry, node, pNodeParams);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_MEMCPY_NODE_GET_PARAMS_PTR(node, pNodeParams);
+  tracepoint(lttng_ust_hip, hipGraphMemcpyNodeGetParams_exit, node, pNodeParams, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphMemcpyNodeSetParams(hipGraphNode_t node, const hipMemcpy3DParms *pNodeParams) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphMemcpyNodeSetParams_entry, node, pNodeParams);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_MEMCPY_NODE_SET_PARAMS_PTR(node, pNodeParams);
+  tracepoint(lttng_ust_hip, hipGraphMemcpyNodeSetParams_exit, node, pNodeParams, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphKernelNodeSetAttribute(hipGraphNode_t hNode, hipKernelNodeAttrID attr, const hipKernelNodeAttrValue *value) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphKernelNodeSetAttribute_entry, hNode, attr, value);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_KERNEL_NODE_SET_ATTRIBUTE_PTR(hNode, attr, value);
+  tracepoint(lttng_ust_hip, hipGraphKernelNodeSetAttribute_exit, hNode, attr, value, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphKernelNodeGetAttribute(hipGraphNode_t hNode, hipKernelNodeAttrID attr, hipKernelNodeAttrValue *value) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphKernelNodeGetAttribute_entry, hNode, attr, value);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_KERNEL_NODE_GET_ATTRIBUTE_PTR(hNode, attr, value);
+  tracepoint(lttng_ust_hip, hipGraphKernelNodeGetAttribute_exit, hNode, attr, value, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphExecMemcpyNodeSetParams(hipGraphExec_t hGraphExec, hipGraphNode_t node, hipMemcpy3DParms *pNodeParams) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphExecMemcpyNodeSetParams_entry, hGraphExec, node, pNodeParams);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS_PTR(hGraphExec, node, pNodeParams);
+  tracepoint(lttng_ust_hip, hipGraphExecMemcpyNodeSetParams_exit, hGraphExec, node, pNodeParams, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphAddMemcpyNode1D(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, void *dst, const void *src, size_t count, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphAddMemcpyNode1D_entry, pGraphNode, graph, pDependencies, numDependencies, dst, src, count, kind);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_ADD_MEMCPY_NODE1_D_PTR(pGraphNode, graph, pDependencies, numDependencies, dst, src, count, kind);
+  tracepoint(lttng_ust_hip, hipGraphAddMemcpyNode1D_exit, pGraphNode, graph, pDependencies, numDependencies, dst, src, count, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphMemcpyNodeSetParams1D(hipGraphNode_t node, void *dst, const void *src, size_t count, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphMemcpyNodeSetParams1D_entry, node, dst, src, count, kind);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_MEMCPY_NODE_SET_PARAMS1_D_PTR(node, dst, src, count, kind);
+  tracepoint(lttng_ust_hip, hipGraphMemcpyNodeSetParams1D_exit, node, dst, src, count, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphExecMemcpyNodeSetParams1D(hipGraphExec_t hGraphExec, hipGraphNode_t node, void *dst, const void *src, size_t count, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphExecMemcpyNodeSetParams1D_entry, hGraphExec, node, dst, src, count, kind);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS1_D_PTR(hGraphExec, node, dst, src, count, kind);
+  tracepoint(lttng_ust_hip, hipGraphExecMemcpyNodeSetParams1D_exit, hGraphExec, node, dst, src, count, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphAddMemcpyNodeFromSymbol(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, void *dst, const void *symbol, size_t count, size_t offset, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphAddMemcpyNodeFromSymbol_entry, pGraphNode, graph, pDependencies, numDependencies, dst, symbol, count, offset, kind);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_ADD_MEMCPY_NODE_FROM_SYMBOL_PTR(pGraphNode, graph, pDependencies, numDependencies, dst, symbol, count, offset, kind);
+  tracepoint(lttng_ust_hip, hipGraphAddMemcpyNodeFromSymbol_exit, pGraphNode, graph, pDependencies, numDependencies, dst, symbol, count, offset, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphMemcpyNodeSetParamsFromSymbol(hipGraphNode_t node, void *dst, const void *symbol, size_t count, size_t offset, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphMemcpyNodeSetParamsFromSymbol_entry, node, dst, symbol, count, offset, kind);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_MEMCPY_NODE_SET_PARAMS_FROM_SYMBOL_PTR(node, dst, symbol, count, offset, kind);
+  tracepoint(lttng_ust_hip, hipGraphMemcpyNodeSetParamsFromSymbol_exit, node, dst, symbol, count, offset, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphExecMemcpyNodeSetParamsFromSymbol(hipGraphExec_t hGraphExec, hipGraphNode_t node, void *dst, const void *symbol, size_t count, size_t offset, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphExecMemcpyNodeSetParamsFromSymbol_entry, hGraphExec, node, dst, symbol, count, offset, kind);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS_FROM_SYMBOL_PTR(hGraphExec, node, dst, symbol, count, offset, kind);
+  tracepoint(lttng_ust_hip, hipGraphExecMemcpyNodeSetParamsFromSymbol_exit, hGraphExec, node, dst, symbol, count, offset, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphAddMemcpyNodeToSymbol(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, const void *symbol, const void *src, size_t count, size_t offset, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphAddMemcpyNodeToSymbol_entry, pGraphNode, graph, pDependencies, numDependencies, symbol, src, count, offset, kind);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_ADD_MEMCPY_NODE_TO_SYMBOL_PTR(pGraphNode, graph, pDependencies, numDependencies, symbol, src, count, offset, kind);
+  tracepoint(lttng_ust_hip, hipGraphAddMemcpyNodeToSymbol_exit, pGraphNode, graph, pDependencies, numDependencies, symbol, src, count, offset, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphMemcpyNodeSetParamsToSymbol(hipGraphNode_t node, const void *symbol, const void *src, size_t count, size_t offset, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphMemcpyNodeSetParamsToSymbol_entry, node, symbol, src, count, offset, kind);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_MEMCPY_NODE_SET_PARAMS_TO_SYMBOL_PTR(node, symbol, src, count, offset, kind);
+  tracepoint(lttng_ust_hip, hipGraphMemcpyNodeSetParamsToSymbol_exit, node, symbol, src, count, offset, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphExecMemcpyNodeSetParamsToSymbol(hipGraphExec_t hGraphExec, hipGraphNode_t node, const void *symbol, const void *src, size_t count, size_t offset, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphExecMemcpyNodeSetParamsToSymbol_entry, hGraphExec, node, symbol, src, count, offset, kind);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_EXEC_MEMCPY_NODE_SET_PARAMS_TO_SYMBOL_PTR(hGraphExec, node, symbol, src, count, offset, kind);
+  tracepoint(lttng_ust_hip, hipGraphExecMemcpyNodeSetParamsToSymbol_exit, hGraphExec, node, symbol, src, count, offset, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphAddMemsetNode(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, const hipMemsetParams *pMemsetParams) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphAddMemsetNode_entry, pGraphNode, graph, pDependencies, numDependencies, pMemsetParams);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_ADD_MEMSET_NODE_PTR(pGraphNode, graph, pDependencies, numDependencies, pMemsetParams);
+  tracepoint(lttng_ust_hip, hipGraphAddMemsetNode_exit, pGraphNode, graph, pDependencies, numDependencies, pMemsetParams, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphMemsetNodeGetParams(hipGraphNode_t node, hipMemsetParams *pNodeParams) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphMemsetNodeGetParams_entry, node, pNodeParams);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_MEMSET_NODE_GET_PARAMS_PTR(node, pNodeParams);
+  tracepoint(lttng_ust_hip, hipGraphMemsetNodeGetParams_exit, node, pNodeParams, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphMemsetNodeSetParams(hipGraphNode_t node, const hipMemsetParams *pNodeParams) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphMemsetNodeSetParams_entry, node, pNodeParams);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_MEMSET_NODE_SET_PARAMS_PTR(node, pNodeParams);
+  tracepoint(lttng_ust_hip, hipGraphMemsetNodeSetParams_exit, node, pNodeParams, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphExecMemsetNodeSetParams(hipGraphExec_t hGraphExec, hipGraphNode_t node, const hipMemsetParams *pNodeParams) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphExecMemsetNodeSetParams_entry, hGraphExec, node, pNodeParams);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_EXEC_MEMSET_NODE_SET_PARAMS_PTR(hGraphExec, node, pNodeParams);
+  tracepoint(lttng_ust_hip, hipGraphExecMemsetNodeSetParams_exit, hGraphExec, node, pNodeParams, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphAddHostNode(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, const hipHostNodeParams *pNodeParams) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphAddHostNode_entry, pGraphNode, graph, pDependencies, numDependencies, pNodeParams);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_ADD_HOST_NODE_PTR(pGraphNode, graph, pDependencies, numDependencies, pNodeParams);
+  tracepoint(lttng_ust_hip, hipGraphAddHostNode_exit, pGraphNode, graph, pDependencies, numDependencies, pNodeParams, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphHostNodeGetParams(hipGraphNode_t node, hipHostNodeParams *pNodeParams) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphHostNodeGetParams_entry, node, pNodeParams);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_HOST_NODE_GET_PARAMS_PTR(node, pNodeParams);
+  tracepoint(lttng_ust_hip, hipGraphHostNodeGetParams_exit, node, pNodeParams, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphHostNodeSetParams(hipGraphNode_t node, const hipHostNodeParams *pNodeParams) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphHostNodeSetParams_entry, node, pNodeParams);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_HOST_NODE_SET_PARAMS_PTR(node, pNodeParams);
+  tracepoint(lttng_ust_hip, hipGraphHostNodeSetParams_exit, node, pNodeParams, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphExecHostNodeSetParams(hipGraphExec_t hGraphExec, hipGraphNode_t node, const hipHostNodeParams *pNodeParams) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphExecHostNodeSetParams_entry, hGraphExec, node, pNodeParams);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_EXEC_HOST_NODE_SET_PARAMS_PTR(hGraphExec, node, pNodeParams);
+  tracepoint(lttng_ust_hip, hipGraphExecHostNodeSetParams_exit, hGraphExec, node, pNodeParams, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphAddChildGraphNode(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, hipGraph_t childGraph) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphAddChildGraphNode_entry, pGraphNode, graph, pDependencies, numDependencies, childGraph);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_ADD_CHILD_GRAPH_NODE_PTR(pGraphNode, graph, pDependencies, numDependencies, childGraph);
+  tracepoint(lttng_ust_hip, hipGraphAddChildGraphNode_exit, pGraphNode, graph, pDependencies, numDependencies, childGraph, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphChildGraphNodeGetGraph(hipGraphNode_t node, hipGraph_t *pGraph) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphChildGraphNodeGetGraph_entry, node, pGraph);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_CHILD_GRAPH_NODE_GET_GRAPH_PTR(node, pGraph);
+  tracepoint(lttng_ust_hip, hipGraphChildGraphNodeGetGraph_exit, node, pGraph, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphExecChildGraphNodeSetParams(hipGraphExec_t hGraphExec, hipGraphNode_t node, hipGraph_t childGraph) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphExecChildGraphNodeSetParams_entry, hGraphExec, node, childGraph);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_EXEC_CHILD_GRAPH_NODE_SET_PARAMS_PTR(hGraphExec, node, childGraph);
+  tracepoint(lttng_ust_hip, hipGraphExecChildGraphNodeSetParams_exit, hGraphExec, node, childGraph, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphAddEmptyNode(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphAddEmptyNode_entry, pGraphNode, graph, pDependencies, numDependencies);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_ADD_EMPTY_NODE_PTR(pGraphNode, graph, pDependencies, numDependencies);
+  tracepoint(lttng_ust_hip, hipGraphAddEmptyNode_exit, pGraphNode, graph, pDependencies, numDependencies, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphAddEventRecordNode(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, hipEvent_t event) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphAddEventRecordNode_entry, pGraphNode, graph, pDependencies, numDependencies, event);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_ADD_EVENT_RECORD_NODE_PTR(pGraphNode, graph, pDependencies, numDependencies, event);
+  tracepoint(lttng_ust_hip, hipGraphAddEventRecordNode_exit, pGraphNode, graph, pDependencies, numDependencies, event, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphEventRecordNodeGetEvent(hipGraphNode_t node, hipEvent_t *event_out) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphEventRecordNodeGetEvent_entry, node, event_out);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_EVENT_RECORD_NODE_GET_EVENT_PTR(node, event_out);
+  tracepoint(lttng_ust_hip, hipGraphEventRecordNodeGetEvent_exit, node, event_out, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphEventRecordNodeSetEvent(hipGraphNode_t node, hipEvent_t event) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphEventRecordNodeSetEvent_entry, node, event);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_EVENT_RECORD_NODE_SET_EVENT_PTR(node, event);
+  tracepoint(lttng_ust_hip, hipGraphEventRecordNodeSetEvent_exit, node, event, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphExecEventRecordNodeSetEvent(hipGraphExec_t hGraphExec, hipGraphNode_t hNode, hipEvent_t event) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphExecEventRecordNodeSetEvent_entry, hGraphExec, hNode, event);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_EXEC_EVENT_RECORD_NODE_SET_EVENT_PTR(hGraphExec, hNode, event);
+  tracepoint(lttng_ust_hip, hipGraphExecEventRecordNodeSetEvent_exit, hGraphExec, hNode, event, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphAddEventWaitNode(hipGraphNode_t *pGraphNode, hipGraph_t graph, const hipGraphNode_t *pDependencies, size_t numDependencies, hipEvent_t event) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphAddEventWaitNode_entry, pGraphNode, graph, pDependencies, numDependencies, event);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_ADD_EVENT_WAIT_NODE_PTR(pGraphNode, graph, pDependencies, numDependencies, event);
+  tracepoint(lttng_ust_hip, hipGraphAddEventWaitNode_exit, pGraphNode, graph, pDependencies, numDependencies, event, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphEventWaitNodeGetEvent(hipGraphNode_t node, hipEvent_t *event_out) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphEventWaitNodeGetEvent_entry, node, event_out);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_EVENT_WAIT_NODE_GET_EVENT_PTR(node, event_out);
+  tracepoint(lttng_ust_hip, hipGraphEventWaitNodeGetEvent_exit, node, event_out, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphEventWaitNodeSetEvent(hipGraphNode_t node, hipEvent_t event) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphEventWaitNodeSetEvent_entry, node, event);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_EVENT_WAIT_NODE_SET_EVENT_PTR(node, event);
+  tracepoint(lttng_ust_hip, hipGraphEventWaitNodeSetEvent_exit, node, event, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphExecEventWaitNodeSetEvent(hipGraphExec_t hGraphExec, hipGraphNode_t hNode, hipEvent_t event) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphExecEventWaitNodeSetEvent_entry, hGraphExec, hNode, event);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_EXEC_EVENT_WAIT_NODE_SET_EVENT_PTR(hGraphExec, hNode, event);
+  tracepoint(lttng_ust_hip, hipGraphExecEventWaitNodeSetEvent_exit, hGraphExec, hNode, event, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceGetGraphMemAttribute(int device, hipGraphMemAttributeType attr, void *value) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceGetGraphMemAttribute_entry, device, attr, value);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_GET_GRAPH_MEM_ATTRIBUTE_PTR(device, attr, value);
+  tracepoint(lttng_ust_hip, hipDeviceGetGraphMemAttribute_exit, device, attr, value, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceSetGraphMemAttribute(int device, hipGraphMemAttributeType attr, void *value) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceSetGraphMemAttribute_entry, device, attr, value);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_SET_GRAPH_MEM_ATTRIBUTE_PTR(device, attr, value);
+  tracepoint(lttng_ust_hip, hipDeviceSetGraphMemAttribute_exit, device, attr, value, _retval);
+  return _retval;
+}
+
+hipError_t hipDeviceGraphMemTrim(int device) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipDeviceGraphMemTrim_entry, device);
+  hipError_t _retval;
+  _retval = HIP_DEVICE_GRAPH_MEM_TRIM_PTR(device);
+  tracepoint(lttng_ust_hip, hipDeviceGraphMemTrim_exit, device, _retval);
+  return _retval;
+}
+
+hipError_t hipUserObjectCreate(hipUserObject_t *object_out, void *ptr, hipHostFn_t destroy, unsigned int initialRefcount, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipUserObjectCreate_entry, object_out, ptr, destroy, initialRefcount, flags);
+  hipError_t _retval;
+  _retval = HIP_USER_OBJECT_CREATE_PTR(object_out, ptr, destroy, initialRefcount, flags);
+  tracepoint(lttng_ust_hip, hipUserObjectCreate_exit, object_out, ptr, destroy, initialRefcount, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipUserObjectRelease(hipUserObject_t object, unsigned int count) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipUserObjectRelease_entry, object, count);
+  hipError_t _retval;
+  _retval = HIP_USER_OBJECT_RELEASE_PTR(object, count);
+  tracepoint(lttng_ust_hip, hipUserObjectRelease_exit, object, count, _retval);
+  return _retval;
+}
+
+hipError_t hipUserObjectRetain(hipUserObject_t object, unsigned int count) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipUserObjectRetain_entry, object, count);
+  hipError_t _retval;
+  _retval = HIP_USER_OBJECT_RETAIN_PTR(object, count);
+  tracepoint(lttng_ust_hip, hipUserObjectRetain_exit, object, count, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphRetainUserObject(hipGraph_t graph, hipUserObject_t object, unsigned int count, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphRetainUserObject_entry, graph, object, count, flags);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_RETAIN_USER_OBJECT_PTR(graph, object, count, flags);
+  tracepoint(lttng_ust_hip, hipGraphRetainUserObject_exit, graph, object, count, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphReleaseUserObject(hipGraph_t graph, hipUserObject_t object, unsigned int count) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphReleaseUserObject_entry, graph, object, count);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_RELEASE_USER_OBJECT_PTR(graph, object, count);
+  tracepoint(lttng_ust_hip, hipGraphReleaseUserObject_exit, graph, object, count, _retval);
+  return _retval;
+}
+
+hipError_t hipMemAddressFree(void *devPtr, size_t size) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemAddressFree_entry, devPtr, size);
+  hipError_t _retval;
+  _retval = HIP_MEM_ADDRESS_FREE_PTR(devPtr, size);
+  tracepoint(lttng_ust_hip, hipMemAddressFree_exit, devPtr, size, _retval);
+  return _retval;
+}
+
+hipError_t hipMemAddressReserve(void **ptr, size_t size, size_t alignment, void *addr, unsigned long long int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemAddressReserve_entry, ptr, size, alignment, addr, flags);
+  hipError_t _retval;
+  _retval = HIP_MEM_ADDRESS_RESERVE_PTR(ptr, size, alignment, addr, flags);
+  tracepoint(lttng_ust_hip, hipMemAddressReserve_exit, ptr, size, alignment, addr, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipMemCreate(hipMemGenericAllocationHandle_t *handle, size_t size, const hipMemAllocationProp *prop, unsigned long long int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemCreate_entry, handle, size, prop, flags);
+  hipError_t _retval;
+  _retval = HIP_MEM_CREATE_PTR(handle, size, prop, flags);
+  tracepoint(lttng_ust_hip, hipMemCreate_exit, handle, size, prop, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipMemExportToShareableHandle(void *shareableHandle, hipMemGenericAllocationHandle_t handle, hipMemAllocationHandleType handleType, unsigned long long int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemExportToShareableHandle_entry, shareableHandle, handle, handleType, flags);
+  hipError_t _retval;
+  _retval = HIP_MEM_EXPORT_TO_SHAREABLE_HANDLE_PTR(shareableHandle, handle, handleType, flags);
+  tracepoint(lttng_ust_hip, hipMemExportToShareableHandle_exit, shareableHandle, handle, handleType, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipMemGetAccess(unsigned long long int *flags, const hipMemLocation *location, void *ptr) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemGetAccess_entry, flags, location, ptr);
+  hipError_t _retval;
+  _retval = HIP_MEM_GET_ACCESS_PTR(flags, location, ptr);
+  tracepoint(lttng_ust_hip, hipMemGetAccess_exit, flags, location, ptr, _retval);
+  return _retval;
+}
+
+hipError_t hipMemGetAllocationGranularity(size_t *granularity, const hipMemAllocationProp *prop, hipMemAllocationGranularity_flags option) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemGetAllocationGranularity_entry, granularity, prop, option);
+  hipError_t _retval;
+  _retval = HIP_MEM_GET_ALLOCATION_GRANULARITY_PTR(granularity, prop, option);
+  tracepoint(lttng_ust_hip, hipMemGetAllocationGranularity_exit, granularity, prop, option, _retval);
+  return _retval;
+}
+
+hipError_t hipMemGetAllocationPropertiesFromHandle(hipMemAllocationProp *prop, hipMemGenericAllocationHandle_t handle) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemGetAllocationPropertiesFromHandle_entry, prop, handle);
+  hipError_t _retval;
+  _retval = HIP_MEM_GET_ALLOCATION_PROPERTIES_FROM_HANDLE_PTR(prop, handle);
+  tracepoint(lttng_ust_hip, hipMemGetAllocationPropertiesFromHandle_exit, prop, handle, _retval);
+  return _retval;
+}
+
+hipError_t hipMemImportFromShareableHandle(hipMemGenericAllocationHandle_t *handle, void *osHandle, hipMemAllocationHandleType shHandleType) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemImportFromShareableHandle_entry, handle, osHandle, shHandleType);
+  hipError_t _retval;
+  _retval = HIP_MEM_IMPORT_FROM_SHAREABLE_HANDLE_PTR(handle, osHandle, shHandleType);
+  tracepoint(lttng_ust_hip, hipMemImportFromShareableHandle_exit, handle, osHandle, shHandleType, _retval);
+  return _retval;
+}
+
+hipError_t hipMemMap(void *ptr, size_t size, size_t offset, hipMemGenericAllocationHandle_t handle, unsigned long long int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemMap_entry, ptr, size, offset, handle, flags);
+  hipError_t _retval;
+  _retval = HIP_MEM_MAP_PTR(ptr, size, offset, handle, flags);
+  tracepoint(lttng_ust_hip, hipMemMap_exit, ptr, size, offset, handle, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipMemMapArrayAsync(hipArrayMapInfo *mapInfoList, unsigned int count, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemMapArrayAsync_entry, mapInfoList, count, stream);
+  hipError_t _retval;
+  _retval = HIP_MEM_MAP_ARRAY_ASYNC_PTR(mapInfoList, count, stream);
+  tracepoint(lttng_ust_hip, hipMemMapArrayAsync_exit, mapInfoList, count, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemRelease(hipMemGenericAllocationHandle_t handle) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemRelease_entry, handle);
+  hipError_t _retval;
+  _retval = HIP_MEM_RELEASE_PTR(handle);
+  tracepoint(lttng_ust_hip, hipMemRelease_exit, handle, _retval);
+  return _retval;
+}
+
+hipError_t hipMemRetainAllocationHandle(hipMemGenericAllocationHandle_t *handle, void *addr) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemRetainAllocationHandle_entry, handle, addr);
+  hipError_t _retval;
+  _retval = HIP_MEM_RETAIN_ALLOCATION_HANDLE_PTR(handle, addr);
+  tracepoint(lttng_ust_hip, hipMemRetainAllocationHandle_exit, handle, addr, _retval);
+  return _retval;
+}
+
+hipError_t hipMemSetAccess(void *ptr, size_t size, const hipMemAccessDesc *desc, size_t count) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemSetAccess_entry, ptr, size, desc, count);
+  hipError_t _retval;
+  _retval = HIP_MEM_SET_ACCESS_PTR(ptr, size, desc, count);
+  tracepoint(lttng_ust_hip, hipMemSetAccess_exit, ptr, size, desc, count, _retval);
+  return _retval;
+}
+
+hipError_t hipMemUnmap(void *ptr, size_t size) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemUnmap_entry, ptr, size);
+  hipError_t _retval;
+  _retval = HIP_MEM_UNMAP_PTR(ptr, size);
+  tracepoint(lttng_ust_hip, hipMemUnmap_exit, ptr, size, _retval);
+  return _retval;
+}
+
+hipError_t hipGLGetDevices(unsigned int *pHipDeviceCount, int *pHipDevices, unsigned int hipDeviceCount, hipGLDeviceList deviceList) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGLGetDevices_entry, pHipDeviceCount, pHipDevices, hipDeviceCount, deviceList);
+  hipError_t _retval;
+  _retval = HIP_GLGET_DEVICES_PTR(pHipDeviceCount, pHipDevices, hipDeviceCount, deviceList);
+  tracepoint(lttng_ust_hip, hipGLGetDevices_exit, pHipDeviceCount, pHipDevices, hipDeviceCount, deviceList, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphicsGLRegisterBuffer(hipGraphicsResource **resource, GLuint buffer, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphicsGLRegisterBuffer_entry, resource, buffer, flags);
+  hipError_t _retval;
+  _retval = HIP_GRAPHICS_GLREGISTER_BUFFER_PTR(resource, buffer, flags);
+  tracepoint(lttng_ust_hip, hipGraphicsGLRegisterBuffer_exit, resource, buffer, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphicsGLRegisterImage(hipGraphicsResource **resource, GLuint image, GLenum target, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphicsGLRegisterImage_entry, resource, image, target, flags);
+  hipError_t _retval;
+  _retval = HIP_GRAPHICS_GLREGISTER_IMAGE_PTR(resource, image, target, flags);
+  tracepoint(lttng_ust_hip, hipGraphicsGLRegisterImage_exit, resource, image, target, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphicsMapResources(int count, hipGraphicsResource_t *resources, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphicsMapResources_entry, count, resources, stream);
+  hipError_t _retval;
+  _retval = HIP_GRAPHICS_MAP_RESOURCES_PTR(count, resources, stream);
+  tracepoint(lttng_ust_hip, hipGraphicsMapResources_exit, count, resources, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphicsSubResourceGetMappedArray(hipArray_t *array, hipGraphicsResource_t resource, unsigned int arrayIndex, unsigned int mipLevel) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphicsSubResourceGetMappedArray_entry, array, resource, arrayIndex, mipLevel);
+  hipError_t _retval;
+  _retval = HIP_GRAPHICS_SUB_RESOURCE_GET_MAPPED_ARRAY_PTR(array, resource, arrayIndex, mipLevel);
+  tracepoint(lttng_ust_hip, hipGraphicsSubResourceGetMappedArray_exit, array, resource, arrayIndex, mipLevel, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphicsResourceGetMappedPointer(void **devPtr, size_t *size, hipGraphicsResource_t resource) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphicsResourceGetMappedPointer_entry, devPtr, size, resource);
+  hipError_t _retval;
+  _retval = HIP_GRAPHICS_RESOURCE_GET_MAPPED_POINTER_PTR(devPtr, size, resource);
+  tracepoint(lttng_ust_hip, hipGraphicsResourceGetMappedPointer_exit, devPtr, size, resource, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphicsUnmapResources(int count, hipGraphicsResource_t *resources, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphicsUnmapResources_entry, count, resources, stream);
+  hipError_t _retval;
+  _retval = HIP_GRAPHICS_UNMAP_RESOURCES_PTR(count, resources, stream);
+  tracepoint(lttng_ust_hip, hipGraphicsUnmapResources_exit, count, resources, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphicsUnregisterResource(hipGraphicsResource_t resource) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphicsUnregisterResource_entry, resource);
+  hipError_t _retval;
+  _retval = HIP_GRAPHICS_UNREGISTER_RESOURCE_PTR(resource);
+  tracepoint(lttng_ust_hip, hipGraphicsUnregisterResource_exit, resource, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy_spt(void *dst, const void *src, size_t sizeBytes, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy_spt_entry, dst, src, sizeBytes, kind);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_SPT_PTR(dst, src, sizeBytes, kind);
+  tracepoint(lttng_ust_hip, hipMemcpy_spt_exit, dst, src, sizeBytes, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyToSymbol_spt(const void *symbol, const void *src, size_t sizeBytes, size_t offset, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyToSymbol_spt_entry, symbol, src, sizeBytes, offset, kind);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_TO_SYMBOL_SPT_PTR(symbol, src, sizeBytes, offset, kind);
+  tracepoint(lttng_ust_hip, hipMemcpyToSymbol_spt_exit, symbol, src, sizeBytes, offset, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyFromSymbol_spt(void *dst, const void *symbol, size_t sizeBytes, size_t offset, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyFromSymbol_spt_entry, dst, symbol, sizeBytes, offset, kind);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_FROM_SYMBOL_SPT_PTR(dst, symbol, sizeBytes, offset, kind);
+  tracepoint(lttng_ust_hip, hipMemcpyFromSymbol_spt_exit, dst, symbol, sizeBytes, offset, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy2D_spt(void *dst, size_t dpitch, const void *src, size_t spitch, size_t width, size_t height, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy2D_spt_entry, dst, dpitch, src, spitch, width, height, kind);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY2_D_SPT_PTR(dst, dpitch, src, spitch, width, height, kind);
+  tracepoint(lttng_ust_hip, hipMemcpy2D_spt_exit, dst, dpitch, src, spitch, width, height, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy2DFromArray_spt(void *dst, size_t dpitch, hipArray_const_t src, size_t wOffset, size_t hOffset, size_t width, size_t height, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy2DFromArray_spt_entry, dst, dpitch, src, wOffset, hOffset, width, height, kind);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY2_DFROM_ARRAY_SPT_PTR(dst, dpitch, src, wOffset, hOffset, width, height, kind);
+  tracepoint(lttng_ust_hip, hipMemcpy2DFromArray_spt_exit, dst, dpitch, src, wOffset, hOffset, width, height, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy3D_spt(const struct hipMemcpy3DParms *p) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy3D_spt_entry, p);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY3_D_SPT_PTR(p);
+  tracepoint(lttng_ust_hip, hipMemcpy3D_spt_exit, p, _retval);
+  return _retval;
+}
+
+hipError_t hipMemset_spt(void *dst, int value, size_t sizeBytes) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemset_spt_entry, dst, value, sizeBytes);
+  hipError_t _retval;
+  _retval = HIP_MEMSET_SPT_PTR(dst, value, sizeBytes);
+  tracepoint(lttng_ust_hip, hipMemset_spt_exit, dst, value, sizeBytes, _retval);
+  return _retval;
+}
+
+hipError_t hipMemsetAsync_spt(void *dst, int value, size_t sizeBytes, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemsetAsync_spt_entry, dst, value, sizeBytes, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMSET_ASYNC_SPT_PTR(dst, value, sizeBytes, stream);
+  tracepoint(lttng_ust_hip, hipMemsetAsync_spt_exit, dst, value, sizeBytes, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemset2D_spt(void *dst, size_t pitch, int value, size_t width, size_t height) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemset2D_spt_entry, dst, pitch, value, width, height);
+  hipError_t _retval;
+  _retval = HIP_MEMSET2_D_SPT_PTR(dst, pitch, value, width, height);
+  tracepoint(lttng_ust_hip, hipMemset2D_spt_exit, dst, pitch, value, width, height, _retval);
+  return _retval;
+}
+
+hipError_t hipMemset2DAsync_spt(void *dst, size_t pitch, int value, size_t width, size_t height, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemset2DAsync_spt_entry, dst, pitch, value, width, height, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMSET2_DASYNC_SPT_PTR(dst, pitch, value, width, height, stream);
+  tracepoint(lttng_ust_hip, hipMemset2DAsync_spt_exit, dst, pitch, value, width, height, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemset3DAsync_spt(hipPitchedPtr pitchedDevPtr, int value, hipExtent extent, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemset3DAsync_spt_entry, pitchedDevPtr, value, extent, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMSET3_DASYNC_SPT_PTR(pitchedDevPtr, value, extent, stream);
+  tracepoint(lttng_ust_hip, hipMemset3DAsync_spt_exit, pitchedDevPtr, value, extent, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemset3D_spt(hipPitchedPtr pitchedDevPtr, int value, hipExtent extent) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemset3D_spt_entry, pitchedDevPtr, value, extent);
+  hipError_t _retval;
+  _retval = HIP_MEMSET3_D_SPT_PTR(pitchedDevPtr, value, extent);
+  tracepoint(lttng_ust_hip, hipMemset3D_spt_exit, pitchedDevPtr, value, extent, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyAsync_spt(void *dst, const void *src, size_t sizeBytes, hipMemcpyKind kind, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyAsync_spt_entry, dst, src, sizeBytes, kind, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_ASYNC_SPT_PTR(dst, src, sizeBytes, kind, stream);
+  tracepoint(lttng_ust_hip, hipMemcpyAsync_spt_exit, dst, src, sizeBytes, kind, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy3DAsync_spt(const hipMemcpy3DParms *p, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy3DAsync_spt_entry, p, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY3_DASYNC_SPT_PTR(p, stream);
+  tracepoint(lttng_ust_hip, hipMemcpy3DAsync_spt_exit, p, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy2DAsync_spt(void *dst, size_t dpitch, const void *src, size_t spitch, size_t width, size_t height, hipMemcpyKind kind, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy2DAsync_spt_entry, dst, dpitch, src, spitch, width, height, kind, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY2_DASYNC_SPT_PTR(dst, dpitch, src, spitch, width, height, kind, stream);
+  tracepoint(lttng_ust_hip, hipMemcpy2DAsync_spt_exit, dst, dpitch, src, spitch, width, height, kind, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyFromSymbolAsync_spt(void *dst, const void *symbol, size_t sizeBytes, size_t offset, hipMemcpyKind kind, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyFromSymbolAsync_spt_entry, dst, symbol, sizeBytes, offset, kind, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_FROM_SYMBOL_ASYNC_SPT_PTR(dst, symbol, sizeBytes, offset, kind, stream);
+  tracepoint(lttng_ust_hip, hipMemcpyFromSymbolAsync_spt_exit, dst, symbol, sizeBytes, offset, kind, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyToSymbolAsync_spt(const void *symbol, const void *src, size_t sizeBytes, size_t offset, hipMemcpyKind kind, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyToSymbolAsync_spt_entry, symbol, src, sizeBytes, offset, kind, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_TO_SYMBOL_ASYNC_SPT_PTR(symbol, src, sizeBytes, offset, kind, stream);
+  tracepoint(lttng_ust_hip, hipMemcpyToSymbolAsync_spt_exit, symbol, src, sizeBytes, offset, kind, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpyFromArray_spt(void *dst, hipArray_const_t src, size_t wOffsetSrc, size_t hOffset, size_t count, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpyFromArray_spt_entry, dst, src, wOffsetSrc, hOffset, count, kind);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY_FROM_ARRAY_SPT_PTR(dst, src, wOffsetSrc, hOffset, count, kind);
+  tracepoint(lttng_ust_hip, hipMemcpyFromArray_spt_exit, dst, src, wOffsetSrc, hOffset, count, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy2DToArray_spt(hipArray *dst, size_t wOffset, size_t hOffset, const void *src, size_t spitch, size_t width, size_t height, hipMemcpyKind kind) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy2DToArray_spt_entry, dst, wOffset, hOffset, src, spitch, width, height, kind);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY2_DTO_ARRAY_SPT_PTR(dst, wOffset, hOffset, src, spitch, width, height, kind);
+  tracepoint(lttng_ust_hip, hipMemcpy2DToArray_spt_exit, dst, wOffset, hOffset, src, spitch, width, height, kind, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy2DFromArrayAsync_spt(void *dst, size_t dpitch, hipArray_const_t src, size_t wOffsetSrc, size_t hOffsetSrc, size_t width, size_t height, hipMemcpyKind kind, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy2DFromArrayAsync_spt_entry, dst, dpitch, src, wOffsetSrc, hOffsetSrc, width, height, kind, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY2_DFROM_ARRAY_ASYNC_SPT_PTR(dst, dpitch, src, wOffsetSrc, hOffsetSrc, width, height, kind, stream);
+  tracepoint(lttng_ust_hip, hipMemcpy2DFromArrayAsync_spt_exit, dst, dpitch, src, wOffsetSrc, hOffsetSrc, width, height, kind, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipMemcpy2DToArrayAsync_spt(hipArray *dst, size_t wOffset, size_t hOffset, const void *src, size_t spitch, size_t width, size_t height, hipMemcpyKind kind, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipMemcpy2DToArrayAsync_spt_entry, dst, wOffset, hOffset, src, spitch, width, height, kind, stream);
+  hipError_t _retval;
+  _retval = HIP_MEMCPY2_DTO_ARRAY_ASYNC_SPT_PTR(dst, wOffset, hOffset, src, spitch, width, height, kind, stream);
+  tracepoint(lttng_ust_hip, hipMemcpy2DToArrayAsync_spt_exit, dst, wOffset, hOffset, src, spitch, width, height, kind, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamQuery_spt(hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamQuery_spt_entry, stream);
+  hipError_t _retval;
+  _retval = HIP_STREAM_QUERY_SPT_PTR(stream);
+  tracepoint(lttng_ust_hip, hipStreamQuery_spt_exit, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamSynchronize_spt(hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamSynchronize_spt_entry, stream);
+  hipError_t _retval;
+  _retval = HIP_STREAM_SYNCHRONIZE_SPT_PTR(stream);
+  tracepoint(lttng_ust_hip, hipStreamSynchronize_spt_exit, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamGetPriority_spt(hipStream_t stream, int *priority) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamGetPriority_spt_entry, stream, priority);
+  hipError_t _retval;
+  _retval = HIP_STREAM_GET_PRIORITY_SPT_PTR(stream, priority);
+  tracepoint(lttng_ust_hip, hipStreamGetPriority_spt_exit, stream, priority, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamWaitEvent_spt(hipStream_t stream, hipEvent_t event, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamWaitEvent_spt_entry, stream, event, flags);
+  hipError_t _retval;
+  _retval = HIP_STREAM_WAIT_EVENT_SPT_PTR(stream, event, flags);
+  tracepoint(lttng_ust_hip, hipStreamWaitEvent_spt_exit, stream, event, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamGetFlags_spt(hipStream_t stream, unsigned int *flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamGetFlags_spt_entry, stream, flags);
+  hipError_t _retval;
+  _retval = HIP_STREAM_GET_FLAGS_SPT_PTR(stream, flags);
+  tracepoint(lttng_ust_hip, hipStreamGetFlags_spt_exit, stream, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamAddCallback_spt(hipStream_t stream, hipStreamCallback_t callback, void *userData, unsigned int flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamAddCallback_spt_entry, stream, callback, userData, flags);
+  hipError_t _retval;
+  _retval = HIP_STREAM_ADD_CALLBACK_SPT_PTR(stream, callback, userData, flags);
+  tracepoint(lttng_ust_hip, hipStreamAddCallback_spt_exit, stream, callback, userData, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipEventRecord_spt(hipEvent_t event, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipEventRecord_spt_entry, event, stream);
+  hipError_t _retval;
+  _retval = HIP_EVENT_RECORD_SPT_PTR(event, stream);
+  tracepoint(lttng_ust_hip, hipEventRecord_spt_exit, event, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipLaunchCooperativeKernel_spt(const void *f, dim3 gridDim, dim3 blockDim, void **kernelParams, uint32_t sharedMemBytes, hipStream_t hStream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipLaunchCooperativeKernel_spt_entry, f, gridDim, blockDim, kernelParams, sharedMemBytes, hStream);
+  hipError_t _retval;
+  _retval = HIP_LAUNCH_COOPERATIVE_KERNEL_SPT_PTR(f, gridDim, blockDim, kernelParams, sharedMemBytes, hStream);
+  tracepoint(lttng_ust_hip, hipLaunchCooperativeKernel_spt_exit, f, gridDim, blockDim, kernelParams, sharedMemBytes, hStream, _retval);
+  return _retval;
+}
+
+hipError_t hipLaunchKernel_spt(const void *function_address, dim3 numBlocks, dim3 dimBlocks, void **args, size_t sharedMemBytes, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipLaunchKernel_spt_entry, function_address, numBlocks, dimBlocks, args, sharedMemBytes, stream);
+  hipError_t _retval;
+  _retval = HIP_LAUNCH_KERNEL_SPT_PTR(function_address, numBlocks, dimBlocks, args, sharedMemBytes, stream);
+  tracepoint(lttng_ust_hip, hipLaunchKernel_spt_exit, function_address, numBlocks, dimBlocks, args, sharedMemBytes, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphLaunch_spt(hipGraphExec_t graphExec, hipStream_t stream) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphLaunch_spt_entry, graphExec, stream);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_LAUNCH_SPT_PTR(graphExec, stream);
+  tracepoint(lttng_ust_hip, hipGraphLaunch_spt_exit, graphExec, stream, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamBeginCapture_spt(hipStream_t stream, hipStreamCaptureMode mode) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamBeginCapture_spt_entry, stream, mode);
+  hipError_t _retval;
+  _retval = HIP_STREAM_BEGIN_CAPTURE_SPT_PTR(stream, mode);
+  tracepoint(lttng_ust_hip, hipStreamBeginCapture_spt_exit, stream, mode, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamEndCapture_spt(hipStream_t stream, hipGraph_t *pGraph) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamEndCapture_spt_entry, stream, pGraph);
+  hipError_t _retval;
+  _retval = HIP_STREAM_END_CAPTURE_SPT_PTR(stream, pGraph);
+  tracepoint(lttng_ust_hip, hipStreamEndCapture_spt_exit, stream, pGraph, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamIsCapturing_spt(hipStream_t stream, hipStreamCaptureStatus *pCaptureStatus) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamIsCapturing_spt_entry, stream, pCaptureStatus);
+  hipError_t _retval;
+  _retval = HIP_STREAM_IS_CAPTURING_SPT_PTR(stream, pCaptureStatus);
+  tracepoint(lttng_ust_hip, hipStreamIsCapturing_spt_exit, stream, pCaptureStatus, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamGetCaptureInfo_spt(hipStream_t stream, hipStreamCaptureStatus *pCaptureStatus, unsigned long long int *pId) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamGetCaptureInfo_spt_entry, stream, pCaptureStatus, pId);
+  hipError_t _retval;
+  _retval = HIP_STREAM_GET_CAPTURE_INFO_SPT_PTR(stream, pCaptureStatus, pId);
+  tracepoint(lttng_ust_hip, hipStreamGetCaptureInfo_spt_exit, stream, pCaptureStatus, pId, _retval);
+  return _retval;
+}
+
+hipError_t hipStreamGetCaptureInfo_v2_spt(hipStream_t stream, hipStreamCaptureStatus *captureStatus_out, unsigned long long int *id_out, hipGraph_t *graph_out, const hipGraphNode_t **dependencies_out, size_t *numDependencies_out) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipStreamGetCaptureInfo_v2_spt_entry, stream, captureStatus_out, id_out, graph_out, dependencies_out, numDependencies_out);
+  hipError_t _retval;
+  _retval = HIP_STREAM_GET_CAPTURE_INFO_V2_SPT_PTR(stream, captureStatus_out, id_out, graph_out, dependencies_out, numDependencies_out);
+  tracepoint(lttng_ust_hip, hipStreamGetCaptureInfo_v2_spt_exit, stream, captureStatus_out, id_out, graph_out, dependencies_out, numDependencies_out, _retval);
+  return _retval;
+}
+
+hipError_t hipLaunchHostFunc_spt(hipStream_t stream, hipHostFn_t fn, void *userData) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipLaunchHostFunc_spt_entry, stream, fn, userData);
+  hipError_t _retval;
+  _retval = HIP_LAUNCH_HOST_FUNC_SPT_PTR(stream, fn, userData);
+  tracepoint(lttng_ust_hip, hipLaunchHostFunc_spt_exit, stream, fn, userData, _retval);
+  return _retval;
+}
+
+const char *hiprtcGetErrorString(hiprtcResult result) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcGetErrorString_entry, result);
+  const char * _retval;
+  _retval = HIPRTC_GET_ERROR_STRING_PTR(result);
+  tracepoint(lttng_ust_hip, hiprtcGetErrorString_exit, result, _retval);
+  return _retval;
+}
+
+hiprtcResult hiprtcVersion(int *major, int *minor) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcVersion_entry, major, minor);
+  hiprtcResult _retval;
+  _retval = HIPRTC_VERSION_PTR(major, minor);
+  tracepoint(lttng_ust_hip, hiprtcVersion_exit, major, minor, _retval);
+  return _retval;
+}
+
+hiprtcResult hiprtcAddNameExpression(hiprtcProgram prog, const char *name_expression) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcAddNameExpression_entry, prog, name_expression);
+  hiprtcResult _retval;
+  _retval = HIPRTC_ADD_NAME_EXPRESSION_PTR(prog, name_expression);
+  tracepoint(lttng_ust_hip, hiprtcAddNameExpression_exit, prog, name_expression, _retval);
+  return _retval;
+}
+
+hiprtcResult hiprtcCompileProgram(hiprtcProgram prog, int numOptions, const char **options) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcCompileProgram_entry, prog, numOptions, options);
+  hiprtcResult _retval;
+  _retval = HIPRTC_COMPILE_PROGRAM_PTR(prog, numOptions, options);
+  tracepoint(lttng_ust_hip, hiprtcCompileProgram_exit, prog, numOptions, options, _retval);
+  return _retval;
+}
+
+hiprtcResult hiprtcCreateProgram(hiprtcProgram *prog, const char *src, const char *name, int numHeaders, const char **headers, const char **includeNames) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcCreateProgram_entry, prog, src, name, numHeaders, headers, includeNames);
+  hiprtcResult _retval;
+  _retval = HIPRTC_CREATE_PROGRAM_PTR(prog, src, name, numHeaders, headers, includeNames);
+  tracepoint(lttng_ust_hip, hiprtcCreateProgram_exit, prog, src, name, numHeaders, headers, includeNames, _retval);
+  return _retval;
+}
+
+hiprtcResult hiprtcDestroyProgram(hiprtcProgram *prog) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcDestroyProgram_entry, prog);
+  hiprtcResult _retval;
+  _retval = HIPRTC_DESTROY_PROGRAM_PTR(prog);
+  tracepoint(lttng_ust_hip, hiprtcDestroyProgram_exit, prog, _retval);
+  return _retval;
+}
+
+hiprtcResult hiprtcGetLoweredName(hiprtcProgram prog, const char *name_expression, const char **lowered_name) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcGetLoweredName_entry, prog, name_expression, lowered_name);
+  hiprtcResult _retval;
+  _retval = HIPRTC_GET_LOWERED_NAME_PTR(prog, name_expression, lowered_name);
+  tracepoint(lttng_ust_hip, hiprtcGetLoweredName_exit, prog, name_expression, lowered_name, _retval);
+  return _retval;
+}
+
+hiprtcResult hiprtcGetProgramLog(hiprtcProgram prog, char *log) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcGetProgramLog_entry, prog, log);
+  hiprtcResult _retval;
+  _retval = HIPRTC_GET_PROGRAM_LOG_PTR(prog, log);
+  tracepoint(lttng_ust_hip, hiprtcGetProgramLog_exit, prog, log, _retval);
+  return _retval;
+}
+
+hiprtcResult hiprtcGetProgramLogSize(hiprtcProgram prog, size_t *logSizeRet) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcGetProgramLogSize_entry, prog, logSizeRet);
+  hiprtcResult _retval;
+  _retval = HIPRTC_GET_PROGRAM_LOG_SIZE_PTR(prog, logSizeRet);
+  tracepoint(lttng_ust_hip, hiprtcGetProgramLogSize_exit, prog, logSizeRet, _retval);
+  return _retval;
+}
+
+hiprtcResult hiprtcGetCode(hiprtcProgram prog, char *code) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcGetCode_entry, prog, code);
+  hiprtcResult _retval;
+  _retval = HIPRTC_GET_CODE_PTR(prog, code);
+  tracepoint(lttng_ust_hip, hiprtcGetCode_exit, prog, code, _retval);
+  return _retval;
+}
+
+hiprtcResult hiprtcGetCodeSize(hiprtcProgram prog, size_t *codeSizeRet) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcGetCodeSize_entry, prog, codeSizeRet);
+  hiprtcResult _retval;
+  _retval = HIPRTC_GET_CODE_SIZE_PTR(prog, codeSizeRet);
+  tracepoint(lttng_ust_hip, hiprtcGetCodeSize_exit, prog, codeSizeRet, _retval);
+  return _retval;
+}
+
+hiprtcResult hiprtcGetBitcode(hiprtcProgram prog, char *bitcode) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcGetBitcode_entry, prog, bitcode);
+  hiprtcResult _retval;
+  _retval = HIPRTC_GET_BITCODE_PTR(prog, bitcode);
+  tracepoint(lttng_ust_hip, hiprtcGetBitcode_exit, prog, bitcode, _retval);
+  return _retval;
+}
+
+hiprtcResult hiprtcGetBitcodeSize(hiprtcProgram prog, size_t *bitcode_size) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcGetBitcodeSize_entry, prog, bitcode_size);
+  hiprtcResult _retval;
+  _retval = HIPRTC_GET_BITCODE_SIZE_PTR(prog, bitcode_size);
+  tracepoint(lttng_ust_hip, hiprtcGetBitcodeSize_exit, prog, bitcode_size, _retval);
+  return _retval;
+}
+
+hiprtcResult hiprtcLinkCreate(unsigned int num_options, hiprtcJIT_option *option_ptr, void **option_vals_pptr, hiprtcLinkState *hip_link_state_ptr) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcLinkCreate_entry, num_options, option_ptr, option_vals_pptr, hip_link_state_ptr);
+  hiprtcResult _retval;
+  _retval = HIPRTC_LINK_CREATE_PTR(num_options, option_ptr, option_vals_pptr, hip_link_state_ptr);
+  tracepoint(lttng_ust_hip, hiprtcLinkCreate_exit, num_options, option_ptr, option_vals_pptr, hip_link_state_ptr, _retval);
+  return _retval;
+}
+
+hiprtcResult hiprtcLinkAddFile(hiprtcLinkState hip_link_state, hiprtcJITInputType input_type, const char *file_path, unsigned int num_options, hiprtcJIT_option *options_ptr, void **option_values) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcLinkAddFile_entry, hip_link_state, input_type, file_path, num_options, options_ptr, option_values);
+  hiprtcResult _retval;
+  _retval = HIPRTC_LINK_ADD_FILE_PTR(hip_link_state, input_type, file_path, num_options, options_ptr, option_values);
+  tracepoint(lttng_ust_hip, hiprtcLinkAddFile_exit, hip_link_state, input_type, file_path, num_options, options_ptr, option_values, _retval);
+  return _retval;
+}
+
+hiprtcResult hiprtcLinkAddData(hiprtcLinkState hip_link_state, hiprtcJITInputType input_type, void *image, size_t image_size, const char *name, unsigned int num_options, hiprtcJIT_option *options_ptr, void **option_values) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcLinkAddData_entry, hip_link_state, input_type, image, image_size, name, num_options, options_ptr, option_values);
+  hiprtcResult _retval;
+  _retval = HIPRTC_LINK_ADD_DATA_PTR(hip_link_state, input_type, image, image_size, name, num_options, options_ptr, option_values);
+  tracepoint(lttng_ust_hip, hiprtcLinkAddData_exit, hip_link_state, input_type, image, image_size, name, num_options, options_ptr, option_values, _retval);
+  return _retval;
+}
+
+hiprtcResult hiprtcLinkComplete(hiprtcLinkState hip_link_state, void **bin_out, size_t *size_out) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcLinkComplete_entry, hip_link_state, bin_out, size_out);
+  hiprtcResult _retval;
+  _retval = HIPRTC_LINK_COMPLETE_PTR(hip_link_state, bin_out, size_out);
+  tracepoint(lttng_ust_hip, hiprtcLinkComplete_exit, hip_link_state, bin_out, size_out, _retval);
+  return _retval;
+}
+
+hiprtcResult hiprtcLinkDestroy(hiprtcLinkState hip_link_state) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hiprtcLinkDestroy_entry, hip_link_state);
+  hiprtcResult _retval;
+  _retval = HIPRTC_LINK_DESTROY_PTR(hip_link_state);
+  tracepoint(lttng_ust_hip, hiprtcLinkDestroy_exit, hip_link_state, _retval);
+  return _retval;
+}
+
+const char *amd_dbgapi_get_build_name() {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, amd_dbgapi_get_build_name_entry, );
+  const char * _retval;
+  _retval = AMD_DBGAPI_GET_BUILD_NAME_PTR();
+  tracepoint(lttng_ust_hip, amd_dbgapi_get_build_name_exit, _retval);
+  return _retval;
+}
+
+const char *amd_dbgapi_get_git_hash() {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, amd_dbgapi_get_git_hash_entry, );
+  const char * _retval;
+  _retval = AMD_DBGAPI_GET_GIT_HASH_PTR();
+  tracepoint(lttng_ust_hip, amd_dbgapi_get_git_hash_exit, _retval);
+  return _retval;
+}
+
+size_t amd_dbgapi_get_build_id() {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, amd_dbgapi_get_build_id_entry, );
+  size_t _retval;
+  _retval = AMD_DBGAPI_GET_BUILD_ID_PTR();
+  tracepoint(lttng_ust_hip, amd_dbgapi_get_build_id_exit, _retval);
+  return _retval;
+}
+
+hipError_t hipExtModuleLaunchKernel(hipFunction_t f, uint32_t globalWorkSizeX, uint32_t globalWorkSizeY, uint32_t globalWorkSizeZ, uint32_t localWorkSizeX, uint32_t localWorkSizeY, uint32_t localWorkSizeZ, size_t sharedMemBytes, hipStream_t hStream, void **kernelParams, void **extra, hipEvent_t startEvent, hipEvent_t stopEvent, uint32_t flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipExtModuleLaunchKernel_entry, f, globalWorkSizeX, globalWorkSizeY, globalWorkSizeZ, localWorkSizeX, localWorkSizeY, localWorkSizeZ, sharedMemBytes, hStream, kernelParams, extra, startEvent, stopEvent, flags);
+  hipError_t _retval;
+  _retval = HIP_EXT_MODULE_LAUNCH_KERNEL_PTR(f, globalWorkSizeX, globalWorkSizeY, globalWorkSizeZ, localWorkSizeX, localWorkSizeY, localWorkSizeZ, sharedMemBytes, hStream, kernelParams, extra, startEvent, stopEvent, flags);
+  tracepoint(lttng_ust_hip, hipExtModuleLaunchKernel_exit, f, globalWorkSizeX, globalWorkSizeY, globalWorkSizeZ, localWorkSizeX, localWorkSizeY, localWorkSizeZ, sharedMemBytes, hStream, kernelParams, extra, startEvent, stopEvent, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipHccModuleLaunchKernel(hipFunction_t f, uint32_t globalWorkSizeX, uint32_t globalWorkSizeY, uint32_t globalWorkSizeZ, uint32_t localWorkSizeX, uint32_t localWorkSizeY, uint32_t localWorkSizeZ, size_t sharedMemBytes, hipStream_t hStream, void **kernelParams, void **extra, hipEvent_t startEvent, hipEvent_t stopEvent) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipHccModuleLaunchKernel_entry, f, globalWorkSizeX, globalWorkSizeY, globalWorkSizeZ, localWorkSizeX, localWorkSizeY, localWorkSizeZ, sharedMemBytes, hStream, kernelParams, extra, startEvent, stopEvent);
+  hipError_t _retval;
+  _retval = HIP_HCC_MODULE_LAUNCH_KERNEL_PTR(f, globalWorkSizeX, globalWorkSizeY, globalWorkSizeZ, localWorkSizeX, localWorkSizeY, localWorkSizeZ, sharedMemBytes, hStream, kernelParams, extra, startEvent, stopEvent);
+  tracepoint(lttng_ust_hip, hipHccModuleLaunchKernel_exit, f, globalWorkSizeX, globalWorkSizeY, globalWorkSizeZ, localWorkSizeX, localWorkSizeY, localWorkSizeZ, sharedMemBytes, hStream, kernelParams, extra, startEvent, stopEvent, _retval);
+  return _retval;
+}
+
+void _ZN8hip_impl22hipLaunchKernelGGLImplEmRK4dim3S2_jP12ihipStream_tPPv(uintptr_t function_address, const dim3 *numBlocks, const dim3 *dimBlocks, uint32_t sharedMemBytes, hipStream_t stream, void **kernarg) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, _ZN8hip_impl22hipLaunchKernelGGLImplEmRK4dim3S2_jP12ihipStream_tPPv_entry, function_address, numBlocks, dimBlocks, sharedMemBytes, stream, kernarg);
+  __ZN8HIP_IMPL22HIP_LAUNCH_KERNEL_GGLIMPL_EM_RK4DIM3_S2_J_P12IHIP_STREAM_T_PPV_PTR(function_address, numBlocks, dimBlocks, sharedMemBytes, stream, kernarg);
+  tracepoint(lttng_ust_hip, _ZN8hip_impl22hipLaunchKernelGGLImplEmRK4dim3S2_jP12ihipStream_tPPv_exit, function_address, numBlocks, dimBlocks, sharedMemBytes, stream, kernarg);
+}
+
+hipError_t _Z22hipCreateSurfaceObjectPP13__hip_surfacePK15hipResourceDesc(hipSurfaceObject_t *pSurfObject, const hipResourceDesc *pResDesc) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, _Z22hipCreateSurfaceObjectPP13__hip_surfacePK15hipResourceDesc_entry, pSurfObject, pResDesc);
+  hipError_t _retval;
+  _retval = __Z22HIP_CREATE_SURFACE_OBJECT_PP13__HIP_SURFACE_PK15HIP_RESOURCE_DESC_PTR(pSurfObject, pResDesc);
+  tracepoint(lttng_ust_hip, _Z22hipCreateSurfaceObjectPP13__hip_surfacePK15hipResourceDesc_exit, pSurfObject, pResDesc, _retval);
+  return _retval;
+}
+
+hipError_t _Z23hipDestroySurfaceObjectP13__hip_surface(hipSurfaceObject_t surfaceObject) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, _Z23hipDestroySurfaceObjectP13__hip_surface_entry, surfaceObject);
+  hipError_t _retval;
+  _retval = __Z23HIP_DESTROY_SURFACE_OBJECT_P13__HIP_SURFACE_PTR(surfaceObject);
+  tracepoint(lttng_ust_hip, _Z23hipDestroySurfaceObjectP13__hip_surface_exit, surfaceObject, _retval);
+  return _retval;
+}
+
+hipError_t _Z24hipHccModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6_(hipFunction_t f, uint32_t globalWorkSizeX, uint32_t globalWorkSizeY, uint32_t globalWorkSizeZ, uint32_t localWorkSizeX, uint32_t localWorkSizeY, uint32_t localWorkSizeZ, size_t sharedMemBytes, hipStream_t hStream, void **kernelParams, void **extra, hipEvent_t startEvent, hipEvent_t stopEvent) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, _Z24hipHccModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6__entry, f, globalWorkSizeX, globalWorkSizeY, globalWorkSizeZ, localWorkSizeX, localWorkSizeY, localWorkSizeZ, sharedMemBytes, hStream, kernelParams, extra, startEvent, stopEvent);
+  hipError_t _retval;
+  _retval = __Z24HIP_HCC_MODULE_LAUNCH_KERNEL_P18IHIP_MODULE_SYMBOL_TJJJJJJM_P12IHIP_STREAM_T_PPV_S4__P11IHIP_EVENT_T_S6__PTR(f, globalWorkSizeX, globalWorkSizeY, globalWorkSizeZ, localWorkSizeX, localWorkSizeY, localWorkSizeZ, sharedMemBytes, hStream, kernelParams, extra, startEvent, stopEvent);
+  tracepoint(lttng_ust_hip, _Z24hipHccModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6__exit, f, globalWorkSizeX, globalWorkSizeY, globalWorkSizeZ, localWorkSizeX, localWorkSizeY, localWorkSizeZ, sharedMemBytes, hStream, kernelParams, extra, startEvent, stopEvent, _retval);
+  return _retval;
+}
+
+hipError_t _Z24hipExtModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6_j(hipFunction_t f, uint32_t globalWorkSizeX, uint32_t globalWorkSizeY, uint32_t globalWorkSizeZ, uint32_t localWorkSizeX, uint32_t localWorkSizeY, uint32_t localWorkSizeZ, size_t sharedMemBytes, hipStream_t hStream, void **kernelParams, void **extra, hipEvent_t startEvent, hipEvent_t stopEvent, uint32_t flags) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, _Z24hipExtModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6_j_entry, f, globalWorkSizeX, globalWorkSizeY, globalWorkSizeZ, localWorkSizeX, localWorkSizeY, localWorkSizeZ, sharedMemBytes, hStream, kernelParams, extra, startEvent, stopEvent, flags);
+  hipError_t _retval;
+  _retval = __Z24HIP_EXT_MODULE_LAUNCH_KERNEL_P18IHIP_MODULE_SYMBOL_TJJJJJJM_P12IHIP_STREAM_T_PPV_S4__P11IHIP_EVENT_T_S6_J_PTR(f, globalWorkSizeX, globalWorkSizeY, globalWorkSizeZ, localWorkSizeX, localWorkSizeY, localWorkSizeZ, sharedMemBytes, hStream, kernelParams, extra, startEvent, stopEvent, flags);
+  tracepoint(lttng_ust_hip, _Z24hipExtModuleLaunchKernelP18ihipModuleSymbol_tjjjjjjmP12ihipStream_tPPvS4_P11ihipEvent_tS6_j_exit, f, globalWorkSizeX, globalWorkSizeY, globalWorkSizeZ, localWorkSizeX, localWorkSizeY, localWorkSizeZ, sharedMemBytes, hStream, kernelParams, extra, startEvent, stopEvent, flags, _retval);
+  return _retval;
+}
+
+hipError_t hipGraphDebugDotPrint(hipGraph_t graph, const char *fName, unsigned int flag) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGraphDebugDotPrint_entry, graph, fName, flag);
+  hipError_t _retval;
+  _retval = HIP_GRAPH_DEBUG_DOT_PRINT_PTR(graph, fName, flag);
+  tracepoint(lttng_ust_hip, hipGraphDebugDotPrint_exit, graph, fName, flag, _retval);
+  return _retval;
+}
+
+extern void **__hipRegisterFatBinary(const void *data) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, __hipRegisterFatBinary_entry, data);
+  void ** _retval;
+  _retval = __HIP_REGISTER_FAT_BINARY_PTR(data);
+  tracepoint(lttng_ust_hip, __hipRegisterFatBinary_exit, data, _retval);
+  return _retval;
+}
+
+extern void __hipRegisterFunction(void **modules, const void *hostFunction, char *deviceFunction, const char *deviceName, unsigned int threadLimit, uint3 *tid, uint3 *bid, dim3 *blockDim, dim3 *gridDim, int *wSize) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, __hipRegisterFunction_entry, modules, hostFunction, deviceFunction, deviceName, threadLimit, tid, bid, blockDim, gridDim, wSize);
+  __HIP_REGISTER_FUNCTION_PTR(modules, hostFunction, deviceFunction, deviceName, threadLimit, tid, bid, blockDim, gridDim, wSize);
+  tracepoint(lttng_ust_hip, __hipRegisterFunction_exit, modules, hostFunction, deviceFunction, deviceName, threadLimit, tid, bid, blockDim, gridDim, wSize);
+}
+
+extern void __hipRegisterManagedVar(void **modules, void **pointer, void *init_value, const char *name, size_t size, unsigned int align) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, __hipRegisterManagedVar_entry, modules, pointer, init_value, name, size, align);
+  __HIP_REGISTER_MANAGED_VAR_PTR(modules, pointer, init_value, name, size, align);
+  tracepoint(lttng_ust_hip, __hipRegisterManagedVar_exit, modules, pointer, init_value, name, size, align);
+}
+
+extern void __hipRegisterSurface(void **modules, void *var, char *hostVar, char *deviceVar, int type, int ext) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, __hipRegisterSurface_entry, modules, var, hostVar, deviceVar, type, ext);
+  __HIP_REGISTER_SURFACE_PTR(modules, var, hostVar, deviceVar, type, ext);
+  tracepoint(lttng_ust_hip, __hipRegisterSurface_exit, modules, var, hostVar, deviceVar, type, ext);
+}
+
+extern void __hipRegisterTexture(void **modules, void *var, char *hostVar, char *deviceVar, int type, int norm, int ext) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, __hipRegisterTexture_entry, modules, var, hostVar, deviceVar, type, norm, ext);
+  __HIP_REGISTER_TEXTURE_PTR(modules, var, hostVar, deviceVar, type, norm, ext);
+  tracepoint(lttng_ust_hip, __hipRegisterTexture_exit, modules, var, hostVar, deviceVar, type, norm, ext);
+}
+
+extern void __hipRegisterVar(void **modules, void *var, char *hostVar, char *deviceVar, int ext, size_t size, int constant, int global) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, __hipRegisterVar_entry, modules, var, hostVar, deviceVar, ext, size, constant, global);
+  __HIP_REGISTER_VAR_PTR(modules, var, hostVar, deviceVar, ext, size, constant, global);
+  tracepoint(lttng_ust_hip, __hipRegisterVar_exit, modules, var, hostVar, deviceVar, ext, size, constant, global);
+}
+
+extern void __hipUnregisterFatBinary(void **modules) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, __hipUnregisterFatBinary_entry, modules);
+  __HIP_UNREGISTER_FAT_BINARY_PTR(modules);
+  tracepoint(lttng_ust_hip, __hipUnregisterFatBinary_exit, modules);
+}
+
+extern const char *hipGetCmdName(uint32_t id) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipGetCmdName_entry, id);
+  const char * _retval;
+  _retval = HIP_GET_CMD_NAME_PTR(id);
+  tracepoint(lttng_ust_hip, hipGetCmdName_exit, id, _retval);
+  return _retval;
+}
+
+extern void hipRegisterTracerCallback(hipRegisterTracerCallback_callback_t *function) {
+  _init_tracer();
+  tracepoint(lttng_ust_hip, hipRegisterTracerCallback_entry, function);
+  HIP_REGISTER_TRACER_CALLBACK_PTR(function);
+  tracepoint(lttng_ust_hip, hipRegisterTracerCallback_exit, function);
+}
+

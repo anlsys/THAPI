@@ -1,0 +1,6161 @@
+enums:
+- members:
+  - name: ZET_STRUCTURE_TYPE_METRIC_GROUP_PROPERTIES
+    val: '0x1'
+  - name: ZET_STRUCTURE_TYPE_METRIC_PROPERTIES
+    val: '0x2'
+  - name: ZET_STRUCTURE_TYPE_METRIC_STREAMER_DESC
+    val: '0x3'
+  - name: ZET_STRUCTURE_TYPE_METRIC_QUERY_POOL_DESC
+    val: '0x4'
+  - name: ZET_STRUCTURE_TYPE_PROFILE_PROPERTIES
+    val: '0x5'
+  - name: ZET_STRUCTURE_TYPE_DEVICE_DEBUG_PROPERTIES
+    val: '0x6'
+  - name: ZET_STRUCTURE_TYPE_DEBUG_MEMORY_SPACE_DESC
+    val: '0x7'
+  - name: ZET_STRUCTURE_TYPE_DEBUG_REGSET_PROPERTIES
+    val: '0x8'
+  - name: ZET_STRUCTURE_TYPE_GLOBAL_METRICS_TIMESTAMPS_EXP_PROPERTIES
+    val: '0x9'
+  - name: ZET_STRUCTURE_TYPE_METRIC_GLOBAL_TIMESTAMPS_RESOLUTION_EXP
+    val: '0x9'
+  - name: ZET_STRUCTURE_TYPE_TRACER_EXP_DESC
+    val: '0x10001'
+  - name: ZET_STRUCTURE_TYPE_METRICS_CALCULATE_EXP_DESC
+    val: '0x10002'
+  - name: ZET_STRUCTURE_TYPE_METRIC_CALCULATE_EXP_DESC
+    val: '0x10002'
+  - name: ZET_STRUCTURE_TYPE_METRIC_PROGRAMMABLE_EXP_PROPERTIES
+    val: '0x10003'
+  - name: ZET_STRUCTURE_TYPE_METRIC_PROGRAMMABLE_PARAM_INFO_EXP
+    val: '0x10004'
+  - name: ZET_STRUCTURE_TYPE_METRIC_PROGRAMMABLE_PARAM_VALUE_INFO_EXP
+    val: '0x10005'
+  - name: ZET_STRUCTURE_TYPE_METRIC_GROUP_TYPE_EXP
+    val: '0x10006'
+  - name: ZET_STRUCTURE_TYPE_EXPORT_DMA_EXP_PROPERTIES
+    val: '0x10007'
+  - name: ZET_STRUCTURE_TYPE_METRIC_TRACER_EXP_DESC
+    val: '0x10008'
+  - name: ZET_STRUCTURE_TYPE_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_structure_type_t
+- members:
+  - name: ZET_VALUE_TYPE_UINT32
+    val: '0'
+  - name: ZET_VALUE_TYPE_UINT64
+    val: '1'
+  - name: ZET_VALUE_TYPE_FLOAT32
+    val: '2'
+  - name: ZET_VALUE_TYPE_FLOAT64
+    val: '3'
+  - name: ZET_VALUE_TYPE_BOOL8
+    val: '4'
+  - name: ZET_VALUE_TYPE_STRING
+    val: '5'
+  - name: ZET_VALUE_TYPE_UINT8
+    val: '6'
+  - name: ZET_VALUE_TYPE_UINT16
+    val: '7'
+  - name: ZET_VALUE_TYPE_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_value_type_t
+- members:
+  - name: ZET_MODULE_DEBUG_INFO_FORMAT_ELF_DWARF
+    val: '0'
+  - name: ZET_MODULE_DEBUG_INFO_FORMAT_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_module_debug_info_format_t
+- members:
+  - name: ZET_DEVICE_DEBUG_PROPERTY_FLAG_ATTACH
+    val: ZE_BIT(0)
+  - name: ZET_DEVICE_DEBUG_PROPERTY_FLAG_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_device_debug_property_flag_t
+- members:
+  - name: ZET_DEBUG_EVENT_FLAG_NEED_ACK
+    val: ZE_BIT(0)
+  - name: ZET_DEBUG_EVENT_FLAG_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_debug_event_flag_t
+- members:
+  - name: ZET_DEBUG_EVENT_TYPE_INVALID
+    val: '0'
+  - name: ZET_DEBUG_EVENT_TYPE_DETACHED
+    val: '1'
+  - name: ZET_DEBUG_EVENT_TYPE_PROCESS_ENTRY
+    val: '2'
+  - name: ZET_DEBUG_EVENT_TYPE_PROCESS_EXIT
+    val: '3'
+  - name: ZET_DEBUG_EVENT_TYPE_MODULE_LOAD
+    val: '4'
+  - name: ZET_DEBUG_EVENT_TYPE_MODULE_UNLOAD
+    val: '5'
+  - name: ZET_DEBUG_EVENT_TYPE_THREAD_STOPPED
+    val: '6'
+  - name: ZET_DEBUG_EVENT_TYPE_THREAD_UNAVAILABLE
+    val: '7'
+  - name: ZET_DEBUG_EVENT_TYPE_PAGE_FAULT
+    val: '8'
+  - name: ZET_DEBUG_EVENT_TYPE_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_debug_event_type_t
+- members:
+  - name: ZET_DEBUG_DETACH_REASON_INVALID
+    val: '0'
+  - name: ZET_DEBUG_DETACH_REASON_HOST_EXIT
+    val: '1'
+  - name: ZET_DEBUG_DETACH_REASON_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_debug_detach_reason_t
+- members:
+  - name: ZET_DEBUG_PAGE_FAULT_REASON_INVALID
+    val: '0'
+  - name: ZET_DEBUG_PAGE_FAULT_REASON_MAPPING_ERROR
+    val: '1'
+  - name: ZET_DEBUG_PAGE_FAULT_REASON_PERMISSION_ERROR
+    val: '2'
+  - name: ZET_DEBUG_PAGE_FAULT_REASON_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_debug_page_fault_reason_t
+- members:
+  - name: ZET_DEBUG_MEMORY_SPACE_TYPE_DEFAULT
+    val: '0'
+  - name: ZET_DEBUG_MEMORY_SPACE_TYPE_SLM
+    val: '1'
+  - name: ZET_DEBUG_MEMORY_SPACE_TYPE_ELF
+    val: '2'
+  - name: ZET_DEBUG_MEMORY_SPACE_TYPE_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_debug_memory_space_type_t
+- members:
+  - name: ZET_DEBUG_REGSET_FLAG_READABLE
+    val: ZE_BIT(0)
+  - name: ZET_DEBUG_REGSET_FLAG_WRITEABLE
+    val: ZE_BIT(1)
+  - name: ZET_DEBUG_REGSET_FLAG_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_debug_regset_flag_t
+- members:
+  - name: ZET_METRIC_GROUP_SAMPLING_TYPE_FLAG_EVENT_BASED
+    val: ZE_BIT(0)
+  - name: ZET_METRIC_GROUP_SAMPLING_TYPE_FLAG_TIME_BASED
+    val: ZE_BIT(1)
+  - name: ZET_METRIC_GROUP_SAMPLING_TYPE_FLAG_EXP_TRACER_BASED
+    val: ZE_BIT(2)
+  - name: ZET_METRIC_GROUP_SAMPLING_TYPE_FLAG_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_metric_group_sampling_type_flag_t
+- members:
+  - name: ZET_METRIC_TYPE_DURATION
+    val: '0'
+  - name: ZET_METRIC_TYPE_EVENT
+    val: '1'
+  - name: ZET_METRIC_TYPE_EVENT_WITH_RANGE
+    val: '2'
+  - name: ZET_METRIC_TYPE_THROUGHPUT
+    val: '3'
+  - name: ZET_METRIC_TYPE_TIMESTAMP
+    val: '4'
+  - name: ZET_METRIC_TYPE_FLAG
+    val: '5'
+  - name: ZET_METRIC_TYPE_RATIO
+    val: '6'
+  - name: ZET_METRIC_TYPE_RAW
+    val: '7'
+  - name: ZET_METRIC_TYPE_EVENT_EXP_TIMESTAMP
+    val: '0x7ffffff9'
+  - name: ZET_METRIC_TYPE_EVENT_EXP_START
+    val: '0x7ffffffa'
+  - name: ZET_METRIC_TYPE_EVENT_EXP_END
+    val: '0x7ffffffb'
+  - name: ZET_METRIC_TYPE_EVENT_EXP_MONOTONIC_WRAPS_VALUE
+    val: '0x7ffffffc'
+  - name: ZET_METRIC_TYPE_EXP_EXPORT_DMA_BUF
+    val: '0x7ffffffd'
+  - name: ZET_METRIC_TYPE_IP_EXP
+    val: '0x7ffffffe'
+  - name: ZET_METRIC_TYPE_IP
+    val: '0x7ffffffe'
+  - name: ZET_METRIC_TYPE_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_metric_type_t
+- members:
+  - name: ZET_METRIC_GROUP_CALCULATION_TYPE_METRIC_VALUES
+    val: '0'
+  - name: ZET_METRIC_GROUP_CALCULATION_TYPE_MAX_METRIC_VALUES
+    val: '1'
+  - name: ZET_METRIC_GROUP_CALCULATION_TYPE_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_metric_group_calculation_type_t
+- members:
+  - name: ZET_METRIC_QUERY_POOL_TYPE_PERFORMANCE
+    val: '0'
+  - name: ZET_METRIC_QUERY_POOL_TYPE_EXECUTION
+    val: '1'
+  - name: ZET_METRIC_QUERY_POOL_TYPE_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_metric_query_pool_type_t
+- members:
+  - name: ZET_PROFILE_FLAG_REGISTER_REALLOCATION
+    val: ZE_BIT(0)
+  - name: ZET_PROFILE_FLAG_FREE_REGISTER_INFO
+    val: ZE_BIT(1)
+  - name: ZET_PROFILE_FLAG_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_profile_flag_t
+- members:
+  - name: ZET_PROFILE_TOKEN_TYPE_FREE_REGISTER
+    val: '0'
+  - name: ZET_PROFILE_TOKEN_TYPE_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_profile_token_type_t
+- members:
+  - name: ZET_API_TRACING_EXP_VERSION_1_0
+    val: ZE_MAKE_VERSION(1, 0)
+  - name: ZET_API_TRACING_EXP_VERSION_CURRENT
+    val: ZE_MAKE_VERSION(1, 0)
+  - name: ZET_API_TRACING_EXP_VERSION_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_api_tracing_exp_version_t
+- members:
+  - name: ZET_CONCURRENT_METRIC_GROUPS_EXP_VERSION_1_0
+    val: ZE_MAKE_VERSION(1, 0)
+  - name: ZET_CONCURRENT_METRIC_GROUPS_EXP_VERSION_CURRENT
+    val: ZE_MAKE_VERSION(1, 0)
+  - name: ZET_CONCURRENT_METRIC_GROUPS_EXP_VERSION_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_concurrent_metric_groups_exp_version_t
+- members:
+  - name: ZET_METRIC_TRACER_EXP_VERSION_1_0
+    val: ZE_MAKE_VERSION(1, 0)
+  - name: ZET_METRIC_TRACER_EXP_VERSION_CURRENT
+    val: ZE_MAKE_VERSION(1, 0)
+  - name: ZET_METRIC_TRACER_EXP_VERSION_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_metric_tracer_exp_version_t
+- members:
+  - name: ZET_METRIC_GROUP_TYPE_EXP_FLAG_EXPORT_DMA_BUF
+    val: ZE_BIT(0)
+  - name: ZET_METRIC_GROUP_TYPE_EXP_FLAG_USER_CREATED
+    val: ZE_BIT(1)
+  - name: ZET_METRIC_GROUP_TYPE_EXP_FLAG_OTHER
+    val: ZE_BIT(2)
+  - name: ZET_METRIC_GROUP_TYPE_EXP_FLAG_MARKER
+    val: ZE_BIT(3)
+  - name: ZET_METRIC_GROUP_TYPE_EXP_FLAG_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_metric_group_type_exp_flag_t
+- members:
+  - name: ZET_METRIC_GROUP_MARKER_EXP_VERSION_1_0
+    val: ZE_MAKE_VERSION(1, 0)
+  - name: ZET_METRIC_GROUP_MARKER_EXP_VERSION_CURRENT
+    val: ZE_MAKE_VERSION(1, 0)
+  - name: ZET_METRIC_GROUP_MARKER_EXP_VERSION_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_metric_group_marker_exp_version_t
+- members:
+  - name: ZET_METRICS_RUNTIME_ENABLE_DISABLE_EXP_VERSION_1_0
+    val: ZE_MAKE_VERSION(1, 0)
+  - name: ZET_METRICS_RUNTIME_ENABLE_DISABLE_EXP_VERSION_CURRENT
+    val: ZE_MAKE_VERSION(1, 0)
+  - name: ZET_METRICS_RUNTIME_ENABLE_DISABLE_EXP_VERSION_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_metrics_runtime_enable_disable_exp_version_t
+- members:
+  - name: ZE_CALCULATE_MULTIPLE_METRICS_EXP_VERSION_1_0
+    val: ZE_MAKE_VERSION(1, 0)
+  - name: ZE_CALCULATE_MULTIPLE_METRICS_EXP_VERSION_CURRENT
+    val: ZE_MAKE_VERSION(1, 0)
+  - name: ZE_CALCULATE_MULTIPLE_METRICS_EXP_VERSION_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _ze_calculate_multiple_metrics_exp_version_t
+- members:
+  - name: ZE_METRIC_GLOBAL_TIMESTAMPS_EXP_VERSION_1_0
+    val: ZE_MAKE_VERSION(1, 0)
+  - name: ZE_METRIC_GLOBAL_TIMESTAMPS_EXP_VERSION_CURRENT
+    val: ZE_MAKE_VERSION(1, 0)
+  - name: ZE_METRIC_GLOBAL_TIMESTAMPS_EXP_VERSION_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _ze_metric_global_timestamps_exp_version_t
+- members:
+  - name: ZET_EXPORT_METRIC_DATA_EXP_VERSION_1_0
+    val: ZE_MAKE_VERSION(1, 0)
+  - name: ZET_EXPORT_METRIC_DATA_EXP_VERSION_CURRENT
+    val: ZE_MAKE_VERSION(1, 0)
+  - name: ZET_EXPORT_METRIC_DATA_EXP_VERSION_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_export_metric_data_exp_version_t
+- members:
+  - name: ZET_METRIC_PROGRAMMABLE_EXP_VERSION_1_1
+    val: ZE_MAKE_VERSION(1, 1)
+  - name: ZET_METRIC_PROGRAMMABLE_EXP_VERSION_CURRENT
+    val: ZE_MAKE_VERSION(1, 1)
+  - name: ZET_METRIC_PROGRAMMABLE_EXP_VERSION_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_metric_programmable_exp_version_t
+- members:
+  - name: ZET_METRIC_PROGRAMMABLE_PARAM_TYPE_EXP_DISAGGREGATION
+    val: '0'
+  - name: ZET_METRIC_PROGRAMMABLE_PARAM_TYPE_EXP_LATENCY
+    val: '1'
+  - name: ZET_METRIC_PROGRAMMABLE_PARAM_TYPE_EXP_NORMALIZATION_UTILIZATION
+    val: '2'
+  - name: ZET_METRIC_PROGRAMMABLE_PARAM_TYPE_EXP_NORMALIZATION_AVERAGE
+    val: '3'
+  - name: ZET_METRIC_PROGRAMMABLE_PARAM_TYPE_EXP_NORMALIZATION_RATE
+    val: '4'
+  - name: ZET_METRIC_PROGRAMMABLE_PARAM_TYPE_EXP_NORMALIZATION_BYTES
+    val: '5'
+  - name: ZET_METRIC_PROGRAMMABLE_PARAM_TYPE_EXP_GENERIC
+    val: '6'
+  - name: ZET_METRIC_PROGRAMMABLE_PARAM_TYPE_EXP_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_metric_programmable_param_type_exp_t
+- members:
+  - name: ZET_VALUE_INFO_TYPE_EXP_UINT32
+    val: '0'
+  - name: ZET_VALUE_INFO_TYPE_EXP_UINT64
+    val: '1'
+  - name: ZET_VALUE_INFO_TYPE_EXP_FLOAT32
+    val: '2'
+  - name: ZET_VALUE_INFO_TYPE_EXP_FLOAT64
+    val: '3'
+  - name: ZET_VALUE_INFO_TYPE_EXP_BOOL8
+    val: '4'
+  - name: ZET_VALUE_INFO_TYPE_EXP_UINT8
+    val: '5'
+  - name: ZET_VALUE_INFO_TYPE_EXP_UINT16
+    val: '6'
+  - name: ZET_VALUE_INFO_TYPE_EXP_UINT64_RANGE
+    val: '7'
+  - name: ZET_VALUE_INFO_TYPE_EXP_FLOAT64_RANGE
+    val: '8'
+  - name: ZET_VALUE_INFO_TYPE_EXP_FORCE_UINT32
+    val: '0x7fffffff'
+  name: _zet_value_info_type_exp_t
+functions:
+- name: zetModuleGetDebugInfo
+  params:
+  - name: hModule
+    type:
+      kind: custom_type
+      name: zet_module_handle_t
+  - name: format
+    type:
+      kind: custom_type
+      name: zet_module_debug_info_format_t
+  - name: pSize
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: size_t
+  - name: pDebugInfo
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint8_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetDeviceGetDebugProperties
+  params:
+  - name: hDevice
+    type:
+      kind: custom_type
+      name: zet_device_handle_t
+  - name: pDebugProperties
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_device_debug_properties_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetDebugAttach
+  params:
+  - name: hDevice
+    type:
+      kind: custom_type
+      name: zet_device_handle_t
+  - name: config
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: custom_type
+        name: zet_debug_config_t
+  - name: phDebug
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_debug_session_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetDebugDetach
+  params:
+  - name: hDebug
+    type:
+      kind: custom_type
+      name: zet_debug_session_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetDebugReadEvent
+  params:
+  - name: hDebug
+    type:
+      kind: custom_type
+      name: zet_debug_session_handle_t
+  - name: timeout
+    type:
+      kind: custom_type
+      name: uint64_t
+  - name: event
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_debug_event_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetDebugAcknowledgeEvent
+  params:
+  - name: hDebug
+    type:
+      kind: custom_type
+      name: zet_debug_session_handle_t
+  - name: event
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: custom_type
+        name: zet_debug_event_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetDebugInterrupt
+  params:
+  - name: hDebug
+    type:
+      kind: custom_type
+      name: zet_debug_session_handle_t
+  - name: thread
+    type:
+      kind: custom_type
+      name: ze_device_thread_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetDebugResume
+  params:
+  - name: hDebug
+    type:
+      kind: custom_type
+      name: zet_debug_session_handle_t
+  - name: thread
+    type:
+      kind: custom_type
+      name: ze_device_thread_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetDebugReadMemory
+  params:
+  - name: hDebug
+    type:
+      kind: custom_type
+      name: zet_debug_session_handle_t
+  - name: thread
+    type:
+      kind: custom_type
+      name: ze_device_thread_t
+  - name: desc
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: custom_type
+        name: zet_debug_memory_space_desc_t
+  - name: size
+    type:
+      kind: custom_type
+      name: size_t
+  - name: buffer
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetDebugWriteMemory
+  params:
+  - name: hDebug
+    type:
+      kind: custom_type
+      name: zet_debug_session_handle_t
+  - name: thread
+    type:
+      kind: custom_type
+      name: ze_device_thread_t
+  - name: desc
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: custom_type
+        name: zet_debug_memory_space_desc_t
+  - name: size
+    type:
+      kind: custom_type
+      name: size_t
+  - name: buffer
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: void
+        name: void
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetDebugGetRegisterSetProperties
+  params:
+  - name: hDevice
+    type:
+      kind: custom_type
+      name: zet_device_handle_t
+  - name: pCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: pRegisterSetProperties
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_debug_regset_properties_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetDebugGetThreadRegisterSetProperties
+  params:
+  - name: hDebug
+    type:
+      kind: custom_type
+      name: zet_debug_session_handle_t
+  - name: thread
+    type:
+      kind: custom_type
+      name: ze_device_thread_t
+  - name: pCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: pRegisterSetProperties
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_debug_regset_properties_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetDebugReadRegisters
+  params:
+  - name: hDebug
+    type:
+      kind: custom_type
+      name: zet_debug_session_handle_t
+  - name: thread
+    type:
+      kind: custom_type
+      name: ze_device_thread_t
+  - name: type
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: start
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: count
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: pRegisterValues
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetDebugWriteRegisters
+  params:
+  - name: hDebug
+    type:
+      kind: custom_type
+      name: zet_debug_session_handle_t
+  - name: thread
+    type:
+      kind: custom_type
+      name: ze_device_thread_t
+  - name: type
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: start
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: count
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: pRegisterValues
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricGroupGet
+  params:
+  - name: hDevice
+    type:
+      kind: custom_type
+      name: zet_device_handle_t
+  - name: pCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: phMetricGroups
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_group_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricGroupGetProperties
+  params:
+  - name: hMetricGroup
+    type:
+      kind: custom_type
+      name: zet_metric_group_handle_t
+  - name: pProperties
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_group_properties_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricGroupCalculateMetricValues
+  params:
+  - name: hMetricGroup
+    type:
+      kind: custom_type
+      name: zet_metric_group_handle_t
+  - name: type
+    type:
+      kind: custom_type
+      name: zet_metric_group_calculation_type_t
+  - name: rawDataSize
+    type:
+      kind: custom_type
+      name: size_t
+  - name: pRawData
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: custom_type
+        name: uint8_t
+  - name: pMetricValueCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: pMetricValues
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_typed_value_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricGet
+  params:
+  - name: hMetricGroup
+    type:
+      kind: custom_type
+      name: zet_metric_group_handle_t
+  - name: pCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: phMetrics
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricGetProperties
+  params:
+  - name: hMetric
+    type:
+      kind: custom_type
+      name: zet_metric_handle_t
+  - name: pProperties
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_properties_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetContextActivateMetricGroups
+  params:
+  - name: hContext
+    type:
+      kind: custom_type
+      name: zet_context_handle_t
+  - name: hDevice
+    type:
+      kind: custom_type
+      name: zet_device_handle_t
+  - name: count
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: phMetricGroups
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_group_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricStreamerOpen
+  params:
+  - name: hContext
+    type:
+      kind: custom_type
+      name: zet_context_handle_t
+  - name: hDevice
+    type:
+      kind: custom_type
+      name: zet_device_handle_t
+  - name: hMetricGroup
+    type:
+      kind: custom_type
+      name: zet_metric_group_handle_t
+  - name: desc
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_streamer_desc_t
+  - name: hNotificationEvent
+    type:
+      kind: custom_type
+      name: ze_event_handle_t
+  - name: phMetricStreamer
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_streamer_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetCommandListAppendMetricStreamerMarker
+  params:
+  - name: hCommandList
+    type:
+      kind: custom_type
+      name: zet_command_list_handle_t
+  - name: hMetricStreamer
+    type:
+      kind: custom_type
+      name: zet_metric_streamer_handle_t
+  - name: value
+    type:
+      kind: custom_type
+      name: uint32_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricStreamerClose
+  params:
+  - name: hMetricStreamer
+    type:
+      kind: custom_type
+      name: zet_metric_streamer_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricStreamerReadData
+  params:
+  - name: hMetricStreamer
+    type:
+      kind: custom_type
+      name: zet_metric_streamer_handle_t
+  - name: maxReportCount
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: pRawDataSize
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: size_t
+  - name: pRawData
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint8_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricQueryPoolCreate
+  params:
+  - name: hContext
+    type:
+      kind: custom_type
+      name: zet_context_handle_t
+  - name: hDevice
+    type:
+      kind: custom_type
+      name: zet_device_handle_t
+  - name: hMetricGroup
+    type:
+      kind: custom_type
+      name: zet_metric_group_handle_t
+  - name: desc
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: custom_type
+        name: zet_metric_query_pool_desc_t
+  - name: phMetricQueryPool
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_query_pool_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricQueryPoolDestroy
+  params:
+  - name: hMetricQueryPool
+    type:
+      kind: custom_type
+      name: zet_metric_query_pool_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricQueryCreate
+  params:
+  - name: hMetricQueryPool
+    type:
+      kind: custom_type
+      name: zet_metric_query_pool_handle_t
+  - name: index
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: phMetricQuery
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_query_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricQueryDestroy
+  params:
+  - name: hMetricQuery
+    type:
+      kind: custom_type
+      name: zet_metric_query_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricQueryReset
+  params:
+  - name: hMetricQuery
+    type:
+      kind: custom_type
+      name: zet_metric_query_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetCommandListAppendMetricQueryBegin
+  params:
+  - name: hCommandList
+    type:
+      kind: custom_type
+      name: zet_command_list_handle_t
+  - name: hMetricQuery
+    type:
+      kind: custom_type
+      name: zet_metric_query_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetCommandListAppendMetricQueryEnd
+  params:
+  - name: hCommandList
+    type:
+      kind: custom_type
+      name: zet_command_list_handle_t
+  - name: hMetricQuery
+    type:
+      kind: custom_type
+      name: zet_metric_query_handle_t
+  - name: hSignalEvent
+    type:
+      kind: custom_type
+      name: ze_event_handle_t
+  - name: numWaitEvents
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: phWaitEvents
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: ze_event_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetCommandListAppendMetricMemoryBarrier
+  params:
+  - name: hCommandList
+    type:
+      kind: custom_type
+      name: zet_command_list_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricQueryGetData
+  params:
+  - name: hMetricQuery
+    type:
+      kind: custom_type
+      name: zet_metric_query_handle_t
+  - name: pRawDataSize
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: size_t
+  - name: pRawData
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint8_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetKernelGetProfileInfo
+  params:
+  - name: hKernel
+    type:
+      kind: custom_type
+      name: zet_kernel_handle_t
+  - name: pProfileProperties
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_profile_properties_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetTracerExpCreate
+  params:
+  - name: hContext
+    type:
+      kind: custom_type
+      name: zet_context_handle_t
+  - name: desc
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: custom_type
+        name: zet_tracer_exp_desc_t
+  - name: phTracer
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_tracer_exp_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetTracerExpDestroy
+  params:
+  - name: hTracer
+    type:
+      kind: custom_type
+      name: zet_tracer_exp_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetTracerExpSetPrologues
+  params:
+  - name: hTracer
+    type:
+      kind: custom_type
+      name: zet_tracer_exp_handle_t
+  - name: pCoreCbs
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_core_callbacks_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetTracerExpSetEpilogues
+  params:
+  - name: hTracer
+    type:
+      kind: custom_type
+      name: zet_tracer_exp_handle_t
+  - name: pCoreCbs
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_core_callbacks_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetTracerExpSetEnabled
+  params:
+  - name: hTracer
+    type:
+      kind: custom_type
+      name: zet_tracer_exp_handle_t
+  - name: enable
+    type:
+      kind: custom_type
+      name: ze_bool_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetDeviceGetConcurrentMetricGroupsExp
+  params:
+  - name: hDevice
+    type:
+      kind: custom_type
+      name: zet_device_handle_t
+  - name: metricGroupCount
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: phMetricGroups
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_group_handle_t
+  - name: pMetricGroupsCountPerConcurrentGroup
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: pConcurrentGroupCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricTracerCreateExp
+  params:
+  - name: hContext
+    type:
+      kind: custom_type
+      name: zet_context_handle_t
+  - name: hDevice
+    type:
+      kind: custom_type
+      name: zet_device_handle_t
+  - name: metricGroupCount
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: phMetricGroups
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_group_handle_t
+  - name: desc
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_tracer_exp_desc_t
+  - name: hNotificationEvent
+    type:
+      kind: custom_type
+      name: ze_event_handle_t
+  - name: phMetricTracer
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_tracer_exp_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricTracerDestroyExp
+  params:
+  - name: hMetricTracer
+    type:
+      kind: custom_type
+      name: zet_metric_tracer_exp_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricTracerEnableExp
+  params:
+  - name: hMetricTracer
+    type:
+      kind: custom_type
+      name: zet_metric_tracer_exp_handle_t
+  - name: synchronous
+    type:
+      kind: custom_type
+      name: ze_bool_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricTracerDisableExp
+  params:
+  - name: hMetricTracer
+    type:
+      kind: custom_type
+      name: zet_metric_tracer_exp_handle_t
+  - name: synchronous
+    type:
+      kind: custom_type
+      name: ze_bool_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricTracerReadDataExp
+  params:
+  - name: hMetricTracer
+    type:
+      kind: custom_type
+      name: zet_metric_tracer_exp_handle_t
+  - name: pRawDataSize
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: size_t
+  - name: pRawData
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint8_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricDecoderCreateExp
+  params:
+  - name: hMetricTracer
+    type:
+      kind: custom_type
+      name: zet_metric_tracer_exp_handle_t
+  - name: phMetricDecoder
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_decoder_exp_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricDecoderDestroyExp
+  params:
+  - name: phMetricDecoder
+    type:
+      kind: custom_type
+      name: zet_metric_decoder_exp_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricDecoderGetDecodableMetricsExp
+  params:
+  - name: hMetricDecoder
+    type:
+      kind: custom_type
+      name: zet_metric_decoder_exp_handle_t
+  - name: pCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: phMetrics
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricTracerDecodeExp
+  params:
+  - name: phMetricDecoder
+    type:
+      kind: custom_type
+      name: zet_metric_decoder_exp_handle_t
+  - name: pRawDataSize
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: size_t
+  - name: pRawData
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint8_t
+  - name: metricsCount
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: phMetrics
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_handle_t
+  - name: pSetCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: pMetricEntriesCountPerSet
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: pMetricEntriesCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: pMetricEntries
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_entry_exp_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetCommandListAppendMarkerExp
+  params:
+  - name: hCommandList
+    type:
+      kind: custom_type
+      name: zet_command_list_handle_t
+  - name: hMetricGroup
+    type:
+      kind: custom_type
+      name: zet_metric_group_handle_t
+  - name: value
+    type:
+      kind: custom_type
+      name: uint32_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetDeviceEnableMetricsExp
+  params:
+  - name: hDevice
+    type:
+      kind: custom_type
+      name: zet_device_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetDeviceDisableMetricsExp
+  params:
+  - name: hDevice
+    type:
+      kind: custom_type
+      name: zet_device_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricGroupCalculateMultipleMetricValuesExp
+  params:
+  - name: hMetricGroup
+    type:
+      kind: custom_type
+      name: zet_metric_group_handle_t
+  - name: type
+    type:
+      kind: custom_type
+      name: zet_metric_group_calculation_type_t
+  - name: rawDataSize
+    type:
+      kind: custom_type
+      name: size_t
+  - name: pRawData
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: custom_type
+        name: uint8_t
+  - name: pSetCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: pTotalMetricValueCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: pMetricCounts
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: pMetricValues
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_typed_value_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricGroupGetGlobalTimestampsExp
+  params:
+  - name: hMetricGroup
+    type:
+      kind: custom_type
+      name: zet_metric_group_handle_t
+  - name: synchronizedWithHost
+    type:
+      kind: custom_type
+      name: ze_bool_t
+  - name: globalTimestamp
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint64_t
+  - name: metricTimestamp
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint64_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricGroupGetExportDataExp
+  params:
+  - name: hMetricGroup
+    type:
+      kind: custom_type
+      name: zet_metric_group_handle_t
+  - name: pRawData
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: custom_type
+        name: uint8_t
+  - name: rawDataSize
+    type:
+      kind: custom_type
+      name: size_t
+  - name: pExportDataSize
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: size_t
+  - name: pExportData
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint8_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricGroupCalculateMetricExportDataExp
+  params:
+  - name: hDriver
+    type:
+      kind: custom_type
+      name: ze_driver_handle_t
+  - name: type
+    type:
+      kind: custom_type
+      name: zet_metric_group_calculation_type_t
+  - name: exportDataSize
+    type:
+      kind: custom_type
+      name: size_t
+  - name: pExportData
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: custom_type
+        name: uint8_t
+  - name: pCalculateDescriptor
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_calculate_exp_desc_t
+  - name: pSetCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: pTotalMetricValueCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: pMetricCounts
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: pMetricValues
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_typed_value_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricProgrammableGetExp
+  params:
+  - name: hDevice
+    type:
+      kind: custom_type
+      name: zet_device_handle_t
+  - name: pCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: phMetricProgrammables
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_programmable_exp_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricProgrammableGetPropertiesExp
+  params:
+  - name: hMetricProgrammable
+    type:
+      kind: custom_type
+      name: zet_metric_programmable_exp_handle_t
+  - name: pProperties
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_programmable_exp_properties_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricProgrammableGetParamInfoExp
+  params:
+  - name: hMetricProgrammable
+    type:
+      kind: custom_type
+      name: zet_metric_programmable_exp_handle_t
+  - name: pParameterCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: pParameterInfo
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_programmable_param_info_exp_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricProgrammableGetParamValueInfoExp
+  params:
+  - name: hMetricProgrammable
+    type:
+      kind: custom_type
+      name: zet_metric_programmable_exp_handle_t
+  - name: parameterOrdinal
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: pValueInfoCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: pValueInfo
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_programmable_param_value_info_exp_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricCreateFromProgrammableExp2
+  params:
+  - name: hMetricProgrammable
+    type:
+      kind: custom_type
+      name: zet_metric_programmable_exp_handle_t
+  - name: parameterCount
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: pParameterValues
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_programmable_param_value_exp_t
+  - name: pName
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: char
+        name: char
+  - name: pDescription
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: char
+        name: char
+  - name: pMetricHandleCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: phMetricHandles
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricCreateFromProgrammableExp
+  params:
+  - name: hMetricProgrammable
+    type:
+      kind: custom_type
+      name: zet_metric_programmable_exp_handle_t
+  - name: pParameterValues
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_programmable_param_value_exp_t
+  - name: parameterCount
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: pName
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: char
+        name: char
+  - name: pDescription
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: char
+        name: char
+  - name: pMetricHandleCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: phMetricHandles
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetDeviceCreateMetricGroupsFromMetricsExp
+  params:
+  - name: hDevice
+    type:
+      kind: custom_type
+      name: zet_device_handle_t
+  - name: metricCount
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: phMetrics
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_handle_t
+  - name: pMetricGroupNamePrefix
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: char
+        name: char
+  - name: pDescription
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: char
+        name: char
+  - name: pMetricGroupCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint32_t
+  - name: phMetricGroup
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_group_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricGroupCreateExp
+  params:
+  - name: hDevice
+    type:
+      kind: custom_type
+      name: zet_device_handle_t
+  - name: pName
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: char
+        name: char
+  - name: pDescription
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: char
+        name: char
+  - name: samplingType
+    type:
+      kind: custom_type
+      name: zet_metric_group_sampling_type_flags_t
+  - name: phMetricGroup
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_group_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricGroupAddMetricExp
+  params:
+  - name: hMetricGroup
+    type:
+      kind: custom_type
+      name: zet_metric_group_handle_t
+  - name: hMetric
+    type:
+      kind: custom_type
+      name: zet_metric_handle_t
+  - name: pErrorStringSize
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: size_t
+  - name: pErrorString
+    type:
+      kind: pointer
+      type:
+        kind: char
+        name: char
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricGroupRemoveMetricExp
+  params:
+  - name: hMetricGroup
+    type:
+      kind: custom_type
+      name: zet_metric_group_handle_t
+  - name: hMetric
+    type:
+      kind: custom_type
+      name: zet_metric_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricGroupCloseExp
+  params:
+  - name: hMetricGroup
+    type:
+      kind: custom_type
+      name: zet_metric_group_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricGroupDestroyExp
+  params:
+  - name: hMetricGroup
+    type:
+      kind: custom_type
+      name: zet_metric_group_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetMetricDestroyExp
+  params:
+  - name: hMetric
+    type:
+      kind: custom_type
+      name: zet_metric_handle_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetMetricProgrammableExpProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_programmable_exp_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetMetricTracerExpProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_tracer_exp_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetMetricDecoderExpProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_decoder_exp_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetDeviceProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_device_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetDeviceExpProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_device_exp_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetContextProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_context_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetCommandListProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_command_list_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetCommandListExpProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_command_list_exp_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetModuleProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_module_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetKernelProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_kernel_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetMetricProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetMetricExpProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_exp_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetMetricGroupProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_group_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetMetricGroupExpProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_group_exp_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetMetricStreamerProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_streamer_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetMetricQueryPoolProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_query_pool_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetMetricQueryProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_query_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetTracerExpProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_tracer_exp_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+- name: zetGetDebugProcAddrTable
+  params:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: pDdiTable
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_debug_dditable_t
+  type:
+    kind: custom_type
+    name: ze_result_t
+structs:
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  name: _zet_base_properties_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: void
+        name: void
+  name: _zet_base_desc_t
+- members:
+  - name: type
+    type:
+      kind: custom_type
+      name: zet_value_type_t
+  - name: value
+    type:
+      kind: custom_type
+      name: zet_value_t
+  name: _zet_typed_value_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: flags
+    type:
+      kind: custom_type
+      name: zet_device_debug_property_flags_t
+  name: _zet_device_debug_properties_t
+- members:
+  - name: pid
+    type:
+      kind: custom_type
+      name: uint32_t
+  name: _zet_debug_config_t
+- members:
+  - name: reason
+    type:
+      kind: custom_type
+      name: zet_debug_detach_reason_t
+  name: _zet_debug_event_info_detached_t
+- members:
+  - name: format
+    type:
+      kind: custom_type
+      name: zet_module_debug_info_format_t
+  - name: moduleBegin
+    type:
+      kind: custom_type
+      name: uint64_t
+  - name: moduleEnd
+    type:
+      kind: custom_type
+      name: uint64_t
+  - name: load
+    type:
+      kind: custom_type
+      name: uint64_t
+  name: _zet_debug_event_info_module_t
+- members:
+  - name: thread
+    type:
+      kind: custom_type
+      name: ze_device_thread_t
+  name: _zet_debug_event_info_thread_stopped_t
+- members:
+  - name: address
+    type:
+      kind: custom_type
+      name: uint64_t
+  - name: mask
+    type:
+      kind: custom_type
+      name: uint64_t
+  - name: reason
+    type:
+      kind: custom_type
+      name: zet_debug_page_fault_reason_t
+  name: _zet_debug_event_info_page_fault_t
+- members:
+  - name: type
+    type:
+      kind: custom_type
+      name: zet_debug_event_type_t
+  - name: flags
+    type:
+      kind: custom_type
+      name: zet_debug_event_flags_t
+  - name: info
+    type:
+      kind: custom_type
+      name: zet_debug_event_info_t
+  name: _zet_debug_event_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: void
+        name: void
+  - name: type
+    type:
+      kind: custom_type
+      name: zet_debug_memory_space_type_t
+  - name: address
+    type:
+      kind: custom_type
+      name: uint64_t
+  name: _zet_debug_memory_space_desc_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: type
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: version
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: generalFlags
+    type:
+      kind: custom_type
+      name: zet_debug_regset_flags_t
+  - name: deviceFlags
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: count
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: bitSize
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: byteSize
+    type:
+      kind: custom_type
+      name: uint32_t
+  name: _zet_debug_regset_properties_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: name
+    type:
+      kind: array
+      length: ZET_MAX_METRIC_GROUP_NAME
+      type:
+        kind: char
+        name: char
+  - name: description
+    type:
+      kind: array
+      length: ZET_MAX_METRIC_GROUP_DESCRIPTION
+      type:
+        kind: char
+        name: char
+  - name: samplingType
+    type:
+      kind: custom_type
+      name: zet_metric_group_sampling_type_flags_t
+  - name: domain
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: metricCount
+    type:
+      kind: custom_type
+      name: uint32_t
+  name: _zet_metric_group_properties_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: name
+    type:
+      kind: array
+      length: ZET_MAX_METRIC_NAME
+      type:
+        kind: char
+        name: char
+  - name: description
+    type:
+      kind: array
+      length: ZET_MAX_METRIC_DESCRIPTION
+      type:
+        kind: char
+        name: char
+  - name: component
+    type:
+      kind: array
+      length: ZET_MAX_METRIC_COMPONENT
+      type:
+        kind: char
+        name: char
+  - name: tierNumber
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: metricType
+    type:
+      kind: custom_type
+      name: zet_metric_type_t
+  - name: resultType
+    type:
+      kind: custom_type
+      name: zet_value_type_t
+  - name: resultUnits
+    type:
+      kind: array
+      length: ZET_MAX_METRIC_RESULT_UNITS
+      type:
+        kind: char
+        name: char
+  name: _zet_metric_properties_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: void
+        name: void
+  - name: notifyEveryNReports
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: samplingPeriod
+    type:
+      kind: custom_type
+      name: uint32_t
+  name: _zet_metric_streamer_desc_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: void
+        name: void
+  - name: type
+    type:
+      kind: custom_type
+      name: zet_metric_query_pool_type_t
+  - name: count
+    type:
+      kind: custom_type
+      name: uint32_t
+  name: _zet_metric_query_pool_desc_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: flags
+    type:
+      kind: custom_type
+      name: zet_profile_flags_t
+  - name: numTokens
+    type:
+      kind: custom_type
+      name: uint32_t
+  name: _zet_profile_properties_t
+- members:
+  - name: type
+    type:
+      kind: custom_type
+      name: zet_profile_token_type_t
+  - name: size
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: count
+    type:
+      kind: custom_type
+      name: uint32_t
+  name: _zet_profile_free_register_token_t
+- members:
+  - name: start
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: count
+    type:
+      kind: custom_type
+      name: uint32_t
+  name: _zet_profile_register_sequence_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: void
+        name: void
+  - name: pUserData
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  name: _zet_tracer_exp_desc_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: void
+        name: void
+  - name: notifyEveryNBytes
+    type:
+      kind: custom_type
+      name: uint32_t
+  name: _zet_metric_tracer_exp_desc_t
+- members:
+  - name: value
+    type:
+      kind: custom_type
+      name: zet_value_t
+  - name: timeStamp
+    type:
+      kind: custom_type
+      name: uint64_t
+  - name: metricIndex
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: onSubdevice
+    type:
+      kind: custom_type
+      name: ze_bool_t
+  - name: subdeviceId
+    type:
+      kind: custom_type
+      name: uint32_t
+  name: _zet_metric_entry_exp_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: type
+    type:
+      kind: custom_type
+      name: zet_metric_group_type_exp_flags_t
+  name: _zet_metric_group_type_exp_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: fd
+    type:
+      kind: int
+      name: int
+  - name: size
+    type:
+      kind: custom_type
+      name: size_t
+  name: _zet_export_dma_buf_exp_properties_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: sourceId
+    type:
+      kind: custom_type
+      name: uint32_t
+  name: _zet_metric_source_id_exp_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: void
+        name: void
+  - name: timerResolution
+    type:
+      kind: custom_type
+      name: uint64_t
+  - name: timestampValidBits
+    type:
+      kind: custom_type
+      name: uint64_t
+  name: _zet_metric_global_timestamps_resolution_exp_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        const: true
+        kind: void
+        name: void
+  - name: rawReportSkipCount
+    type:
+      kind: custom_type
+      name: uint32_t
+  name: _zet_metric_calculate_exp_desc_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: name
+    type:
+      kind: array
+      length: ZET_MAX_METRIC_PROGRAMMABLE_NAME_EXP
+      type:
+        kind: char
+        name: char
+  - name: description
+    type:
+      kind: array
+      length: ZET_MAX_METRIC_PROGRAMMABLE_DESCRIPTION_EXP
+      type:
+        kind: char
+        name: char
+  - name: component
+    type:
+      kind: array
+      length: ZET_MAX_METRIC_PROGRAMMABLE_COMPONENT_EXP
+      type:
+        kind: char
+        name: char
+  - name: tierNumber
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: domain
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: parameterCount
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: samplingType
+    type:
+      kind: custom_type
+      name: zet_metric_group_sampling_type_flags_t
+  - name: sourceId
+    type:
+      kind: custom_type
+      name: uint32_t
+  name: _zet_metric_programmable_exp_properties_t
+- members:
+  - name: ui64Min
+    type:
+      kind: custom_type
+      name: uint64_t
+  - name: ui64Max
+    type:
+      kind: custom_type
+      name: uint64_t
+  name: _zet_value_uint64_range_exp_t
+- members:
+  - name: fp64Min
+    type:
+      kind: float
+      name: double
+  - name: fp64Max
+    type:
+      kind: float
+      name: double
+  name: _zet_value_fp64_range_exp_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: type
+    type:
+      kind: custom_type
+      name: zet_metric_programmable_param_type_exp_t
+  - name: name
+    type:
+      kind: array
+      length: ZET_MAX_METRIC_PROGRAMMABLE_PARAMETER_NAME_EXP
+      type:
+        kind: char
+        name: char
+  - name: valueInfoType
+    type:
+      kind: custom_type
+      name: zet_value_info_type_exp_t
+  - name: defaultValue
+    type:
+      kind: custom_type
+      name: zet_value_t
+  - name: valueInfoCount
+    type:
+      kind: custom_type
+      name: uint32_t
+  name: _zet_metric_programmable_param_info_exp_t
+- members:
+  - name: stype
+    type:
+      kind: custom_type
+      name: zet_structure_type_t
+  - name: pNext
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: valueInfo
+    type:
+      kind: custom_type
+      name: zet_value_info_exp_t
+  - name: description
+    type:
+      kind: array
+      length: ZET_MAX_METRIC_PROGRAMMABLE_VALUE_DESCRIPTION_EXP
+      type:
+        kind: char
+        name: char
+  name: _zet_metric_programmable_param_value_info_exp_t
+- members:
+  - name: value
+    type:
+      kind: custom_type
+      name: zet_value_t
+  name: _zet_metric_programmable_param_value_exp_t
+- members:
+  - name: pfnGetExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricProgrammableGetExp_t
+  - name: pfnGetPropertiesExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricProgrammableGetPropertiesExp_t
+  - name: pfnGetParamInfoExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricProgrammableGetParamInfoExp_t
+  - name: pfnGetParamValueInfoExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricProgrammableGetParamValueInfoExp_t
+  name: _zet_metric_programmable_exp_dditable_t
+- members:
+  - name: pfnCreateExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricTracerCreateExp_t
+  - name: pfnDestroyExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricTracerDestroyExp_t
+  - name: pfnEnableExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricTracerEnableExp_t
+  - name: pfnDisableExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricTracerDisableExp_t
+  - name: pfnReadDataExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricTracerReadDataExp_t
+  - name: pfnDecodeExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricTracerDecodeExp_t
+  name: _zet_metric_tracer_exp_dditable_t
+- members:
+  - name: pfnCreateExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricDecoderCreateExp_t
+  - name: pfnDestroyExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricDecoderDestroyExp_t
+  - name: pfnGetDecodableMetricsExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricDecoderGetDecodableMetricsExp_t
+  name: _zet_metric_decoder_exp_dditable_t
+- members:
+  - name: pfnGetDebugProperties
+    type:
+      kind: custom_type
+      name: zet_pfnDeviceGetDebugProperties_t
+  name: _zet_device_dditable_t
+- members:
+  - name: pfnGetConcurrentMetricGroupsExp
+    type:
+      kind: custom_type
+      name: zet_pfnDeviceGetConcurrentMetricGroupsExp_t
+  - name: pfnCreateMetricGroupsFromMetricsExp
+    type:
+      kind: custom_type
+      name: zet_pfnDeviceCreateMetricGroupsFromMetricsExp_t
+  - name: pfnEnableMetricsExp
+    type:
+      kind: custom_type
+      name: zet_pfnDeviceEnableMetricsExp_t
+  - name: pfnDisableMetricsExp
+    type:
+      kind: custom_type
+      name: zet_pfnDeviceDisableMetricsExp_t
+  name: _zet_device_exp_dditable_t
+- members:
+  - name: pfnActivateMetricGroups
+    type:
+      kind: custom_type
+      name: zet_pfnContextActivateMetricGroups_t
+  name: _zet_context_dditable_t
+- members:
+  - name: pfnAppendMetricStreamerMarker
+    type:
+      kind: custom_type
+      name: zet_pfnCommandListAppendMetricStreamerMarker_t
+  - name: pfnAppendMetricQueryBegin
+    type:
+      kind: custom_type
+      name: zet_pfnCommandListAppendMetricQueryBegin_t
+  - name: pfnAppendMetricQueryEnd
+    type:
+      kind: custom_type
+      name: zet_pfnCommandListAppendMetricQueryEnd_t
+  - name: pfnAppendMetricMemoryBarrier
+    type:
+      kind: custom_type
+      name: zet_pfnCommandListAppendMetricMemoryBarrier_t
+  name: _zet_command_list_dditable_t
+- members:
+  - name: pfnAppendMarkerExp
+    type:
+      kind: custom_type
+      name: zet_pfnCommandListAppendMarkerExp_t
+  name: _zet_command_list_exp_dditable_t
+- members:
+  - name: pfnGetDebugInfo
+    type:
+      kind: custom_type
+      name: zet_pfnModuleGetDebugInfo_t
+  name: _zet_module_dditable_t
+- members:
+  - name: pfnGetProfileInfo
+    type:
+      kind: custom_type
+      name: zet_pfnKernelGetProfileInfo_t
+  name: _zet_kernel_dditable_t
+- members:
+  - name: pfnGet
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGet_t
+  - name: pfnGetProperties
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGetProperties_t
+  name: _zet_metric_dditable_t
+- members:
+  - name: pfnCreateFromProgrammableExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricCreateFromProgrammableExp_t
+  - name: pfnDestroyExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricDestroyExp_t
+  - name: pfnCreateFromProgrammableExp2
+    type:
+      kind: custom_type
+      name: zet_pfnMetricCreateFromProgrammableExp2_t
+  name: _zet_metric_exp_dditable_t
+- members:
+  - name: pfnGet
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupGet_t
+  - name: pfnGetProperties
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupGetProperties_t
+  - name: pfnCalculateMetricValues
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupCalculateMetricValues_t
+  name: _zet_metric_group_dditable_t
+- members:
+  - name: pfnCalculateMultipleMetricValuesExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupCalculateMultipleMetricValuesExp_t
+  - name: pfnGetGlobalTimestampsExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupGetGlobalTimestampsExp_t
+  - name: pfnGetExportDataExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupGetExportDataExp_t
+  - name: pfnCalculateMetricExportDataExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupCalculateMetricExportDataExp_t
+  - name: pfnCreateExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupCreateExp_t
+  - name: pfnAddMetricExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupAddMetricExp_t
+  - name: pfnRemoveMetricExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupRemoveMetricExp_t
+  - name: pfnCloseExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupCloseExp_t
+  - name: pfnDestroyExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupDestroyExp_t
+  name: _zet_metric_group_exp_dditable_t
+- members:
+  - name: pfnOpen
+    type:
+      kind: custom_type
+      name: zet_pfnMetricStreamerOpen_t
+  - name: pfnClose
+    type:
+      kind: custom_type
+      name: zet_pfnMetricStreamerClose_t
+  - name: pfnReadData
+    type:
+      kind: custom_type
+      name: zet_pfnMetricStreamerReadData_t
+  name: _zet_metric_streamer_dditable_t
+- members:
+  - name: pfnCreate
+    type:
+      kind: custom_type
+      name: zet_pfnMetricQueryPoolCreate_t
+  - name: pfnDestroy
+    type:
+      kind: custom_type
+      name: zet_pfnMetricQueryPoolDestroy_t
+  name: _zet_metric_query_pool_dditable_t
+- members:
+  - name: pfnCreate
+    type:
+      kind: custom_type
+      name: zet_pfnMetricQueryCreate_t
+  - name: pfnDestroy
+    type:
+      kind: custom_type
+      name: zet_pfnMetricQueryDestroy_t
+  - name: pfnReset
+    type:
+      kind: custom_type
+      name: zet_pfnMetricQueryReset_t
+  - name: pfnGetData
+    type:
+      kind: custom_type
+      name: zet_pfnMetricQueryGetData_t
+  name: _zet_metric_query_dditable_t
+- members:
+  - name: pfnCreate
+    type:
+      kind: custom_type
+      name: zet_pfnTracerExpCreate_t
+  - name: pfnDestroy
+    type:
+      kind: custom_type
+      name: zet_pfnTracerExpDestroy_t
+  - name: pfnSetPrologues
+    type:
+      kind: custom_type
+      name: zet_pfnTracerExpSetPrologues_t
+  - name: pfnSetEpilogues
+    type:
+      kind: custom_type
+      name: zet_pfnTracerExpSetEpilogues_t
+  - name: pfnSetEnabled
+    type:
+      kind: custom_type
+      name: zet_pfnTracerExpSetEnabled_t
+  name: _zet_tracer_exp_dditable_t
+- members:
+  - name: pfnAttach
+    type:
+      kind: custom_type
+      name: zet_pfnDebugAttach_t
+  - name: pfnDetach
+    type:
+      kind: custom_type
+      name: zet_pfnDebugDetach_t
+  - name: pfnReadEvent
+    type:
+      kind: custom_type
+      name: zet_pfnDebugReadEvent_t
+  - name: pfnAcknowledgeEvent
+    type:
+      kind: custom_type
+      name: zet_pfnDebugAcknowledgeEvent_t
+  - name: pfnInterrupt
+    type:
+      kind: custom_type
+      name: zet_pfnDebugInterrupt_t
+  - name: pfnResume
+    type:
+      kind: custom_type
+      name: zet_pfnDebugResume_t
+  - name: pfnReadMemory
+    type:
+      kind: custom_type
+      name: zet_pfnDebugReadMemory_t
+  - name: pfnWriteMemory
+    type:
+      kind: custom_type
+      name: zet_pfnDebugWriteMemory_t
+  - name: pfnGetRegisterSetProperties
+    type:
+      kind: custom_type
+      name: zet_pfnDebugGetRegisterSetProperties_t
+  - name: pfnReadRegisters
+    type:
+      kind: custom_type
+      name: zet_pfnDebugReadRegisters_t
+  - name: pfnWriteRegisters
+    type:
+      kind: custom_type
+      name: zet_pfnDebugWriteRegisters_t
+  - name: pfnGetThreadRegisterSetProperties
+    type:
+      kind: custom_type
+      name: zet_pfnDebugGetThreadRegisterSetProperties_t
+  name: _zet_debug_dditable_t
+- members:
+  - name: MetricProgrammableExp
+    type:
+      kind: custom_type
+      name: zet_metric_programmable_exp_dditable_t
+  - name: MetricTracerExp
+    type:
+      kind: custom_type
+      name: zet_metric_tracer_exp_dditable_t
+  - name: MetricDecoderExp
+    type:
+      kind: custom_type
+      name: zet_metric_decoder_exp_dditable_t
+  - name: Device
+    type:
+      kind: custom_type
+      name: zet_device_dditable_t
+  - name: DeviceExp
+    type:
+      kind: custom_type
+      name: zet_device_exp_dditable_t
+  - name: Context
+    type:
+      kind: custom_type
+      name: zet_context_dditable_t
+  - name: CommandList
+    type:
+      kind: custom_type
+      name: zet_command_list_dditable_t
+  - name: CommandListExp
+    type:
+      kind: custom_type
+      name: zet_command_list_exp_dditable_t
+  - name: Module
+    type:
+      kind: custom_type
+      name: zet_module_dditable_t
+  - name: Kernel
+    type:
+      kind: custom_type
+      name: zet_kernel_dditable_t
+  - name: Metric
+    type:
+      kind: custom_type
+      name: zet_metric_dditable_t
+  - name: MetricExp
+    type:
+      kind: custom_type
+      name: zet_metric_exp_dditable_t
+  - name: MetricGroup
+    type:
+      kind: custom_type
+      name: zet_metric_group_dditable_t
+  - name: MetricGroupExp
+    type:
+      kind: custom_type
+      name: zet_metric_group_exp_dditable_t
+  - name: MetricStreamer
+    type:
+      kind: custom_type
+      name: zet_metric_streamer_dditable_t
+  - name: MetricQueryPool
+    type:
+      kind: custom_type
+      name: zet_metric_query_pool_dditable_t
+  - name: MetricQuery
+    type:
+      kind: custom_type
+      name: zet_metric_query_dditable_t
+  - name: TracerExp
+    type:
+      kind: custom_type
+      name: zet_tracer_exp_dditable_t
+  - name: Debug
+    type:
+      kind: custom_type
+      name: zet_debug_dditable_t
+  name: _zet_dditable_t
+- members:
+  - name: version
+    type:
+      kind: custom_type
+      name: ze_api_version_t
+  - name: isValidFlag
+    type:
+      kind: custom_type
+      name: uint8_t
+  - name: MetricProgrammableExp
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_programmable_exp_dditable_t
+  - name: MetricTracerExp
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_tracer_exp_dditable_t
+  - name: MetricDecoderExp
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_decoder_exp_dditable_t
+  - name: Device
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_device_dditable_t
+  - name: DeviceExp
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_device_exp_dditable_t
+  - name: Context
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_context_dditable_t
+  - name: CommandList
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_command_list_dditable_t
+  - name: CommandListExp
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_command_list_exp_dditable_t
+  - name: Module
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_module_dditable_t
+  - name: Kernel
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_kernel_dditable_t
+  - name: Metric
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_dditable_t
+  - name: MetricExp
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_exp_dditable_t
+  - name: MetricGroup
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_group_dditable_t
+  - name: MetricGroupExp
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_group_exp_dditable_t
+  - name: MetricStreamer
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_streamer_dditable_t
+  - name: MetricQueryPool
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_query_pool_dditable_t
+  - name: MetricQuery
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_metric_query_dditable_t
+  - name: TracerExp
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_tracer_exp_dditable_t
+  - name: Debug
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: zet_debug_dditable_t
+  name: _zet_dditable_driver_t
+- members:
+  - name: pfnGetExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricProgrammableGetExp_t
+  - name: pfnGetPropertiesExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricProgrammableGetPropertiesExp_t
+  - name: pfnGetParamInfoExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricProgrammableGetParamInfoExp_t
+  - name: pfnGetParamValueInfoExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricProgrammableGetParamValueInfoExp_t
+  name: _zet_metric_programmable_exp_dditable_t_1_9
+- members:
+  - name: pfnCreateExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricTracerCreateExp_t
+  - name: pfnDestroyExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricTracerDestroyExp_t
+  - name: pfnEnableExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricTracerEnableExp_t
+  - name: pfnDisableExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricTracerDisableExp_t
+  - name: pfnReadDataExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricTracerReadDataExp_t
+  - name: pfnDecodeExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricTracerDecodeExp_t
+  name: _zet_metric_tracer_exp_dditable_t_1_1
+- members:
+  - name: pfnCreateExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricDecoderCreateExp_t
+  - name: pfnDestroyExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricDecoderDestroyExp_t
+  - name: pfnGetDecodableMetricsExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricDecoderGetDecodableMetricsExp_t
+  name: _zet_metric_decoder_exp_dditable_t_1_1
+- members:
+  - name: pfnGetDebugProperties
+    type:
+      kind: custom_type
+      name: zet_pfnDeviceGetDebugProperties_t
+  name: _zet_device_dditable_t_1_0
+- members:
+  - name: pfnGetConcurrentMetricGroupsExp
+    type:
+      kind: custom_type
+      name: zet_pfnDeviceGetConcurrentMetricGroupsExp_t
+  - name: pfnCreateMetricGroupsFromMetricsExp
+    type:
+      kind: custom_type
+      name: zet_pfnDeviceCreateMetricGroupsFromMetricsExp_t
+  name: _zet_device_exp_dditable_t_1_1
+- members:
+  - name: pfnGetConcurrentMetricGroupsExp
+    type:
+      kind: custom_type
+      name: zet_pfnDeviceGetConcurrentMetricGroupsExp_t
+  - name: pfnCreateMetricGroupsFromMetricsExp
+    type:
+      kind: custom_type
+      name: zet_pfnDeviceCreateMetricGroupsFromMetricsExp_t
+  - name: pfnEnableMetricsExp
+    type:
+      kind: custom_type
+      name: zet_pfnDeviceEnableMetricsExp_t
+  - name: pfnDisableMetricsExp
+    type:
+      kind: custom_type
+      name: zet_pfnDeviceDisableMetricsExp_t
+  name: _zet_device_exp_dditable_t_1_13
+- members:
+  - name: pfnActivateMetricGroups
+    type:
+      kind: custom_type
+      name: zet_pfnContextActivateMetricGroups_t
+  name: _zet_context_dditable_t_1_0
+- members:
+  - name: pfnAppendMetricStreamerMarker
+    type:
+      kind: custom_type
+      name: zet_pfnCommandListAppendMetricStreamerMarker_t
+  - name: pfnAppendMetricQueryBegin
+    type:
+      kind: custom_type
+      name: zet_pfnCommandListAppendMetricQueryBegin_t
+  - name: pfnAppendMetricQueryEnd
+    type:
+      kind: custom_type
+      name: zet_pfnCommandListAppendMetricQueryEnd_t
+  - name: pfnAppendMetricMemoryBarrier
+    type:
+      kind: custom_type
+      name: zet_pfnCommandListAppendMetricMemoryBarrier_t
+  name: _zet_command_list_dditable_t_1_0
+- members:
+  - name: pfnAppendMarkerExp
+    type:
+      kind: custom_type
+      name: zet_pfnCommandListAppendMarkerExp_t
+  name: _zet_command_list_exp_dditable_t_1_13
+- members:
+  - name: pfnGetDebugInfo
+    type:
+      kind: custom_type
+      name: zet_pfnModuleGetDebugInfo_t
+  name: _zet_module_dditable_t_1_0
+- members:
+  - name: pfnGetProfileInfo
+    type:
+      kind: custom_type
+      name: zet_pfnKernelGetProfileInfo_t
+  name: _zet_kernel_dditable_t_1_0
+- members:
+  - name: pfnGet
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGet_t
+  - name: pfnGetProperties
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGetProperties_t
+  name: _zet_metric_dditable_t_1_0
+- members:
+  - name: pfnCreateFromProgrammableExp2
+    type:
+      kind: custom_type
+      name: zet_pfnMetricCreateFromProgrammableExp2_t
+  name: _zet_metric_exp_dditable_t_1_11
+- members:
+  - name: pfnCreateFromProgrammableExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricCreateFromProgrammableExp_t
+  - name: pfnDestroyExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricDestroyExp_t
+  - name: pfnCreateFromProgrammableExp2
+    type:
+      kind: custom_type
+      name: zet_pfnMetricCreateFromProgrammableExp2_t
+  name: _zet_metric_exp_dditable_t_1_9
+- members:
+  - name: pfnGet
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupGet_t
+  - name: pfnGetProperties
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupGetProperties_t
+  - name: pfnCalculateMetricValues
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupCalculateMetricValues_t
+  name: _zet_metric_group_dditable_t_1_0
+- members:
+  - name: pfnCalculateMultipleMetricValuesExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupCalculateMultipleMetricValuesExp_t
+  name: _zet_metric_group_exp_dditable_t_1_2
+- members:
+  - name: pfnCalculateMultipleMetricValuesExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupCalculateMultipleMetricValuesExp_t
+  - name: pfnGetGlobalTimestampsExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupGetGlobalTimestampsExp_t
+  name: _zet_metric_group_exp_dditable_t_1_5
+- members:
+  - name: pfnCalculateMultipleMetricValuesExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupCalculateMultipleMetricValuesExp_t
+  - name: pfnGetGlobalTimestampsExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupGetGlobalTimestampsExp_t
+  - name: pfnGetExportDataExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupGetExportDataExp_t
+  - name: pfnCalculateMetricExportDataExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupCalculateMetricExportDataExp_t
+  name: _zet_metric_group_exp_dditable_t_1_6
+- members:
+  - name: pfnCalculateMultipleMetricValuesExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupCalculateMultipleMetricValuesExp_t
+  - name: pfnGetGlobalTimestampsExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupGetGlobalTimestampsExp_t
+  - name: pfnGetExportDataExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupGetExportDataExp_t
+  - name: pfnCalculateMetricExportDataExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupCalculateMetricExportDataExp_t
+  - name: pfnCreateExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupCreateExp_t
+  - name: pfnAddMetricExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupAddMetricExp_t
+  - name: pfnRemoveMetricExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupRemoveMetricExp_t
+  - name: pfnCloseExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupCloseExp_t
+  - name: pfnDestroyExp
+    type:
+      kind: custom_type
+      name: zet_pfnMetricGroupDestroyExp_t
+  name: _zet_metric_group_exp_dditable_t_1_9
+- members:
+  - name: pfnOpen
+    type:
+      kind: custom_type
+      name: zet_pfnMetricStreamerOpen_t
+  - name: pfnClose
+    type:
+      kind: custom_type
+      name: zet_pfnMetricStreamerClose_t
+  - name: pfnReadData
+    type:
+      kind: custom_type
+      name: zet_pfnMetricStreamerReadData_t
+  name: _zet_metric_streamer_dditable_t_1_0
+- members:
+  - name: pfnCreate
+    type:
+      kind: custom_type
+      name: zet_pfnMetricQueryPoolCreate_t
+  - name: pfnDestroy
+    type:
+      kind: custom_type
+      name: zet_pfnMetricQueryPoolDestroy_t
+  name: _zet_metric_query_pool_dditable_t_1_0
+- members:
+  - name: pfnCreate
+    type:
+      kind: custom_type
+      name: zet_pfnMetricQueryCreate_t
+  - name: pfnDestroy
+    type:
+      kind: custom_type
+      name: zet_pfnMetricQueryDestroy_t
+  - name: pfnReset
+    type:
+      kind: custom_type
+      name: zet_pfnMetricQueryReset_t
+  - name: pfnGetData
+    type:
+      kind: custom_type
+      name: zet_pfnMetricQueryGetData_t
+  name: _zet_metric_query_dditable_t_1_0
+- members:
+  - name: pfnCreate
+    type:
+      kind: custom_type
+      name: zet_pfnTracerExpCreate_t
+  - name: pfnDestroy
+    type:
+      kind: custom_type
+      name: zet_pfnTracerExpDestroy_t
+  - name: pfnSetPrologues
+    type:
+      kind: custom_type
+      name: zet_pfnTracerExpSetPrologues_t
+  - name: pfnSetEpilogues
+    type:
+      kind: custom_type
+      name: zet_pfnTracerExpSetEpilogues_t
+  - name: pfnSetEnabled
+    type:
+      kind: custom_type
+      name: zet_pfnTracerExpSetEnabled_t
+  name: _zet_tracer_exp_dditable_t_1_0
+- members:
+  - name: pfnAttach
+    type:
+      kind: custom_type
+      name: zet_pfnDebugAttach_t
+  - name: pfnDetach
+    type:
+      kind: custom_type
+      name: zet_pfnDebugDetach_t
+  - name: pfnReadEvent
+    type:
+      kind: custom_type
+      name: zet_pfnDebugReadEvent_t
+  - name: pfnAcknowledgeEvent
+    type:
+      kind: custom_type
+      name: zet_pfnDebugAcknowledgeEvent_t
+  - name: pfnInterrupt
+    type:
+      kind: custom_type
+      name: zet_pfnDebugInterrupt_t
+  - name: pfnResume
+    type:
+      kind: custom_type
+      name: zet_pfnDebugResume_t
+  - name: pfnReadMemory
+    type:
+      kind: custom_type
+      name: zet_pfnDebugReadMemory_t
+  - name: pfnWriteMemory
+    type:
+      kind: custom_type
+      name: zet_pfnDebugWriteMemory_t
+  - name: pfnGetRegisterSetProperties
+    type:
+      kind: custom_type
+      name: zet_pfnDebugGetRegisterSetProperties_t
+  - name: pfnReadRegisters
+    type:
+      kind: custom_type
+      name: zet_pfnDebugReadRegisters_t
+  - name: pfnWriteRegisters
+    type:
+      kind: custom_type
+      name: zet_pfnDebugWriteRegisters_t
+  name: _zet_debug_dditable_t_1_0
+- members:
+  - name: pfnAttach
+    type:
+      kind: custom_type
+      name: zet_pfnDebugAttach_t
+  - name: pfnDetach
+    type:
+      kind: custom_type
+      name: zet_pfnDebugDetach_t
+  - name: pfnReadEvent
+    type:
+      kind: custom_type
+      name: zet_pfnDebugReadEvent_t
+  - name: pfnAcknowledgeEvent
+    type:
+      kind: custom_type
+      name: zet_pfnDebugAcknowledgeEvent_t
+  - name: pfnInterrupt
+    type:
+      kind: custom_type
+      name: zet_pfnDebugInterrupt_t
+  - name: pfnResume
+    type:
+      kind: custom_type
+      name: zet_pfnDebugResume_t
+  - name: pfnReadMemory
+    type:
+      kind: custom_type
+      name: zet_pfnDebugReadMemory_t
+  - name: pfnWriteMemory
+    type:
+      kind: custom_type
+      name: zet_pfnDebugWriteMemory_t
+  - name: pfnGetRegisterSetProperties
+    type:
+      kind: custom_type
+      name: zet_pfnDebugGetRegisterSetProperties_t
+  - name: pfnReadRegisters
+    type:
+      kind: custom_type
+      name: zet_pfnDebugReadRegisters_t
+  - name: pfnWriteRegisters
+    type:
+      kind: custom_type
+      name: zet_pfnDebugWriteRegisters_t
+  - name: pfnGetThreadRegisterSetProperties
+    type:
+      kind: custom_type
+      name: zet_pfnDebugGetThreadRegisterSetProperties_t
+  name: _zet_debug_dditable_t_1_5
+typedefs:
+- name: zet_driver_handle_t
+  type:
+    kind: custom_type
+    name: ze_driver_handle_t
+- name: zet_device_handle_t
+  type:
+    kind: custom_type
+    name: ze_device_handle_t
+- name: zet_context_handle_t
+  type:
+    kind: custom_type
+    name: ze_context_handle_t
+- name: zet_command_list_handle_t
+  type:
+    kind: custom_type
+    name: ze_command_list_handle_t
+- name: zet_module_handle_t
+  type:
+    kind: custom_type
+    name: ze_module_handle_t
+- name: zet_kernel_handle_t
+  type:
+    kind: custom_type
+    name: ze_kernel_handle_t
+- name: zet_metric_group_handle_t
+  type:
+    kind: pointer
+    type:
+      kind: struct
+      name: _zet_metric_group_handle_t
+- name: zet_metric_handle_t
+  type:
+    kind: pointer
+    type:
+      kind: struct
+      name: _zet_metric_handle_t
+- name: zet_metric_streamer_handle_t
+  type:
+    kind: pointer
+    type:
+      kind: struct
+      name: _zet_metric_streamer_handle_t
+- name: zet_metric_query_pool_handle_t
+  type:
+    kind: pointer
+    type:
+      kind: struct
+      name: _zet_metric_query_pool_handle_t
+- name: zet_metric_query_handle_t
+  type:
+    kind: pointer
+    type:
+      kind: struct
+      name: _zet_metric_query_handle_t
+- name: zet_tracer_exp_handle_t
+  type:
+    kind: pointer
+    type:
+      kind: struct
+      name: _zet_tracer_exp_handle_t
+- name: zet_debug_session_handle_t
+  type:
+    kind: pointer
+    type:
+      kind: struct
+      name: _zet_debug_session_handle_t
+- name: zet_structure_type_t
+  type:
+    kind: enum
+    name: _zet_structure_type_t
+- name: zet_base_properties_t
+  type:
+    kind: struct
+    name: _zet_base_properties_t
+- name: zet_base_desc_t
+  type:
+    kind: struct
+    name: _zet_base_desc_t
+- name: zet_value_type_t
+  type:
+    kind: enum
+    name: _zet_value_type_t
+- name: zet_value_t
+  type:
+    kind: union
+    name: _zet_value_t
+- name: zet_typed_value_t
+  type:
+    kind: struct
+    name: _zet_typed_value_t
+- name: zet_device_debug_properties_t
+  type:
+    kind: struct
+    name: _zet_device_debug_properties_t
+- name: zet_debug_config_t
+  type:
+    kind: struct
+    name: _zet_debug_config_t
+- name: zet_debug_event_info_detached_t
+  type:
+    kind: struct
+    name: _zet_debug_event_info_detached_t
+- name: zet_debug_event_info_module_t
+  type:
+    kind: struct
+    name: _zet_debug_event_info_module_t
+- name: zet_debug_event_info_thread_stopped_t
+  type:
+    kind: struct
+    name: _zet_debug_event_info_thread_stopped_t
+- name: zet_debug_event_info_page_fault_t
+  type:
+    kind: struct
+    name: _zet_debug_event_info_page_fault_t
+- name: zet_debug_event_t
+  type:
+    kind: struct
+    name: _zet_debug_event_t
+- name: zet_debug_memory_space_desc_t
+  type:
+    kind: struct
+    name: _zet_debug_memory_space_desc_t
+- name: zet_debug_regset_properties_t
+  type:
+    kind: struct
+    name: _zet_debug_regset_properties_t
+- name: zet_metric_group_properties_t
+  type:
+    kind: struct
+    name: _zet_metric_group_properties_t
+- name: zet_metric_properties_t
+  type:
+    kind: struct
+    name: _zet_metric_properties_t
+- name: zet_metric_streamer_desc_t
+  type:
+    kind: struct
+    name: _zet_metric_streamer_desc_t
+- name: zet_metric_query_pool_desc_t
+  type:
+    kind: struct
+    name: _zet_metric_query_pool_desc_t
+- name: zet_profile_properties_t
+  type:
+    kind: struct
+    name: _zet_profile_properties_t
+- name: zet_profile_free_register_token_t
+  type:
+    kind: struct
+    name: _zet_profile_free_register_token_t
+- name: zet_profile_register_sequence_t
+  type:
+    kind: struct
+    name: _zet_profile_register_sequence_t
+- name: zet_tracer_exp_desc_t
+  type:
+    kind: struct
+    name: _zet_tracer_exp_desc_t
+- name: zet_metric_tracer_exp_desc_t
+  type:
+    kind: struct
+    name: _zet_metric_tracer_exp_desc_t
+- name: zet_metric_entry_exp_t
+  type:
+    kind: struct
+    name: _zet_metric_entry_exp_t
+- name: zet_metric_group_type_exp_t
+  type:
+    kind: struct
+    name: _zet_metric_group_type_exp_t
+- name: zet_export_dma_buf_exp_properties_t
+  type:
+    kind: struct
+    name: _zet_export_dma_buf_exp_properties_t
+- name: zet_metric_source_id_exp_t
+  type:
+    kind: struct
+    name: _zet_metric_source_id_exp_t
+- name: zet_metric_global_timestamps_resolution_exp_t
+  type:
+    kind: struct
+    name: _zet_metric_global_timestamps_resolution_exp_t
+- name: zet_metric_calculate_exp_desc_t
+  type:
+    kind: struct
+    name: _zet_metric_calculate_exp_desc_t
+- name: zet_metric_programmable_exp_properties_t
+  type:
+    kind: struct
+    name: _zet_metric_programmable_exp_properties_t
+- name: zet_value_uint64_range_exp_t
+  type:
+    kind: struct
+    name: _zet_value_uint64_range_exp_t
+- name: zet_value_fp64_range_exp_t
+  type:
+    kind: struct
+    name: _zet_value_fp64_range_exp_t
+- name: zet_metric_programmable_param_info_exp_t
+  type:
+    kind: struct
+    name: _zet_metric_programmable_param_info_exp_t
+- name: zet_metric_programmable_param_value_info_exp_t
+  type:
+    kind: struct
+    name: _zet_metric_programmable_param_value_info_exp_t
+- name: zet_metric_programmable_param_value_exp_t
+  type:
+    kind: struct
+    name: _zet_metric_programmable_param_value_exp_t
+- name: zet_module_debug_info_format_t
+  type:
+    kind: enum
+    name: _zet_module_debug_info_format_t
+- name: zet_device_debug_property_flags_t
+  type:
+    kind: custom_type
+    name: uint32_t
+- name: zet_device_debug_property_flag_t
+  type:
+    kind: enum
+    name: _zet_device_debug_property_flag_t
+- name: zet_debug_event_flags_t
+  type:
+    kind: custom_type
+    name: uint32_t
+- name: zet_debug_event_flag_t
+  type:
+    kind: enum
+    name: _zet_debug_event_flag_t
+- name: zet_debug_event_type_t
+  type:
+    kind: enum
+    name: _zet_debug_event_type_t
+- name: zet_debug_detach_reason_t
+  type:
+    kind: enum
+    name: _zet_debug_detach_reason_t
+- name: zet_debug_page_fault_reason_t
+  type:
+    kind: enum
+    name: _zet_debug_page_fault_reason_t
+- name: zet_debug_event_info_t
+  type:
+    kind: union
+    name: _zet_debug_event_info_t
+- name: zet_debug_memory_space_type_t
+  type:
+    kind: enum
+    name: _zet_debug_memory_space_type_t
+- name: zet_debug_regset_flags_t
+  type:
+    kind: custom_type
+    name: uint32_t
+- name: zet_debug_regset_flag_t
+  type:
+    kind: enum
+    name: _zet_debug_regset_flag_t
+- name: zet_metric_group_sampling_type_flags_t
+  type:
+    kind: custom_type
+    name: uint32_t
+- name: zet_metric_group_sampling_type_flag_t
+  type:
+    kind: enum
+    name: _zet_metric_group_sampling_type_flag_t
+- name: zet_metric_type_t
+  type:
+    kind: enum
+    name: _zet_metric_type_t
+- name: zet_metric_group_calculation_type_t
+  type:
+    kind: enum
+    name: _zet_metric_group_calculation_type_t
+- name: zet_metric_query_pool_type_t
+  type:
+    kind: enum
+    name: _zet_metric_query_pool_type_t
+- name: zet_profile_flags_t
+  type:
+    kind: custom_type
+    name: uint32_t
+- name: zet_profile_flag_t
+  type:
+    kind: enum
+    name: _zet_profile_flag_t
+- name: zet_profile_token_type_t
+  type:
+    kind: enum
+    name: _zet_profile_token_type_t
+- name: zet_api_tracing_exp_version_t
+  type:
+    kind: enum
+    name: _zet_api_tracing_exp_version_t
+- name: zet_core_callbacks_t
+  type:
+    kind: custom_type
+    name: ze_callbacks_t
+- name: zet_concurrent_metric_groups_exp_version_t
+  type:
+    kind: enum
+    name: _zet_concurrent_metric_groups_exp_version_t
+- name: zet_metric_tracer_exp_version_t
+  type:
+    kind: enum
+    name: _zet_metric_tracer_exp_version_t
+- name: zet_metric_tracer_exp_handle_t
+  type:
+    kind: pointer
+    type:
+      kind: struct
+      name: _zet_metric_tracer_exp_handle_t
+- name: zet_metric_decoder_exp_handle_t
+  type:
+    kind: pointer
+    type:
+      kind: struct
+      name: _zet_metric_decoder_exp_handle_t
+- name: zet_metric_group_type_exp_flags_t
+  type:
+    kind: custom_type
+    name: uint32_t
+- name: zet_metric_group_type_exp_flag_t
+  type:
+    kind: enum
+    name: _zet_metric_group_type_exp_flag_t
+- name: zet_metric_group_marker_exp_version_t
+  type:
+    kind: enum
+    name: _zet_metric_group_marker_exp_version_t
+- name: zet_metrics_runtime_enable_disable_exp_version_t
+  type:
+    kind: enum
+    name: _zet_metrics_runtime_enable_disable_exp_version_t
+- name: ze_calculate_multiple_metrics_exp_version_t
+  type:
+    kind: enum
+    name: _ze_calculate_multiple_metrics_exp_version_t
+- name: ze_metric_global_timestamps_exp_version_t
+  type:
+    kind: enum
+    name: _ze_metric_global_timestamps_exp_version_t
+- name: zet_export_metric_data_exp_version_t
+  type:
+    kind: enum
+    name: _zet_export_metric_data_exp_version_t
+- name: zet_metric_programmable_exp_version_t
+  type:
+    kind: enum
+    name: _zet_metric_programmable_exp_version_t
+- name: zet_metric_programmable_exp_handle_t
+  type:
+    kind: pointer
+    type:
+      kind: struct
+      name: _zet_metric_programmable_exp_handle_t
+- name: zet_metric_programmable_param_type_exp_t
+  type:
+    kind: enum
+    name: _zet_metric_programmable_param_type_exp_t
+- name: zet_value_info_type_exp_t
+  type:
+    kind: enum
+    name: _zet_value_info_type_exp_t
+- name: zet_value_info_exp_t
+  type:
+    kind: union
+    name: _zet_value_info_exp_t
+- name: zet_pfnMetricProgrammableGetExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_device_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_programmable_exp_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricProgrammableGetPropertiesExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_programmable_exp_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_programmable_exp_properties_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricProgrammableGetParamInfoExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_programmable_exp_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_programmable_param_info_exp_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricProgrammableGetParamValueInfoExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_programmable_exp_handle_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_programmable_param_value_info_exp_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_metric_programmable_exp_dditable_t
+  type:
+    kind: struct
+    name: _zet_metric_programmable_exp_dditable_t
+- name: zet_pfnGetMetricProgrammableExpProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_programmable_exp_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricTracerCreateExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_context_handle_t
+      - type:
+          kind: custom_type
+          name: zet_device_handle_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_group_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_tracer_exp_desc_t
+      - type:
+          kind: custom_type
+          name: ze_event_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_tracer_exp_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricTracerDestroyExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_tracer_exp_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricTracerEnableExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_tracer_exp_handle_t
+      - type:
+          kind: custom_type
+          name: ze_bool_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricTracerDisableExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_tracer_exp_handle_t
+      - type:
+          kind: custom_type
+          name: ze_bool_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricTracerReadDataExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_tracer_exp_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: size_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint8_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricTracerDecodeExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_decoder_exp_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: size_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint8_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_entry_exp_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_metric_tracer_exp_dditable_t
+  type:
+    kind: struct
+    name: _zet_metric_tracer_exp_dditable_t
+- name: zet_pfnGetMetricTracerExpProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_tracer_exp_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricDecoderCreateExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_tracer_exp_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_decoder_exp_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricDecoderDestroyExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_decoder_exp_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricDecoderGetDecodableMetricsExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_decoder_exp_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_metric_decoder_exp_dditable_t
+  type:
+    kind: struct
+    name: _zet_metric_decoder_exp_dditable_t
+- name: zet_pfnGetMetricDecoderExpProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_decoder_exp_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnDeviceGetDebugProperties_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_device_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_device_debug_properties_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_device_dditable_t
+  type:
+    kind: struct
+    name: _zet_device_dditable_t
+- name: zet_pfnGetDeviceProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_device_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnDeviceGetConcurrentMetricGroupsExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_device_handle_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_group_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnDeviceCreateMetricGroupsFromMetricsExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_device_handle_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_handle_t
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: char
+            name: char
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: char
+            name: char
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_group_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnDeviceEnableMetricsExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_device_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnDeviceDisableMetricsExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_device_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_device_exp_dditable_t
+  type:
+    kind: struct
+    name: _zet_device_exp_dditable_t
+- name: zet_pfnGetDeviceExpProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_device_exp_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnContextActivateMetricGroups_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_context_handle_t
+      - type:
+          kind: custom_type
+          name: zet_device_handle_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_group_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_context_dditable_t
+  type:
+    kind: struct
+    name: _zet_context_dditable_t
+- name: zet_pfnGetContextProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_context_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnCommandListAppendMetricStreamerMarker_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_command_list_handle_t
+      - type:
+          kind: custom_type
+          name: zet_metric_streamer_handle_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnCommandListAppendMetricQueryBegin_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_command_list_handle_t
+      - type:
+          kind: custom_type
+          name: zet_metric_query_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnCommandListAppendMetricQueryEnd_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_command_list_handle_t
+      - type:
+          kind: custom_type
+          name: zet_metric_query_handle_t
+      - type:
+          kind: custom_type
+          name: ze_event_handle_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: ze_event_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnCommandListAppendMetricMemoryBarrier_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_command_list_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_command_list_dditable_t
+  type:
+    kind: struct
+    name: _zet_command_list_dditable_t
+- name: zet_pfnGetCommandListProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_command_list_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnCommandListAppendMarkerExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_command_list_handle_t
+      - type:
+          kind: custom_type
+          name: zet_metric_group_handle_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_command_list_exp_dditable_t
+  type:
+    kind: struct
+    name: _zet_command_list_exp_dditable_t
+- name: zet_pfnGetCommandListExpProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_command_list_exp_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnModuleGetDebugInfo_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_module_handle_t
+      - type:
+          kind: custom_type
+          name: zet_module_debug_info_format_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: size_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint8_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_module_dditable_t
+  type:
+    kind: struct
+    name: _zet_module_dditable_t
+- name: zet_pfnGetModuleProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_module_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnKernelGetProfileInfo_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_kernel_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_profile_properties_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_kernel_dditable_t
+  type:
+    kind: struct
+    name: _zet_kernel_dditable_t
+- name: zet_pfnGetKernelProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_kernel_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricGet_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_group_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricGetProperties_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_properties_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_metric_dditable_t
+  type:
+    kind: struct
+    name: _zet_metric_dditable_t
+- name: zet_pfnGetMetricProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricCreateFromProgrammableExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_programmable_exp_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_programmable_param_value_exp_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: char
+            name: char
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: char
+            name: char
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricDestroyExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricCreateFromProgrammableExp2_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_programmable_exp_handle_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_programmable_param_value_exp_t
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: char
+            name: char
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: char
+            name: char
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_metric_exp_dditable_t
+  type:
+    kind: struct
+    name: _zet_metric_exp_dditable_t
+- name: zet_pfnGetMetricExpProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_exp_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricGroupGet_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_device_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_group_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricGroupGetProperties_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_group_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_group_properties_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricGroupCalculateMetricValues_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_group_handle_t
+      - type:
+          kind: custom_type
+          name: zet_metric_group_calculation_type_t
+      - type:
+          kind: custom_type
+          name: size_t
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: custom_type
+            name: uint8_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_typed_value_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_metric_group_dditable_t
+  type:
+    kind: struct
+    name: _zet_metric_group_dditable_t
+- name: zet_pfnGetMetricGroupProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_group_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricGroupCalculateMultipleMetricValuesExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_group_handle_t
+      - type:
+          kind: custom_type
+          name: zet_metric_group_calculation_type_t
+      - type:
+          kind: custom_type
+          name: size_t
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: custom_type
+            name: uint8_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_typed_value_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricGroupGetGlobalTimestampsExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_group_handle_t
+      - type:
+          kind: custom_type
+          name: ze_bool_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint64_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint64_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricGroupGetExportDataExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_group_handle_t
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: custom_type
+            name: uint8_t
+      - type:
+          kind: custom_type
+          name: size_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: size_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint8_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricGroupCalculateMetricExportDataExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_driver_handle_t
+      - type:
+          kind: custom_type
+          name: zet_metric_group_calculation_type_t
+      - type:
+          kind: custom_type
+          name: size_t
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: custom_type
+            name: uint8_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_calculate_exp_desc_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_typed_value_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricGroupCreateExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_device_handle_t
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: char
+            name: char
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: char
+            name: char
+      - type:
+          kind: custom_type
+          name: zet_metric_group_sampling_type_flags_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_group_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricGroupAddMetricExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_group_handle_t
+      - type:
+          kind: custom_type
+          name: zet_metric_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: size_t
+      - type:
+          kind: pointer
+          type:
+            kind: char
+            name: char
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricGroupRemoveMetricExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_group_handle_t
+      - type:
+          kind: custom_type
+          name: zet_metric_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricGroupCloseExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_group_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricGroupDestroyExp_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_group_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_metric_group_exp_dditable_t
+  type:
+    kind: struct
+    name: _zet_metric_group_exp_dditable_t
+- name: zet_pfnGetMetricGroupExpProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_group_exp_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricStreamerOpen_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_context_handle_t
+      - type:
+          kind: custom_type
+          name: zet_device_handle_t
+      - type:
+          kind: custom_type
+          name: zet_metric_group_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_streamer_desc_t
+      - type:
+          kind: custom_type
+          name: ze_event_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_streamer_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricStreamerClose_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_streamer_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricStreamerReadData_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_streamer_handle_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: size_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint8_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_metric_streamer_dditable_t
+  type:
+    kind: struct
+    name: _zet_metric_streamer_dditable_t
+- name: zet_pfnGetMetricStreamerProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_streamer_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricQueryPoolCreate_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_context_handle_t
+      - type:
+          kind: custom_type
+          name: zet_device_handle_t
+      - type:
+          kind: custom_type
+          name: zet_metric_group_handle_t
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: custom_type
+            name: zet_metric_query_pool_desc_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_query_pool_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricQueryPoolDestroy_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_query_pool_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_metric_query_pool_dditable_t
+  type:
+    kind: struct
+    name: _zet_metric_query_pool_dditable_t
+- name: zet_pfnGetMetricQueryPoolProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_query_pool_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricQueryCreate_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_query_pool_handle_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_query_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricQueryDestroy_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_query_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricQueryReset_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_query_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnMetricQueryGetData_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_metric_query_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: size_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint8_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_metric_query_dditable_t
+  type:
+    kind: struct
+    name: _zet_metric_query_dditable_t
+- name: zet_pfnGetMetricQueryProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_metric_query_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnTracerExpCreate_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_context_handle_t
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: custom_type
+            name: zet_tracer_exp_desc_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_tracer_exp_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnTracerExpDestroy_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_tracer_exp_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnTracerExpSetPrologues_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_tracer_exp_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_core_callbacks_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnTracerExpSetEpilogues_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_tracer_exp_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_core_callbacks_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnTracerExpSetEnabled_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_tracer_exp_handle_t
+      - type:
+          kind: custom_type
+          name: ze_bool_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_tracer_exp_dditable_t
+  type:
+    kind: struct
+    name: _zet_tracer_exp_dditable_t
+- name: zet_pfnGetTracerExpProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_tracer_exp_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnDebugAttach_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_device_handle_t
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: custom_type
+            name: zet_debug_config_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_debug_session_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnDebugDetach_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_debug_session_handle_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnDebugReadEvent_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_debug_session_handle_t
+      - type:
+          kind: custom_type
+          name: uint64_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_debug_event_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnDebugAcknowledgeEvent_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_debug_session_handle_t
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: custom_type
+            name: zet_debug_event_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnDebugInterrupt_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_debug_session_handle_t
+      - type:
+          kind: custom_type
+          name: ze_device_thread_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnDebugResume_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_debug_session_handle_t
+      - type:
+          kind: custom_type
+          name: ze_device_thread_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnDebugReadMemory_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_debug_session_handle_t
+      - type:
+          kind: custom_type
+          name: ze_device_thread_t
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: custom_type
+            name: zet_debug_memory_space_desc_t
+      - type:
+          kind: custom_type
+          name: size_t
+      - type:
+          kind: pointer
+          type:
+            kind: void
+            name: void
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnDebugWriteMemory_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_debug_session_handle_t
+      - type:
+          kind: custom_type
+          name: ze_device_thread_t
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: custom_type
+            name: zet_debug_memory_space_desc_t
+      - type:
+          kind: custom_type
+          name: size_t
+      - type:
+          kind: pointer
+          type:
+            const: true
+            kind: void
+            name: void
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnDebugGetRegisterSetProperties_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_device_handle_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_debug_regset_properties_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnDebugReadRegisters_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_debug_session_handle_t
+      - type:
+          kind: custom_type
+          name: ze_device_thread_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: void
+            name: void
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnDebugWriteRegisters_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_debug_session_handle_t
+      - type:
+          kind: custom_type
+          name: ze_device_thread_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      - type:
+          kind: custom_type
+          name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: void
+            name: void
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_pfnDebugGetThreadRegisterSetProperties_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: zet_debug_session_handle_t
+      - type:
+          kind: custom_type
+          name: ze_device_thread_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: uint32_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_debug_regset_properties_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_debug_dditable_t
+  type:
+    kind: struct
+    name: _zet_debug_dditable_t
+- name: zet_pfnGetDebugProcAddrTable_t
+  type:
+    kind: pointer
+    type:
+      kind: function
+      params:
+      - type:
+          kind: custom_type
+          name: ze_api_version_t
+      - type:
+          kind: pointer
+          type:
+            kind: custom_type
+            name: zet_debug_dditable_t
+      type:
+        kind: custom_type
+        name: ze_result_t
+- name: zet_dditable_t
+  type:
+    kind: struct
+    name: _zet_dditable_t
+- name: zet_dditable_driver_t
+  type:
+    kind: struct
+    name: _zet_dditable_driver_t
+- name: zet_metric_programmable_exp_dditable_t_1_9
+  type:
+    kind: struct
+    name: _zet_metric_programmable_exp_dditable_t_1_9
+- name: zet_metric_tracer_exp_dditable_t_1_1
+  type:
+    kind: struct
+    name: _zet_metric_tracer_exp_dditable_t_1_1
+- name: zet_metric_decoder_exp_dditable_t_1_1
+  type:
+    kind: struct
+    name: _zet_metric_decoder_exp_dditable_t_1_1
+- name: zet_device_dditable_t_1_0
+  type:
+    kind: struct
+    name: _zet_device_dditable_t_1_0
+- name: zet_device_exp_dditable_t_1_1
+  type:
+    kind: struct
+    name: _zet_device_exp_dditable_t_1_1
+- name: zet_device_exp_dditable_t_1_13
+  type:
+    kind: struct
+    name: _zet_device_exp_dditable_t_1_13
+- name: zet_context_dditable_t_1_0
+  type:
+    kind: struct
+    name: _zet_context_dditable_t_1_0
+- name: zet_command_list_dditable_t_1_0
+  type:
+    kind: struct
+    name: _zet_command_list_dditable_t_1_0
+- name: zet_command_list_exp_dditable_t_1_13
+  type:
+    kind: struct
+    name: _zet_command_list_exp_dditable_t_1_13
+- name: zet_module_dditable_t_1_0
+  type:
+    kind: struct
+    name: _zet_module_dditable_t_1_0
+- name: zet_kernel_dditable_t_1_0
+  type:
+    kind: struct
+    name: _zet_kernel_dditable_t_1_0
+- name: zet_metric_dditable_t_1_0
+  type:
+    kind: struct
+    name: _zet_metric_dditable_t_1_0
+- name: zet_metric_exp_dditable_t_1_11
+  type:
+    kind: struct
+    name: _zet_metric_exp_dditable_t_1_11
+- name: zet_metric_exp_dditable_t_1_9
+  type:
+    kind: struct
+    name: _zet_metric_exp_dditable_t_1_9
+- name: zet_metric_group_dditable_t_1_0
+  type:
+    kind: struct
+    name: _zet_metric_group_dditable_t_1_0
+- name: zet_metric_group_exp_dditable_t_1_2
+  type:
+    kind: struct
+    name: _zet_metric_group_exp_dditable_t_1_2
+- name: zet_metric_group_exp_dditable_t_1_5
+  type:
+    kind: struct
+    name: _zet_metric_group_exp_dditable_t_1_5
+- name: zet_metric_group_exp_dditable_t_1_6
+  type:
+    kind: struct
+    name: _zet_metric_group_exp_dditable_t_1_6
+- name: zet_metric_group_exp_dditable_t_1_9
+  type:
+    kind: struct
+    name: _zet_metric_group_exp_dditable_t_1_9
+- name: zet_metric_streamer_dditable_t_1_0
+  type:
+    kind: struct
+    name: _zet_metric_streamer_dditable_t_1_0
+- name: zet_metric_query_pool_dditable_t_1_0
+  type:
+    kind: struct
+    name: _zet_metric_query_pool_dditable_t_1_0
+- name: zet_metric_query_dditable_t_1_0
+  type:
+    kind: struct
+    name: _zet_metric_query_dditable_t_1_0
+- name: zet_tracer_exp_dditable_t_1_0
+  type:
+    kind: struct
+    name: _zet_tracer_exp_dditable_t_1_0
+- name: zet_debug_dditable_t_1_0
+  type:
+    kind: struct
+    name: _zet_debug_dditable_t_1_0
+- name: zet_debug_dditable_t_1_5
+  type:
+    kind: struct
+    name: _zet_debug_dditable_t_1_5
+unions:
+- members:
+  - name: ui32
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: ui64
+    type:
+      kind: custom_type
+      name: uint64_t
+  - name: fp32
+    type:
+      kind: float
+      name: float
+  - name: fp64
+    type:
+      kind: float
+      name: double
+  - name: b8
+    type:
+      kind: custom_type
+      name: ze_bool_t
+  name: _zet_value_t
+- members:
+  - name: detached
+    type:
+      kind: custom_type
+      name: zet_debug_event_info_detached_t
+  - name: module
+    type:
+      kind: custom_type
+      name: zet_debug_event_info_module_t
+  - name: thread
+    type:
+      kind: custom_type
+      name: zet_debug_event_info_thread_stopped_t
+  - name: page_fault
+    type:
+      kind: custom_type
+      name: zet_debug_event_info_page_fault_t
+  name: _zet_debug_event_info_t
+- members:
+  - name: ui32
+    type:
+      kind: custom_type
+      name: uint32_t
+  - name: ui64
+    type:
+      kind: custom_type
+      name: uint64_t
+  - name: fp32
+    type:
+      kind: float
+      name: float
+  - name: fp64
+    type:
+      kind: float
+      name: double
+  - name: b8
+    type:
+      kind: custom_type
+      name: ze_bool_t
+  - name: ui8
+    type:
+      kind: custom_type
+      name: uint8_t
+  - name: ui16
+    type:
+      kind: custom_type
+      name: uint16_t
+  - name: ui64Range
+    type:
+      kind: custom_type
+      name: zet_value_uint64_range_exp_t
+  - name: fp64Range
+    type:
+      kind: custom_type
+      name: zet_value_fp64_range_exp_t
+  name: _zet_value_info_exp_t

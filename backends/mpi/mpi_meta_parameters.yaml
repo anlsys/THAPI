@@ -1250,11 +1250,16 @@ meta_parameters:
     - flag
   MPI_Testany:
   - - OutScalar
+    - indx
+  - - OutScalar
     - flag
   - - OutScalar
     - status
   MPI_Testsome:
   - - OutScalar
+    - outcount
+  - - OutArray
+    - array_of_indices
     - outcount
   MPI_Topo_test:
   - - InScalar
@@ -1396,9 +1401,14 @@ meta_parameters:
   MPI_Waitall: []
   MPI_Waitany:
   - - OutScalar
+    - indx
+  - - OutScalar
     - status
   MPI_Waitsome:
   - - OutScalar
+    - outcount
+  - - OutArray
+    - array_of_indices
     - outcount
   MPI_Win_allocate:
   - - OutScalar

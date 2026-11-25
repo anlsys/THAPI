@@ -204,7 +204,11 @@ class ArrayMetaParameter < MetaParameter
     raise "Invalid parameter: #{name} for #{command.name}!" unless a
 
     t = a.type
-    raise "Type is not a pointer: #{t}!" unless t.is_a?(YAMLCAst::Pointer)
+    # An unsized array parameter (`int x[]`, e.g. MPI's array_of_indices) is
+    # a pointer as far as C is concerned.
+    unless t.is_a?(YAMLCAst::Pointer) || (t.is_a?(YAMLCAst::Array) && t.length.nil?)
+      raise "Type is not a pointer: #{t}!"
+    end
 
     s = command[size]
     raise "Invalid parameter: #{size} for #{command.name}!" unless s

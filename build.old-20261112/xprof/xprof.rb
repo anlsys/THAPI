@@ -1,0 +1,1223 @@
+#!/usr/bin/env ruby
+
+# This file doesn't do any ruby version check. All the check are done in `iprof`.
+
+# We Cannot use "@ .. @" for libdir, bindir, and datarootdir
+# as they will appear as bash "${exec_prefix}/lib"
+# So for now we will rely on them having the default value,
+#  (https://www.gnu.org/software/automake/manual/html_node/Standard-Directory-Variables.html)
+# Will do some gsub + eval if required later
+EXEC_PREFIX = '/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/ici'
+BINDIR = File.join(EXEC_PREFIX, 'bin')
+LIBDIR = File.join(EXEC_PREFIX, 'lib')
+PKGLIBDIR = File.join(LIBDIR, 'thapi')
+PREFIX = '/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/ici'
+DATAROOTDIR = File.join(PREFIX, 'share')
+DATADIR = DATAROOTDIR
+
+TRACEGRIND_ENABLED = 'yes' == 'yes'
+VALGRIND_BIN = '/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/spack/opt/spack/linux-icelake/valgrind-tracegrind-tracegrind-zvvszqqe6bxyadbumrlban22rhqb77jz/bin/valgrind'
+TRACEGRIND_LIB = File.join(LIBDIR, 'libTracerTracegrind.so')
+
+LTTNG_ARCHIVE_SIZE = '50M'
+LTTNG_ARCHIVE_TIMER = '60s'
+LTTNG_DIRWATCH_SIZE = '500' # In MiB
+LTTNG_DIRWATCH_LOCK_RETRY_DELAY = 0.1
+MAX_UINT64_VALUE = (2**64) - 1
+
+$LOAD_PATH.unshift(DATADIR) if File.directory?(DATADIR)
+require 'open3'
+require 'fileutils'
+require 'etc'
+require 'optparse_thapi'
+require 'digest/md5'
+require 'socket'
+require 'io/nonblock'
+require 'logger'
+require 'set'
+require 'securerandom'
+require 'yaml'
+require 'date'
+
+module LoggerRefinement
+  refine(Logger) do
+    def with_info_block(message, &block)
+      info("#{message}: entry") if message
+      r = block.call
+      info("#{message}: exit") if message
+      r
+    end
+  end
+end
+using LoggerRefinement
+
+# Define it as a global variable, so people including this file can use function safely
+LOGGER = Logger.new($stdout)
+
+module XprofExitCode
+  @exit_code = 0
+  def self.update(status, name)
+    # Keep only the first error
+    exit_code = if status.signaled?
+                  LOGGER.error("#{name} : #{status}")
+                  status.termsig
+                elsif status.exited?
+                  status.exitstatus
+                else
+                  LOGGER.fatal { "#{name} exited with an unknown error" }
+                  exit(1)
+                end
+    @exit_code = exit_code if @exit_code == 0
+  end
+
+  def self.get
+    @exit_code
+  end
+end
+
+#                            _
+# \  / _. ._ o  _       _   |_     _   _
+#  \/ (_| |  | (_) |_| _>   |_ >< (/_ (_
+#
+def exec(cmd, opts: {}, debug: true, ignore_exit_codes: [])
+  return Open3.capture3(opts, cmd).first unless debug
+
+  LOGGER.info { cmd }
+  LOGGER.debug { opts } unless opts.empty?
+
+  stdout_str, stderr_str, status = Open3.capture3(opts, cmd)
+  LOGGER.debug { stdout_str.strip } unless stdout_str.empty?
+
+  unless status.success? || ignore_exit_codes.include?(status.exitstatus)
+    msg = +"#{cmd} failed with status #{status.exitstatus}"
+    msg << "\nstderr:\n#{stderr_str.strip}" unless stderr_str.strip.empty?
+    raise msg
+  end
+
+  LOGGER.warn { stderr_str.strip } unless stderr_str.empty?
+  stdout_str
+end
+
+def valgrind_argv
+  [VALGRIND_BIN, '--tool=tracegrind', '--quiet', '--start-disabled=yes']
+end
+
+def launch_usr_bin(env, cmd)
+  LOGGER.info { "Launch_usr_bin #{cmd}" }
+
+  # Let the user binary inherit our own stdout/stderr directly. Iprof is a
+  # transparent wrapper.
+  begin
+    pid = spawn(env, *cmd, out: $stdout, err: $stderr)
+    _, status = Process.wait2(pid)
+  rescue Interrupt
+    # Just continue as usual, do not crash xprof
+  rescue Errno::ENOENT
+    warn("#{__FILE__}: Can't find executable #{cmd.first}")
+    raise Errno::ENOENT
+  end
+  XprofExitCode.update(status, cmd.join(' ')) if status
+end
+
+def exec_store_in_file(cmd, output_file: nil)
+  LOGGER.debug(cmd)
+
+  IO.popen(cmd) do |pipe|
+    fo = output_file ? File.open(output_file, 'w') : $stdout.dup
+    begin
+      pipe.each_line { |line| fo.write(line) } # streaming
+    ensure
+      fo.close if output_file
+    end
+
+    _, status = Process.wait2(pipe.pid)
+    raise "#{cmd} failed with status #{status.exitstatus}" unless status.success?
+
+    status
+  end
+end
+
+#
+# |\/| o  _  _
+# |  | | _> (_
+#
+def env_fetch_first(*args, default: nil)
+  ENV.values_at(*args).compact.first || default
+end
+
+# Wait until the block return true
+# Use a log distribution seems to be a good tradeoff
+# between being nice to the FileSystem (not to many call)
+# but not waiting to much
+def busy_wait_until(&block)
+  (2..).take_while { |i| !block.call && sleep(Math.log(i)) }
+end
+
+#
+#   \    / |_  o  _ |_  | o |_
+#    \/\/  | | | (_ | | | | |_)
+#
+def whichlib64(binary, *libs)
+  whichlib64_bin = File.join(BINDIR, 'whichlib64')
+  ld_path = [env_fetch_first('LD_LIBRARY_PATH'), env_fetch_first('CRAY_LD_LIBRARY_PATH')].compact.join(':')
+
+  stdout_str = exec("#{whichlib64_bin} #{binary} #{libs.join(' ')}",
+                    opts: { 'LD_LIBRARY_PATH' => ld_path },
+                    ignore_exit_codes: [1, 2])
+
+  libs.zip(stdout_str.lines.map(&:strip)).filter_map do |lib, path|
+    [lib, path] unless path.end_with?('not found')
+  end.to_h
+end
+
+#         _ ___    _
+#   |\/| |_) |    |_ ._
+#   |  | |  _|_   |_ | | \/
+#
+
+module MPITopo
+  extend self
+
+  def active?
+    @active ||= !_mpi_env.nil?
+  end
+
+  # Multiple xprof may run in parallel (for example using ctest),
+  #   so use a random hex if not ran on a mpi context
+  def job_id
+    @job_id ||= active? ? _mpi_env : SecureRandom.hex
+  end
+
+  def rank_id
+    @rank_id ||= env_fetch_first_mpi('PALS_RANKID', 'PMI_RANK', 'OMPI_COMM_WORLD_RANK', default: 0).to_i
+  end
+
+  def local_size
+    @local_size ||= env_fetch_first_mpi('PALS_LOCAL_SIZE', 'PMI_LOCAL_SIZE', 'OMPI_COMM_WORLD_LOCAL_SIZE', 'MPI_LOCALNRANKS',
+                                        default: 1).to_i
+  end
+
+  def local_rank_id
+    @local_rank_id ||= env_fetch_first_mpi('PALS_LOCAL_RANKID', 'PMI_LOCAL_RANK', 'OMPI_COMM_WORLD_LOCAL_RANK', 'MPI_LOCALRANKID',
+                                           default: 0).to_i
+  end
+
+  def local_master?
+    local_rank_id.zero?
+  end
+
+  def master?
+    rank_id.zero?
+  end
+
+  # returns an offset for each timeline file
+  # this is based on chunking MAX_UINT64_VALUE
+  # into the number of nodes
+  def rank_offset
+    # if not mpi, just return 0 offset
+    return 0 unless active?
+
+    @rank_offset ||= begin
+      # if we launch with a scheduler, we can read from a hostfile.
+      hostfile = env_fetch_first('COBALT_NODEFILE', 'PBS_NODEFILE')
+
+      # if there's a hostfile identified by the envs above,
+      # compute the offset, based on splitting MAX_UINT64_VALUE by the number of hosts
+      # else want to chunk by reasonable amount. for now, assume a max of 10000 nodes and
+      # chunk MAX_UINT64_VALUE by that.
+      number_hostname, hostname_index = if hostfile.nil?
+                                          [10_000, rank_id / local_size]
+                                        else
+                                          hostnames = File.readlines(hostfile)
+                                          # find index of hostname_string in list_hostnames
+                                          hostname_id = hostnames.find_index do |host|
+                                            host.start_with?(Socket.gethostname)
+                                          end
+                                          # without "start_with" this could fail if something happens like on sunspot
+                                          # where Socket.gethostname returns x1921c1s2b0n0 but the hostfile contains
+                                          # x1921c1s2b0n0-hsn0.hsn.cm.sunspot.alcf.anl.gov.
+                                          if hostname_id.nil?
+                                            raise 'Trying to find the index of each hostname in the hostfile list did not work.'
+                                          end
+
+                                          # compute the offset, based on splitting MAX_UINT64_VALUE by the number of hosts
+                                          [hostnames.length, hostname_id]
+                                        end
+      (MAX_UINT64_VALUE / number_hostname) * hostname_index
+    end
+  end
+
+  private
+
+  # We need to determine if we are in a MPI environment
+  # The easiest is to check for a "JOBID" set by the launcher
+  def _mpi_env
+    env_fetch_first('THAPI_JOBID', 'PALS_APID', 'PMI_JOBID', 'OMPI_MCA_ess_base_jobid',
+                    'I_MPI_HYDRA_UUID')
+  end
+
+  # We need all the env set for `xprof` to run
+  def env_fetch_first_mpi(*args, default: nil)
+    v = env_fetch_first(*args)
+
+    if active?
+      return v unless v.nil?
+
+      LOGGER.fatal { "A MPI JOBID is set but some MPI env #{args} are missing" }
+      exit(1)
+
+    else
+      LOGGER.warn { "A MPI JOBIB hasn't be set, but some args #{args} have been set, ignoring them" } unless v.nil?
+      default
+    end
+  end
+end
+
+#    _                    _
+#   |_ _  |  _|  _  ._   |_) _. _|_ |_
+#   | (_) | (_| (/_ |    |  (_|  |_ | |
+#
+
+def trace_bt_prefix
+  if OPTIONS.include?(:trace) || !OPTIONS[:analysis]
+    { trace: '', bt: 'move' }
+  elsif OPTIONS.include?(:timeline)
+    { trace: '_interval', bt: 'to_interval' }
+  else
+    { trace: '_aggreg', bt: 'to_aggreg' }
+  end
+end
+
+# THAPI/xprof use multiple folder
+# - lttng_trace_dir_tmp
+#     where the 'raw' lttng trace is saved.
+#     For performance we store in a `tmp` folder.
+#     When "on-the-fly" analysis is available, this should mitigate potential OOM
+# - thapi_trace_dir_tmp
+#     Where the "pre-processed / analysed / condensed" trace a saved.
+#     Each nodes need to agree on a root folder to write into.
+#  - thapi_trace_dir_root
+#     Final directory exposed to the user. The `master rank`  rename the `thapi_trace_dir_tmp`
+#     with a more "friendly" name. Not required if `analysis-output` is set
+#
+#  - lttng_home_dir
+#     Home of the lttng daemon
+
+def lttng_trace_dir_tmp
+  File.join('/', 'tmp', "thapi--#{MPITopo.job_id}", Socket.gethostname)
+end
+
+def thapi_trace_home
+  File.join(env_fetch_first('THAPI_HOME', 'HOME'), 'thapi-traces')
+end
+
+def thapi_trace_dir_tmp
+  return File.join(OPTIONS[:'trace-output'], Socket.gethostname) if OPTIONS[:'trace-output']
+
+  File.join(thapi_trace_home, "thapi#{trace_bt_prefix[:trace]}--#{MPITopo.job_id}",
+            Socket.gethostname)
+end
+
+def lttng_home_dir
+  File.join('/', 'tmp', "lttng_home--#{MPITopo.job_id}")
+end
+
+def thapi_trace_dir_root
+  raise unless MPITopo.master?
+
+  return OPTIONS[:'trace-output'] if OPTIONS[:'trace-output']
+
+  @thapi_trace_dir_root ||= begin
+    # Multiple thapi can run concurrently.
+    #   To avoid any race-conditions, we try to MKDIR until we succeed
+
+    # This is solving a consensus for the name,
+    # make it simpler and only allow "rank" per job to do it
+    # Use ISO8601 extended format
+    date = DateTime.now.iso8601
+
+    (0..).each do |i|
+      prefix = i == 0 ? '' : "_#{i}"
+      thapi_uuid = date + prefix
+      path = File.join(thapi_trace_home, "thapi#{trace_bt_prefix[:trace]}--#{thapi_uuid}")
+      begin
+        Dir.mkdir(path)
+      rescue SystemCallError
+        next
+      else
+        break path
+      end
+    end
+  end
+end
+
+#    _
+#   | \  _.  _  ._ _   _  ._
+#   |_/ (_| (/_ | | | (_) | |
+#
+# Shared socketpair protocol between iprof and its (sync/sampling) daemons.
+# Subclasses define `active?` (gating predicate) and call `spawn` from their initialize.
+module DaemonClient
+  MSG_INIT   = 'INIT'
+  MSG_FINISH = 'FINISH'
+  MSG_READY  = 'READY'
+
+  # block triggers the daemon; lazy_exec blocks on its READY reply.
+  def lazy_exec(message = nil)
+    LOGGER.with_info_block(message) do
+      unless active?
+        LOGGER.debug("#{message}: No-op")
+        return
+      end
+      yield
+      wait_ready
+    end
+  end
+
+  def finalize
+    LOGGER.debug { "Finalize #{self.class}" }
+    return unless active?
+
+    @parent.sendmsg(MSG_FINISH)
+    wait_ready
+    _, status = Process.wait2(@pid)
+    @parent.close
+    LOGGER.warn("#{self.class} exited #{status}") unless status.success?
+  end
+
+  # Instance delegate so DaemonClient#lazy_exec / #finalize can call `active?`
+  # on the instance. Subclasses define the class-level `self.active?`.
+  def active?
+    self.class.active?
+  end
+
+  # Mirrors `Process.spawn(*cmd)` but adds:
+  #   - `log:` for the lazy_exec message
+  #   - implicit socketpair: the daemon's end is inserted as the first program
+  #     argument (after optional env hash) and kept open across exec via `fd => fd`.
+  def spawn(*cmd, log:)
+    lazy_exec(log) do
+      @parent, child = UNIXSocket.pair(:SEQPACKET)
+      # Ruby sets O_NONBLOCK on sockets by default; the daemon uses
+      # blocking read, so clear it on the inherited fd.
+      child.nonblock = false
+      fd = child.fileno
+      insert_at = cmd.first.is_a?(Hash) ? 2 : 1
+      @pid = Process.spawn(*cmd.dup.insert(insert_at, fd.to_s), fd => fd)
+      child.close
+      @parent.sendmsg(MSG_INIT)
+    end
+  end
+
+  private
+
+  def wait_ready
+    reply, = @parent.recvmsg(64)
+    raise "#{self.class}: expected #{MSG_READY}, got '#{reply}'" unless reply == MSG_READY
+  end
+end
+
+#    _
+#   |_)  _. ._ ._ o  _  ._
+#   |_) (_| |  |  | (/_ |
+#
+class SyncDaemon
+  include DaemonClient
+
+  MSG_LOCAL_BARRIER  = 'LOCAL_BARRIER'
+  MSG_GLOBAL_BARRIER = 'GLOBAL_BARRIER'
+
+  SYNC_DAEMON_MPI_PATH = "#{BINDIR}/sync_daemon_mpi"
+  SYNC_DAEMON_FS_PATH = "#{BINDIR}/sync_daemon_fs"
+
+  def self.active?
+    MPITopo.active?
+  end
+
+  def initialize
+    return unless active?
+
+    daemon_path = case (daemon_type = env_fetch_first('THAPI_SYNC_DAEMON'))
+                  when 'mpi'
+                    unless File.exist?(SYNC_DAEMON_MPI_PATH)
+                      raise "No #{SYNC_DAEMON_MPI_PATH} binary. Did you compile with `--disable-sync-daemon-mpi`?"
+                    end
+
+                    SYNC_DAEMON_MPI_PATH
+                  when 'fs', nil
+                    # FS is the default (daemon_type nil): it avoids the current
+                    # MPI sync-daemon bug. The MPI daemon is still available
+                    # explicitly via THAPI_SYNC_DAEMON=mpi.
+                    SYNC_DAEMON_FS_PATH
+                  else
+                    raise "Error: THAPI_SYNC_DAEMON=#{daemon_type} is not supported. Allowed: [mpi,fs]"
+                  end
+
+    spawn(daemon_path, log: "Initialize SyncDaemon #{daemon_type || 'fs (default)'}")
+  end
+
+  def local_barrier(name)
+    lazy_exec("Local_barrier #{name}") { @parent.sendmsg(MSG_LOCAL_BARRIER) }
+  end
+
+  def global_barrier
+    lazy_exec('Global_barrier') { @parent.sendmsg(MSG_GLOBAL_BARRIER) }
+  end
+
+  # The context manager ensure that when the block yield is exited
+  # we always call clean-up the daemon
+  def self.open
+    yield syncd = new
+  rescue Errno::ENOENT
+    exit(1)
+  ensure
+    # https://www.rubydoc.info/gems/rubocop/RuboCop/Cop/Lint/EnsureReturn
+    if syncd
+      syncd.global_barrier
+      syncd.finalize
+    end
+  end
+end
+
+#    __
+#   (_   _. ._ _  ._  | o ._   _
+#   __) (_| | | | |_) | | | | (_|
+#                 |            _|
+
+class SamplingDaemon
+  include DaemonClient
+
+  SAMPLING_DAEMON_PATH = "#{BINDIR}/thapi_sampling_daemon"
+
+  def self.active?
+    OPTIONS[:sample] && MPITopo.local_master?
+  end
+
+  def initialize(h = {})
+    return unless active?
+    raise "No sampling_daemon binary found at #{SAMPLING_DAEMON_PATH}" unless File.exist?(SAMPLING_DAEMON_PATH)
+
+    path_so = h.fetch('THAPI_SAMPLING_LIBRARIES', '').split(':')
+    spawn(h, SAMPLING_DAEMON_PATH, *path_so, log: 'Initialize SamplingDaemon')
+  end
+end
+
+#
+#   | _|_ _|_ ._   _
+#   |_ |_  |_ | | (_|
+#                  _|
+def lttng_session_uuid
+  Digest::MD5.hexdigest(lttng_trace_dir_tmp)
+end
+
+def sanitize_env(env)
+  # Transform list to bash env
+  #   prepending to current env if already existing
+  #   we don't modify `ENV` directly to avoid by-construction any side-effect
+  env.filter_map do |k0, v|
+    # Add default mode to k0
+    k, mode = ([k0] + ['ignore']).flatten[0..1]
+    vs = [v].flatten
+    case mode
+    when 'ignore'
+      if env_fetch_first(k)
+        LOGGER.warn { "#{k} already existed in ENV. We will not overwrite it" }
+        next
+      end
+    when 'prepend'
+      if (cv = env_fetch_first(k))
+        LOGGER.warn { "#{k} already existed in ENV. The value #{v} will be prepended to it" }
+        vs.append(cv)
+      end
+    end
+
+    [k, vs.join(':')]
+  end.to_h
+end
+
+def enable_events_ze(channel_name, tracing_mode: 'default', profiling: true)
+  lttng_enable = "lttng enable-event --userspace --session=#{lttng_session_uuid} --channel=#{channel_name}"
+  case tracing_mode
+  when 'minimal'
+    exec("#{lttng_enable} $(cat #{DATADIR}/babeltrace_zeprofiling_apis.txt)")
+    exec("#{lttng_enable} lttng_ust_ze_properties:device_timer")
+  when 'full'
+    exec("#{lttng_enable} lttng_ust_ze_build:log*")
+    exec("#{lttng_enable} lttng_ust_ze_profiling:*") if profiling
+    exec("#{lttng_enable} lttng_ust_ze_properties:*")
+    exec("#{lttng_enable} lttng_ust_ze:*")
+    exec("#{lttng_enable} lttng_ust_zes:*")
+    exec("#{lttng_enable} lttng_ust_zer:*")
+    exec("#{lttng_enable} lttng_ust_zet:*")
+    exec("#{lttng_enable} lttng_ust_zex:*")
+    # The structs carried on a call's pNext chain. zer has no struct provider.
+    exec("#{lttng_enable} lttng_ust_ze_structs:*")
+    exec("#{lttng_enable} lttng_ust_zes_structs:*")
+    exec("#{lttng_enable} lttng_ust_zet_structs:*")
+    exec("#{lttng_enable} lttng_ust_zel_structs:*")
+    exec("#{lttng_enable} lttng_ust_zex_structs:*")
+  when 'default'
+    # Wildcard using the * character are supported at the end of tracepoint names.
+    #   https://lttng.org/man/1/lttng-enable-event/v2.8/#doc-_understanding_event_rule_conditions
+    # Disable-event doesn't have wildcards
+    # So we enable and disable on the same line
+    exec("#{lttng_enable} lttng_ust_ze_build:log*")
+    exec("#{lttng_enable} lttng_ust_ze_profiling:*") if profiling
+    exec("#{lttng_enable} lttng_ust_zex:*")
+    exec("#{lttng_enable} lttng_ust_ze_properties:*")
+    ze_disable_events = ['lttng_ust_ze:zeKernelSetArgumentValue*', 'lttng_ust_ze:ze*Get*Properties*',
+                         'lttng_ust_ze:zeKernelGetName*', 'lttng_ust_ze:zeKernelSetGlobalOffsetExp*',
+                         'lttng_ust_ze:zeKernelSuggestGroupSize*']
+    ze_disable_query = ['lttng_ust_ze:*QueryStatus*', 'lttng_ust_ze:*ProcAddrTable*']
+    ze_disable_loader = ['lttng_ust_ze:*Loader*']
+    ze_disable = ze_disable_events + ze_disable_query + ze_disable_loader
+    exec("#{lttng_enable} lttng_ust_ze:* -x #{ze_disable.join(',')}")
+  else
+    raise("Tracing mode #{tracing_mode} not supported")
+  end
+end
+
+def enable_events_cl(channel_name, tracing_mode: 'default', profiling: true)
+  lttng_enable = "lttng enable-event --userspace --session=#{lttng_session_uuid} --channel=#{channel_name}"
+  case tracing_mode
+  when 'full'
+    exec("#{lttng_enable} lttng_ust_opencl:*")
+    exec("#{lttng_enable} lttng_ust_opencl_profiling:*") if profiling
+    exec("#{lttng_enable} lttng_ust_opencl_devices:*")
+    exec("#{lttng_enable} lttng_ust_opencl_arguments:*")
+    exec("#{lttng_enable} lttng_ust_opencl_build:infos*")
+  when 'default', 'minimal'
+    exec("#{lttng_enable} lttng_ust_opencl_profiling:*") if profiling
+    exec("#{lttng_enable} lttng_ust_opencl_devices:*")
+    exec("#{lttng_enable} lttng_ust_opencl_arguments:*")
+    exec("#{lttng_enable} lttng_ust_opencl_build:infos*")
+    # Wildcard using the * character are supported at the end of tracepoint names.
+    #   https://lttng.org/man/1/lttng-enable-event/v2.8/#doc-_understanding_event_rule_conditions
+    # Disable-event doesn't have wildcards
+    # So we enable and disable on the same line
+    opencl_disable = ['lttng_ust_opencl:clSetKernelArg*', 'lttng_ust_opencl:clGetKernelArg*',
+                      'lttng_ust_opencl:clSetKernelExecInfo*', 'lttng_ust_opencl:clGetKernelInfo*',
+                      'lttng_ust_opencl:clGetMemAllocInfoINTEL*']
+
+    exec("#{lttng_enable} lttng_ust_opencl:* -x #{opencl_disable.join(',')}")
+    LOGGER.debug("Tracing mode #{tracing_mode} similar to default for OpenCL ") unless tracing_mode == 'default'
+  else
+    raise("Tracing mode #{tracing_mode} not supported")
+  end
+end
+
+def enable_events_cuda(channel_name, tracing_mode: 'default', profiling: true)
+  lttng_enable = "lttng enable-event --userspace --session=#{lttng_session_uuid} --channel=#{channel_name}"
+  exec("#{lttng_enable} lttng_ust_cuda:*")
+  exec("#{lttng_enable} lttng_ust_cuda_properties")
+  exec("#{lttng_enable} lttng_ust_cuda_profiling:*") if profiling
+  LOGGER.debug("Tracing mode #{tracing_mode} similar to default for cuda") unless tracing_mode == 'default'
+end
+
+def enable_events_hip(channel_name, tracing_mode: 'default', profiling: true)
+  lttng_enable = "lttng enable-event --userspace --session=#{lttng_session_uuid} --channel=#{channel_name}"
+  exec("#{lttng_enable} lttng_ust_hip:*")
+  LOGGER.debug('Profiling is ignored for hip') if profiling
+  LOGGER.debug("Tracing mode #{tracing_mode} similar to default for hip") unless tracing_mode == 'default'
+end
+
+def enable_events_omp(channel_name, tracing_mode: 'default', profiling: true)
+  lttng_enable = "lttng enable-event --userspace --session=#{lttng_session_uuid} --channel=#{channel_name}"
+  case tracing_mode
+  when 'full'
+    exec("#{lttng_enable} lttng_ust_ompt:*")
+  when 'default', 'minimal'
+    exec("#{lttng_enable} lttng_ust_ompt:*target*")
+    LOGGER.debug("Tracing mode #{tracing_mode} similar to default for omp") unless tracing_mode == 'default'
+  else
+    raise("Tracing mode #{tracing_mode} not supported")
+  end
+  LOGGER.debug('Profiling is ignored for omp') if profiling
+end
+
+def enable_events_mpi(channel_name, tracing_mode: 'default', profiling: true)
+  lttng_enable = "lttng enable-event --userspace --session=#{lttng_session_uuid} --channel=#{channel_name}"
+  case tracing_mode
+  when 'full'
+    exec("#{lttng_enable} lttng_ust_mpi:*")
+  when 'default', 'minimal'
+    exec("#{lttng_enable} lttng_ust_mpi:* -x lttng_ust_mpi:MPI_WTime*")
+    LOGGER.debug("Tracing mode #{tracing_mode} similar to default for MPI") unless tracing_mode == 'default'
+  else
+    raise("Tracing mode #{tracing_mode} not supported")
+  end
+  LOGGER.debug('Profiling is ignored for mpi') if profiling
+  exec("#{lttng_enable} lttng_ust_mpi_type:*")
+end
+
+def enable_events_cxi(channel_name, tracing_mode: 'default', profiling: true); end
+
+def enable_events_itt(channel_name, tracing_mode: 'default', profiling: true)
+  lttng_enable = "lttng enable-event --userspace --session=#{lttng_session_uuid} --channel=#{channel_name}"
+  exec("#{lttng_enable} lttng_ust_itt:*")
+  exec("#{lttng_enable} lttng_ust_itt_metadata:*")
+  LOGGER.debug('Profiling is ignored for itt') if profiling
+  LOGGER.debug("Tracing mode #{tracing_mode} similar to default for itt") unless tracing_mode == 'default'
+end
+
+def enable_events_pytorch(channel_name, tracing_mode: 'default', profiling: false)
+  lttng_enable = "lttng enable-event --userspace --session=#{lttng_session_uuid} --channel=#{channel_name}"
+  exec("#{lttng_enable} lttng_ust_pytorch:*")
+  LOGGER.debug('Profiling is ignored for pytorch') if profiling
+  LOGGER.debug("Tracing mode #{tracing_mode} similar to default for pytorch") unless tracing_mode == 'default'
+end
+
+def enable_events_tracegrind(channel_name, tracing_mode: 'default', profiling: false)
+  lttng_enable = "lttng enable-event --userspace --session=#{lttng_session_uuid} --channel=#{channel_name}"
+  exec("#{lttng_enable} lttng_ust_tracegrind:*")
+  LOGGER.debug('Profiling is ignored for tracegrind') if profiling
+  LOGGER.debug("Tracing mode #{tracing_mode} similar to default for tracegrind") unless tracing_mode == 'default'
+end
+
+def enable_events_metadata(channel_name, tracing_mode: 'default', profiling: true)
+  lttng_enable = "lttng enable-event --userspace --session=#{lttng_session_uuid} --channel=#{channel_name}"
+  LOGGER.debug('Profiling is ignored for metadata') if profiling
+  LOGGER.debug("#{tracing_mode} is ignored for metadata")
+  exec("#{lttng_enable} lttng_ust_thapi:*")
+end
+
+module LocalMaster
+  extend self
+
+  def setup(backends, env)
+    raise unless MPITopo.local_master?
+
+    lttng_setup(backends)
+    sampling_daemon = SamplingDaemon.new(env)
+    begin
+      archive_pids = bt_analysis(backends) if OPTIONS[:archive]
+    rescue StandardError
+      sampling_daemon.finalize
+      raise
+    end
+    [sampling_daemon, archive_pids]
+  end
+
+  def teardown(sampling_daemon, archive_pids)
+    raise unless MPITopo.local_master?
+
+    sampling_daemon.finalize
+    lttng_teardown_session
+    bt_wait_for_archive_processes(archive_pids) if OPTIONS[:archive]
+
+    lttng_kill_sessiond
+  end
+
+  def bt_analysis(backends)
+    raise unless MPITopo.local_master?
+
+    opts = [trace_bt_prefix[:bt]]
+    opts << "--output #{thapi_trace_dir_tmp}"
+    opts << "--backends #{backends.join(',')}"
+    opts << '--no-discard-metadata' if trace_bt_prefix[:bt] == 'to_aggreg' && OPTIONS.include?(:'kernel-verbose')
+
+    if OPTIONS[:archive]
+      read_file = File.join(lttng_trace_dir_tmp, 'bt_archive_ready')
+      opts << "--archive #{lttng_session_uuid} --archive-session-found-file-path=#{read_file}"
+      cmd = "#{BINDIR}/babeltrace_thapi #{opts.join(' ')} -- #{lttng_trace_dir_tmp}"
+      LOGGER.debug(cmd)
+      pid_bt = spawn(cmd)
+
+      cmd = "dirwatch.py --log-level=CRITICAL #{lttng_session_uuid} #{LTTNG_DIRWATCH_SIZE}"
+      LOGGER.debug(cmd)
+      pid_dirwatch = spawn(cmd)
+
+      busy_wait_until do
+        # Ensure that dirwatch.py didn't crash, and deadlock
+        Process.wait(pid_dirwatch, Process::WNOHANG)
+        File.exist?(read_file)
+      end
+      [pid_bt, pid_dirwatch]
+    else
+      exec("#{BINDIR}/babeltrace_thapi #{opts.join(' ')} -- #{lttng_trace_dir_tmp}")
+      if OPTIONS.include?(:timeline)
+        args = ['timeline', '--backends', OPTIONS[:backends].join(','),
+                '--output-path', File.join(thapi_trace_dir_tmp, "timeline_#{Socket.gethostname}.pftrace"),
+                '--output-offset', MPITopo.rank_offset]
+        exec("#{BINDIR}/babeltrace_thapi #{args.join(' ')}  #{thapi_trace_dir_tmp}")
+      end
+
+      # /!\ If babeltrace moved the file the `lttng_trace_dir_tmp` no longer exist
+      LOGGER.debug("Deleting #{lttng_trace_dir_tmp}")
+      FileUtils.rm_rf(lttng_trace_dir_tmp)
+
+    end
+  end
+
+  private
+
+  def lttng_setup(backends)
+    # Spawning the sessiond Daemon will crash
+    #   if LTTNG_HOME doesn't exist
+    FileUtils.mkdir_p(lttng_home_dir)
+    FileUtils.mkdir_p(lttng_trace_dir_tmp)
+    exec('lttng-sessiond --daemonize')
+    exec("lttng create #{lttng_session_uuid} -o #{lttng_trace_dir_tmp}")
+
+    File.write(File.join(lttng_trace_dir_tmp, 'thapi_metadata.yaml'), { type: 'lttng' }.to_yaml)
+
+    channel_name = 'blocking-channel'
+    exec("lttng enable-channel --userspace --session=#{lttng_session_uuid} --blocking-timeout=inf #{channel_name}")
+    exec("lttng add-context    --userspace --session=#{lttng_session_uuid} --channel=#{channel_name} -t vpid -t vtid")
+
+    # Enable backend events
+    (backends + ['metadata']).each do |name|
+      send("enable_events_#{name}", channel_name,
+           tracing_mode: OPTIONS[:'tracing-mode'],
+           profiling: OPTIONS[:profile])
+    end
+
+    enable_events_tracegrind(channel_name) if OPTIONS[:valgrind]
+
+    if SamplingDaemon.active?
+      channel_name = 'non-blocking-channel'
+      exec("lttng enable-channel --userspace --session=#{lttng_session_uuid} #{channel_name}")
+      exec("lttng add-context    --userspace --session=#{lttng_session_uuid} --channel=#{channel_name} -t vpid -t vtid")
+      exec("lttng enable-event   --userspace --session=#{lttng_session_uuid} --channel=#{channel_name} lttng_ust_sampling:*")
+
+      if OPTIONS[:'backend-names'].include?('ze')
+        exec("lttng enable-event  --userspace --session=#{lttng_session_uuid} --channel=#{channel_name} lttng_ust_ze_sampling:*")
+      end
+
+      if OPTIONS[:'backend-names'].include?('cxi')
+        exec("lttng enable-event  --userspace --session=#{lttng_session_uuid} --channel=#{channel_name} lttng_ust_cxi_sampling:*")
+      end
+
+    end
+    # This is required to force the creation of an trace,
+    # so that dirwatch doesn't complain about empty trace
+    if OPTIONS[:archive]
+      exec("lttng enable-rotation --session=#{lttng_session_uuid} --size=#{LTTNG_ARCHIVE_SIZE} --timer=#{LTTNG_ARCHIVE_TIMER}")
+    end
+    exec("lttng start #{lttng_session_uuid}")
+  end
+
+  def lttng_teardown_session
+    exec("lttng rotate #{lttng_session_uuid}") if OPTIONS[:archive]
+    exec("lttng destroy #{lttng_session_uuid}")
+  end
+
+  def lttng_kill_sessiond
+    # Need to kill the sessiond Daemon. It's safe because each job has their own
+    #
+    # In theory, opening the lttng-sessiond.pid file is racy.
+    # It's possible that the sessiond spawned and didn't yet write the file
+    # In practice, there is a lot of work between the spawn and the write, so it should be ok
+    LOGGER.with_info_block('Killing sessiond') do
+      pid = File.read(File.join(lttng_home_dir, '.lttng', 'lttng-sessiond.pid')).to_i
+      Process.kill('SIGKILL', pid)
+      FileUtils.rm_rf(lttng_home_dir)
+    end
+  end
+
+  def bt_wait_for_archive_processes(pids)
+    LOGGER.debug("Waiting for babeltrace_thapi and dirwatch (#{pids}) to finish")
+    pids.to_a.each do |pid|
+      _, status = Process.wait2(pid)
+      XprofExitCode.update(status, "babeltrace_thapi or dirwatch #{pid}")
+    end
+  end
+end
+
+#  __         _
+# /__ |\/|   |_) ._ _   _  _   _  _ o ._   _
+# \_| |  |   |   | (_) (_ (/_ _> _> | | | (_|
+#                                          _|
+#
+module GlobalMaster
+  extend self
+
+  def rename_folder
+    raise unless MPITopo.master?
+
+    # All process have put their file into `thapi_trace_dir_tmp/hostname`.
+    # `thapi_trace_dir_tmp` is using the MPI_JOB_ID
+    # Replace it with a better name, and update the root metadata.
+
+    thapi_trace_dir_tmp_root = File.dirname(thapi_trace_dir_tmp)
+    # Because of `traced-rank`, `MPITopo.master` may not have any trace available,
+    # so find the first hostname who have a metadata
+    FileUtils.cp(Dir.glob("#{thapi_trace_dir_tmp_root}/*/thapi_metadata.yaml").first,
+                 File.join(thapi_trace_dir_tmp_root, 'thapi_metadata.yaml'))
+
+    # NOTE: I don't understand `mv`
+    #       FileUtils.mv(a, b) will put a into b (aka b/a)
+    #       FileUtils.rename(a,b) will move a as b, but may
+    #         raise Invalid cross-device error.
+    #       So we use `exec(mv -T a b)`, this have the added benefits of logging
+    exec("mv -T #{thapi_trace_dir_tmp_root} #{thapi_trace_dir_root}") unless OPTIONS[:'trace-output']
+    thapi_trace_dir_root
+  end
+
+  def processing(folder)
+    # The master run last step of babeltraces.
+    # We generate the tally or aggregated the timelines, or generate the timeline in case of replay
+    raise unless MPITopo.master?
+
+    LOGGER.info { "Postprocess #{folder}" }
+
+    babeltrace_exe = "#{BINDIR}/babeltrace_thapi"
+    backends = OPTIONS[:backends].join(',')
+
+    if OPTIONS.include?(:trace)
+      cmdnames = [babeltrace_exe, 'trace', '--restrict', '--context', '--backends', backends, '--', folder]
+    elsif OPTIONS.include?(:timeline)
+      # check if there are any timelines. we check in advance
+      # since if we don't have nay saved ones we should fall
+      # back to generating the timeline from the interval
+      files = Dir[folder + '/*/timeline_*.pftrace']
+      cmdnames = if files.empty?
+                   [babeltrace_exe, 'timeline', '--backends', backends, '--output-path', OPTIONS[:timeline], '--',
+                    folder]
+                 else
+                   warn("THAPI: Perfetto trace location: #{OPTIONS[:timeline]}")
+                   # String because `>` is not a real command, and cannot be passed to popen
+                   "cat #{files.join(' ')} > #{OPTIONS[:timeline]}"
+                 end
+    else
+      cmdnames = [babeltrace_exe, 'tally']
+      cmdnames << '--display_kernel_verbose' if OPTIONS.include?(:'kernel-verbose')
+      cmdnames << '--display_metadata' if OPTIONS.include?(:metadata)
+      cmdnames << '--display_name_max_size' << OPTIONS[:'max-name-size'].to_s
+      cmdnames << '--display_mode' << 'json' if OPTIONS.include?(:json)
+      cmdnames << '--backends' << backends
+      cmdnames << '--display' << 'extended' if OPTIONS.include?(:extended)
+      cmdnames += ['--', folder]
+    end
+
+    # Run cmdnames.
+    LOGGER.with_info_block('Global Master Processing') do
+      exec_store_in_file(cmdnames, output_file: OPTIONS[:'analysis-output'])
+    end
+  end
+end
+
+#             _
+#  /\  | |   |_) ._ _   _  _   _  _ o ._   _
+# /--\ | |   |   | (_) (_ (/_ _> _> | | | (_|
+#                                          _|
+#
+
+def traced_rank?
+  Set[-1, MPITopo.rank_id].intersect?(OPTIONS[:'traced-ranks'])
+end
+
+def all_env_tracers(usr_binary)
+  # Return the list of backends (used by local master to enable lttng events)
+  # and the ENV used by any traced-ranks to preload THAPI tracers
+
+  h = Hash.new { |h, k| h[k] = [] }
+  backends = []
+
+  backend_defs = [%w[opencl cl libOpenCL],
+                  %w[ze ze libze_loader],
+                  %w[cuda cuda libcuda],
+                  %w[hip hip libamdhip64],
+                  %w[mpi mpi libmpi]]
+
+  selected = backend_defs.select { |_, bt_name, _| OPTIONS[:'backend-names'].include?(bt_name) }
+
+  # Collect requested backends that need a library lookup
+  needed = selected.reject { |name, _, lib| env_fetch_first("LTTNG_UST_#{name.upcase}_#{lib.upcase}") }
+
+  # Single batch call for all libraries
+  lib_paths = whichlib64(usr_binary, *needed.map { |_, _, lib| "#{lib}.so" })
+
+  selected.each do |name, bt_name, lib|
+    # Find and Save the original lib path
+    libenv = "LTTNG_UST_#{name.upcase}_#{lib.upcase}"
+    libso = "#{lib}.so"
+    if (e = env_fetch_first(libenv))
+      LOGGER.warn("#{libenv} was already set, will use this path #{e} for the #{name} loader")
+    elsif (libpath = lib_paths[libso])
+      h[libenv] = libpath
+    else
+      LOGGER.warn("No #{libso} found in LD_LIBRARY_PATH")
+      next
+    end
+    backends << bt_name
+    h[%w[LD_LIBRARY_PATH prepend]] << File.join(PKGLIBDIR, name)
+    h[%w[LD_PRELOAD prepend]] << File.join(PKGLIBDIR, name, libso)
+    h["LTTNG_UST_#{name.upcase}_PROFILE"] = 1 if OPTIONS[:profile]
+    h["LTTNG_UST_#{name.upcase}_VERBOSE"] = 1 if LOGGER.level <= Logger::DEBUG
+  end
+  # Only support blocking, so lttng doesn't drop messages
+  h['LTTNG_UST_ALLOW_BLOCKING'] = 1
+
+  # Each tracee rank tries to register simultaneously.
+  # With the default (3s) timeout, ranks that lose the registration race give up
+  # and run untraced. Block until registration completes instead.
+  h['LTTNG_UST_REGISTER_TIMEOUT'] = -1
+
+  # Customization
+  if OPTIONS[:'backend-names'].include?('ze')
+    h['LTTNG_UST_ZE_PARANOID_DRIFT'] = 1 if OPTIONS[:profile]
+    # Walk pNext only on full.
+    h['LTTNG_UST_ZE_CHAINED_STRUCTS'] = 1 if OPTIONS[:'tracing-mode'] == 'full'
+    if SamplingDaemon.active?
+      # The current only reliable way to use zes api
+      #   is to call zesInit and set ZES_ENABLE_SYSMAN to 0
+      h['ZES_ENABLE_SYSMAN'] = 0
+      h['LTTNG_UST_ZE_SAMPLING_ENERGY'] = 1
+      h['THAPI_SAMPLING_LIBRARIES'] << File.join(PKGLIBDIR, 'ze', 'libZESampling.so')
+    end
+  end
+
+  if OPTIONS[:'backend-names'].include?('omp')
+    backends << 'omp'
+    h['OMP_TOOL_LIBRARIES'] = File.join(LIBDIR, 'libTracerOMPT.so')
+  end
+
+  if OPTIONS[:'backend-names'].include?('cxi')
+    backends << 'cxi'
+    if SamplingDaemon.active?
+      h['LTTNG_UST_CXI_SAMPLING_CXI'] = 1
+      h['THAPI_SAMPLING_LIBRARIES'] << File.join(PKGLIBDIR, 'cxi', 'libCXISampling.so')
+    end
+  end
+
+  if OPTIONS[:'backend-names'].include?('itt')
+    backends << 'itt'
+    h['INTEL_LIBITTNOTIFY64'] = File.join(LIBDIR, 'libittnotify.so')
+  end
+
+  if OPTIONS[:'backend-names'].include?('pytorch')
+    # Supported calling: iprof -- python3 model.py (torch env is active).
+    # Unsupported calling: iprof -- venv/bin/python3 module.py (non-active torch env)
+    # TODO: We need env vars to support the second calling convention.
+    torch_file = exec('python3 -c "import torch; print(torch.__file__)"', debug: false).strip
+    torch_lib = torch_file.empty? ? '' : File.join(File.dirname(torch_file), 'lib')
+    if torch_lib.empty?
+      LOGGER.warn('No torch module found for python3, pytorch backend will not be enabled')
+    else
+      backends << 'pytorch'
+      # LibTracerPytorch.so calls at::addGlobalCallback() and RecordFunction::name()
+      # both implemented in libtorch_cpu.so. The lib is reachable via LD_LIBRARY_PATH.
+      h[%w[LD_LIBRARY_PATH prepend]] << torch_lib
+      h[%w[LD_PRELOAD prepend]] << File.join(LIBDIR, 'libTracerPytorch.so')
+    end
+  end
+
+  if OPTIONS[:valgrind]
+    h[%w[LD_PRELOAD prepend]] << TRACEGRIND_LIB
+  end
+
+  # Sample
+  if SamplingDaemon.active?
+    LOGGER.debug('Sampling Enabled')
+    h['LTTNG_UST_SAMPLING'] = 1
+    h[%w[LD_LIBRARY_PATH prepend]] << File.join(PKGLIBDIR, 'sampling')
+    h['THAPI_SAMPLING_LIBRARIES'] << File.join(PKGLIBDIR, 'sampling', 'libHeartbeatSampling.so')
+  end
+
+  # Only the local master need to backend (to enable the event)
+  # TODO: Only enable local rank who have traced rank in them
+  # All the traced ranks, and only them, need the ENV
+  # TODO: Only call whichlib64 for traced-ranks
+  backends = [] unless MPITopo.local_master?
+  h = {} unless traced_rank?
+
+  LOGGER.info("Backends found: #{backends}")
+  LOGGER.debug("User app env: #{h}")
+
+  [backends, sanitize_env(h).freeze]
+end
+
+# Handles tracing setup, execution, teardown, and optional post-processing.
+def all_trace_and_processing(usr_argv)
+  SyncDaemon.open do |syncd|
+    # All local rank need to share the same LTTNG_HOME
+    ENV['LTTNG_HOME'] = lttng_home_dir
+    backends, env = all_env_tracers(usr_argv.first || '')
+    sampling_daemon, archive_pids = LocalMaster.setup(backends, env) if MPITopo.local_master?
+    syncd.local_barrier('waiting_for_lttng_setup')
+
+    begin
+      # `all_env_tracers` above was given the *user* binary for whichlib64, so
+      # the Valgrind prefix can only be added now.
+      cmd = OPTIONS[:valgrind] && traced_rank? ? valgrind_argv + usr_argv : usr_argv
+      launch_usr_bin(env, cmd)
+    ensure
+      syncd.local_barrier('waiting_for_application_ending')
+      LocalMaster.teardown(sampling_daemon, archive_pids) if MPITopo.local_master?
+    end
+
+    LocalMaster.bt_analysis(backends) if MPITopo.local_master? && !OPTIONS[:archive]
+  end
+
+  GlobalMaster.rename_folder if MPITopo.master?
+end
+
+#
+#    _                       _    ___
+#   |_) _. ._ _ o ._   _    /  |   |
+#   |  (_| | _> | | | (_|   \_ |_ _|_
+#                      _|
+def last_trace_saved
+  Dir[File.join(thapi_trace_home, 'thapi*')].max_by { |f| File.mtime(f) }
+end
+
+# Run when launched through the `iprof` wrapper (which sets $thapi_launch before
+# requiring this file) or when executed directly.
+if $thapi_launch || __FILE__ == $PROGRAM_NAME
+  parser = OptionParserWithDefaultAndValidation.new
+
+  parser.banner = "Usage: #{File.basename($PROGRAM_NAME)} [options] [--] [command]"
+
+  parser.on('--trace-output PATH', 'Define where the CTF trace will be saved.',
+            'If multiple hostnames are traced, ensure that this PATH is accessible by all.',
+            'Default: `$THAPI_HOME/thapi-traces/thapi--[trace-type][date]`',
+            '(`$THAPI_HOME` defaults to `$HOME`,',
+            ' and `date` is formatted using ISO 8601 convention).') do |p|
+    raise(OptionParser::ParseError, "#{p} already exists") if MPITopo.master? && File.exist?(p)
+
+    p
+  end
+
+  parser.on('--analysis-output PATH',
+            'Define where the analysis output (summary, pretty printing, etc.) will be saved.',
+            'Default: printed to `stdout`.')
+  # Tracing
+  parser.on('-m', '--tracing-mode MODE', 'Define the category of events to trace.', default: 'default',
+                                                                                    allowed: %w[minimal default full])
+  parser.on('--traced-ranks RANK', Array, 'Select which MPI ranks will be traced.',
+            'Use -1 to trace all ranks.',
+            default: Set[-1]) do |ranks|
+    ranks.to_set do |r|
+      if r.match?(/^\d+$/) || r == '-1'
+        r.to_i
+      else
+        raise(OptionParser::ParseError,
+              "Invalid value (#{r}). Only positive integers and -1 accepted.")
+      end
+    end
+  end
+  parser.on('--[no-]profile', 'Enable or disable device profiling.', default: true)
+  parser.on('--[no-]analysis', 'Enable or disable analysis of the LTTng trace.', default: true)
+
+  # General Options
+  parser.on('-b', '--backends BACKENDS', Array, 'Select which backends to use and their grouping level.',
+            'Format: backend_name[:backend_level],...',
+            default: ['mpi:3', 'omp:2', 'cl:1', 'ze:1', 'cuda:1', 'hip:1', 'cxi:4', 'itt:5'])
+  parser.on('--[no-]archive', 'Enable or disable archive support.', default: false)
+
+  # Analysis
+  parser.on('-r', '--replay [PATH]', 'Replay traces for post-mortem analysis.',
+            'If `PATH` is omitted, it defaults to the newest trace in `$HOME/thapi-traces/`.')
+
+  parser.on('-t', '--trace', 'Pretty-print the LTTng trace.')
+  parser.on('-l', '--timeline [PATH]', 'Dump the trace timeline to a binary file.',
+            'If `PATH` is omitted, defaults to `out.pftrace`.',
+            'Open with Perfetto: `https://ui.perfetto.dev/#!/viewer`.') do |p|
+              p || 'out.pftrace'
+            end
+  ## Tally Specific Options
+  parser.on('-j', '--json', 'Output the tally in JSON format.')
+  parser.on('-e', '--extended', 'Print the tally for each Hostname / Process / Thread / Device.')
+  parser.on('-k', '--kernel-verbose',
+            'The tally will report kernels execution time with SIMD width and global/local sizes.')
+  parser.on('--max-name-size SIZE',
+            OptionParser::DecimalInteger,
+            'Set the maximum allowed kernels name size.',
+            'Use -1 for no limit.', default: 80)
+
+  parser.on('-s', '--sample', 'Enable counters sampling.')
+
+  parser.on('--valgrind', "Run the traced program under Valgrind's `tracegrind` tool.",
+            'Every memory access performed between two THAPI events is recorded and',
+            'flushed into an extra `lttng_ust_tracegrind:mem_accesses` event.',
+            'Requires THAPI built with `--with-tracegrind`, and `-t` or `--no-analysis`',
+            'to keep the events.')
+
+  parser.on('--metadata', 'Display trace metadata.')
+  parser.on('-v', '--version', 'Print the Version String.') do
+    puts File.read(File.join(DATADIR, 'thapi_version'))
+    exit
+  end
+  parser.on('-h', '--help', 'Display this message.') { print_help_and_exit(parser, exit_code: 0) }
+
+  parser.on('--debug [LEVEL]', OptionParser::DecimalInteger, 'Set the debug level.',
+            "If `LEVEL` is omitted, it defaults to #{Logger::INFO}.", default: Logger::ERROR) do |d|
+              d || Logger::INFO
+            end
+
+  def print_help_and_exit(parser, exit_code: 1)
+    puts(parser.help)
+    puts(<<~EOF
+                                                            __
+      For complaints, praises, or bug reports please use: <(o )___
+         https://github.com/argonne-lcf/THAPI              ( ._> /
+         or send email to {apl,bvideau}@anl.gov             `---'
+    EOF
+        )
+    exit(exit_code)
+  end
+
+  # Parsing ARGV
+  print_help_and_exit(parser) if ARGV.empty?
+
+  options = {}
+  begin
+    parser.parse!(into: options)
+  rescue OptionParser::InvalidOption => e
+    puts("ERROR: #{e}. Maybe missing --?")
+    print_help_and_exit(parser)
+  rescue StandardError => e
+    puts("ERROR: #{e}")
+    print_help_and_exit(parser)
+  end
+
+  options[:'backend-names'] = options[:backends].map { |name_level| name_level.split(':').first }
+  OPTIONS = options.freeze
+
+  if (launcher = %w[mpirun mpiexec].find { |b| ARGV.include?(b) })
+    warn(<<~EOF
+      WARNING: It looks like you are trying to trace an MPI application.
+      The recommended way is to use:
+        `#{launcher} iprof cmd`
+      not
+        `iprof #{launcher} cmd`
+      Using `iprof #{launcher} cmd` will only profile a *single* hostname
+      and may also profile the MPI launcher (e.g., PALS).
+
+    EOF
+        )
+  end
+
+  # Setup Logger
+  LOGGER.level = OPTIONS[:debug]
+  LOGGER.debug(OPTIONS)
+
+  if OPTIONS[:valgrind]
+    unless TRACEGRIND_ENABLED
+      warn('ERROR: --valgrind requires THAPI to be built with `--with-tracegrind`.')
+      exit(1)
+    end
+    if trace_bt_prefix[:bt] != 'move'
+      warn(<<~EOF
+        WARNING: --valgrind events only survive in the raw LTTng trace.
+        Use `-t` or `--no-analysis` to keep them; the tally and timeline
+        pipelines discard them.
+
+      EOF
+          )
+    end
+  end
+
+  # Right now, `replay` means no tracing.
+  # But we don't have a way of disabling post-processing
+  folder = OPTIONS.include?(:replay) ? OPTIONS[:replay] || last_trace_saved : all_trace_and_processing(ARGV)
+
+  if MPITopo.master?
+    warn("THAPI: Trace location: #{folder}")
+    XprofExitCode.update(GlobalMaster.processing(folder), 'babeltrace_thapi') if OPTIONS[:analysis]
+  end
+
+  exit(XprofExitCode.get)
+
+end

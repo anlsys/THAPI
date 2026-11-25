@@ -1,0 +1,757 @@
+functions:
+- name: cuexp_function_get_name
+  params:
+  - name: hContext
+    type:
+      kind: custom_type
+      name: CUcontext
+  - name: hFunction
+    type:
+      kind: custom_type
+      name: CUfunction
+  - name: pName
+    type:
+      kind: pointer
+      type:
+        kind: pointer
+        type:
+          kind: char
+          name: char
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexpFunction_setCacheConfig
+  params:
+  - name: hFunction
+    type:
+      kind: custom_type
+      name: CUfunction
+  - name: config
+    type:
+      kind: custom_type
+      name: CUfunc_cache
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_6e163fbe_d8
+  params:
+  - name: hModule
+    type:
+      kind: custom_type
+      name: CUmodule
+  - name: pB
+    type:
+      kind: pointer
+      type:
+        kind: int
+        name: int
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexpFunction_get_arg_count
+  params:
+  - name: hFunction
+    type:
+      kind: custom_type
+      name: CUfunction
+  - name: pArgCount
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: size_t
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexpFunction_get_arg_descriptor
+  params:
+  - name: hFunction
+    type:
+      kind: custom_type
+      name: CUfunction
+  - name: argIndex
+    type:
+      kind: custom_type
+      name: size_t
+  - name: pArgDescQuery
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: cuexp_function_arg_desc_query
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_6e163fbe_130
+  params:
+  - name: pA
+    type:
+      kind: pointer
+      type:
+        kind: pointer
+        type:
+          kind: void
+          name: void
+  - name: hFunction
+    type:
+      kind: custom_type
+      name: CUfunction
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_module_iterate_on_functions
+  params:
+  - name: hContext
+    type:
+      kind: custom_type
+      name: CUcontext
+  - name: hModule
+    type:
+      kind: custom_type
+      name: CUmodule
+  - name: pFunc
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: userData
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_6e163fbe_1a8
+  params:
+  - name: hFunction
+    type:
+      kind: custom_type
+      name: CUfunction
+  - name: pB
+    type:
+      kind: pointer
+      type:
+        kind: int
+        name: int
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_6e163fbe_1b8
+  params:
+  - name: hFunction
+    type:
+      kind: custom_type
+      name: CUfunction
+  - name: pB
+    type:
+      kind: pointer
+      type:
+        kind: int
+        name: unsigned long int
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexpDevice_get_primary_context_refcount
+  params:
+  - name: device
+    type:
+      kind: custom_type
+      name: CUdevice
+  type:
+    kind: int
+    name: unsigned int
+- name: cuexp_get_thread_context
+  params:
+  - name: phContext
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: CUcontext
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_a094798c_08
+  params:
+  - name: a
+    type:
+      kind: int
+      name: unsigned int
+  - name: b
+    type:
+      kind: pointer
+      type:
+        kind: pointer
+        type:
+          kind: void
+          name: void
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_a094798c_10
+  params:
+  - name: a
+    type:
+      kind: pointer
+      type:
+        kind: pointer
+        type:
+          kind: void
+          name: void
+  - name: b
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: size_t
+  type:
+    kind: void
+    name: void
+- name: cuexp_a094798c_18
+  params:
+  - name: hContext
+    type:
+      kind: custom_type
+      name: CUcontext
+  - name: a
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: b
+    type:
+      kind: pointer
+      type:
+        kind: pointer
+        type:
+          kind: void
+          name: void
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_a094798c_20
+  params:
+  - name: hContext
+    type:
+      kind: custom_type
+      name: CUcontext
+  - name: b
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: uint64_t
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_a094798c_28
+  params:
+  - name: a
+    type:
+      kind: int
+      name: unsigned int
+  - name: b
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_a094798c_30
+  params:
+  - name: a
+    type:
+      kind: pointer
+      type:
+        kind: pointer
+        type:
+          kind: void
+          name: void
+  - name: b
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: size_t
+  type:
+    kind: void
+    name: void
+- name: cuexpContext_kvstore_add
+  params:
+  - name: hContext
+    type:
+      kind: custom_type
+      name: CUcontext
+  - name: handle
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: value
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: unknown
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexpContext_kvstore_delete
+  params:
+  - name: hContext
+    type:
+      kind: custom_type
+      name: CUcontext
+  - name: handle
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexpContext_kvstore_get
+  params:
+  - name: value
+    type:
+      kind: pointer
+      type:
+        kind: pointer
+        type:
+          kind: void
+          name: void
+  - name: hContext
+    type:
+      kind: custom_type
+      name: CUcontext
+  - name: handle
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_get_primary_context
+  params:
+  - name: phContext
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: CUcontext
+  - name: ordinal
+    type:
+      kind: int
+      name: unsigned int
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_register_module
+  params:
+  - name: phModule
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: CUmodule
+  - name: fatBinary
+    type:
+      kind: pointer
+      type:
+        kind: int
+        name: int
+  - name: a
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: b
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: ordinal
+    type:
+      kind: int
+      name: unsigned int
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_unregister_module
+  params:
+  - name: fatBinary
+    type:
+      kind: pointer
+      type:
+        kind: int
+        name: int
+  type:
+    kind: void
+    name: void
+- name: cuexpContext_getDevice
+  params:
+  - name: hContext
+    type:
+      kind: custom_type
+      name: CUcontext
+  - name: pDevice
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: CUdevice
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexpContext_getContextNumber
+  params:
+  - name: hContext
+    type:
+      kind: custom_type
+      name: CUcontext
+  - name: contextNumber
+    type:
+      kind: pointer
+      type:
+        kind: int
+        name: unsigned long int
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_21318c60_80
+  params:
+  - name: a
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: pB
+    type:
+      kind: pointer
+      type:
+        kind: pointer
+        type:
+          kind: void
+          name: void
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_21318c60_138
+  params:
+  - name: hContext
+    type:
+      kind: custom_type
+      name: CUcontext
+  - name: b
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: pC
+    type:
+      kind: pointer
+      type:
+        kind: pointer
+        type:
+          kind: void
+          name: void
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexpDevice_get
+  params:
+  - name: pDevice
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: CUdevice
+  - name: ordinal
+    type:
+      kind: int
+      name: int
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexpDevice_getCount
+  params:
+  - name: pCount
+    type:
+      kind: pointer
+      type:
+        kind: int
+        name: unsigned int
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexpDevice_getAttribute
+  params:
+  - name: ordinal
+    type:
+      kind: int
+      name: int
+  - name: attrib
+    type:
+      kind: custom_type
+      name: CUdevice_attribute
+  - name: flag
+    type:
+      kind: int
+      name: int
+  - name: pl
+    type:
+      kind: pointer
+      type:
+        kind: int
+        name: long int
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_b10541e1_30
+  params:
+  - name: device
+    type:
+      kind: custom_type
+      name: CUdevice
+  - name: pB
+    type:
+      kind: pointer
+      type:
+        kind: pointer
+        type:
+          kind: void
+          name: void
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_b10541e1_40
+  params:
+  - name: pRes
+    type:
+      kind: pointer
+      type:
+        kind: int
+        name: unsigned int
+  - name: device
+    type:
+      kind: custom_type
+      name: CUdevice
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_a6b1ff99_28
+  params:
+  - name: a
+    type:
+      kind: pointer
+      type:
+        kind: pointer
+        type:
+          kind: void
+          name: void
+  - name: hContext
+    type:
+      kind: custom_type
+      name: CUcontext
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_127d4831_28
+  params:
+  - name: h
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: a
+    type:
+      kind: int
+      name: int
+  - name: pB
+    type:
+      kind: pointer
+      type:
+        kind: pointer
+        type:
+          kind: void
+          name: void
+  - name: param_4
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_127d4831_30
+  params:
+  - name: h
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: a
+    type:
+      kind: int
+      name: int
+  - name: pB
+    type:
+      kind: pointer
+      type:
+        kind: pointer
+        type:
+          kind: void
+          name: void
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexpCUPTI_init
+  params: []
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_7cb63f9b_1e0
+  params:
+  - name: device
+    type:
+      kind: custom_type
+      name: CUdevice
+  - name: b
+    type:
+      kind: pointer
+      type:
+        kind: custom_type
+        name: cuexp_7cb63f9b_1e0_struct
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_2c8e0ad8_18
+  params:
+  - name: pRes
+    type:
+      kind: pointer
+      type:
+        kind: int
+        name: int
+  - name: a
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  - name: b
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_2c8e0ad8_38
+  params:
+  - name: a
+    type:
+      kind: int
+      name: int
+  - name: b
+    type:
+      kind: int
+      name: int
+  - name: c
+    type:
+      kind: int
+      name: unsigned int
+  type:
+    kind: custom_type
+    name: CUresult
+- name: cuexp_getCudaState
+  params:
+  - name: pState
+    type:
+      kind: pointer
+      type:
+        kind: int
+        name: int
+  type:
+    kind: custom_type
+    name: CUresult
+structs:
+- members:
+  - name: sz
+    type:
+      kind: custom_type
+      name: size_t
+  - name: argSize
+    type:
+      kind: custom_type
+      name: size_t
+  - name: argOffset
+    type:
+      kind: custom_type
+      name: size_t
+  - name: u1
+    type:
+      kind: custom_type
+      name: size_t
+  - name: u2
+    type:
+      kind: custom_type
+      name: size_t
+  name: cuexp_function_arg_desc_query_st
+- members:
+  - name: unknown
+    type:
+      kind: int
+      name: int
+  - name: stride
+    type:
+      kind: int
+      name: unsigned int
+  - name: countOut
+    type:
+      kind: int
+      name: unsigned int
+  - name: capacity
+    type:
+      kind: int
+      name: unsigned int
+  - name: data
+    type:
+      kind: pointer
+      type:
+        kind: void
+        name: void
+  name: cuexp_7cb63f9b_1e0_struct_st
+typedefs:
+- name: cuexp_function_arg_desc_query
+  type:
+    kind: struct
+    name: cuexp_function_arg_desc_query_st
+- name: cuexp_7cb63f9b_1e0_struct
+  type:
+    kind: struct
+    name: cuexp_7cb63f9b_1e0_struct_st

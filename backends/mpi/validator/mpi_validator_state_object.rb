@@ -1,5 +1,6 @@
 require 'mpi/validator/mpi_validator_function_entry_exit_callbacks'
 require 'mpi/validator/mpi_objects'
+require 'set'
 MPI_SUCCESS = 0
 
 Entry = Struct.new(:name, :params, :timestamp, :api)
@@ -18,27 +19,82 @@ class ThreadState
 end
 
 
+# The live requests of one process, indexed by handle and by the address of
+# the MPI_Request variable holding them.
+class RequestTable
+  include Enumerable
+
+  # A completed handle is remembered so that a second completion through a
+  # copy of the handle can be reported; MPICH recycles handles, so this is
+  # bounded and a re-issued handle simply replaces the stale entry.
+  RETIRED_LIMIT = 4096
+
+  attr_reader :suppressed_races
+
+  def initialize
+    @requests = {}            # handle -> Request
+    @slots = {}               # slot address -> handle
+    @retired = {}             # handle -> "MPI_Wait at <ts>"
+    @reported_races = Set.new
+    @suppressed_races = 0
+  end
+
+  def [](handle) = @requests[handle]
+
+  def each(&) = @requests.each_value(&)
+
+  def in_flight_buffers = flat_map(&:in_flight_buffers)
+
+  def insert(req)
+    @retired.delete(req.handle)
+    @requests[req.handle] = req
+    @slots[req.slot] = req.handle if req.slot
+  end
+
+  # Request whose handle currently lives at `slot`, if we know of one.
+  def at_slot(slot)
+    h = @slots[slot]
+    h && @requests[h]
+  end
+
+  # Requests whose MPI_Request variable is still inside [base, base + count).
+  def in_range(base, count)
+    select { |r| r.in_slot_range?(base, count) && @slots[r.slot] == r.handle }
+  end
+
+  def remove(req, why)
+    @requests.delete(req.handle)
+    @slots.delete(req.slot) if req.slot && @slots[req.slot] == req.handle
+    @retired.shift while @retired.size >= RETIRED_LIMIT
+    @retired[req.handle] = why
+  end
+
+  def retired_reason(handle) = @retired[handle]
+
+  # True the first time a (request, mode of access) race is seen.
+  def first_race?(req, verb)
+    return true if @reported_races.add?([req.handle, verb])
+
+    @suppressed_races += 1
+    false
+  end
+
+  def clear
+    @requests.clear
+    @slots.clear
+  end
+end
+
+# A process can have a buffer attached with MPI_Buffer_attach (see
+# AttachedBufferOwner, shared with Communicator) and owns its requests.
 class ProcessState
-  attr_reader :threads
-  attr_reader :inflight
-  attr_reader :user_buffer_size
-  attr_reader :user_buffer_addr
+  include AttachedBufferOwner
+
+  attr_reader :threads, :requests
+
   def initialize
     @threads = Hash.new { |h, k| h[k] = ThreadState.new }
-    @inflight = {}
-    @user_buffer_size = -1
-    @user_buffer_addr = nil
-  end
-  
-  def set_user_buffer(addr, size)
-    @user_buffer_addr = addr
-    @user_buffer_size = size
-  end
-  def free_user_buffer(addr)
-    if addr == @user_buffer_addr
-      @user_buffer_addr = nil
-      @user_buffer_size = -1
-    end
+    @requests = RequestTable.new
   end
 end
 
@@ -55,19 +111,22 @@ class HostState
 end
 
 class StateObject
-  attr_reader :issues
+  attr_reader :issues, :warnings, :finalized_processes
   attr_accessor :bag_id
   attr_accessor :communicator_bags
   attr_accessor :communicators
   attr_accessor :persistent_messages
   attr_accessor :scatter_map
   attr_accessor :gather_map
+  attr_accessor :comm_to_bag_map
   def initialize(**opts)
     @communicators = Hash.new {}
     @options = opts
     @persistent_messages = {}
     @state = Hash.new { |h, k| h[k] = HostState.new }
     @issues = []
+    @warnings = []
+    @finalized_processes = Set.new
     @api_counts = Hash.new(0)
     @total_calls = 0
     @error_count = 0
@@ -96,17 +155,15 @@ class StateObject
   end
 
 
-  def add_inflight(context, record)
-    get_process(context).inflight[record.request] = record
-  end
+  def requests(context) = get_process(context).requests
 
-  def delete_inflight(context, request)
-    return nil unless request
-    get_process(context).inflight.delete(request)
-  end
+  # Buffers MPI owns right now in this process.
+  def inflight_buffers(context) = requests(context).in_flight_buffers
 
-  def inflight_buffers(context)
-    get_process(context).inflight.values
+  def each_process
+    @state.each do |hostname, host|
+      host.processes.each { |vpid, process| yield hostname, vpid, process }
+    end
   end
 
   def print_race(context, str) = report(context, 'BUFFER RACE', str)
@@ -156,6 +213,13 @@ class StateObject
 
   def print_usage_error(context, str)    = report(context, 'USAGE ERROR', str)
   def print_error_return(context, str)   = report(context, 'ERROR', str)
+
+  # Printed, but not counted as an issue: does not change the exit code.
+  def print_warning(context, str)
+    msg = "WARNING [#{get_context_str(context)}] #{str}"
+    @warnings << msg
+    warn msg
+  end
  
 
   # Decides whether on_exit runs the success or the error callback.
@@ -191,6 +255,8 @@ class StateObject
     if validate_result(payload)
       l = $on_successful_exit[api]
       l&.call(self, context, payload)
+      # Any call that hands back a request (OutScalar request -> request_val)
+      $on_request_created&.call(self, context, payload, api) if payload.key?('request_val')
     else
       @error_count += 1
       l = $on_erroneous_exit[api]
@@ -276,18 +342,14 @@ class StateObject
                            "#{d['entry']['api']} entered but never returned")
     end
 
-    # Requests still in flight when the trace ends: never waited on, so the
-    # buffer was never returned to the application and the request leaked.
-    @state.each do |hostname, host|
-      host.processes.each do |vpid, process|
-        process.inflight.each_value do |b|
-          ctx = { 'hostname' => hostname, 'vpid' => vpid, 'vtid' => vpid }
-          print_usage_error(ctx,
-                            "#{b.api} request 0x#{b.request.to_s(16)} " \
-                            "(buffer 0x#{b.lo.to_s(16)}, #{b.size} bytes) " \
-                            'was never completed: no matching MPI_Wait/MPI_Test')
-        end
-      end
+    # Requests still held when the trace ends (processes that reached
+    # MPI_Finalize were already checked there).
+    each_process do |hostname, vpid, process|
+      next if finalized_processes.include?([hostname, vpid])
+
+      ctx = { 'hostname' => hostname, 'vpid' => vpid, 'vtid' => vpid }
+      NonblockingValidation.report_outstanding(self, ctx, process.requests,
+                                               'at the end of the trace')
     end
     persistent_messages.each do |request, msg|
       print_usage_error(msg.context, "MPI_Test was not called for a persistent message") unless msg.test_called
@@ -308,16 +370,16 @@ class StateObject
     
     communicators.each do |k, comm|
       comm.sends.each do |key, record|
-        print_usage_error(record[:context], "MPI_Send from rank #{record[:from]} to dst=#{record[:to]} with tag=#{:tag} doesn't have a matching MPI_Recv in the communicator #{comm.base}") unless comm.recvs[key]
+        print_usage_error(record.context, "MPI_Send from rank #{record.from} to dst=#{record.to} with tag=#{record.tag} doesn't have a matching MPI_Recv in the #{comm}") unless comm.recvs[key]
       end
 
       comm.recvs.each do |key, record|
-        puts "MPI_Recv at rank #{record[:to]} from dst=#{record[:from]} with tag=#{:tag}"
-        print_usage_error(record[:context], "MPI_Recv at rank #{record[:to]} from dst=#{record[:from]} with tag=#{:tag} doesn't have a matching MPI_Send in the communicatorr #{comm.base}") unless comm.sends[key]
+        puts "MPI_Recv at rank #{record.to} from dst=#{record.from} with tag=#{record.tag}"
+        print_usage_error(record.context, "MPI_Recv at rank #{record.to} from dst=#{record.from} with tag=#{record.tag} doesn't have a matching MPI_Send in the #{comm}") unless comm.sends[key]
       end
       comm.bcasts.each do |key, record|
         ctx = record[record.keys.sample] 
-        print_usage_error(ctx, "MPI_Bcast has only #{record.size} participating ranks. System expects #{comm.participating_ranks.size} ranks to properly broadcast the message in the communicator #{comm.base}") if record.size < comm.participating_ranks.size
+        print_usage_error(ctx, "MPI_Bcast has only #{record.size} participating ranks. System expects #{comm.participating_ranks.size} ranks to properly broadcast the message in the #{comm}") if record.size < comm.participating_ranks.size
       end   
     end
     puts "\n--- summary ---"
@@ -327,6 +389,11 @@ class StateObject
     puts format('%d erroneous return%s', @error_count,
                 @error_count == 1 ? '' : 's')
     puts format('%d issue%s', @issues.size, @issues.size == 1 ? '' : 's')
+    puts format('%d warning%s', @warnings.size, @warnings.size == 1 ? '' : 's')
+    suppressed = 0
+    each_process { |_h, _p, process| suppressed += process.requests.suppressed_races }
+    puts format('%d repeated buffer race%s on already-reported requests not shown',
+                suppressed, suppressed == 1 ? '' : 's') if suppressed.positive?
 
     @issues.empty? ? 0 : 1
   end

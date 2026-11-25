@@ -1,0 +1,6070 @@
+---
+enums:
+  Error codes:
+    values:
+      CL_SUCCESS: '0'
+      CL_DEVICE_NOT_FOUND: "-1"
+      CL_DEVICE_NOT_AVAILABLE: "-2"
+      CL_COMPILER_NOT_AVAILABLE: "-3"
+      CL_MEM_OBJECT_ALLOCATION_FAILURE: "-4"
+      CL_OUT_OF_RESOURCES: "-5"
+      CL_OUT_OF_HOST_MEMORY: "-6"
+      CL_PROFILING_INFO_NOT_AVAILABLE: "-7"
+      CL_MEM_COPY_OVERLAP: "-8"
+      CL_IMAGE_FORMAT_MISMATCH: "-9"
+      CL_IMAGE_FORMAT_NOT_SUPPORTED: "-10"
+      CL_BUILD_PROGRAM_FAILURE: "-11"
+      CL_MAP_FAILURE: "-12"
+      CL_INVALID_VALUE: "-30"
+      CL_INVALID_DEVICE_TYPE: "-31"
+      CL_INVALID_PLATFORM: "-32"
+      CL_INVALID_DEVICE: "-33"
+      CL_INVALID_CONTEXT: "-34"
+      CL_INVALID_QUEUE_PROPERTIES: "-35"
+      CL_INVALID_COMMAND_QUEUE: "-36"
+      CL_INVALID_HOST_PTR: "-37"
+      CL_INVALID_MEM_OBJECT: "-38"
+      CL_INVALID_IMAGE_FORMAT_DESCRIPTOR: "-39"
+      CL_INVALID_IMAGE_SIZE: "-40"
+      CL_INVALID_SAMPLER: "-41"
+      CL_INVALID_BINARY: "-42"
+      CL_INVALID_BUILD_OPTIONS: "-43"
+      CL_INVALID_PROGRAM: "-44"
+      CL_INVALID_PROGRAM_EXECUTABLE: "-45"
+      CL_INVALID_KERNEL_NAME: "-46"
+      CL_INVALID_KERNEL_DEFINITION: "-47"
+      CL_INVALID_KERNEL: "-48"
+      CL_INVALID_ARG_INDEX: "-49"
+      CL_INVALID_ARG_VALUE: "-50"
+      CL_INVALID_ARG_SIZE: "-51"
+      CL_INVALID_KERNEL_ARGS: "-52"
+      CL_INVALID_WORK_DIMENSION: "-53"
+      CL_INVALID_WORK_GROUP_SIZE: "-54"
+      CL_INVALID_WORK_ITEM_SIZE: "-55"
+      CL_INVALID_GLOBAL_OFFSET: "-56"
+      CL_INVALID_EVENT_WAIT_LIST: "-57"
+      CL_INVALID_EVENT: "-58"
+      CL_INVALID_OPERATION: "-59"
+      CL_INVALID_GL_OBJECT: "-60"
+      CL_INVALID_BUFFER_SIZE: "-61"
+      CL_INVALID_MIP_LEVEL: "-62"
+      CL_INVALID_GLOBAL_WORK_SIZE: "-63"
+      CL_MISALIGNED_SUB_BUFFER_OFFSET: "-13"
+      CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST: "-14"
+      CL_INVALID_PROPERTY: "-64"
+      CL_COMPILE_PROGRAM_FAILURE: "-15"
+      CL_LINKER_NOT_AVAILABLE: "-16"
+      CL_LINK_PROGRAM_FAILURE: "-17"
+      CL_DEVICE_PARTITION_FAILED: "-18"
+      CL_KERNEL_ARG_INFO_NOT_AVAILABLE: "-19"
+      CL_INVALID_IMAGE_DESCRIPTOR: "-65"
+      CL_INVALID_COMPILER_OPTIONS: "-66"
+      CL_INVALID_LINKER_OPTIONS: "-67"
+      CL_INVALID_DEVICE_PARTITION_COUNT: "-68"
+      CL_INVALID_PIPE_SIZE: "-69"
+      CL_INVALID_DEVICE_QUEUE: "-70"
+      CL_INVALID_SPEC_ID: "-71"
+      CL_MAX_SIZE_RESTRICTION_EXCEEDED: "-72"
+      CL_INVALID_D3D10_DEVICE_KHR: "-1002"
+      CL_INVALID_D3D10_RESOURCE_KHR: "-1003"
+      CL_D3D10_RESOURCE_ALREADY_ACQUIRED_KHR: "-1004"
+      CL_D3D10_RESOURCE_NOT_ACQUIRED_KHR: "-1005"
+      CL_INVALID_D3D11_DEVICE_KHR: "-1006"
+      CL_INVALID_D3D11_RESOURCE_KHR: "-1007"
+      CL_D3D11_RESOURCE_ALREADY_ACQUIRED_KHR: "-1008"
+      CL_D3D11_RESOURCE_NOT_ACQUIRED_KHR: "-1009"
+      CL_INVALID_DX9_MEDIA_ADAPTER_KHR: "-1010"
+      CL_INVALID_DX9_MEDIA_SURFACE_KHR: "-1011"
+      CL_DX9_MEDIA_SURFACE_ALREADY_ACQUIRED_KHR: "-1012"
+      CL_DX9_MEDIA_SURFACE_NOT_ACQUIRED_KHR: "-1013"
+      CL_INVALID_EGL_OBJECT_KHR: "-1093"
+      CL_EGL_RESOURCE_NOT_ACQUIRED_KHR: "-1092"
+      CL_PLATFORM_NOT_FOUND_KHR: "-1001"
+      CL_CONTEXT_TERMINATED_KHR: "-1121"
+      CL_DEVICE_PARTITION_FAILED_EXT: "-1057"
+      CL_INVALID_PARTITION_COUNT_EXT: "-1058"
+      CL_INVALID_PARTITION_NAME_EXT: "-1059"
+      CL_GRALLOC_RESOURCE_NOT_ACQUIRED_IMG: '0x40D4'
+      CL_INVALID_GRALLOC_OBJECT_IMG: '0x40D5'
+      CL_INVALID_ACCELERATOR_INTEL: "-1094"
+      CL_INVALID_ACCELERATOR_TYPE_INTEL: "-1095"
+      CL_INVALID_ACCELERATOR_DESCRIPTOR_INTEL: "-1096"
+      CL_ACCELERATOR_TYPE_NOT_SUPPORTED_INTEL: "-1097"
+      CL_INVALID_VA_API_MEDIA_ADAPTER_INTEL: "-1098"
+      CL_INVALID_VA_API_MEDIA_SURFACE_INTEL: "-1099"
+      CL_VA_API_MEDIA_SURFACE_ALREADY_ACQUIRED_INTEL: "-1100"
+      CL_VA_API_MEDIA_SURFACE_NOT_ACQUIRED_INTEL: "-1101"
+      CL_INVALID_DX9_DEVICE_INTEL: "-1010"
+      CL_INVALID_DX9_RESOURCE_INTEL: "-1011"
+      CL_DX9_RESOURCE_ALREADY_ACQUIRED_INTEL: "-1012"
+      CL_DX9_RESOURCE_NOT_ACQUIRED_INTEL: "-1013"
+      CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR: "-1000"
+      CL_COMMAND_TERMINATED_ITSELF_WITH_FAILURE_ARM: "-1108"
+    trace_name: errcode_ret
+    type_name: cl_errcode
+  cl_platform_info:
+    values:
+      CL_PLATFORM_PROFILE: '0x0900'
+      CL_PLATFORM_VERSION: '0x0901'
+      CL_PLATFORM_NAME: '0x0902'
+      CL_PLATFORM_VENDOR: '0x0903'
+      CL_PLATFORM_EXTENSIONS: '0x0904'
+      CL_PLATFORM_HOST_TIMER_RESOLUTION: '0x0905'
+      CL_PLATFORM_NUMERIC_VERSION: '0x0906'
+      CL_PLATFORM_EXTENSIONS_WITH_VERSION: '0x0907'
+      CL_PLATFORM_ICD_SUFFIX_KHR: '0x0920'
+      CL_PLATFORM_NUMERIC_VERSION_KHR:
+      CL_PLATFORM_EXTENSIONS_WITH_VERSION_KHR:
+  cl_device_info:
+    values:
+      CL_DEVICE_TYPE: '0x1000'
+      CL_DEVICE_VENDOR_ID: '0x1001'
+      CL_DEVICE_MAX_COMPUTE_UNITS: '0x1002'
+      CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS: '0x1003'
+      CL_DEVICE_MAX_WORK_GROUP_SIZE: '0x1004'
+      CL_DEVICE_MAX_WORK_ITEM_SIZES: '0x1005'
+      CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR: '0x1006'
+      CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT: '0x1007'
+      CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT: '0x1008'
+      CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG: '0x1009'
+      CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT: '0x100A'
+      CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE: '0x100B'
+      CL_DEVICE_MAX_CLOCK_FREQUENCY: '0x100C'
+      CL_DEVICE_ADDRESS_BITS: '0x100D'
+      CL_DEVICE_MAX_READ_IMAGE_ARGS: '0x100E'
+      CL_DEVICE_MAX_WRITE_IMAGE_ARGS: '0x100F'
+      CL_DEVICE_MAX_MEM_ALLOC_SIZE: '0x1010'
+      CL_DEVICE_IMAGE2D_MAX_WIDTH: '0x1011'
+      CL_DEVICE_IMAGE2D_MAX_HEIGHT: '0x1012'
+      CL_DEVICE_IMAGE3D_MAX_WIDTH: '0x1013'
+      CL_DEVICE_IMAGE3D_MAX_HEIGHT: '0x1014'
+      CL_DEVICE_IMAGE3D_MAX_DEPTH: '0x1015'
+      CL_DEVICE_IMAGE_SUPPORT: '0x1016'
+      CL_DEVICE_MAX_PARAMETER_SIZE: '0x1017'
+      CL_DEVICE_MAX_SAMPLERS: '0x1018'
+      CL_DEVICE_MEM_BASE_ADDR_ALIGN: '0x1019'
+      CL_DEVICE_SINGLE_FP_CONFIG: '0x101B'
+      CL_DEVICE_GLOBAL_MEM_CACHE_TYPE: '0x101C'
+      CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE: '0x101D'
+      CL_DEVICE_GLOBAL_MEM_CACHE_SIZE: '0x101E'
+      CL_DEVICE_GLOBAL_MEM_SIZE: '0x101F'
+      CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE: '0x1020'
+      CL_DEVICE_MAX_CONSTANT_ARGS: '0x1021'
+      CL_DEVICE_LOCAL_MEM_TYPE: '0x1022'
+      CL_DEVICE_LOCAL_MEM_SIZE: '0x1023'
+      CL_DEVICE_ERROR_CORRECTION_SUPPORT: '0x1024'
+      CL_DEVICE_PROFILING_TIMER_RESOLUTION: '0x1025'
+      CL_DEVICE_ENDIAN_LITTLE: '0x1026'
+      CL_DEVICE_AVAILABLE: '0x1027'
+      CL_DEVICE_COMPILER_AVAILABLE: '0x1028'
+      CL_DEVICE_EXECUTION_CAPABILITIES: '0x1029'
+      CL_DEVICE_NAME: '0x102B'
+      CL_DEVICE_VENDOR: '0x102C'
+      CL_DRIVER_VERSION: '0x102D'
+      CL_DEVICE_PROFILE: '0x102E'
+      CL_DEVICE_VERSION: '0x102F'
+      CL_DEVICE_EXTENSIONS: '0x1030'
+      CL_DEVICE_PLATFORM: '0x1031'
+      CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE: '0x101A'
+      CL_DEVICE_QUEUE_PROPERTIES: '0x102A'
+      CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF: '0x1034'
+      CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR: '0x1036'
+      CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT: '0x1037'
+      CL_DEVICE_NATIVE_VECTOR_WIDTH_INT: '0x1038'
+      CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG: '0x1039'
+      CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT: '0x103A'
+      CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE: '0x103B'
+      CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF: '0x103C'
+      CL_DEVICE_HOST_UNIFIED_MEMORY: '0x1035'
+      CL_DEVICE_OPENCL_C_VERSION: '0x103D'
+      CL_DEVICE_DOUBLE_FP_CONFIG: '0x1032'
+      CL_DEVICE_LINKER_AVAILABLE: '0x103E'
+      CL_DEVICE_BUILT_IN_KERNELS: '0x103F'
+      CL_DEVICE_IMAGE_MAX_BUFFER_SIZE: '0x1040'
+      CL_DEVICE_IMAGE_MAX_ARRAY_SIZE: '0x1041'
+      CL_DEVICE_PARENT_DEVICE: '0x1042'
+      CL_DEVICE_PARTITION_MAX_SUB_DEVICES: '0x1043'
+      CL_DEVICE_PARTITION_PROPERTIES: '0x1044'
+      CL_DEVICE_PARTITION_AFFINITY_DOMAIN: '0x1045'
+      CL_DEVICE_PARTITION_TYPE: '0x1046'
+      CL_DEVICE_REFERENCE_COUNT: '0x1047'
+      CL_DEVICE_PREFERRED_INTEROP_USER_SYNC: '0x1048'
+      CL_DEVICE_PRINTF_BUFFER_SIZE: '0x1049'
+      CL_DEVICE_QUEUE_ON_HOST_PROPERTIES: '0x102A'
+      CL_DEVICE_IMAGE_PITCH_ALIGNMENT: '0x104A'
+      CL_DEVICE_IMAGE_BASE_ADDRESS_ALIGNMENT: '0x104B'
+      CL_DEVICE_MAX_READ_WRITE_IMAGE_ARGS: '0x104C'
+      CL_DEVICE_MAX_GLOBAL_VARIABLE_SIZE: '0x104D'
+      CL_DEVICE_QUEUE_ON_DEVICE_PROPERTIES: '0x104E'
+      CL_DEVICE_QUEUE_ON_DEVICE_PREFERRED_SIZE: '0x104F'
+      CL_DEVICE_QUEUE_ON_DEVICE_MAX_SIZE: '0x1050'
+      CL_DEVICE_MAX_ON_DEVICE_QUEUES: '0x1051'
+      CL_DEVICE_MAX_ON_DEVICE_EVENTS: '0x1052'
+      CL_DEVICE_SVM_CAPABILITIES: '0x1053'
+      CL_DEVICE_GLOBAL_VARIABLE_PREFERRED_TOTAL_SIZE: '0x1054'
+      CL_DEVICE_MAX_PIPE_ARGS: '0x1055'
+      CL_DEVICE_PIPE_MAX_ACTIVE_RESERVATIONS: '0x1056'
+      CL_DEVICE_PIPE_MAX_PACKET_SIZE: '0x1057'
+      CL_DEVICE_PREFERRED_PLATFORM_ATOMIC_ALIGNMENT: '0x1058'
+      CL_DEVICE_PREFERRED_GLOBAL_ATOMIC_ALIGNMENT: '0x1059'
+      CL_DEVICE_PREFERRED_LOCAL_ATOMIC_ALIGNMENT: '0x105A'
+      CL_DEVICE_IL_VERSION: '0x105B'
+      CL_DEVICE_MAX_NUM_SUB_GROUPS: '0x105C'
+      CL_DEVICE_SUB_GROUP_INDEPENDENT_FORWARD_PROGRESS: '0x105D'
+      CL_DEVICE_ATOMIC_MEMORY_CAPABILITIES: '0x1063'
+      CL_DEVICE_ATOMIC_FENCE_CAPABILITIES: '0x1064'
+      CL_DEVICE_NON_UNIFORM_WORK_GROUP_SUPPORT: '0x1065'
+      CL_DEVICE_OPENCL_C_ALL_VERSIONS: '0x1066'
+      CL_DEVICE_WORK_GROUP_COLLECTIVE_FUNCTIONS_SUPPORT: '0x1068'
+      CL_DEVICE_GENERIC_ADDRESS_SPACE_SUPPORT: '0x1069'
+      CL_DEVICE_OPENCL_C_FEATURES: '0x106F'
+      CL_DEVICE_DEVICE_ENQUEUE_CAPABILITIES: '0x1070'
+      CL_DEVICE_PIPE_SUPPORT: '0x1071'
+      CL_DEVICE_NUMERIC_VERSION: '0x105E'
+      CL_DEVICE_EXTENSIONS_WITH_VERSION: '0x1060'
+      CL_DEVICE_ILS_WITH_VERSION: '0x1061'
+      CL_DEVICE_BUILT_IN_KERNELS_WITH_VERSION: '0x1062'
+      CL_DEVICE_PREFERRED_WORK_GROUP_SIZE_MULTIPLE: '0x1067'
+      CL_DEVICE_LATEST_CONFORMANCE_VERSION_PASSED: '0x1072'
+      CL_DEVICE_HALF_FP_CONFIG: '0x1033'
+      CL_DEVICE_IL_VERSION_KHR: '0x105B'
+      CL_DEVICE_IMAGE_PITCH_ALIGNMENT_KHR:
+      CL_DEVICE_IMAGE_BASE_ADDRESS_ALIGNMENT_KHR:
+      CL_DEVICE_TERMINATE_CAPABILITY_KHR: '0x2031'
+      CL_DEVICE_SPIR_VERSIONS: '0x40E0'
+      CL_DEVICE_COMPUTE_CAPABILITY_MAJOR_NV: '0x4000'
+      CL_DEVICE_COMPUTE_CAPABILITY_MINOR_NV: '0x4001'
+      CL_DEVICE_REGISTERS_PER_BLOCK_NV: '0x4002'
+      CL_DEVICE_WARP_SIZE_NV: '0x4003'
+      CL_DEVICE_GPU_OVERLAP_NV: '0x4004'
+      CL_DEVICE_KERNEL_EXEC_TIMEOUT_NV: '0x4005'
+      CL_DEVICE_INTEGRATED_MEMORY_NV: '0x4006'
+      CL_DEVICE_PROFILING_TIMER_OFFSET_AMD: '0x4036'
+      CL_DEVICE_TOPOLOGY_AMD: '0x4037'
+      CL_DEVICE_BOARD_NAME_AMD: '0x4038'
+      CL_DEVICE_GLOBAL_FREE_MEMORY_AMD: '0x4039'
+      CL_DEVICE_SIMD_PER_COMPUTE_UNIT_AMD: '0x4040'
+      CL_DEVICE_SIMD_WIDTH_AMD: '0x4041'
+      CL_DEVICE_SIMD_INSTRUCTION_WIDTH_AMD: '0x4042'
+      CL_DEVICE_WAVEFRONT_WIDTH_AMD: '0x4043'
+      CL_DEVICE_GLOBAL_MEM_CHANNELS_AMD: '0x4044'
+      CL_DEVICE_GLOBAL_MEM_CHANNEL_BANKS_AMD: '0x4045'
+      CL_DEVICE_GLOBAL_MEM_CHANNEL_BANK_WIDTH_AMD: '0x4046'
+      CL_DEVICE_LOCAL_MEM_SIZE_PER_COMPUTE_UNIT_AMD: '0x4047'
+      CL_DEVICE_LOCAL_MEM_BANKS_AMD: '0x4048'
+      CL_DEVICE_THREAD_TRACE_SUPPORTED_AMD: '0x4049'
+      CL_DEVICE_GFXIP_MAJOR_AMD: '0x404A'
+      CL_DEVICE_GFXIP_MINOR_AMD: '0x404B'
+      CL_DEVICE_AVAILABLE_ASYNC_QUEUES_AMD: '0x404C'
+      CL_DEVICE_PREFERRED_WORK_GROUP_SIZE_AMD: '0x4030'
+      CL_DEVICE_MAX_WORK_GROUP_SIZE_AMD: '0x4031'
+      CL_DEVICE_PREFERRED_CONSTANT_BUFFER_SIZE_AMD: '0x4033'
+      CL_DEVICE_PCIE_ID_AMD: '0x4034'
+      CL_DEVICE_PARENT_DEVICE_EXT: '0x4054'
+      CL_DEVICE_PARTITION_TYPES_EXT: '0x4055'
+      CL_DEVICE_AFFINITY_DOMAINS_EXT: '0x4056'
+      CL_DEVICE_REFERENCE_COUNT_EXT: '0x4057'
+      CL_DEVICE_PARTITION_STYLE_EXT: '0x4058'
+      CL_DEVICE_EXT_MEM_PADDING_IN_BYTES_QCOM: '0x40A0'
+      CL_DEVICE_PAGE_SIZE_QCOM: '0x40A1'
+      CL_DEVICE_MAX_NAMED_BARRIER_COUNT_KHR: '0x2035'
+      CL_DEVICE_SVM_CAPABILITIES_ARM: '0x40B6'
+      CL_DEVICE_COMPUTE_UNITS_BITFIELD_ARM: '0x40BF'
+      CL_DEVICE_ME_VERSION_INTEL: '0x407E'
+      CL_DEVICE_SIMULTANEOUS_INTEROPS_INTEL: '0x4104'
+      CL_DEVICE_NUM_SIMULTANEOUS_INTEROPS_INTEL: '0x4105'
+      CL_DEVICE_SUB_GROUP_SIZES_INTEL: '0x4108'
+      CL_DEVICE_PLANAR_YUV_MAX_WIDTH_INTEL: '0x417E'
+      CL_DEVICE_PLANAR_YUV_MAX_HEIGHT_INTEL: '0x417F'
+      CL_DEVICE_AVC_ME_VERSION_INTEL: '0x410B'
+      CL_DEVICE_AVC_ME_SUPPORTS_TEXTURE_SAMPLER_USE_INTEL: '0x410C'
+      CL_DEVICE_AVC_ME_SUPPORTS_PREEMPTION_INTEL: '0x410D'
+      CL_DEVICE_HOST_MEM_CAPABILITIES_INTEL: '0x4190'
+      CL_DEVICE_DEVICE_MEM_CAPABILITIES_INTEL: '0x4191'
+      CL_DEVICE_SINGLE_DEVICE_SHARED_MEM_CAPABILITIES_INTEL: '0x4192'
+      CL_DEVICE_CROSS_DEVICE_SHARED_MEM_CAPABILITIES_INTEL: '0x4193'
+      CL_DEVICE_SHARED_SYSTEM_MEM_CAPABILITIES_INTEL: '0x4194'
+      CL_DEVICE_UUID_KHR: '0x106A'
+      CL_DRIVER_UUID_KHR: '0x106B'
+      CL_DEVICE_LUID_VALID_KHR: '0x106C'
+      CL_DEVICE_LUID_KHR: '0x106D'
+      CL_DEVICE_NODE_MASK_KHR: '0x106E'
+      CL_DEVICE_SCHEDULING_CONTROLS_CAPABILITIES_ARM: '0x41E4'
+      CL_DEVICE_SUPPORTED_REGISTER_ALLOCATIONS_ARM: '0x41EB'
+      CL_DEVICE_CXX_FOR_OPENCL_NUMERIC_VERSION_EXT: '0x4230'
+      CL_DEVICE_NUMERIC_VERSION_KHR:
+      CL_DEVICE_OPENCL_C_NUMERIC_VERSION_KHR: '0x105F'
+      CL_DEVICE_EXTENSIONS_WITH_VERSION_KHR:
+      CL_DEVICE_ILS_WITH_VERSION_KHR:
+      CL_DEVICE_BUILT_IN_KERNELS_WITH_VERSION_KHR:
+      CL_DEVICE_CONTROLLED_TERMINATION_CAPABILITIES_ARM: '0x41EE'
+      CL_DEVICE_QUEUE_FAMILY_PROPERTIES_INTEL: '0x418B'
+      CL_DEVICE_PCI_BUS_INFO_KHR: '0x410F'
+  cl_device_mem_cache_type:
+    values:
+      CL_NONE: '0x0'
+      CL_READ_ONLY_CACHE: '0x1'
+      CL_READ_WRITE_CACHE: '0x2'
+  cl_device_local_mem_type:
+    values:
+      CL_LOCAL: '0x1'
+      CL_GLOBAL: '0x2'
+  cl_context_info:
+    values:
+      CL_CONTEXT_REFERENCE_COUNT: '0x1080'
+      CL_CONTEXT_DEVICES: '0x1081'
+      CL_CONTEXT_PROPERTIES: '0x1082'
+      CL_CONTEXT_NUM_DEVICES: '0x1083'
+      CL_CONTEXT_D3D10_DEVICE_KHR: '0x4014'
+      CL_CONTEXT_D3D10_PREFER_SHARED_RESOURCES_KHR: '0x402C'
+      CL_CONTEXT_D3D11_DEVICE_KHR: '0x401D'
+      CL_CONTEXT_D3D11_PREFER_SHARED_RESOURCES_KHR: '0x402D'
+      CL_CONTEXT_ADAPTER_D3D9_KHR: '0x2025'
+      CL_CONTEXT_ADAPTER_D3D9EX_KHR: '0x2026'
+      CL_CONTEXT_ADAPTER_DXVA_KHR: '0x2027'
+      CL_CONTEXT_VA_API_DISPLAY_INTEL: '0x4097'
+      CL_CONTEXT_D3D9_DEVICE_INTEL: '0x4026'
+      CL_CONTEXT_D3D9EX_DEVICE_INTEL: '0x4072'
+      CL_CONTEXT_DXVA_DEVICE_INTEL: '0x4073'
+  cl_context_properties:
+    values:
+      CL_CONTEXT_PLATFORM: '0x1084'
+      CL_CONTEXT_INTEROP_USER_SYNC: '0x1085'
+      CL_CONTEXT_TERMINATE_KHR: '0x2032'
+      CL_PRINTF_CALLBACK_ARM: '0x40B0'
+      CL_PRINTF_BUFFERSIZE_ARM: '0x40B1'
+      CL_CONTEXT_SHOW_DIAGNOSTICS_INTEL: '0x4106'
+      CL_CONTEXT_DIAGNOSTICS_LEVEL_ALL_INTEL: '0xff'
+      CL_CONTEXT_DIAGNOSTICS_LEVEL_GOOD_INTEL: "(1 << 0)"
+      CL_CONTEXT_DIAGNOSTICS_LEVEL_BAD_INTEL: "(1 << 1)"
+      CL_CONTEXT_DIAGNOSTICS_LEVEL_NEUTRAL_INTEL: "(1 << 2)"
+      CL_GL_CONTEXT_KHR: '0x2008'
+      CL_EGL_DISPLAY_KHR: '0x2009'
+      CL_GLX_DISPLAY_KHR: '0x200A'
+      CL_WGL_HDC_KHR: '0x200B'
+      CL_CGL_SHAREGROUP_KHR: '0x200C'
+  cl_command_queue_info:
+    values:
+      CL_QUEUE_CONTEXT: '0x1090'
+      CL_QUEUE_DEVICE: '0x1091'
+      CL_QUEUE_REFERENCE_COUNT: '0x1092'
+      CL_QUEUE_PROPERTIES: '0x1093'
+      CL_QUEUE_SIZE: '0x1094'
+      CL_QUEUE_DEVICE_DEFAULT: '0x1095'
+      CL_QUEUE_PROPERTIES_ARRAY: '0x1098'
+  cl_profiling_info:
+    values:
+      CL_PROFILING_COMMAND_QUEUED: '0x1280'
+      CL_PROFILING_COMMAND_SUBMIT: '0x1281'
+      CL_PROFILING_COMMAND_START: '0x1282'
+      CL_PROFILING_COMMAND_END: '0x1283'
+      CL_PROFILING_COMMAND_COMPLETE: '0x1284'
+  cl_channel_order:
+    values:
+      CL_R: '0x10B0'
+      CL_A: '0x10B1'
+      CL_RG: '0x10B2'
+      CL_RA: '0x10B3'
+      CL_RGB: '0x10B4'
+      CL_RGBA: '0x10B5'
+      CL_BGRA: '0x10B6'
+      CL_ARGB: '0x10B7'
+      CL_INTENSITY: '0x10B8'
+      CL_LUMINANCE: '0x10B9'
+      CL_Rx: '0x10BA'
+      CL_RGx: '0x10BB'
+      CL_RGBx: '0x10BC'
+      CL_DEPTH: '0x10BD'
+      CL_sRGB: '0x10BF'
+      CL_sRGBx: '0x10C0'
+      CL_sRGBA: '0x10C1'
+      CL_sBGRA: '0x10C2'
+      CL_ABGR: '0x10C3'
+      CL_NV21_IMG: '0x40D0'
+      CL_YV12_IMG: '0x40D1'
+      CL_YUYV_INTEL: '0x4076'
+      CL_UYVY_INTEL: '0x4077'
+      CL_YVYU_INTEL: '0x4078'
+      CL_VYUY_INTEL: '0x4079'
+      CL_NV12_INTEL: '0x410E'
+      CL_DEPTH_STENCIL: '0x10BE'
+  cl_channel_type:
+    values:
+      CL_SNORM_INT8: '0x10D0'
+      CL_SNORM_INT16: '0x10D1'
+      CL_UNORM_INT8: '0x10D2'
+      CL_UNORM_INT16: '0x10D3'
+      CL_UNORM_SHORT_565: '0x10D4'
+      CL_UNORM_SHORT_555: '0x10D5'
+      CL_UNORM_INT_101010: '0x10D6'
+      CL_SIGNED_INT8: '0x10D7'
+      CL_SIGNED_INT16: '0x10D8'
+      CL_SIGNED_INT32: '0x10D9'
+      CL_UNSIGNED_INT8: '0x10DA'
+      CL_UNSIGNED_INT16: '0x10DB'
+      CL_UNSIGNED_INT32: '0x10DC'
+      CL_HALF_FLOAT: '0x10DD'
+      CL_FLOAT: '0x10DE'
+      CL_UNORM_INT_101010_2: '0x10E0'
+      CL_UNORM_INT24: '0x10DF'
+  cl_mem_object_type:
+    values:
+      CL_MEM_OBJECT_BUFFER: '0x10F0'
+      CL_MEM_OBJECT_IMAGE2D: '0x10F1'
+      CL_MEM_OBJECT_IMAGE3D: '0x10F2'
+      CL_MEM_OBJECT_IMAGE2D_ARRAY: '0x10F3'
+      CL_MEM_OBJECT_IMAGE1D: '0x10F4'
+      CL_MEM_OBJECT_IMAGE1D_ARRAY: '0x10F5'
+      CL_MEM_OBJECT_IMAGE1D_BUFFER: '0x10F6'
+      CL_MEM_OBJECT_PIPE: '0x10F7'
+  cl_mem_info:
+    values:
+      CL_MEM_TYPE: '0x1100'
+      CL_MEM_FLAGS: '0x1101'
+      CL_MEM_SIZE: '0x1102'
+      CL_MEM_HOST_PTR: '0x1103'
+      CL_MEM_MAP_COUNT: '0x1104'
+      CL_MEM_REFERENCE_COUNT: '0x1105'
+      CL_MEM_CONTEXT: '0x1106'
+      CL_MEM_ASSOCIATED_MEMOBJECT: '0x1107'
+      CL_MEM_OFFSET: '0x1108'
+      CL_MEM_USES_SVM_POINTER: '0x1109'
+      CL_MEM_PROPERTIES: '0x110A'
+      CL_MEM_D3D10_RESOURCE_KHR: '0x4015'
+      CL_MEM_D3D11_RESOURCE_KHR: '0x401E'
+      CL_MEM_DX9_MEDIA_ADAPTER_TYPE_KHR: '0x2028'
+      CL_MEM_DX9_MEDIA_SURFACE_INFO_KHR: '0x2029'
+      CL_MEM_USES_SVM_POINTER_ARM: '0x40B7'
+      CL_MEM_VA_API_MEDIA_SURFACE_INTEL: '0x4098'
+      CL_MEM_DX9_RESOURCE_INTEL: '0x4027'
+      CL_MEM_DX9_SHARED_HANDLE_INTEL: '0x4074'
+  cl_image_info:
+    values:
+      CL_IMAGE_FORMAT: '0x1110'
+      CL_IMAGE_ELEMENT_SIZE: '0x1111'
+      CL_IMAGE_ROW_PITCH: '0x1112'
+      CL_IMAGE_SLICE_PITCH: '0x1113'
+      CL_IMAGE_WIDTH: '0x1114'
+      CL_IMAGE_HEIGHT: '0x1115'
+      CL_IMAGE_DEPTH: '0x1116'
+      CL_IMAGE_ARRAY_SIZE: '0x1117'
+      CL_IMAGE_NUM_MIP_LEVELS: '0x1119'
+      CL_IMAGE_NUM_SAMPLES: '0x111A'
+      CL_IMAGE_BUFFER: '0x1118'
+      CL_IMAGE_D3D10_SUBRESOURCE_KHR: '0x4016'
+      CL_IMAGE_D3D11_SUBRESOURCE_KHR: '0x401F'
+      CL_IMAGE_DX9_MEDIA_PLANE_KHR: '0x202A'
+      CL_IMAGE_VA_API_PLANE_INTEL: '0x4099'
+      CL_IMAGE_DX9_PLANE_INTEL: '0x4075'
+  cl_addressing_mode:
+    values:
+      CL_ADDRESS_NONE: '0x1130'
+      CL_ADDRESS_CLAMP_TO_EDGE: '0x1131'
+      CL_ADDRESS_CLAMP: '0x1132'
+      CL_ADDRESS_REPEAT: '0x1133'
+      CL_ADDRESS_MIRRORED_REPEAT: '0x1134'
+  cl_filter_mode:
+    values:
+      CL_FILTER_NEAREST: '0x1140'
+      CL_FILTER_LINEAR: '0x1141'
+  cl_sampler_info:
+    values:
+      CL_SAMPLER_REFERENCE_COUNT: '0x1150'
+      CL_SAMPLER_CONTEXT: '0x1151'
+      CL_SAMPLER_NORMALIZED_COORDS: '0x1152'
+      CL_SAMPLER_ADDRESSING_MODE: '0x1153'
+      CL_SAMPLER_FILTER_MODE: '0x1154'
+      CL_SAMPLER_MIP_FILTER_MODE: '0x1155'
+      CL_SAMPLER_LOD_MIN: '0x1156'
+      CL_SAMPLER_LOD_MAX: '0x1157'
+      CL_SAMPLER_PROPERTIES: '0x1158'
+  cl_program_info:
+    values:
+      CL_PROGRAM_REFERENCE_COUNT: '0x1160'
+      CL_PROGRAM_CONTEXT: '0x1161'
+      CL_PROGRAM_NUM_DEVICES: '0x1162'
+      CL_PROGRAM_DEVICES: '0x1163'
+      CL_PROGRAM_SOURCE: '0x1164'
+      CL_PROGRAM_BINARY_SIZES: '0x1165'
+      CL_PROGRAM_BINARIES: '0x1166'
+      CL_PROGRAM_NUM_KERNELS: '0x1167'
+      CL_PROGRAM_KERNEL_NAMES: '0x1168'
+      CL_PROGRAM_IL: '0x1169'
+      CL_PROGRAM_SCOPE_GLOBAL_CTORS_PRESENT: '0x116A'
+      CL_PROGRAM_SCOPE_GLOBAL_DTORS_PRESENT: '0x116B'
+      CL_PROGRAM_IL_KHR: '0x1169'
+  cl_program_build_info:
+    values:
+      CL_PROGRAM_BUILD_STATUS: '0x1181'
+      CL_PROGRAM_BUILD_OPTIONS: '0x1182'
+      CL_PROGRAM_BUILD_LOG: '0x1183'
+      CL_PROGRAM_BINARY_TYPE: '0x1184'
+      CL_PROGRAM_BUILD_GLOBAL_VARIABLE_TOTAL_SIZE: '0x1185'
+  cl_build_status:
+    values:
+      CL_BUILD_SUCCESS: '0'
+      CL_BUILD_NONE: "-1"
+      CL_BUILD_ERROR: "-2"
+      CL_BUILD_IN_PROGRESS: "-3"
+  cl_kernel_info:
+    values:
+      CL_KERNEL_FUNCTION_NAME: '0x1190'
+      CL_KERNEL_NUM_ARGS: '0x1191'
+      CL_KERNEL_REFERENCE_COUNT: '0x1192'
+      CL_KERNEL_CONTEXT: '0x1193'
+      CL_KERNEL_PROGRAM: '0x1194'
+      CL_KERNEL_ATTRIBUTES: '0x1195'
+  cl_kernel_work_group_info:
+    values:
+      CL_KERNEL_WORK_GROUP_SIZE: '0x11B0'
+      CL_KERNEL_COMPILE_WORK_GROUP_SIZE: '0x11B1'
+      CL_KERNEL_LOCAL_MEM_SIZE: '0x11B2'
+      CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE: '0x11B3'
+      CL_KERNEL_PRIVATE_MEM_SIZE: '0x11B4'
+      CL_KERNEL_GLOBAL_WORK_SIZE: '0x11B5'
+      CL_KERNEL_SPILL_MEM_SIZE_INTEL: '0x4109'
+  cl_event_info:
+    values:
+      CL_EVENT_COMMAND_QUEUE: '0x11D0'
+      CL_EVENT_COMMAND_TYPE: '0x11D1'
+      CL_EVENT_REFERENCE_COUNT: '0x11D2'
+      CL_EVENT_COMMAND_EXECUTION_STATUS: '0x11D3'
+      CL_EVENT_CONTEXT: '0x11D4'
+      CL_EVENT_COMMAND_TERMINATION_REASON_ARM: '0x41ED'
+  cl_command_type:
+    values:
+      CL_COMMAND_NDRANGE_KERNEL: '0x11F0'
+      CL_COMMAND_TASK: '0x11F1'
+      CL_COMMAND_NATIVE_KERNEL: '0x11F2'
+      CL_COMMAND_READ_BUFFER: '0x11F3'
+      CL_COMMAND_WRITE_BUFFER: '0x11F4'
+      CL_COMMAND_COPY_BUFFER: '0x11F5'
+      CL_COMMAND_READ_IMAGE: '0x11F6'
+      CL_COMMAND_WRITE_IMAGE: '0x11F7'
+      CL_COMMAND_COPY_IMAGE: '0x11F8'
+      CL_COMMAND_COPY_IMAGE_TO_BUFFER: '0x11F9'
+      CL_COMMAND_COPY_BUFFER_TO_IMAGE: '0x11FA'
+      CL_COMMAND_MAP_BUFFER: '0x11FB'
+      CL_COMMAND_MAP_IMAGE: '0x11FC'
+      CL_COMMAND_UNMAP_MEM_OBJECT: '0x11FD'
+      CL_COMMAND_MARKER: '0x11FE'
+      CL_COMMAND_ACQUIRE_GL_OBJECTS: '0x11FF'
+      CL_COMMAND_RELEASE_GL_OBJECTS: '0x1200'
+      CL_COMMAND_READ_BUFFER_RECT: '0x1201'
+      CL_COMMAND_WRITE_BUFFER_RECT: '0x1202'
+      CL_COMMAND_COPY_BUFFER_RECT: '0x1203'
+      CL_COMMAND_USER: '0x1204'
+      CL_COMMAND_BARRIER: '0x1205'
+      CL_COMMAND_MIGRATE_MEM_OBJECTS: '0x1206'
+      CL_COMMAND_FILL_BUFFER: '0x1207'
+      CL_COMMAND_FILL_IMAGE: '0x1208'
+      CL_COMMAND_SVM_FREE: '0x1209'
+      CL_COMMAND_SVM_MEMCPY: '0x120A'
+      CL_COMMAND_SVM_MEMFILL: '0x120B'
+      CL_COMMAND_SVM_MAP: '0x120C'
+      CL_COMMAND_SVM_UNMAP: '0x120D'
+      CL_COMMAND_SVM_MIGRATE_MEM: '0x120E'
+      CL_COMMAND_ACQUIRE_D3D10_OBJECTS_KHR: '0x4017'
+      CL_COMMAND_RELEASE_D3D10_OBJECTS_KHR: '0x4018'
+      CL_COMMAND_ACQUIRE_D3D11_OBJECTS_KHR: '0x4020'
+      CL_COMMAND_RELEASE_D3D11_OBJECTS_KHR: '0x4021'
+      CL_COMMAND_ACQUIRE_DX9_MEDIA_SURFACES_KHR: '0x202B'
+      CL_COMMAND_RELEASE_DX9_MEDIA_SURFACES_KHR: '0x202C'
+      CL_COMMAND_EGL_FENCE_SYNC_OBJECT_KHR: '0x202F'
+      CL_COMMAND_ACQUIRE_EGL_OBJECTS_KHR: '0x202D'
+      CL_COMMAND_RELEASE_EGL_OBJECTS_KHR: '0x202E'
+      CL_COMMAND_MIGRATE_MEM_OBJECT_EXT: '0x4040'
+      CL_COMMAND_ACQUIRE_GRALLOC_OBJECTS_IMG: '0x40D2'
+      CL_COMMAND_RELEASE_GRALLOC_OBJECTS_IMG: '0x40D3'
+      CL_COMMAND_SVM_FREE_ARM: '0x40BA'
+      CL_COMMAND_SVM_MEMCPY_ARM: '0x40BB'
+      CL_COMMAND_SVM_MEMFILL_ARM: '0x40BC'
+      CL_COMMAND_SVM_MAP_ARM: '0x40BD'
+      CL_COMMAND_SVM_UNMAP_ARM: '0x40BE'
+      CL_COMMAND_GL_FENCE_SYNC_OBJECT_KHR: '0x200D'
+      CL_COMMAND_ACQUIRE_VA_API_MEDIA_SURFACES_INTEL: '0x409A'
+      CL_COMMAND_RELEASE_VA_API_MEDIA_SURFACES_INTEL: '0x409B'
+      CL_COMMAND_ACQUIRE_DX9_OBJECTS_INTEL: '0x402A'
+      CL_COMMAND_RELEASE_DX9_OBJECTS_INTEL: '0x402B'
+      CL_COMMAND_MEMFILL_INTEL: '0x4204'
+      CL_COMMAND_MEMCPY_INTEL: '0x4205'
+      CL_COMMAND_MIGRATEMEM_INTEL: '0x4206'
+      CL_COMMAND_MEMADVISE_INTEL: '0x4207'
+      CL_COMMAND_GENERATE_MIPMAP_IMG: '0x40D6'
+  cl_buffer_create_type:
+    values:
+      CL_BUFFER_CREATE_TYPE_REGION: '0x1220'
+  cl_device_partition_property:
+    values:
+      CL_DEVICE_PARTITION_EQUALLY: '0x1086'
+      CL_DEVICE_PARTITION_BY_COUNTS: '0x1087'
+      CL_DEVICE_PARTITION_BY_COUNTS_LIST_END: '0x0'
+      CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN: '0x1088'
+  cl_program_binary_type:
+    values:
+      CL_PROGRAM_BINARY_TYPE_NONE: '0x0'
+      CL_PROGRAM_BINARY_TYPE_COMPILED_OBJECT: '0x1'
+      CL_PROGRAM_BINARY_TYPE_LIBRARY: '0x2'
+      CL_PROGRAM_BINARY_TYPE_EXECUTABLE: '0x4'
+      CL_PROGRAM_BINARY_TYPE_INTERMEDIATE: '0x40E1'
+  cl_kernel_arg_info:
+    values:
+      CL_KERNEL_ARG_ADDRESS_QUALIFIER: '0x1196'
+      CL_KERNEL_ARG_ACCESS_QUALIFIER: '0x1197'
+      CL_KERNEL_ARG_TYPE_NAME: '0x1198'
+      CL_KERNEL_ARG_TYPE_QUALIFIER: '0x1199'
+      CL_KERNEL_ARG_NAME: '0x119A'
+  cl_kernel_arg_address_qualifier:
+    values:
+      CL_KERNEL_ARG_ADDRESS_GLOBAL: '0x119B'
+      CL_KERNEL_ARG_ADDRESS_LOCAL: '0x119C'
+      CL_KERNEL_ARG_ADDRESS_CONSTANT: '0x119D'
+      CL_KERNEL_ARG_ADDRESS_PRIVATE: '0x119E'
+  cl_kernel_arg_access_qualifier:
+    values:
+      CL_KERNEL_ARG_ACCESS_READ_ONLY: '0x11A0'
+      CL_KERNEL_ARG_ACCESS_WRITE_ONLY: '0x11A1'
+      CL_KERNEL_ARG_ACCESS_READ_WRITE: '0x11A2'
+      CL_KERNEL_ARG_ACCESS_NONE: '0x11A3'
+  cl_pipe_info:
+    values:
+      CL_PIPE_PACKET_SIZE: '0x1120'
+      CL_PIPE_MAX_PACKETS: '0x1121'
+      CL_PIPE_PROPERTIES: '0x1122'
+  cl_kernel_exec_info:
+    values:
+      CL_KERNEL_EXEC_INFO_SVM_PTRS: '0x11B6'
+      CL_KERNEL_EXEC_INFO_SVM_FINE_GRAIN_SYSTEM: '0x11B7'
+      CL_KERNEL_EXEC_INFO_INDIRECT_HOST_ACCESS_INTEL: '0x4200'
+      CL_KERNEL_EXEC_INFO_INDIRECT_DEVICE_ACCESS_INTEL: '0x4201'
+      CL_KERNEL_EXEC_INFO_INDIRECT_SHARED_ACCESS_INTEL: '0x4202'
+      CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL: '0x4203'
+      CL_KERNEL_EXEC_INFO_WORKGROUP_BATCH_SIZE_ARM: '0x41E5'
+      CL_KERNEL_EXEC_INFO_WORKGROUP_BATCH_SIZE_MODIFIER_ARM: '0x41E6'
+  cl_kernel_sub_group_info:
+    values:
+      CL_KERNEL_MAX_NUM_SUB_GROUPS: '0x11B9'
+      CL_KERNEL_COMPILE_NUM_SUB_GROUPS: '0x11BA'
+      CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE: '0x2033'
+      CL_KERNEL_SUB_GROUP_COUNT_FOR_NDRANGE: '0x2034'
+      CL_KERNEL_LOCAL_SIZE_FOR_SUB_GROUP_COUNT: '0x11B8'
+      CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE_KHR: '0x2033'
+      CL_KERNEL_SUB_GROUP_COUNT_FOR_NDRANGE_KHR: '0x2034'
+      CL_KERNEL_COMPILE_SUB_GROUP_SIZE_INTEL: '0x410A'
+  cl_device_partition_property_ext:
+    values:
+      CL_DEVICE_PARTITION_EQUALLY_EXT: '0x4050'
+      CL_DEVICE_PARTITION_BY_COUNTS_EXT: '0x4051'
+      CL_DEVICE_PARTITION_BY_NAMES_EXT: '0x4052'
+      CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN_EXT: '0x4053'
+      CL_PROPERTIES_LIST_END_EXT: '0x0'
+      CL_PARTITION_BY_COUNTS_LIST_END_EXT: '0x0'
+      CL_PARTITION_BY_NAMES_LIST_END_EXT: "-1"
+  cl_affinity_domain_ext:
+    values:
+      CL_AFFINITY_DOMAIN_L1_CACHE_EXT: '0x1'
+      CL_AFFINITY_DOMAIN_L2_CACHE_EXT: '0x2'
+      CL_AFFINITY_DOMAIN_L3_CACHE_EXT: '0x3'
+      CL_AFFINITY_DOMAIN_L4_CACHE_EXT: '0x4'
+      CL_AFFINITY_DOMAIN_NUMA_EXT: '0x10'
+      CL_AFFINITY_DOMAIN_NEXT_FISSIONABLE_EXT: '0x100'
+  cl_bool:
+    values:
+      CL_FALSE: '0'
+      CL_TRUE: '1'
+      CL_BLOCKING: CL_TRUE
+      CL_NON_BLOCKING: CL_FALSE
+  command execution status:
+    values:
+      CL_COMPLETE: '0x0'
+      CL_RUNNING: '0x1'
+      CL_SUBMITTED: '0x2'
+      CL_QUEUED: '0x3'
+    trace_name: command_exec_callback_type
+    type_name: cl_command_execution_status
+bitfields:
+  cl_device_type:
+    values:
+      CL_DEVICE_TYPE_DEFAULT: "(1 << 0)"
+      CL_DEVICE_TYPE_CPU: "(1 << 1)"
+      CL_DEVICE_TYPE_GPU: "(1 << 2)"
+      CL_DEVICE_TYPE_ACCELERATOR: "(1 << 3)"
+      CL_DEVICE_TYPE_ALL: '0xFFFFFFFF'
+      CL_DEVICE_TYPE_CUSTOM: "(1 << 4)"
+  cl_device_fp_config:
+    values:
+      CL_FP_DENORM: "(1 << 0)"
+      CL_FP_INF_NAN: "(1 << 1)"
+      CL_FP_ROUND_TO_NEAREST: "(1 << 2)"
+      CL_FP_ROUND_TO_ZERO: "(1 << 3)"
+      CL_FP_ROUND_TO_INF: "(1 << 4)"
+      CL_FP_FMA: "(1 << 5)"
+      CL_FP_SOFT_FLOAT: "(1 << 6)"
+      CL_FP_CORRECTLY_ROUNDED_DIVIDE_SQRT: "(1 << 7)"
+  cl_device_exec_capabilities:
+    values:
+      CL_EXEC_KERNEL: "(1 << 0)"
+      CL_EXEC_NATIVE_KERNEL: "(1 << 1)"
+  cl_command_queue_properties:
+    values:
+      CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE: "(1 << 0)"
+      CL_QUEUE_PROFILING_ENABLE: "(1 << 1)"
+      CL_QUEUE_ON_DEVICE: "(1 << 2)"
+      CL_QUEUE_ON_DEVICE_DEFAULT: "(1 << 3)"
+      CL_QUEUE_THREAD_LOCAL_EXEC_ENABLE_INTEL: "(1 << 31)"
+  cl_mem_flags:
+    values:
+      CL_MEM_READ_WRITE: "(1 << 0)"
+      CL_MEM_WRITE_ONLY: "(1 << 1)"
+      CL_MEM_READ_ONLY: "(1 << 2)"
+      CL_MEM_USE_HOST_PTR: "(1 << 3)"
+      CL_MEM_ALLOC_HOST_PTR: "(1 << 4)"
+      CL_MEM_COPY_HOST_PTR: "(1 << 5)"
+      CL_MEM_HOST_WRITE_ONLY: "(1 << 7)"
+      CL_MEM_HOST_READ_ONLY: "(1 << 8)"
+      CL_MEM_HOST_NO_ACCESS: "(1 << 9)"
+      CL_MEM_SVM_FINE_GRAIN_BUFFER: "(1 << 10)"
+      CL_MEM_SVM_ATOMICS: "(1 << 11)"
+      CL_MEM_KERNEL_READ_AND_WRITE: "(1 << 12)"
+      CL_MEM_EXT_HOST_PTR_QCOM: "(1 << 29)"
+      CL_MEM_USE_UNCACHED_CPU_MEMORY_IMG: "(1 << 26)"
+      CL_MEM_USE_CACHED_CPU_MEMORY_IMG: "(1 << 27)"
+      CL_MEM_USE_GRALLOC_PTR_IMG: "(1 << 28)"
+      CL_MEM_NO_ACCESS_INTEL: "(1 << 24)"
+      CL_MEM_ACCESS_FLAGS_UNRESTRICTED_INTEL: "(1 << 25)"
+      CL_MEM_FORCE_HOST_MEMORY_INTEL: "(1 << 20)"
+  cl_svm_mem_flags:
+    values:
+      CL_MEM_READ_WRITE: "(1 << 0)"
+      CL_MEM_WRITE_ONLY: "(1 << 1)"
+      CL_MEM_READ_ONLY: "(1 << 2)"
+      CL_MEM_USE_HOST_PTR: "(1 << 3)"
+      CL_MEM_ALLOC_HOST_PTR: "(1 << 4)"
+      CL_MEM_COPY_HOST_PTR: "(1 << 5)"
+      CL_MEM_HOST_WRITE_ONLY: "(1 << 7)"
+      CL_MEM_HOST_READ_ONLY: "(1 << 8)"
+      CL_MEM_HOST_NO_ACCESS: "(1 << 9)"
+      CL_MEM_SVM_FINE_GRAIN_BUFFER: "(1 << 10)"
+      CL_MEM_SVM_ATOMICS: "(1 << 11)"
+      CL_MEM_KERNEL_READ_AND_WRITE: "(1 << 12)"
+  cl_map_flags:
+    values:
+      CL_MAP_READ: "(1 << 0)"
+      CL_MAP_WRITE: "(1 << 1)"
+      CL_MAP_WRITE_INVALIDATE_REGION: "(1 << 2)"
+  cl_device_affinity_domain:
+    values:
+      CL_DEVICE_AFFINITY_DOMAIN_NUMA: "(1 << 0)"
+      CL_DEVICE_AFFINITY_DOMAIN_L4_CACHE: "(1 << 1)"
+      CL_DEVICE_AFFINITY_DOMAIN_L3_CACHE: "(1 << 2)"
+      CL_DEVICE_AFFINITY_DOMAIN_L2_CACHE: "(1 << 3)"
+      CL_DEVICE_AFFINITY_DOMAIN_L1_CACHE: "(1 << 4)"
+      CL_DEVICE_AFFINITY_DOMAIN_NEXT_PARTITIONABLE: "(1 << 5)"
+  cl_mem_migration_flags:
+    values:
+      CL_MIGRATE_MEM_OBJECT_HOST: "(1 << 0)"
+      CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED: "(1 << 1)"
+  cl_kernel_arg_type_qualifier:
+    values:
+      CL_KERNEL_ARG_TYPE_NONE: '0'
+      CL_KERNEL_ARG_TYPE_CONST: "(1 << 0)"
+      CL_KERNEL_ARG_TYPE_RESTRICT: "(1 << 1)"
+      CL_KERNEL_ARG_TYPE_VOLATILE: "(1 << 2)"
+      CL_KERNEL_ARG_TYPE_PIPE: "(1 << 3)"
+  cl_device_svm_capabilities:
+    values:
+      CL_DEVICE_SVM_COARSE_GRAIN_BUFFER: "(1 << 0)"
+      CL_DEVICE_SVM_FINE_GRAIN_BUFFER: "(1 << 1)"
+      CL_DEVICE_SVM_FINE_GRAIN_SYSTEM: "(1 << 2)"
+      CL_DEVICE_SVM_ATOMICS: "(1 << 3)"
+  cl_device_atomic_capabilities:
+    values:
+      CL_DEVICE_ATOMIC_ORDER_RELAXED: "(1 << 0)"
+      CL_DEVICE_ATOMIC_ORDER_ACQ_REL: "(1 << 1)"
+      CL_DEVICE_ATOMIC_ORDER_SEQ_CST: "(1 << 2)"
+      CL_DEVICE_ATOMIC_SCOPE_WORK_ITEM: "(1 << 3)"
+      CL_DEVICE_ATOMIC_SCOPE_WORK_GROUP: "(1 << 4)"
+      CL_DEVICE_ATOMIC_SCOPE_DEVICE: "(1 << 5)"
+      CL_DEVICE_ATOMIC_SCOPE_ALL_DEVICES: "(1 << 6)"
+  cl_mem_migration_flags_ext:
+    values:
+      CL_MIGRATE_MEM_OBJECT_HOST_EXT: "(1 << 0)"
+  cl_device_unified_shared_memory_capabilities_intel:
+    values:
+      CL_UNIFIED_SHARED_MEMORY_ACCESS_INTEL: "(1 << 0)"
+      CL_UNIFIED_SHARED_MEMORY_ATOMIC_ACCESS_INTEL: "(1 << 1)"
+      CL_UNIFIED_SHARED_MEMORY_CONCURRENT_ACCESS_INTEL: "(1 << 2)"
+      CL_UNIFIED_SHARED_MEMORY_CONCURRENT_ATOMIC_ACCESS_INTEL: "(1 << 3)"
+objects:
+- cl_platform_id
+- cl_device_id
+- cl_context
+- cl_command_queue
+- cl_mem
+- cl_program
+- cl_kernel
+- cl_event
+- cl_sampler
+- cl_GLsync
+- CLeglImageKHR
+- CLeglDisplayKHR
+- CLeglSyncKHR
+- cl_accelerator_intel
+int_scalars:
+- unsigned int
+- int
+- uintptr_t
+- intptr_t
+- size_t
+- cl_int
+- cl_uint
+- cl_long
+- cl_ulong
+- cl_short
+- cl_ushort
+- cl_char
+- cl_uchar
+float_scalars:
+- cl_half
+- cl_float
+- cl_double
+type_map:
+  cl_GLint: int
+  cl_GLenum: unsigned int
+  cl_GLuint: unsigned int
+  cl_d3d11_device_source_khr: cl_uint
+  cl_d3d11_device_set_khr: cl_uint
+  cl_dx9_media_adapter_type_khr: cl_uint
+  cl_dx9_media_adapter_set_khr: cl_uint
+  cl_d3d10_device_source_khr: cl_uint
+  cl_d3d10_device_set_khr: cl_uint
+  cl_dx9_device_source_intel: cl_uint
+  cl_dx9_device_set_intel: cl_uint
+  cl_accelerator_type_intel: cl_uint
+  cl_accelerator_info_intel: cl_uint
+  cl_diagnostics_verbose_level: cl_uint
+  cl_va_api_device_source_intel: cl_uint
+  cl_va_api_device_set_intel: cl_uint
+  cl_egl_image_properties_khr: intptr_t
+  cl_device_partition_property_ext: cl_ulong
+  cl_affinity_domain_ext: cl_ulong
+  cl_mem_migration_flags_ext: cl_ulong
+  cl_image_pitch_info_qcom: cl_uint
+  cl_queue_priority_khr: cl_uint
+  cl_queue_throttle_khr: cl_uint
+  cl_import_properties_arm: intptr_t
+  cl_svm_mem_flags_arm: cl_ulong
+  cl_kernel_exec_info_arm: cl_uint
+  cl_device_svm_capabilities_arm: cl_ulong
+  cl_gl_context_info: cl_uint
+  cl_gl_object_type: cl_uint
+  cl_gl_texture_info: cl_uint
+  cl_gl_platform_info: cl_uint
+  cl_bool: cl_uint
+  cl_bitfield: cl_ulong
+  cl_properties: cl_ulong
+  cl_device_type: cl_ulong
+  cl_platform_info: cl_uint
+  cl_device_info: cl_uint
+  cl_device_fp_config: cl_ulong
+  cl_device_mem_cache_type: cl_uint
+  cl_device_local_mem_type: cl_uint
+  cl_device_exec_capabilities: cl_ulong
+  cl_device_svm_capabilities: cl_ulong
+  cl_command_queue_properties: cl_ulong
+  cl_device_partition_property: intptr_t
+  cl_device_affinity_domain: cl_ulong
+  cl_context_properties: intptr_t
+  cl_context_info: cl_uint
+  cl_queue_properties: cl_ulong
+  cl_queue_properties_khr: cl_ulong
+  cl_command_queue_info: cl_uint
+  cl_channel_order: cl_uint
+  cl_channel_type: cl_uint
+  cl_mem_flags: cl_ulong
+  cl_svm_mem_flags: cl_ulong
+  cl_mem_object_type: cl_uint
+  cl_mem_info: cl_uint
+  cl_mem_migration_flags: cl_ulong
+  cl_mem_properties: cl_ulong
+  cl_image_info: cl_uint
+  cl_buffer_create_type: cl_uint
+  cl_addressing_mode: cl_uint
+  cl_filter_mode: cl_uint
+  cl_sampler_info: cl_uint
+  cl_map_flags: cl_ulong
+  cl_pipe_properties: intptr_t
+  cl_pipe_info: cl_uint
+  cl_program_info: cl_uint
+  cl_program_build_info: cl_uint
+  cl_program_binary_type: cl_uint
+  cl_build_status: cl_int
+  cl_kernel_info: cl_uint
+  cl_kernel_arg_info: cl_uint
+  cl_kernel_arg_address_qualifier: cl_uint
+  cl_kernel_arg_access_qualifier: cl_uint
+  cl_kernel_arg_type_qualifier: cl_ulong
+  cl_kernel_work_group_info: cl_uint
+  cl_kernel_sub_group_info: cl_uint
+  cl_event_info: cl_uint
+  cl_command_type: cl_uint
+  cl_profiling_info: cl_uint
+  cl_sampler_properties: cl_ulong
+  cl_kernel_exec_info: cl_uint
+  cl_device_unified_shared_memory_capabilities_intel: cl_ulong
+  cl_mem_properties_intel: cl_ulong
+  cl_mem_alloc_flags_intel: cl_ulong
+  cl_mem_info_intel: cl_uint
+  cl_unified_shared_memory_type_intel: cl_uint
+  cl_mem_advice_intel: cl_uint
+  cl_device_atomic_capabilities: cl_ulong
+  cl_khronos_vendor_id: cl_uint
+  cl_version: cl_uint
+  cl_version_khr: cl_uint
+  cl_device_device_enqueue_capabilities: cl_ulong
+  cl_mipmap_filter_mode_img: cl_uint
+  cl_mem_alloc_flags_img: cl_ulong
+  cl_layer_info: cl_uint
+  cl_layer_api_version: cl_uint
+  cl_device_scheduling_controls_capabilities_arm: cl_ulong
+  cl_device_controlled_termination_capabilities_arm: cl_ulong
+  cl_command_queue_capabilities_intel: cl_ulong
+  cl_icdl_info: cl_uint
+  cl_execution_info_intel: cl_uint
+structures:
+- cl_dx9_surface_info_khr
+- cl_motion_estimation_desc_intel
+- cl_mem_ext_host_ptr
+- cl_mem_ion_host_ptr
+- cl_mem_android_native_buffer_host_ptr
+- cl_image_format
+- cl_image_desc
+- cl_buffer_region
+- cl_name_version
+- cl_name_version_khr
+- cl_device_pci_bus_info_khr
+- cl_queue_family_properties_intel
+lttng_enums:
+  dump_enum:
+    :values:
+    - :type: ctf_enum_value
+      :name: BEFORE
+      :value: 0
+    - :type: ctf_enum_value
+      :name: AFTER
+      :value: 1
+events:
+  lttng_ust_opencl:clCreateEventFromEGLSyncKHR_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    sync:
+      type: CLeglSyncKHR
+      lttng: ctf_integer_hex
+    display:
+      type: CLeglDisplayKHR
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateEventFromEGLSyncKHR_exit:
+    event:
+      type: cl_event
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateFromEGLImageKHR_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    egldisplay:
+      type: CLeglDisplayKHR
+      lttng: ctf_integer_hex
+    eglimage:
+      type: CLeglImageKHR
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_flags
+      lttng: ctf_integer
+    properties:
+      type: cl_egl_image_properties_khr
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    properties_vals:
+      type: cl_egl_image_properties_khr
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clCreateFromEGLImageKHR_exit:
+    mem:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clEnqueueAcquireEGLObjectsKHR_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    num_objects:
+      type: cl_uint
+      lttng: ctf_integer
+    mem_objects:
+      type: cl_mem
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    mem_objects_vals:
+      type: cl_mem
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueAcquireEGLObjectsKHR_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueReleaseEGLObjectsKHR_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    num_objects:
+      type: cl_uint
+      lttng: ctf_integer
+    mem_objects:
+      type: cl_mem
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    mem_objects_vals:
+      type: cl_mem
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueReleaseEGLObjectsKHR_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clReleaseDeviceEXT_entry:
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clReleaseDeviceEXT_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clRetainDeviceEXT_entry:
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clRetainDeviceEXT_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateSubDevicesEXT_entry:
+    in_device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    properties:
+      type: cl_device_partition_property_ext
+      pointer: true
+      lttng: ctf_integer_hex
+    num_entries:
+      type: cl_uint
+      lttng: ctf_integer
+    out_devices:
+      type: cl_device_id
+      pointer: true
+      lttng: ctf_integer_hex
+    num_devices:
+      type: cl_uint
+      pointer: true
+      lttng: ctf_integer_hex
+    properties_vals:
+      type: cl_device_partition_property_ext
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clCreateSubDevicesEXT_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    num_devices_val:
+      type: cl_uint
+      lttng: ctf_integer
+    out_devices_vals:
+      type: cl_device_id
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clGetKernelSubGroupInfoKHR_entry:
+    in_kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    in_device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_kernel_sub_group_info
+      lttng: ctf_integer
+    input_value_size:
+      type: size_t
+      lttng: ctf_integer
+    input_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetKernelSubGroupInfoKHR_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clCreateEventFromGLsyncKHR_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    sync:
+      type: cl_GLsync
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateEventFromGLsyncKHR_exit:
+    event:
+      type: cl_event
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetGLContextInfoKHR_entry:
+    properties:
+      type: cl_context_properties
+      pointer: true
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_gl_context_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetGLContextInfoKHR_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clCreateFromGLBuffer_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_flags
+      lttng: ctf_integer
+    bufobj:
+      type: cl_GLuint
+      lttng: ctf_integer
+    errcode_ret:
+      type: int
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateFromGLBuffer_exit:
+    mem:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateFromGLTexture_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_flags
+      lttng: ctf_integer
+    target:
+      type: cl_GLenum
+      lttng: ctf_integer
+    miplevel:
+      type: cl_GLint
+      lttng: ctf_integer
+    texture:
+      type: cl_GLuint
+      lttng: ctf_integer
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateFromGLTexture_exit:
+    mem:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateFromGLRenderbuffer_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_flags
+      lttng: ctf_integer
+    renderbuffer:
+      type: cl_GLuint
+      lttng: ctf_integer
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateFromGLRenderbuffer_exit:
+    mem:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetGLObjectInfo_entry:
+    memobj:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    gl_object_type:
+      type: cl_gl_object_type
+      pointer: true
+      lttng: ctf_integer_hex
+    gl_object_name:
+      type: cl_GLuint
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetGLObjectInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    gl_object_type_val:
+      type: cl_gl_object_type
+      lttng: ctf_integer
+    gl_object_name_val:
+      type: cl_GLuint
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetGLTextureInfo_entry:
+    memobj:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_gl_texture_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetGLTextureInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clEnqueueAcquireGLObjects_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    num_objects:
+      type: cl_uint
+      lttng: ctf_integer
+    mem_objects:
+      type: cl_mem
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    mem_objects_vals:
+      type: cl_mem
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueAcquireGLObjects_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueReleaseGLObjects_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    num_objects:
+      type: cl_uint
+      lttng: ctf_integer
+    mem_objects:
+      type: cl_mem
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    mem_objects_vals:
+      type: cl_mem
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueReleaseGLObjects_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateFromGLTexture2D_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_flags
+      lttng: ctf_integer
+    target:
+      type: cl_GLenum
+      lttng: ctf_integer
+    miplevel:
+      type: cl_GLint
+      lttng: ctf_integer
+    texture:
+      type: cl_GLuint
+      lttng: ctf_integer
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateFromGLTexture2D_exit:
+    mem:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateFromGLTexture3D_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_flags
+      lttng: ctf_integer
+    target:
+      type: cl_GLenum
+      lttng: ctf_integer
+    miplevel:
+      type: cl_GLint
+      lttng: ctf_integer
+    texture:
+      type: cl_GLuint
+      lttng: ctf_integer
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateFromGLTexture3D_exit:
+    mem:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetPlatformIDs_entry:
+    num_entries:
+      type: cl_uint
+      lttng: ctf_integer
+    platforms:
+      type: cl_platform_id
+      pointer: true
+      lttng: ctf_integer_hex
+    num_platforms:
+      type: cl_uint
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetPlatformIDs_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    num_platforms_val:
+      type: cl_uint
+      lttng: ctf_integer
+    platforms_vals:
+      type: cl_platform_id
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clGetPlatformInfo_entry:
+    platform:
+      type: cl_platform_id
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_platform_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetPlatformInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clGetDeviceIDs_entry:
+    platform:
+      type: cl_platform_id
+      lttng: ctf_integer_hex
+    device_type:
+      type: cl_device_type
+      lttng: ctf_integer
+    num_entries:
+      type: cl_uint
+      lttng: ctf_integer
+    devices:
+      type: cl_device_id
+      pointer: true
+      lttng: ctf_integer_hex
+    num_devices:
+      type: cl_uint
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetDeviceIDs_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    num_devices_val:
+      type: cl_uint
+      lttng: ctf_integer
+    devices_vals:
+      type: cl_device_id
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clGetDeviceInfo_entry:
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_device_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetDeviceInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clCreateSubDevices_entry:
+    in_device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    properties:
+      type: cl_device_partition_property
+      pointer: true
+      lttng: ctf_integer_hex
+    num_devices:
+      type: cl_uint
+      lttng: ctf_integer
+    out_devices:
+      type: cl_device_id
+      pointer: true
+      lttng: ctf_integer_hex
+    num_devices_ret:
+      type: cl_uint
+      pointer: true
+      lttng: ctf_integer_hex
+    properties_vals:
+      type: cl_device_partition_property
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clCreateSubDevices_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    num_devices_ret_val:
+      type: cl_uint
+      lttng: ctf_integer
+    out_devices_vals:
+      type: cl_device_id
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clRetainDevice_entry:
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clRetainDevice_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clReleaseDevice_entry:
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clReleaseDevice_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clSetDefaultDeviceCommandQueue_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clSetDefaultDeviceCommandQueue_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetDeviceAndHostTimer_entry:
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    device_timestamp:
+      type: cl_ulong
+      pointer: true
+      lttng: ctf_integer_hex
+    host_timestamp:
+      type: cl_ulong
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetDeviceAndHostTimer_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    device_timestamp_val:
+      type: cl_ulong
+      lttng: ctf_integer
+    host_timestamp_val:
+      type: cl_ulong
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetHostTimer_entry:
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    host_timestamp:
+      type: cl_ulong
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetHostTimer_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    host_timestamp_val:
+      type: cl_ulong
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateContext_entry:
+    properties:
+      type: cl_context_properties
+      pointer: true
+      lttng: ctf_integer_hex
+    num_devices:
+      type: cl_uint
+      lttng: ctf_integer
+    devices:
+      type: cl_device_id
+      pointer: true
+      lttng: ctf_integer_hex
+    pfn_notify:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    properties_vals:
+      type: cl_context_properties
+      array: true
+      lttng: ctf_sequence
+    devices_vals:
+      type: cl_device_id
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clCreateContext_exit:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateContextFromType_entry:
+    properties:
+      type: cl_context_properties
+      pointer: true
+      lttng: ctf_integer_hex
+    device_type:
+      type: cl_device_type
+      lttng: ctf_integer
+    pfn_notify:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    properties_vals:
+      type: cl_context_properties
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clCreateContextFromType_exit:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clRetainContext_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clRetainContext_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clReleaseContext_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clReleaseContext_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetContextInfo_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_context_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetContextInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clSetContextDestructorCallback_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    pfn_notify:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clSetContextDestructorCallback_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateCommandQueueWithProperties_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    properties:
+      type: cl_queue_properties
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    properties_vals:
+      type: cl_queue_properties
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clCreateCommandQueueWithProperties_exit:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clRetainCommandQueue_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clRetainCommandQueue_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clReleaseCommandQueue_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clReleaseCommandQueue_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetCommandQueueInfo_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_command_queue_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetCommandQueueInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clCreateBuffer_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_flags
+      lttng: ctf_integer
+    size:
+      type: size_t
+      lttng: ctf_integer
+    host_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateBuffer_exit:
+    mem:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateBufferWithProperties_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    properties:
+      type: cl_mem_properties
+      pointer: true
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_flags
+      lttng: ctf_integer
+    size:
+      type: size_t
+      lttng: ctf_integer
+    host_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    properties_vals:
+      type: cl_mem_properties
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clCreateBufferWithProperties_exit:
+    mem:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateSubBuffer_entry:
+    buffer:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_flags
+      lttng: ctf_integer
+    buffer_create_type:
+      type: cl_buffer_create_type
+      lttng: ctf_integer
+    buffer_create_info:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    buffer_create_info_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clCreateSubBuffer_exit:
+    mem:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateImage_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_flags
+      lttng: ctf_integer
+    image_format:
+      type: cl_image_format
+      pointer: true
+      lttng: ctf_integer_hex
+    image_desc:
+      type: cl_image_desc
+      pointer: true
+      lttng: ctf_integer_hex
+    host_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    image_format_val:
+      type: cl_image_format
+      lttng: ctf_sequence_text
+      structure: true
+    image_desc_val:
+      type: cl_image_desc
+      lttng: ctf_sequence_text
+      structure: true
+  lttng_ust_opencl:clCreateImage_exit:
+    mem:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateImageWithProperties_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    properties:
+      type: cl_mem_properties
+      pointer: true
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_flags
+      lttng: ctf_integer
+    image_format:
+      type: cl_image_format
+      pointer: true
+      lttng: ctf_integer_hex
+    image_desc:
+      type: cl_image_desc
+      pointer: true
+      lttng: ctf_integer_hex
+    host_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    properties_vals:
+      type: cl_mem_properties
+      array: true
+      lttng: ctf_sequence
+    image_format_val:
+      type: cl_image_format
+      lttng: ctf_sequence_text
+      structure: true
+    image_desc_val:
+      type: cl_image_desc
+      lttng: ctf_sequence_text
+      structure: true
+  lttng_ust_opencl:clCreateImageWithProperties_exit:
+    mem:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreatePipe_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_flags
+      lttng: ctf_integer
+    pipe_packet_size:
+      type: cl_uint
+      lttng: ctf_integer
+    pipe_max_packets:
+      type: cl_uint
+      lttng: ctf_integer
+    properties:
+      type: cl_pipe_properties
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    properties_vals:
+      type: cl_pipe_properties
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clCreatePipe_exit:
+    mem:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clRetainMemObject_entry:
+    memobj:
+      type: cl_mem
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clRetainMemObject_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clReleaseMemObject_entry:
+    memobj:
+      type: cl_mem
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clReleaseMemObject_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetSupportedImageFormats_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_flags
+      lttng: ctf_integer
+    image_type:
+      type: cl_mem_object_type
+      lttng: ctf_integer
+    num_entries:
+      type: cl_uint
+      lttng: ctf_integer
+    image_formats:
+      type: cl_image_format
+      pointer: true
+      lttng: ctf_integer_hex
+    num_image_formats:
+      type: cl_uint
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetSupportedImageFormats_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    num_image_formats_val:
+      type: cl_uint
+      lttng: ctf_integer
+    image_formats_vals:
+      type: cl_image_format
+      lttng: ctf_sequence_text
+      structure: true
+  lttng_ust_opencl:clGetMemObjectInfo_entry:
+    memobj:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_mem_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetMemObjectInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clGetImageInfo_entry:
+    image:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_image_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetImageInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clGetPipeInfo_entry:
+    pipe:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_pipe_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetPipeInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clSetMemObjectDestructorCallback_entry:
+    memobj:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    pfn_notify:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clSetMemObjectDestructorCallback_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clSVMAlloc_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_svm_mem_flags
+      lttng: ctf_integer
+    size:
+      type: size_t
+      lttng: ctf_integer
+    alignment:
+      type: cl_uint
+      lttng: ctf_integer
+  lttng_ust_opencl:clSVMAlloc_exit:
+    _retval:
+      type: void *
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clSVMFree_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    svm_pointer:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clSVMFree_exit: {}
+  lttng_ust_opencl:clCreateSamplerWithProperties_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    sampler_properties:
+      type: cl_sampler_properties
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    sampler_properties_vals:
+      type: cl_sampler_properties
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clCreateSamplerWithProperties_exit:
+    sampler:
+      type: cl_sampler
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clRetainSampler_entry:
+    sampler:
+      type: cl_sampler
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clRetainSampler_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clReleaseSampler_entry:
+    sampler:
+      type: cl_sampler
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clReleaseSampler_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetSamplerInfo_entry:
+    sampler:
+      type: cl_sampler
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_sampler_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetSamplerInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clCreateProgramWithSource_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    count:
+      type: cl_uint
+      lttng: ctf_integer
+    strings:
+      type: char*
+      pointer: true
+      lttng: ctf_integer_hex
+    lengths:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    strings_vals:
+      type: char
+      pointer: true
+      array: true
+      lttng: ctf_sequence_hex
+    lengths_vals:
+      type: size_t
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clCreateProgramWithSource_exit:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateProgramWithBinary_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    num_devices:
+      type: cl_uint
+      lttng: ctf_integer
+    device_list:
+      type: cl_device_id
+      pointer: true
+      lttng: ctf_integer_hex
+    lengths:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    binaries:
+      type: unsigned char*
+      pointer: true
+      lttng: ctf_integer_hex
+    binary_status:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    device_list_vals:
+      type: cl_device_id
+      array: true
+      lttng: ctf_sequence_hex
+    lengths_vals:
+      type: size_t
+      array: true
+      lttng: ctf_sequence
+    binaries_vals:
+      type: unsigned char
+      pointer: true
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clCreateProgramWithBinary_exit:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    binary_status_vals:
+      type: cl_int
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clCreateProgramWithBuiltInKernels_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    num_devices:
+      type: cl_uint
+      lttng: ctf_integer
+    device_list:
+      type: cl_device_id
+      pointer: true
+      lttng: ctf_integer_hex
+    kernel_names:
+      type: char
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    device_list_vals:
+      type: cl_device_id
+      array: true
+      lttng: ctf_sequence_hex
+    kernel_names_val:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl:clCreateProgramWithBuiltInKernels_exit:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateProgramWithIL_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    il:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    length:
+      type: size_t
+      lttng: ctf_integer
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateProgramWithIL_exit:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clRetainProgram_entry:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clRetainProgram_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clReleaseProgram_entry:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clReleaseProgram_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clBuildProgram_entry:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    num_devices:
+      type: cl_uint
+      lttng: ctf_integer
+    device_list:
+      type: cl_device_id
+      pointer: true
+      lttng: ctf_integer_hex
+    options:
+      type: char
+      pointer: true
+      lttng: ctf_integer_hex
+    pfn_notify:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    device_list_vals:
+      type: cl_device_id
+      array: true
+      lttng: ctf_sequence_hex
+    options_val:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl:clBuildProgram_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCompileProgram_entry:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    num_devices:
+      type: cl_uint
+      lttng: ctf_integer
+    device_list:
+      type: cl_device_id
+      pointer: true
+      lttng: ctf_integer_hex
+    options:
+      type: char
+      pointer: true
+      lttng: ctf_integer_hex
+    num_input_headers:
+      type: cl_uint
+      lttng: ctf_integer
+    input_headers:
+      type: cl_program
+      pointer: true
+      lttng: ctf_integer_hex
+    header_include_names:
+      type: char*
+      pointer: true
+      lttng: ctf_integer_hex
+    pfn_notify:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    device_list_vals:
+      type: cl_device_id
+      array: true
+      lttng: ctf_sequence_hex
+    options_val:
+      type: char
+      string: true
+      lttng: ctf_string
+    input_headers_vals:
+      type: cl_program
+      array: true
+      lttng: ctf_sequence_hex
+    header_include_names_vals:
+      type: char
+      pointer: true
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clCompileProgram_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clLinkProgram_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    num_devices:
+      type: cl_uint
+      lttng: ctf_integer
+    device_list:
+      type: cl_device_id
+      pointer: true
+      lttng: ctf_integer_hex
+    options:
+      type: char
+      pointer: true
+      lttng: ctf_integer_hex
+    num_input_programs:
+      type: cl_uint
+      lttng: ctf_integer
+    input_programs:
+      type: cl_program
+      pointer: true
+      lttng: ctf_integer_hex
+    pfn_notify:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    device_list_vals:
+      type: cl_device_id
+      array: true
+      lttng: ctf_sequence_hex
+    options_val:
+      type: char
+      string: true
+      lttng: ctf_string
+    input_programs_vals:
+      type: cl_program
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clLinkProgram_exit:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clSetProgramReleaseCallback_entry:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    pfn_notify:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clSetProgramReleaseCallback_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clSetProgramSpecializationConstant_entry:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    spec_id:
+      type: cl_uint
+      lttng: ctf_integer
+    spec_size:
+      type: size_t
+      lttng: ctf_integer
+    spec_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    spec_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clSetProgramSpecializationConstant_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clUnloadPlatformCompiler_entry:
+    platform:
+      type: cl_platform_id
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clUnloadPlatformCompiler_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetProgramInfo_entry:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_program_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetProgramInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clGetProgramBuildInfo_entry:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_program_build_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetProgramBuildInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clCreateKernel_entry:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    kernel_name:
+      type: char
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    kernel_name_val:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl:clCreateKernel_exit:
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateKernelsInProgram_entry:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    num_kernels:
+      type: cl_uint
+      lttng: ctf_integer
+    kernels:
+      type: cl_kernel
+      pointer: true
+      lttng: ctf_integer_hex
+    num_kernels_ret:
+      type: cl_uint
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateKernelsInProgram_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    kernels_vals:
+      type: cl_kernel
+      array: true
+      lttng: ctf_sequence_hex
+    num_kernels_ret_val:
+      type: cl_uint
+      lttng: ctf_integer
+  lttng_ust_opencl:clCloneKernel_entry:
+    source_kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCloneKernel_exit:
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clRetainKernel_entry:
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clRetainKernel_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clReleaseKernel_entry:
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clReleaseKernel_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clSetKernelArg_entry:
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    arg_index:
+      type: cl_uint
+      lttng: ctf_integer
+    arg_size:
+      type: size_t
+      lttng: ctf_integer
+    arg_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    arg_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clSetKernelArg_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clSetKernelArgSVMPointer_entry:
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    arg_index:
+      type: cl_uint
+      lttng: ctf_integer
+    arg_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clSetKernelArgSVMPointer_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clSetKernelExecInfo_entry:
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_kernel_exec_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clSetKernelExecInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetKernelInfo_entry:
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_kernel_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetKernelInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clGetKernelArgInfo_entry:
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    arg_index:
+      type: cl_uint
+      lttng: ctf_integer
+    param_name:
+      type: cl_kernel_arg_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetKernelArgInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clGetKernelWorkGroupInfo_entry:
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_kernel_work_group_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetKernelWorkGroupInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clGetKernelSubGroupInfo_entry:
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_kernel_sub_group_info
+      lttng: ctf_integer
+    input_value_size:
+      type: size_t
+      lttng: ctf_integer
+    input_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    input_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clGetKernelSubGroupInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clWaitForEvents_entry:
+    num_events:
+      type: cl_uint
+      lttng: ctf_integer
+    event_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clWaitForEvents_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetEventInfo_entry:
+    event:
+      type: cl_event
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_event_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetEventInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clCreateUserEvent_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateUserEvent_exit:
+    event:
+      type: cl_event
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clRetainEvent_entry:
+    event:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clRetainEvent_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clReleaseEvent_entry:
+    event:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clReleaseEvent_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clSetUserEventStatus_entry:
+    event:
+      type: cl_event
+      lttng: ctf_integer_hex
+    execution_status:
+      type: cl_int
+      lttng: ctf_integer
+  lttng_ust_opencl:clSetUserEventStatus_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clSetEventCallback_entry:
+    event:
+      type: cl_event
+      lttng: ctf_integer_hex
+    command_exec_callback_type:
+      type: cl_int
+      lttng: ctf_integer
+    pfn_notify:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clSetEventCallback_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetEventProfilingInfo_entry:
+    event:
+      type: cl_event
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_profiling_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetEventProfilingInfo_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clFlush_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clFlush_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clFinish_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clFinish_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clEnqueueReadBuffer_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    buffer:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    blocking_read:
+      type: cl_bool
+      lttng: ctf_integer
+    offset:
+      type: size_t
+      lttng: ctf_integer
+    size:
+      type: size_t
+      lttng: ctf_integer
+    ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueReadBuffer_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueReadBufferRect_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    buffer:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    blocking_read:
+      type: cl_bool
+      lttng: ctf_integer
+    buffer_origin:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    host_origin:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    region:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    buffer_row_pitch:
+      type: size_t
+      lttng: ctf_integer
+    buffer_slice_pitch:
+      type: size_t
+      lttng: ctf_integer
+    host_row_pitch:
+      type: size_t
+      lttng: ctf_integer
+    host_slice_pitch:
+      type: size_t
+      lttng: ctf_integer
+    ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    buffer_origin_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+    host_origin_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+    region_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+  lttng_ust_opencl:clEnqueueReadBufferRect_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueWriteBuffer_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    buffer:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    blocking_write:
+      type: cl_bool
+      lttng: ctf_integer
+    offset:
+      type: size_t
+      lttng: ctf_integer
+    size:
+      type: size_t
+      lttng: ctf_integer
+    ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueWriteBuffer_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueWriteBufferRect_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    buffer:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    blocking_write:
+      type: cl_bool
+      lttng: ctf_integer
+    buffer_origin:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    host_origin:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    region:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    buffer_row_pitch:
+      type: size_t
+      lttng: ctf_integer
+    buffer_slice_pitch:
+      type: size_t
+      lttng: ctf_integer
+    host_row_pitch:
+      type: size_t
+      lttng: ctf_integer
+    host_slice_pitch:
+      type: size_t
+      lttng: ctf_integer
+    ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    buffer_origin_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+    host_origin_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+    region_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+  lttng_ust_opencl:clEnqueueWriteBufferRect_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueFillBuffer_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    buffer:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    pattern:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    pattern_size:
+      type: size_t
+      lttng: ctf_integer
+    offset:
+      type: size_t
+      lttng: ctf_integer
+    size:
+      type: size_t
+      lttng: ctf_integer
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    pattern_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clEnqueueFillBuffer_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueCopyBuffer_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    src_buffer:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    dst_buffer:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    src_offset:
+      type: size_t
+      lttng: ctf_integer
+    dst_offset:
+      type: size_t
+      lttng: ctf_integer
+    size:
+      type: size_t
+      lttng: ctf_integer
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueCopyBuffer_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueCopyBufferRect_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    src_buffer:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    dst_buffer:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    src_origin:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    dst_origin:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    region:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    src_row_pitch:
+      type: size_t
+      lttng: ctf_integer
+    src_slice_pitch:
+      type: size_t
+      lttng: ctf_integer
+    dst_row_pitch:
+      type: size_t
+      lttng: ctf_integer
+    dst_slice_pitch:
+      type: size_t
+      lttng: ctf_integer
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    src_origin_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+    dst_origin_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+    region_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+  lttng_ust_opencl:clEnqueueCopyBufferRect_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueReadImage_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    image:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    blocking_read:
+      type: cl_bool
+      lttng: ctf_integer
+    origin:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    region:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    row_pitch:
+      type: size_t
+      lttng: ctf_integer
+    slice_pitch:
+      type: size_t
+      lttng: ctf_integer
+    ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    origin_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+    region_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+  lttng_ust_opencl:clEnqueueReadImage_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueWriteImage_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    image:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    blocking_write:
+      type: cl_bool
+      lttng: ctf_integer
+    origin:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    region:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    input_row_pitch:
+      type: size_t
+      lttng: ctf_integer
+    input_slice_pitch:
+      type: size_t
+      lttng: ctf_integer
+    ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    origin_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+    region_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+  lttng_ust_opencl:clEnqueueWriteImage_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueFillImage_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    image:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    fill_color:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    origin:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    region:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    origin_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+    region_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+  lttng_ust_opencl:clEnqueueFillImage_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueCopyImage_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    src_image:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    dst_image:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    src_origin:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    dst_origin:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    region:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    src_origin_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+    dst_origin_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+    region_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+  lttng_ust_opencl:clEnqueueCopyImage_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueCopyImageToBuffer_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    src_image:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    dst_buffer:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    src_origin:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    region:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    dst_offset:
+      type: size_t
+      lttng: ctf_integer
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueCopyImageToBuffer_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueCopyBufferToImage_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    src_buffer:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    dst_image:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    src_offset:
+      type: size_t
+      lttng: ctf_integer
+    dst_origin:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    region:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    dst_origin_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+    region_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+  lttng_ust_opencl:clEnqueueCopyBufferToImage_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueMapBuffer_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    buffer:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    blocking_map:
+      type: cl_bool
+      lttng: ctf_integer
+    map_flags:
+      type: cl_map_flags
+      lttng: ctf_integer
+    offset:
+      type: size_t
+      lttng: ctf_integer
+    size:
+      type: size_t
+      lttng: ctf_integer
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueMapBuffer_exit:
+    _retval:
+      type: void *
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueMapImage_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    image:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    blocking_map:
+      type: cl_bool
+      lttng: ctf_integer
+    map_flags:
+      type: cl_map_flags
+      lttng: ctf_integer
+    origin:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    region:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    image_row_pitch:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    image_slice_pitch:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    origin_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+    region_vals:
+      type: size_t
+      array: true
+      lttng: ctf_array
+      length: 3
+  lttng_ust_opencl:clEnqueueMapImage_exit:
+    _retval:
+      type: void *
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+    image_row_pitch_val:
+      type: size_t
+      lttng: ctf_integer
+    image_slice_pitch_val:
+      type: size_t
+      lttng: ctf_integer
+  lttng_ust_opencl:clEnqueueUnmapMemObject_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    memobj:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    mapped_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueUnmapMemObject_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueMigrateMemObjects_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    num_mem_objects:
+      type: cl_uint
+      lttng: ctf_integer
+    mem_objects:
+      type: cl_mem
+      pointer: true
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_migration_flags
+      lttng: ctf_integer
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    mem_objects_vals:
+      type: cl_mem
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueMigrateMemObjects_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueNDRangeKernel_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    work_dim:
+      type: cl_uint
+      lttng: ctf_integer
+    global_work_offset:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    global_work_size:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    local_work_size:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    global_work_offset_vals:
+      type: size_t
+      array: true
+      lttng: ctf_sequence
+    global_work_size_vals:
+      type: size_t
+      array: true
+      lttng: ctf_sequence
+    local_work_size_vals:
+      type: size_t
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clEnqueueNDRangeKernel_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueNativeKernel_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    user_func:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    args:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    cb_args:
+      type: size_t
+      lttng: ctf_integer
+    num_mem_objects:
+      type: cl_uint
+      lttng: ctf_integer
+    mem_list:
+      type: cl_mem
+      pointer: true
+      lttng: ctf_integer_hex
+    args_mem_loc:
+      type: void*
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    args_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+    mem_list_vals:
+      type: cl_mem
+      array: true
+      lttng: ctf_sequence_hex
+    args_mem_loc_vals:
+      type: void
+      pointer: true
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueNativeKernel_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueMarkerWithWaitList_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueMarkerWithWaitList_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueBarrierWithWaitList_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueBarrierWithWaitList_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueSVMFree_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    num_svm_pointers:
+      type: cl_uint
+      lttng: ctf_integer
+    svm_pointers:
+      type: void*
+      pointer: true
+      lttng: ctf_integer_hex
+    pfn_free_func:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    svm_pointers_vals:
+      type: void
+      pointer: true
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueSVMFree_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueSVMMemcpy_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    blocking_copy:
+      type: cl_bool
+      lttng: ctf_integer
+    dst_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    src_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    size:
+      type: size_t
+      lttng: ctf_integer
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueSVMMemcpy_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueSVMMemFill_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    svm_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    pattern:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    pattern_size:
+      type: size_t
+      lttng: ctf_integer
+    size:
+      type: size_t
+      lttng: ctf_integer
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    pattern_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clEnqueueSVMMemFill_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueSVMMap_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    blocking_map:
+      type: cl_bool
+      lttng: ctf_integer
+    flags:
+      type: cl_map_flags
+      lttng: ctf_integer
+    svm_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    size:
+      type: size_t
+      lttng: ctf_integer
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueSVMMap_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueSVMUnmap_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    svm_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueSVMUnmap_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueSVMMigrateMem_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    num_svm_pointers:
+      type: cl_uint
+      lttng: ctf_integer
+    svm_pointers:
+      type: void*
+      pointer: true
+      lttng: ctf_integer_hex
+    sizes:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_migration_flags
+      lttng: ctf_integer
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    svm_pointers_vals:
+      type: void
+      pointer: true
+      array: true
+      lttng: ctf_sequence_hex
+    sizes_vals:
+      type: size_t
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clEnqueueSVMMigrateMem_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetExtensionFunctionAddressForPlatform_entry:
+    platform:
+      type: cl_platform_id
+      lttng: ctf_integer_hex
+    func_name:
+      type: char
+      pointer: true
+      lttng: ctf_integer_hex
+    func_name_val:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl:clGetExtensionFunctionAddressForPlatform_exit:
+    _retval:
+      type: void *
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clSetCommandQueueProperty_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    properties:
+      type: cl_command_queue_properties
+      lttng: ctf_integer
+    enable:
+      type: cl_bool
+      lttng: ctf_integer
+    old_properties:
+      type: cl_command_queue_properties
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clSetCommandQueueProperty_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    old_properties_val:
+      type: cl_command_queue_properties
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateImage2D_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_flags
+      lttng: ctf_integer
+    image_format:
+      type: cl_image_format
+      pointer: true
+      lttng: ctf_integer_hex
+    image_width:
+      type: size_t
+      lttng: ctf_integer
+    image_height:
+      type: size_t
+      lttng: ctf_integer
+    image_row_pitch:
+      type: size_t
+      lttng: ctf_integer
+    host_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    image_format_val:
+      type: cl_image_format
+      lttng: ctf_sequence_text
+      structure: true
+  lttng_ust_opencl:clCreateImage2D_exit:
+    mem:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateImage3D_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_flags
+      lttng: ctf_integer
+    image_format:
+      type: cl_image_format
+      pointer: true
+      lttng: ctf_integer_hex
+    image_width:
+      type: size_t
+      lttng: ctf_integer
+    image_height:
+      type: size_t
+      lttng: ctf_integer
+    image_depth:
+      type: size_t
+      lttng: ctf_integer
+    image_row_pitch:
+      type: size_t
+      lttng: ctf_integer
+    image_slice_pitch:
+      type: size_t
+      lttng: ctf_integer
+    host_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    image_format_val:
+      type: cl_image_format
+      lttng: ctf_sequence_text
+      structure: true
+  lttng_ust_opencl:clCreateImage3D_exit:
+    mem:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clEnqueueMarker_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueMarker_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueWaitForEvents_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    num_events:
+      type: cl_uint
+      lttng: ctf_integer
+    event_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueWaitForEvents_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clEnqueueBarrier_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueBarrier_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clUnloadCompiler_entry: {}
+  lttng_ust_opencl:clUnloadCompiler_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetExtensionFunctionAddress_entry:
+    func_name:
+      type: char
+      pointer: true
+      lttng: ctf_integer_hex
+    func_name_val:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl:clGetExtensionFunctionAddress_exit:
+    _retval:
+      type: void *
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateCommandQueue_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    properties:
+      type: cl_command_queue_properties
+      lttng: ctf_integer
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateCommandQueue_exit:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateSampler_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    normalized_coords:
+      type: cl_bool
+      lttng: ctf_integer
+    addressing_mode:
+      type: cl_addressing_mode
+      lttng: ctf_integer
+    filter_mode:
+      type: cl_filter_mode
+      lttng: ctf_integer
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateSampler_exit:
+    sampler:
+      type: cl_sampler
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clEnqueueTask_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueTask_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateProgramWithILKHR_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    il:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    length:
+      type: size_t
+      lttng: ctf_integer
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateProgramWithILKHR_exit:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clTerminateContextKHR_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clTerminateContextKHR_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreateCommandQueueWithPropertiesKHR_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    properties:
+      type: cl_queue_properties_khr
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    properties_vals:
+      type: cl_queue_properties_khr
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clCreateCommandQueueWithPropertiesKHR_exit:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clEnqueueMigrateMemObjectEXT_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    num_mem_objects:
+      type: cl_uint
+      lttng: ctf_integer
+    mem_objects:
+      type: cl_mem
+      pointer: true
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_migration_flags_ext
+      lttng: ctf_integer
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    mem_objects_vals:
+      type: cl_mem
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueMigrateMemObjectEXT_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetKernelSuggestedLocalWorkSizeKHR_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    work_dim:
+      type: cl_uint
+      lttng: ctf_integer
+    global_work_offset:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    global_work_size:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    suggested_local_work_size:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    global_work_offset_vals:
+      type: size_t
+      array: true
+      lttng: ctf_sequence
+    global_work_size_vals:
+      type: size_t
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clGetKernelSuggestedLocalWorkSizeKHR_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    suggested_local_work_size_vals:
+      type: size_t
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clGetICDLoaderInfoOCLICD_entry:
+    param_name:
+      type: cl_icdl_info
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetICDLoaderInfoOCLICD_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clCreateImageWithPropertiesINTEL_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    properties:
+      type: cl_mem_properties_intel
+      pointer: true
+      lttng: ctf_integer_hex
+    image_format:
+      type: cl_image_format
+      pointer: true
+      lttng: ctf_integer_hex
+    image_desc:
+      type: cl_image_desc
+      pointer: true
+      lttng: ctf_integer_hex
+    host_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    properties_vals:
+      type: cl_mem_properties_intel
+      array: true
+      lttng: ctf_sequence
+    image_format_val:
+      type: cl_image_format
+      lttng: ctf_sequence_text
+      structure: true
+    image_desc_val:
+      type: cl_image_desc
+      lttng: ctf_sequence_text
+      structure: true
+  lttng_ust_opencl:clCreateImageWithPropertiesINTEL_exit:
+    mem:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetImageParamsINTEL_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    image_format:
+      type: cl_image_format
+      pointer: true
+      lttng: ctf_integer_hex
+    image_desc:
+      type: cl_image_desc
+      pointer: true
+      lttng: ctf_integer_hex
+    image_row_pitch:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    image_slice_pitch:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    image_format_val:
+      type: cl_image_format
+      lttng: ctf_sequence_text
+      structure: true
+    image_desc_val:
+      type: cl_image_desc
+      lttng: ctf_sequence_text
+      structure: true
+  lttng_ust_opencl:clGetImageParamsINTEL_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    image_row_pitch_val:
+      type: size_t
+      lttng: ctf_integer
+    image_slice_pitch_val:
+      type: size_t
+      lttng: ctf_integer
+  lttng_ust_opencl:clEnqueueVerifyMemoryINTEL_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    allocation_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    expected_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    size_of_comparison:
+      type: size_t
+      lttng: ctf_integer
+    comparison_mode:
+      type: cl_uint
+      lttng: ctf_integer
+  lttng_ust_opencl:clEnqueueVerifyMemoryINTEL_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clAddCommentINTEL_entry:
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    comment:
+      type: char
+      pointer: true
+      lttng: ctf_integer_hex
+    comment_val:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl:clAddCommentINTEL_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clCreatePerfCountersCommandQueueINTEL_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    properties:
+      type: cl_command_queue_properties
+      lttng: ctf_integer
+    configuration:
+      type: cl_uint
+      lttng: ctf_integer
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreatePerfCountersCommandQueueINTEL_exit:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clSetPerformanceConfigurationINTEL_entry:
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    count:
+      type: cl_uint
+      lttng: ctf_integer
+    offsets:
+      type: cl_uint
+      pointer: true
+      lttng: ctf_integer_hex
+    values:
+      type: cl_uint
+      pointer: true
+      lttng: ctf_integer_hex
+    offsets_vals:
+      type: cl_uint
+      array: true
+      lttng: ctf_sequence
+    values_vals:
+      type: cl_uint
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clSetPerformanceConfigurationINTEL_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    offsets_vals:
+      type: cl_uint
+      array: true
+      lttng: ctf_sequence
+    values_vals:
+      type: cl_uint
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clGetDeviceFunctionPointerINTEL_entry:
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    function_name:
+      type: char
+      pointer: true
+      lttng: ctf_integer_hex
+    function_pointer_ret:
+      type: cl_ulong
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetDeviceFunctionPointerINTEL_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    function_pointer_ret_val:
+      type: cl_ulong
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetDeviceGlobalVariablePointerINTEL_entry:
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    global_variable_name:
+      type: char
+      pointer: true
+      lttng: ctf_integer_hex
+    global_variable_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    global_variable_pointer_ret:
+      type: void*
+      pointer: true
+      lttng: ctf_integer_hex
+    global_variable_name_val:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl:clGetDeviceGlobalVariablePointerINTEL_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    global_variable_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    global_variable_pointer_ret_val:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetExecutionInfoINTEL_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    work_dim:
+      type: cl_uint
+      lttng: ctf_integer
+    global_work_offset:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    local_work_size:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_execution_info_intel
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    global_work_offset_vals:
+      type: size_t
+      array: true
+      lttng: ctf_sequence
+    local_work_size_vals:
+      type: size_t
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clGetExecutionInfoINTEL_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clEnqueueNDRangeKernelINTEL_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    work_dim:
+      type: cl_uint
+      lttng: ctf_integer
+    global_work_offset:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    work_group_count:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    local_work_size:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    global_work_offset_vals:
+      type: size_t
+      array: true
+      lttng: ctf_sequence
+    work_group_count_vals:
+      type: size_t
+      array: true
+      lttng: ctf_sequence
+    local_work_size_vals:
+      type: size_t
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clEnqueueNDRangeKernelINTEL_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clHostMemAllocINTEL_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    properties:
+      type: cl_mem_properties_intel
+      pointer: true
+      lttng: ctf_integer_hex
+    size:
+      type: size_t
+      lttng: ctf_integer
+    alignment:
+      type: cl_uint
+      lttng: ctf_integer
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    properties_vals:
+      type: cl_mem_properties_intel
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clHostMemAllocINTEL_exit:
+    _retval:
+      type: void *
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clDeviceMemAllocINTEL_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    properties:
+      type: cl_mem_properties_intel
+      pointer: true
+      lttng: ctf_integer_hex
+    size:
+      type: size_t
+      lttng: ctf_integer
+    alignment:
+      type: cl_uint
+      lttng: ctf_integer
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    properties_vals:
+      type: cl_mem_properties_intel
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clDeviceMemAllocINTEL_exit:
+    _retval:
+      type: void *
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clSharedMemAllocINTEL_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    properties:
+      type: cl_mem_properties_intel
+      pointer: true
+      lttng: ctf_integer_hex
+    size:
+      type: size_t
+      lttng: ctf_integer
+    alignment:
+      type: cl_uint
+      lttng: ctf_integer
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    properties_vals:
+      type: cl_mem_properties_intel
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clSharedMemAllocINTEL_exit:
+    _retval:
+      type: void *
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clMemFreeINTEL_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clMemFreeINTEL_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clGetMemAllocInfoINTEL_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_name:
+      type: cl_mem_info_intel
+      lttng: ctf_integer
+    param_value_size:
+      type: size_t
+      lttng: ctf_integer
+    param_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    param_value_size_ret:
+      type: size_t
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clGetMemAllocInfoINTEL_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    param_value_size_ret_val:
+      type: size_t
+      lttng: ctf_integer
+    param_value_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clSetKernelArgMemPointerINTEL_entry:
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    arg_index:
+      type: cl_uint
+      lttng: ctf_integer
+    arg_value:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clSetKernelArgMemPointerINTEL_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clEnqueueMemsetINTEL_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    dst_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    value:
+      type: cl_int
+      lttng: ctf_integer
+    size:
+      type: size_t
+      lttng: ctf_integer
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueMemsetINTEL_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueMemFillINTEL_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    dst_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    pattern:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    pattern_size:
+      type: size_t
+      lttng: ctf_integer
+    size:
+      type: size_t
+      lttng: ctf_integer
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+    pattern_vals:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clEnqueueMemFillINTEL_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueMemcpyINTEL_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    blocking:
+      type: cl_bool
+      lttng: ctf_integer
+    dst_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    src_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    size:
+      type: size_t
+      lttng: ctf_integer
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueMemcpyINTEL_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueMigrateMemINTEL_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    size:
+      type: size_t
+      lttng: ctf_integer
+    flags:
+      type: cl_mem_migration_flags
+      lttng: ctf_integer
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueMigrateMemINTEL_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clEnqueueMemAdviseINTEL_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    size:
+      type: size_t
+      lttng: ctf_integer
+    advice:
+      type: cl_mem_advice_intel
+      lttng: ctf_integer
+    num_events_in_wait_list:
+      type: cl_uint
+      lttng: ctf_integer
+    event_wait_list:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event:
+      type: cl_event
+      pointer: true
+      lttng: ctf_integer_hex
+    event_wait_list_vals:
+      type: cl_event
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueMemAdviseINTEL_exit:
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+    event_val:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCreateBufferWithPropertiesINTEL_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    properties:
+      type: cl_mem_properties_intel
+      pointer: true
+      lttng: ctf_integer_hex
+    flags:
+      type: cl_mem_flags
+      lttng: ctf_integer
+    size:
+      type: size_t
+      lttng: ctf_integer
+    host_ptr:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    errcode_ret:
+      type: cl_int
+      pointer: true
+      lttng: ctf_integer_hex
+    properties_vals:
+      type: cl_mem_properties_intel
+      array: true
+      lttng: ctf_sequence
+  lttng_ust_opencl:clCreateBufferWithPropertiesINTEL_exit:
+    mem:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    errcode_ret_val:
+      type: cl_errcode
+      lttng: ctf_integer
+  lttng_ust_opencl:clBuildProgram_callback_entry:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clBuildProgram_callback_exit: {}
+  lttng_ust_opencl:clCompileProgram_callback_entry:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clCompileProgram_callback_exit: {}
+  lttng_ust_opencl:clLinkProgram_callback_entry:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clLinkProgram_callback_exit: {}
+  lttng_ust_opencl:clCreateContext_callback_entry:
+    errinfo:
+      type: const char
+      pointer: true
+      lttng: ctf_integer_hex
+    private_info:
+      type: const void
+      pointer: true
+      lttng: ctf_integer_hex
+    cb:
+      type: size_t
+      lttng: ctf_integer
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    errinfo_val:
+      type: const char
+      string: true
+      lttng: ctf_string
+    private_info_vals:
+      type: const void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clCreateContext_callback_exit: {}
+  lttng_ust_opencl:clCreateContextFromType_callback_entry:
+    errinfo:
+      type: const char
+      pointer: true
+      lttng: ctf_integer_hex
+    private_info:
+      type: const void
+      pointer: true
+      lttng: ctf_integer_hex
+    cb:
+      type: size_t
+      lttng: ctf_integer
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    errinfo_val:
+      type: const char
+      string: true
+      lttng: ctf_string
+    private_info_vals:
+      type: const void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl:clCreateContextFromType_callback_exit: {}
+  lttng_ust_opencl:clSetMemObjectDestructorCallback_callback_entry:
+    memobj:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clSetMemObjectDestructorCallback_callback_exit: {}
+  lttng_ust_opencl:clSetProgramReleaseCallback_callback_entry:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clSetProgramReleaseCallback_callback_exit: {}
+  lttng_ust_opencl:clSetEventCallback_callback_entry:
+    event:
+      type: cl_event
+      lttng: ctf_integer_hex
+    type:
+      type: cl_int
+      lttng: ctf_integer
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clSetEventCallback_callback_exit: {}
+  lttng_ust_opencl:clEnqueueSVMFree_callback_entry:
+    command_queue:
+      type: cl_command_queue
+      lttng: ctf_integer_hex
+    num_svm_pointers:
+      type: cl_uint
+      lttng: ctf_integer
+    svm_pointers:
+      type: void *
+      pointer: true
+      lttng: ctf_integer_hex
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    svm_pointers_vals:
+      type: void *
+      array: true
+      lttng: ctf_sequence_hex
+  lttng_ust_opencl:clEnqueueSVMFree_callback_exit: {}
+  lttng_ust_opencl:clSetContextDestructorCallback_callback_entry:
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    user_data:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+  lttng_ust_opencl:clSetContextDestructorCallback_callback_exit: {}
+  lttng_ust_opencl_build:objects:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    size:
+      type: size_t
+      lttng: ctf_integer
+    path:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl_build:binaries:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    size:
+      type: size_t
+      lttng: ctf_integer
+    path:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl_build:infos:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    build_status:
+      type: cl_build_status
+      lttng: ctf_integer
+    build_options:
+      type: char
+      string: true
+      lttng: ctf_string
+    build_log:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl_build:infos_1_2:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    binary_type:
+      type: cl_program_binary_type
+      lttng: ctf_integer
+  lttng_ust_opencl_build:infos_2_0:
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    build_global_variable_total_size:
+      type: size_t
+      lttng: ctf_integer
+  lttng_ust_opencl_arguments:argument_info:
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    arg_index:
+      type: cl_uint
+      lttng: ctf_integer
+    address_qualifier:
+      type: cl_kernel_arg_address_qualifier
+      lttng: ctf_integer
+    access_qualifier:
+      type: cl_kernel_arg_access_qualifier
+      lttng: ctf_integer
+    type_name:
+      type: char
+      string: true
+      lttng: ctf_string
+    type_qualifier:
+      type: cl_kernel_arg_type_qualifier
+      lttng: ctf_integer
+    name:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl_arguments:kernel_info:
+    kernel:
+      type: cl_kernel
+      lttng: ctf_integer_hex
+    function_name:
+      type: char
+      string: true
+      lttng: ctf_string
+    num_args:
+      type: cl_uint
+      lttng: ctf_integer
+    context:
+      type: cl_context
+      lttng: ctf_integer_hex
+    program:
+      type: cl_program
+      lttng: ctf_integer_hex
+    attibutes:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl_dump:enqueue_counter:
+    enqueue_counter:
+      type: uint64_t
+      lttng: ctf_integer
+  lttng_ust_opencl_dump:kernel_arg_value:
+    enqueue_counter:
+      type: uint64_t
+      lttng: ctf_integer
+    arg_index:
+      type: cl_uint
+      lttng: ctf_integer
+    arg_size:
+      type: size_t
+      lttng: ctf_integer
+    arg_value:
+      type: void
+      array: true
+      lttng: ctf_sequence_text
+  lttng_ust_opencl_dump:svmptr_dump_event:
+    enqueue_counter:
+      type: uint64_t
+      lttng: ctf_integer
+    arg_index:
+      type: cl_uint
+      lttng: ctf_integer
+    direction:
+      type: int
+      enum_type: dump_enum
+      lttng: ctf_enum
+    buffer:
+      type: void
+      pointer: true
+      lttng: ctf_integer_hex
+    status:
+      type: int
+      lttng: ctf_integer
+    event:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl_dump:svmptr_dump_result:
+    enqueue_counter:
+      type: uint64_t
+      lttng: ctf_integer
+    arg_index:
+      type: cl_uint
+      lttng: ctf_integer
+    direction:
+      type: int
+      enum_type: dump_enum
+      lttng: ctf_enum
+    event:
+      type: cl_event
+      lttng: ctf_integer_hex
+    status:
+      type: cl_int
+      lttng: ctf_integer
+    size:
+      type: size_t
+      lttng: ctf_integer
+    path:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl_dump:buffer_dump_event:
+    enqueue_counter:
+      type: uint64_t
+      lttng: ctf_integer
+    arg_index:
+      type: cl_uint
+      lttng: ctf_integer
+    direction:
+      type: int
+      enum_type: dump_enum
+      lttng: ctf_enum
+    buffer:
+      type: cl_mem
+      lttng: ctf_integer_hex
+    status:
+      type: int
+      lttng: ctf_integer
+    event:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl_dump:buffer_dump_result:
+    enqueue_counter:
+      type: uint64_t
+      lttng: ctf_integer
+    arg_index:
+      type: cl_uint
+      lttng: ctf_integer
+    direction:
+      type: int
+      enum_type: dump_enum
+      lttng: ctf_enum
+    event:
+      type: cl_event
+      lttng: ctf_integer_hex
+    status:
+      type: cl_int
+      lttng: ctf_integer
+    size:
+      type: size_t
+      lttng: ctf_integer
+    path:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl_profiling:event_profiling:
+    status:
+      type: int
+      lttng: ctf_integer
+    event:
+      type: cl_event
+      lttng: ctf_integer_hex
+  lttng_ust_opencl_profiling:event_profiling_results:
+    event:
+      type: cl_event
+      lttng: ctf_integer_hex
+    event_command_exec_status:
+      type: cl_int
+      lttng: ctf_integer
+    queued_status:
+      type: cl_int
+      lttng: ctf_integer
+    queued:
+      type: cl_ulong
+      lttng: ctf_integer
+    submit_status:
+      type: cl_int
+      lttng: ctf_integer
+    submit:
+      type: cl_ulong
+      lttng: ctf_integer
+    start_status:
+      type: cl_int
+      lttng: ctf_integer
+    start:
+      type: cl_ulong
+      lttng: ctf_integer
+    end_status:
+      type: cl_int
+      lttng: ctf_integer
+    end:
+      type: cl_ulong
+      lttng: ctf_integer
+  lttng_ust_opencl_source:program_string:
+    index:
+      type: int
+      lttng: ctf_integer
+    length:
+      type: size_t
+      lttng: ctf_integer
+    path:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl_source:program_binary:
+    index:
+      type: int
+      lttng: ctf_integer
+    length:
+      type: size_t
+      lttng: ctf_integer
+    path:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl_source:program_il:
+    length:
+      type: size_t
+      lttng: ctf_integer
+    path:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl_devices:device_name:
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    name:
+      type: char
+      string: true
+      lttng: ctf_string
+  lttng_ust_opencl_devices:device_timer:
+    device:
+      type: cl_device_id
+      lttng: ctf_integer_hex
+    device_timestamp:
+      type: cl_ulong
+      lttng: ctf_integer
+    host_timestamp:
+      type: cl_ulong
+      lttng: ctf_integer
+suffixes:
+  start: entry
+  stop: exit

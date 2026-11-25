@@ -1,0 +1,1141 @@
+
+#undef LTTNG_UST_TRACEPOINT_PROVIDER
+#define LTTNG_UST_TRACEPOINT_PROVIDER lttng_ust_cuda_exports
+
+#undef LTTNG_UST_TRACEPOINT_INCLUDE
+#define LTTNG_UST_TRACEPOINT_INCLUDE "./cuda_exports_tracepoints.h"
+
+#if !defined(CUDA_EXPORTS_TRACEPOINTS_H) || defined(LTTNG_UST_TRACEPOINT_HEADER_MULTI_READ)
+#define CUDA_EXPORTS_TRACEPOINTS_H
+
+#include <lttng/tracepoint.h>
+
+#include "lttng/tracepoint_gen.h"
+#include <cuda.h.include>
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  export_called,
+  TP_ARGS(
+    CUuuid *, pExportTableId,
+    size_t, exportOffset
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, pExportTableId, (uintptr_t)pExportTableId)
+    ctf_integer_hex(size_t, exportOffset, exportOffset)
+    ctf_sequence_text(uint8_t, pExportTableId_val, pExportTableId, size_t, sizeof(CUuuid))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_function_get_name_entry,
+  TP_ARGS(
+    CUcontext, hContext,
+    CUfunction, hFunction,
+    char **, pName
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)(hContext))
+    ctf_integer_hex(uintptr_t, hFunction, (uintptr_t)(hFunction))
+    ctf_integer_hex(uintptr_t, pName, (uintptr_t)(pName))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_function_get_name_exit,
+  TP_ARGS(
+    CUcontext, hContext,
+    CUfunction, hFunction,
+    char **, pName,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer_hex(uintptr_t, pName_val, (uintptr_t)((pName ? *pName : 0)))
+    ctf_string(pName_val_val, *pName)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpFunction_setCacheConfig_entry,
+  TP_ARGS(
+    CUfunction, hFunction,
+    CUfunc_cache, config
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hFunction, (uintptr_t)(hFunction))
+    ctf_integer(int32_t, config, config)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpFunction_setCacheConfig_exit,
+  TP_ARGS(
+    CUfunction, hFunction,
+    CUfunc_cache, config,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_6e163fbe_d8_entry,
+  TP_ARGS(
+    CUmodule, hModule,
+    int *, pB
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hModule, (uintptr_t)(hModule))
+    ctf_integer_hex(uintptr_t, pB, (uintptr_t)(pB))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_6e163fbe_d8_exit,
+  TP_ARGS(
+    CUmodule, hModule,
+    int *, pB,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer(int, pB_val, (pB ? *pB : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpFunction_get_arg_count_entry,
+  TP_ARGS(
+    CUfunction, hFunction,
+    size_t *, pArgCount
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hFunction, (uintptr_t)(hFunction))
+    ctf_integer_hex(uintptr_t, pArgCount, (uintptr_t)(pArgCount))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpFunction_get_arg_count_exit,
+  TP_ARGS(
+    CUfunction, hFunction,
+    size_t *, pArgCount,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer(size_t, pArgCount_val, (pArgCount ? *pArgCount : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpFunction_get_arg_descriptor_entry,
+  TP_ARGS(
+    CUfunction, hFunction,
+    size_t, argIndex,
+    cuexp_function_arg_desc_query *, pArgDescQuery
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hFunction, (uintptr_t)(hFunction))
+    ctf_integer(size_t, argIndex, argIndex)
+    ctf_integer_hex(uintptr_t, pArgDescQuery, (uintptr_t)(pArgDescQuery))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpFunction_get_arg_descriptor_exit,
+  TP_ARGS(
+    CUfunction, hFunction,
+    size_t, argIndex,
+    cuexp_function_arg_desc_query *, pArgDescQuery,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_sequence_text(uint8_t, pArgDescQuery_val, pArgDescQuery, size_t, (pArgDescQuery ? sizeof(cuexp_function_arg_desc_query) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_6e163fbe_130_entry,
+  TP_ARGS(
+    void **, pA,
+    CUfunction, hFunction
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, pA, (uintptr_t)(pA))
+    ctf_integer_hex(uintptr_t, hFunction, (uintptr_t)(hFunction))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_6e163fbe_130_exit,
+  TP_ARGS(
+    void **, pA,
+    CUfunction, hFunction,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer_hex(uintptr_t, pA_val, (uintptr_t)((pA ? *pA : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_module_iterate_on_functions_entry,
+  TP_ARGS(
+    CUcontext, hContext,
+    CUmodule, hModule,
+    void *, pFunc,
+    void *, userData
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)(hContext))
+    ctf_integer_hex(uintptr_t, hModule, (uintptr_t)(hModule))
+    ctf_integer_hex(uintptr_t, pFunc, (uintptr_t)(pFunc))
+    ctf_integer_hex(uintptr_t, userData, (uintptr_t)(userData))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_module_iterate_on_functions_exit,
+  TP_ARGS(
+    CUcontext, hContext,
+    CUmodule, hModule,
+    void *, pFunc,
+    void *, userData,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_6e163fbe_1a8_entry,
+  TP_ARGS(
+    CUfunction, hFunction,
+    int *, pB
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hFunction, (uintptr_t)(hFunction))
+    ctf_integer_hex(uintptr_t, pB, (uintptr_t)(pB))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_6e163fbe_1a8_exit,
+  TP_ARGS(
+    CUfunction, hFunction,
+    int *, pB,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer(int, pB_val, (pB ? *pB : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_6e163fbe_1b8_entry,
+  TP_ARGS(
+    CUfunction, hFunction,
+    unsigned long int *, pB
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hFunction, (uintptr_t)(hFunction))
+    ctf_integer_hex(uintptr_t, pB, (uintptr_t)(pB))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_6e163fbe_1b8_exit,
+  TP_ARGS(
+    CUfunction, hFunction,
+    unsigned long int *, pB,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer(unsigned long int, pB_val, (pB ? *pB : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpDevice_get_primary_context_refcount_entry,
+  TP_ARGS(
+    CUdevice, device
+  ),
+  TP_FIELDS(
+    ctf_integer(CUdevice, device, device)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpDevice_get_primary_context_refcount_exit,
+  TP_ARGS(
+    CUdevice, device,
+    unsigned int, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(unsigned int, cuResult, cuResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_get_thread_context_entry,
+  TP_ARGS(
+    CUcontext *, phContext
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, phContext, (uintptr_t)(phContext))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_get_thread_context_exit,
+  TP_ARGS(
+    CUcontext *, phContext,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer_hex(uintptr_t, phContext_val, (uintptr_t)((phContext ? *phContext : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_a094798c_08_entry,
+  TP_ARGS(
+    unsigned int, a,
+    void **, b
+  ),
+  TP_FIELDS(
+    ctf_integer(unsigned int, a, a)
+    ctf_integer_hex(uintptr_t, b, (uintptr_t)(b))
+    ctf_integer_hex(uintptr_t, b_val, (uintptr_t)((b ? *b : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_a094798c_08_exit,
+  TP_ARGS(
+    unsigned int, a,
+    void **, b,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer_hex(uintptr_t, b_val, (uintptr_t)((b ? *b : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_a094798c_10_entry,
+  TP_ARGS(
+    void **, a,
+    size_t *, b
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, a, (uintptr_t)(a))
+    ctf_integer_hex(uintptr_t, b, (uintptr_t)(b))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_a094798c_10_exit,
+  TP_ARGS(
+    void **, a,
+    size_t *, b
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, a_val, (uintptr_t)((a ? *a : 0)))
+    ctf_integer(size_t, b_val, (b ? *b : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_a094798c_18_entry,
+  TP_ARGS(
+    CUcontext, hContext,
+    void *, a,
+    void **, b
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)(hContext))
+    ctf_integer_hex(uintptr_t, a, (uintptr_t)(a))
+    ctf_integer_hex(uintptr_t, b, (uintptr_t)(b))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_a094798c_18_exit,
+  TP_ARGS(
+    CUcontext, hContext,
+    void *, a,
+    void **, b,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer_hex(uintptr_t, b_val, (uintptr_t)((b ? *b : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_a094798c_20_entry,
+  TP_ARGS(
+    CUcontext, hContext,
+    uint64_t *, b
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)(hContext))
+    ctf_integer_hex(uintptr_t, b, (uintptr_t)(b))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_a094798c_20_exit,
+  TP_ARGS(
+    CUcontext, hContext,
+    uint64_t *, b,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer(uint64_t, b_val, (b ? *b : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_a094798c_28_entry,
+  TP_ARGS(
+    unsigned int, a,
+    void *, b
+  ),
+  TP_FIELDS(
+    ctf_integer(unsigned int, a, a)
+    ctf_integer_hex(uintptr_t, b, (uintptr_t)(b))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_a094798c_28_exit,
+  TP_ARGS(
+    unsigned int, a,
+    void *, b,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_a094798c_30_entry,
+  TP_ARGS(
+    void **, a,
+    size_t *, b
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, a, (uintptr_t)(a))
+    ctf_integer_hex(uintptr_t, b, (uintptr_t)(b))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_a094798c_30_exit,
+  TP_ARGS(
+    void **, a,
+    size_t *, b
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, a_val, (uintptr_t)((a ? *a : 0)))
+    ctf_integer(size_t, b_val, (b ? *b : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpContext_kvstore_add_entry,
+  TP_ARGS(
+    CUcontext, hContext,
+    void *, handle,
+    void *, value,
+    void *, unknown
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)(hContext))
+    ctf_integer_hex(uintptr_t, handle, (uintptr_t)(handle))
+    ctf_integer_hex(uintptr_t, value, (uintptr_t)(value))
+    ctf_integer_hex(uintptr_t, unknown, (uintptr_t)(unknown))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpContext_kvstore_add_exit,
+  TP_ARGS(
+    CUcontext, hContext,
+    void *, handle,
+    void *, value,
+    void *, unknown,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpContext_kvstore_delete_entry,
+  TP_ARGS(
+    CUcontext, hContext,
+    void *, handle
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)(hContext))
+    ctf_integer_hex(uintptr_t, handle, (uintptr_t)(handle))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpContext_kvstore_delete_exit,
+  TP_ARGS(
+    CUcontext, hContext,
+    void *, handle,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpContext_kvstore_get_entry,
+  TP_ARGS(
+    void **, value,
+    CUcontext, hContext,
+    void *, handle
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, value, (uintptr_t)(value))
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)(hContext))
+    ctf_integer_hex(uintptr_t, handle, (uintptr_t)(handle))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpContext_kvstore_get_exit,
+  TP_ARGS(
+    void **, value,
+    CUcontext, hContext,
+    void *, handle,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer_hex(uintptr_t, value_val, (uintptr_t)((value ? *value : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_get_primary_context_entry,
+  TP_ARGS(
+    CUcontext *, phContext,
+    unsigned int, ordinal
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, phContext, (uintptr_t)(phContext))
+    ctf_integer(unsigned int, ordinal, ordinal)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_get_primary_context_exit,
+  TP_ARGS(
+    CUcontext *, phContext,
+    unsigned int, ordinal,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer_hex(uintptr_t, phContext_val, (uintptr_t)((phContext ? *phContext : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_register_module_entry,
+  TP_ARGS(
+    CUmodule *, phModule,
+    int *, fatBinary,
+    void *, a,
+    void *, b,
+    unsigned int, ordinal
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, phModule, (uintptr_t)(phModule))
+    ctf_integer_hex(uintptr_t, fatBinary, (uintptr_t)(fatBinary))
+    ctf_integer_hex(uintptr_t, a, (uintptr_t)(a))
+    ctf_integer_hex(uintptr_t, b, (uintptr_t)(b))
+    ctf_integer(unsigned int, ordinal, ordinal)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_register_module_exit,
+  TP_ARGS(
+    CUmodule *, phModule,
+    int *, fatBinary,
+    void *, a,
+    void *, b,
+    unsigned int, ordinal,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer_hex(uintptr_t, phModule_val, (uintptr_t)((phModule ? *phModule : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_unregister_module_entry,
+  TP_ARGS(
+    int *, fatBinary
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, fatBinary, (uintptr_t)(fatBinary))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_unregister_module_exit,
+  TP_ARGS(
+    int *, fatBinary
+  ),
+  TP_FIELDS(
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpContext_getDevice_entry,
+  TP_ARGS(
+    CUcontext, hContext,
+    CUdevice *, pDevice
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)(hContext))
+    ctf_integer_hex(uintptr_t, pDevice, (uintptr_t)(pDevice))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpContext_getDevice_exit,
+  TP_ARGS(
+    CUcontext, hContext,
+    CUdevice *, pDevice,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer(CUdevice, pDevice_val, (pDevice ? *pDevice : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpContext_getContextNumber_entry,
+  TP_ARGS(
+    CUcontext, hContext,
+    unsigned long int *, contextNumber
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)(hContext))
+    ctf_integer_hex(uintptr_t, contextNumber, (uintptr_t)(contextNumber))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpContext_getContextNumber_exit,
+  TP_ARGS(
+    CUcontext, hContext,
+    unsigned long int *, contextNumber,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer(unsigned long int, contextNumber_val, (contextNumber ? *contextNumber : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_21318c60_80_entry,
+  TP_ARGS(
+    void *, a,
+    void **, pB
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, a, (uintptr_t)(a))
+    ctf_integer_hex(uintptr_t, pB, (uintptr_t)(pB))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_21318c60_80_exit,
+  TP_ARGS(
+    void *, a,
+    void **, pB,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer_hex(uintptr_t, pB_val, (uintptr_t)((pB ? *pB : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_21318c60_138_entry,
+  TP_ARGS(
+    CUcontext, hContext,
+    void *, b,
+    void **, pC
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)(hContext))
+    ctf_integer_hex(uintptr_t, b, (uintptr_t)(b))
+    ctf_integer_hex(uintptr_t, pC, (uintptr_t)(pC))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_21318c60_138_exit,
+  TP_ARGS(
+    CUcontext, hContext,
+    void *, b,
+    void **, pC,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer_hex(uintptr_t, pC_val, (uintptr_t)((pC ? *pC : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpDevice_get_entry,
+  TP_ARGS(
+    CUdevice *, pDevice,
+    int, ordinal
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, pDevice, (uintptr_t)(pDevice))
+    ctf_integer(int, ordinal, ordinal)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpDevice_get_exit,
+  TP_ARGS(
+    CUdevice *, pDevice,
+    int, ordinal,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer(CUdevice, pDevice_val, (pDevice ? *pDevice : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpDevice_getCount_entry,
+  TP_ARGS(
+    unsigned int *, pCount
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, pCount, (uintptr_t)(pCount))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpDevice_getCount_exit,
+  TP_ARGS(
+    unsigned int *, pCount,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer(unsigned int, pCount_val, (pCount ? *pCount : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpDevice_getAttribute_entry,
+  TP_ARGS(
+    int, ordinal,
+    CUdevice_attribute, attrib,
+    int, flag,
+    long int *, pl
+  ),
+  TP_FIELDS(
+    ctf_integer(int, ordinal, ordinal)
+    ctf_integer(int32_t, attrib, attrib)
+    ctf_integer(int, flag, flag)
+    ctf_integer_hex(uintptr_t, pl, (uintptr_t)(pl))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpDevice_getAttribute_exit,
+  TP_ARGS(
+    int, ordinal,
+    CUdevice_attribute, attrib,
+    int, flag,
+    long int *, pl,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer(long int, pl_val, (pl ? *pl : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_b10541e1_30_entry,
+  TP_ARGS(
+    CUdevice, device,
+    void **, pB
+  ),
+  TP_FIELDS(
+    ctf_integer(CUdevice, device, device)
+    ctf_integer_hex(uintptr_t, pB, (uintptr_t)(pB))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_b10541e1_30_exit,
+  TP_ARGS(
+    CUdevice, device,
+    void **, pB,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer_hex(uintptr_t, pB_val, (uintptr_t)((pB ? *pB : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_b10541e1_40_entry,
+  TP_ARGS(
+    unsigned int *, pRes,
+    CUdevice, device
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, pRes, (uintptr_t)(pRes))
+    ctf_integer(CUdevice, device, device)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_b10541e1_40_exit,
+  TP_ARGS(
+    unsigned int *, pRes,
+    CUdevice, device,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer(unsigned int, pRes_val, (pRes ? *pRes : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_a6b1ff99_28_entry,
+  TP_ARGS(
+    void **, a,
+    CUcontext, hContext
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, a, (uintptr_t)(a))
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)(hContext))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_a6b1ff99_28_exit,
+  TP_ARGS(
+    void **, a,
+    CUcontext, hContext,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer_hex(uintptr_t, a_val, (uintptr_t)((a ? *a : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_127d4831_28_entry,
+  TP_ARGS(
+    void *, h,
+    int, a,
+    void **, pB,
+    void *, param_4
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, h, (uintptr_t)(h))
+    ctf_integer(int, a, a)
+    ctf_integer_hex(uintptr_t, pB, (uintptr_t)(pB))
+    ctf_integer_hex(uintptr_t, param_4, (uintptr_t)(param_4))
+    ctf_integer_hex(uintptr_t, pB_val, (uintptr_t)((pB ? *pB : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_127d4831_28_exit,
+  TP_ARGS(
+    void *, h,
+    int, a,
+    void **, pB,
+    void *, param_4,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer_hex(uintptr_t, pB_val, (uintptr_t)((pB ? *pB : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_127d4831_30_entry,
+  TP_ARGS(
+    void *, h,
+    int, a,
+    void **, pB
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, h, (uintptr_t)(h))
+    ctf_integer(int, a, a)
+    ctf_integer_hex(uintptr_t, pB, (uintptr_t)(pB))
+    ctf_integer_hex(uintptr_t, pB_val, (uintptr_t)((pB ? *pB : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_127d4831_30_exit,
+  TP_ARGS(
+    void *, h,
+    int, a,
+    void **, pB,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer_hex(uintptr_t, pB_val, (uintptr_t)((pB ? *pB : 0)))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpCUPTI_init_entry,
+  TP_ARGS(
+    void
+  ),
+  TP_FIELDS(
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexpCUPTI_init_exit,
+  TP_ARGS(
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_7cb63f9b_1e0_entry,
+  TP_ARGS(
+    CUdevice, device,
+    cuexp_7cb63f9b_1e0_struct *, b
+  ),
+  TP_FIELDS(
+    ctf_integer(CUdevice, device, device)
+    ctf_integer_hex(uintptr_t, b, (uintptr_t)(b))
+    ctf_sequence_text(uint8_t, b_val, b, size_t, (b ? sizeof(cuexp_7cb63f9b_1e0_struct) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_7cb63f9b_1e0_exit,
+  TP_ARGS(
+    CUdevice, device,
+    cuexp_7cb63f9b_1e0_struct *, b,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_sequence_text(uint8_t, b_val, b, size_t, (b ? sizeof(cuexp_7cb63f9b_1e0_struct) : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_2c8e0ad8_18_entry,
+  TP_ARGS(
+    int *, pRes,
+    void *, a,
+    void *, b
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, pRes, (uintptr_t)(pRes))
+    ctf_integer_hex(uintptr_t, a, (uintptr_t)(a))
+    ctf_integer_hex(uintptr_t, b, (uintptr_t)(b))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_2c8e0ad8_18_exit,
+  TP_ARGS(
+    int *, pRes,
+    void *, a,
+    void *, b,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer(int, pRes_val, (pRes ? *pRes : 0))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_2c8e0ad8_38_entry,
+  TP_ARGS(
+    int, a,
+    int, b,
+    unsigned int, c
+  ),
+  TP_FIELDS(
+    ctf_integer(int, a, a)
+    ctf_integer(int, b, b)
+    ctf_integer(unsigned int, c, c)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_2c8e0ad8_38_exit,
+  TP_ARGS(
+    int, a,
+    int, b,
+    unsigned int, c,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_getCudaState_entry,
+  TP_ARGS(
+    int *, pState
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, pState, (uintptr_t)(pState))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_cuda_exports,
+  cuexp_getCudaState_exit,
+  TP_ARGS(
+    int *, pState,
+    CUresult, cuResult
+  ),
+  TP_FIELDS(
+    ctf_integer(int32_t, cuResult, cuResult)
+    ctf_integer(int, pState_val, (pState ? *pState : 0))
+  )
+)
+
+
+#endif /* CUDA_EXPORTS_TRACEPOINTS_H */
+
+#include <lttng/tracepoint-event.h>

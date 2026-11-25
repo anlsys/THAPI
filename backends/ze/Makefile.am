@@ -174,7 +174,7 @@ bin_SCRIPTS = \
 	tracer_ze.sh
 
 if ZE_VALIDATOR
-  bin_SCRIPTS += validator/ze_validator
+  bin_SCRIPTS += validator/thapi_validator
 endif
 
 
@@ -256,8 +256,11 @@ data_DATA = \
 	ze_bindings_base.rb \
 	babeltrace_zeprofiling_apis.txt
 
-# Everything the ze_validator needs
+# Everything the thapi_validator needs
 ZE_VALIDATOR_SOURCES = \
+	validator/backend.rb \
+	validator/framework.rb \
+	validator/rules.yaml \
 	validator/errors.rb \
 	validator/allocation_map.rb \
 	validator/model.rb \
@@ -266,7 +269,7 @@ ZE_VALIDATOR_SOURCES = \
 	validator/state_object.rb \
 	validator/api_metadata.yaml
 
-EXTRA_DIST += $(ZE_VALIDATOR_SOURCES)
+EXTRA_DIST += $(ZE_VALIDATOR_SOURCES) validator/README.md validator/test/test_framework.rb
 
 if ZE_VALIDATOR
   ze_validatordir = $(datadir)/ze/validator
@@ -342,3 +345,5 @@ EXTRA_DIST += \
 CLEANFILES += \
 	$(TRACE_COMMON) \
 	$(BTX_ZE_GENERATED_SOURCE_TEST)
+
+EXTRA_DIST += validator/test/test_consumer.rb

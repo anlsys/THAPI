@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+#
+# Usage: test_wrapper_thapi_text_pretty.sh subdir backend archive /path/to/log
+#
+# Input log file can have any extension, to support passing different args for
+# different tests. File with expected output to diff against must have the same
+# with extension changed to ".bt_text_pretty", and be in the babeltrace2 text
+# pretty format.
+#
+set -euxo pipefail
+# We use `abs_top` on this file, because if not the relative path will be related to `utils`
+# but called in `backend/`
+#
+# Note: separate arguments for subdir and be to handle opencl, which uses
+# subdir=opencl and be=cl. Other backends pass the same string for both.
+subdir="$1"
+be="$2"
+source_path="$3"
+source_archive="$4"
+input_thapi_text_pretty="$5"
+
+# Generated tmp folder
+folder_name="tests/"$(basename "${input_thapi_text_pretty%.*}")
+mkdir -p "${folder_name}"
+
+# Generate source callback and link plugin
+source_callback_c="${folder_name}/callback.c"
+
+if [ "${subdir}" = "xprof" ]; then
+  model="/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/THAPI/build/../${subdir}/btx_${be}_model.yaml"
+else
+  model="/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/THAPI/build/${subdir}/btx_${be}_model.yaml"
+fi
+
+/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/THAPI/build/../utils/thapi_log_to_bt_source_component.rb \
+  -y "${model}" \
+  -i "${input_thapi_text_pretty}" -o "${source_callback_c}"
+
+modified_include_arg=""
+if [ "${be}" = "omp" ]; then
+  modified_include_arg="-I /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/THAPI/build/${subdir}/modified_include"
+fi
+
+${CC:-gcc} -o "${folder_name}/libTestSource.so" \
+  ${modified_include_arg} \
+  -I /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/THAPI/build/../utils/include -I /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/THAPI/build/../"${subdir}" -I /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/THAPI/build/../"${subdir}"/include \
+  -I . -I "${source_path}" \
+  $(pkg-config --cflags babeltrace2) -fPIC -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Werror \
+  $(pkg-config --libs babeltrace2) --shared \
+  -Wl,--whole-archive "${source_archive}" -Wl,--no-whole-archive \
+  "${source_callback_c}"
+
+# Run Plugin and Verify output
+bt2_cmd="babeltrace2"
+if [[ -v THAPI_VALGRIND ]]; then
+  bt2_cmd="valgrind --suppressions=/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/THAPI/build/../.valgrind/dlopen.supp --error-exitcode=1 --leak-check=full --quiet -- ${bt2_cmd}"
+fi
+
+current_output_bt_text_pretty="${folder_name}/current.bt_text_pretty"
+
+if [ "${be}" = "interval" ]; then
+  test_component=filter.btx_aggreg.aggreg
+  lib_name=libXAggreg.so
+elif [ "${be}" = "aggreg" ]; then
+  test_component=sink.btx_tally.tally
+  lib_name=libXTally.so
+else
+  test_component=filter."${be}"interval.interval
+  lib_name=lib"${be^^}"Interval.so
+fi
+
+ln -f /lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/THAPI/build/${subdir}/.libs/"${lib_name}" "${folder_name}/"
+
+${bt2_cmd} --plugin-path="${folder_name}" \
+  --component=source."${be}"test.test \
+  --component="${test_component}" \
+  >"${current_output_bt_text_pretty}"
+
+diff "${input_thapi_text_pretty%.*}.bt_text_pretty" "${current_output_bt_text_pretty}"
+
+# Remove tmp file
+rm -rf "${folder_name}"

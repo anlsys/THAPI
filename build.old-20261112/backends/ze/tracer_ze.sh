@@ -1,0 +1,173 @@
+#!/bin/sh
+exec_prefix=/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/ici
+libdir=${exec_prefix}/lib
+pkglibdir=$libdir/thapi
+prefix=/lus/flare/projects/pe-summer-26/jshim/THAPI-INSTALL/ici
+datarootdir=${prefix}/share
+datadir=${datarootdir}
+
+# Find all location of a `.so`
+whichlib() {
+  # Output of ldconfig:
+  #/usr/lib32:
+  #       libstdc++.so.6 -> libstdc++.so.6.0.26
+  # After the awk:
+  # -> /usr/lib32/libstdc++.so.6
+
+  # In OpenSUSE ldconfig, is in '/sbin'.
+  PATH=$PATH:/sbin ldconfig -vNX $(echo $LD_LIBRARY_PATH | sed 's/:/ /g') 2>/dev/null |
+    awk -v p=$1 'match($1, ":")                    { header=substr($1, 1, length($1)-1)} \
+               match($1, "^lib") && match($1, p) { print header "/" $1}'
+}
+
+whichlib64_head() {
+  # This function return only the first lib found
+  # This avoid a broken pipe error when the old pattern `whichlib64 $foo | head - n1` was used
+  for lib in $(whichlib $1); do
+    if objdump -a $lib | grep 64 >/dev/null; then
+      echo $lib
+      break
+    fi
+  done
+}
+
+display_help() {
+  echo "Usage:"
+  echo " $(basename $0) [options] [--] <application> <application-arguments>"
+  echo "  --help                        Show this screen"
+  echo "  --version                     Print the version string"
+  echo "  -b, --build                   Dump module build infos"
+  echo "  -p, --profiling               Enable profiling"
+  echo "  -v, --visualize               Visualize trace on thefly"
+  echo "  --properties                  Dump drivers and devices properties"
+  echo "  --memory                      Dump memory properties"
+  echo "  --structs                     Dump chained structs"
+  echo "  --sample                      Sample performance counters"
+  exit 1
+}
+
+display_version() {
+  cat $datadir/thapi_version
+  exit 1
+}
+
+while true; do
+  case "$1" in
+    --help)
+      display_help
+      exit
+      ;;
+    --version)
+      display_version
+      exit
+      ;;
+    -b | --build)
+      shift
+      build=1
+      ;;
+    -p | --profiling)
+      shift
+      profiling=1
+      export LTTNG_UST_ZE_PROFILE=1
+      ;;
+    -v | --visualize)
+      shift
+      lttng_view=1
+      ;;
+    --properties)
+      shift
+      properties=1
+      ;;
+    --memory)
+      shift
+      memory=1
+      ;;
+    --structs)
+      shift
+      structs=1
+      export LTTNG_UST_ZE_CHAINED_STRUCTS=1
+      ;;
+    --sample)
+      shift
+      sample=1
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *) break ;;
+  esac
+done
+
+if [ "$#" -eq 0 ]; then
+  display_help
+fi
+
+lttng-sessiond --daemonize --quiet
+if [ ! -z "$lttng_view" ]; then
+  lttng-relayd --daemonize
+  lttng create thapi-ze-session --live
+else
+  lttng create thapi-ze-session
+fi
+lttng enable-channel --userspace --blocking-timeout=inf blocking-channel
+lttng add-context --userspace --channel=blocking-channel -t vpid -t vtid
+lttng enable-event --channel=blocking-channel --userspace lttng_ust_ze:*
+lttng enable-event --channel=blocking-channel --userspace lttng_ust_zet:*
+lttng enable-event --channel=blocking-channel --userspace lttng_ust_zes:*
+if [ ! -z "$structs" ]; then
+  lttng enable-event --channel=blocking-channel --userspace lttng_ust_ze_structs:*
+  lttng enable-event --channel=blocking-channel --userspace lttng_ust_zet_structs:*
+  lttng enable-event --channel=blocking-channel --userspace lttng_ust_zes_structs:*
+fi
+if [ ! -z "$profiling" ]; then
+  lttng enable-event --channel=blocking-channel --userspace lttng_ust_ze_profiling:*
+fi
+ze_disable_events_memory="lttng_ust_ze_properties:memory_info_properties,lttng_ust_ze_properties:memory_info_range"
+if [ ! -z "$properties" ]; then
+  lttng enable-event --channel=blocking-channel --userspace lttng_ust_ze_properties:* -x ${ze_disable_events_memory}
+fi
+if [ ! -z "$memory" ]; then
+  lttng enable-event --channel=blocking-channel --userspace ${ze_disable_events_memory}
+fi
+if [ ! -z "$build" ]; then
+  lttng enable-event --channel=blocking-channel --userspace lttng_ust_ze_build:*
+fi
+if [ ! -z "$sample" ]; then
+  export LTTNG_UST_SAMPLING=1
+  lttng enable-channel --userspace nonblocking-channel
+  lttng enable-event --channel=nonblocking-channel --userspace lttng_ust_sampling:*
+  lttng enable-event --channel=nonblocking-channel --userspace lttng_ust_ze_sampling:*
+fi
+if [ -z "$LTTNG_UST_ZE_LIBZE_LOADER" ]; then
+  LTTNG_UST_ZE_LIBZE_LOADER=$(whichlib64_head libze_loader.so)
+  if [ -n "$LTTNG_UST_ZE_LIBZE_LOADER" ]; then
+    export LTTNG_UST_ZE_LIBZE_LOADER="$LTTNG_UST_ZE_LIBZE_LOADER"
+    export LD_LIBRARY_PATH=$pkglibdir/ze:$LD_LIBRARY_PATH
+  fi
+else
+  export LD_LIBRARY_PATH=$pkglibdir/ze:$LD_LIBRARY_PATH
+fi
+export LD_PRELOAD=$pkglibdir/ze/libze_loader.so:$LD_PRELOAD
+export LTTNG_UST_ALLOW_BLOCKING=1
+export LTTNG_UST_ZE_VERBOSE=1
+lttng start
+
+ctrl_c() {
+  lttng stop
+  lttng destroy
+  exit
+}
+
+trap ctrl_c INT
+
+if [ ! -z "$lttng_view" ]; then
+  lttng view --viewer="babeltrace_thapi --backend ze --context --live" &
+  PID=$!
+fi
+"$@"
+lttng stop
+lttng destroy
+if [ ! -z "$lttng_view" ]; then
+  wait $PID
+fi

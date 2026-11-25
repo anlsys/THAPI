@@ -1,0 +1,16 @@
+#include "lttng/tracepoint_gen.h"
+#include "mpi.h.include"
+
+TRACEPOINT_EVENT(
+  lttng_ust_mpi_type,
+  property,
+  TP_ARGS(
+    MPI_Datatype, datatype,
+    int, size
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, datatype, (uintptr_t)datatype)
+    ctf_integer(int, size, size)
+  )
+)
+

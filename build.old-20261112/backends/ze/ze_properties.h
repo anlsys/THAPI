@@ -1,0 +1,143 @@
+
+#undef LTTNG_UST_TRACEPOINT_PROVIDER
+#define LTTNG_UST_TRACEPOINT_PROVIDER lttng_ust_ze_properties
+
+#undef LTTNG_UST_TRACEPOINT_INCLUDE
+#define LTTNG_UST_TRACEPOINT_INCLUDE "./ze_properties.h"
+
+#if !defined(ZE_PROPERTIES_H) || defined(LTTNG_UST_TRACEPOINT_HEADER_MULTI_READ)
+#define ZE_PROPERTIES_H
+
+#include <lttng/tracepoint.h>
+
+#include "lttng/tracepoint_gen.h"
+#include "ze.h.include"
+
+TRACEPOINT_EVENT(
+  lttng_ust_ze_properties,
+  driver,
+  TP_ARGS(
+    ze_driver_handle_t, hDriver,
+    ze_driver_properties_t *, pDriverProperties
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hDriver, (uintptr_t)hDriver)
+    ctf_sequence_text(uint8_t, pDriverProperties_val, pDriverProperties, size_t, sizeof(ze_driver_properties_t))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_ze_properties,
+  device,
+  TP_ARGS(
+    ze_driver_handle_t, hDriver,
+    ze_device_handle_t, hDevice,
+    ze_device_properties_t *, pDeviceProperties
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hDriver, (uintptr_t)hDriver)
+    ctf_integer_hex(uintptr_t, hDevice, (uintptr_t)hDevice)
+    ctf_sequence_text(uint8_t, pDeviceProperties_val, pDeviceProperties, size_t, sizeof(ze_device_properties_t))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_ze_properties,
+  subdevice,
+  TP_ARGS(
+    ze_driver_handle_t, hDriver,
+    ze_device_handle_t, hDevice,
+    ze_device_handle_t, hSubDevice,
+    ze_device_properties_t *, pDeviceProperties
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hDriver, (uintptr_t)hDriver)
+    ctf_integer_hex(uintptr_t, hDevice, (uintptr_t)hDevice)
+    ctf_integer_hex(uintptr_t, hSubDevice, (uintptr_t)hSubDevice)
+    ctf_sequence_text(uint8_t, pDeviceProperties_val, pDeviceProperties, size_t, sizeof(ze_device_properties_t))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_ze_properties,
+  command_queue_group,
+  TP_ARGS(
+    ze_driver_handle_t, hDriver,
+    ze_device_handle_t, hDevice,
+    uint32_t, pCount,
+    ze_command_queue_group_properties_t *, pGroupProperties
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hDriver, (uintptr_t)hDriver)
+    ctf_integer_hex(uintptr_t, hDevice, (uintptr_t)hDevice)
+    ctf_integer(uint32_t, pCount, pCount)
+    ctf_sequence_text(uint8_t, pGroupProperties_vals, pGroupProperties, size_t, pCount * sizeof(ze_command_queue_group_properties_t))
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_ze_properties,
+  device_timer,
+  TP_ARGS(
+    ze_device_handle_t, hDevice,
+    uint64_t, hostTimestamp,
+    uint64_t, deviceTimestamp
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hDevice, (uintptr_t)hDevice)
+    ctf_integer(uint64_t, hostTimestamp, hostTimestamp)
+    ctf_integer(uint64_t, deviceTimestamp, deviceTimestamp)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_ze_properties,
+  memory_info_properties,
+  TP_ARGS(
+    ze_context_handle_t, hContext,
+    const void *, ptr,
+    ze_memory_allocation_properties_t *, pMemAllocProperties,
+    ze_device_handle_t, hDevice
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)hContext)
+    ctf_integer_hex(uintptr_t, ptr, (uintptr_t)ptr)
+    ctf_sequence_text(uint8_t, pMemAllocProperties_val, pMemAllocProperties, size_t, sizeof(ze_memory_allocation_properties_t))
+    ctf_integer_hex(uintptr_t, hDevice, (uintptr_t)hDevice)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_ze_properties,
+  memory_info_range,
+  TP_ARGS(
+    ze_context_handle_t, hContext,
+    const void *, ptr,
+    const void *, base,
+    size_t, size
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hContext, (uintptr_t)hContext)
+    ctf_integer_hex(uintptr_t, ptr, (uintptr_t)ptr)
+    ctf_integer_hex(uintptr_t, base, (uintptr_t)base)
+    ctf_integer(size_t, size, size)
+  )
+)
+
+TRACEPOINT_EVENT(
+  lttng_ust_ze_properties,
+  kernel,
+  TP_ARGS(
+    ze_kernel_handle_t, hKernel,
+    ze_kernel_properties_t *, pKernelProperties
+  ),
+  TP_FIELDS(
+    ctf_integer_hex(uintptr_t, hKernel, (uintptr_t)hKernel)
+    ctf_sequence_text(uint8_t, pKernelProperties_val, pKernelProperties, size_t, sizeof(ze_kernel_properties_t))
+  )
+)
+
+
+#endif /* ZE_PROPERTIES_H */
+
+#include <lttng/tracepoint-event.h>

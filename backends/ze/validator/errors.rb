@@ -2,7 +2,7 @@
 
 require 'set'
 
-# Error taxonomy and reporting for ze_validator.
+# Error taxonomy and reporting for thapi_validator.
 module ZEValidator
 
   # A node of the error tree.
@@ -202,7 +202,7 @@ module ZEValidator
     # production trace, which drowns everything else. Edit here to change it.
     MAX_REPORTS_PER_KIND = 5
 
-    TOOL = 'ze_validator'
+    TOOL = 'thapi_validator'
 
     # Width of the dotted leader in the summary, chosen so the deepest label
     # still leaves room for the count.

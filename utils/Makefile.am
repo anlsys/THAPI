@@ -92,3 +92,8 @@ EXTRA_DIST = \
 	thapi_log_to_bt_source_component.rb \
 	thapi_text_pretty_set_ts.rb \
 	test_wrapper_thapi_text_pretty.sh
+
+# Backend-independent infrastructure; Level Zero remains the only built-in validator.
+thapi_validatordir = $(datadir)/thapi/validator
+thapi_validator_DATA = validator/framework.rb validator/backend.rb
+EXTRA_DIST += $(thapi_validator_DATA) validator/README.md validator/test/test_runtime.rb

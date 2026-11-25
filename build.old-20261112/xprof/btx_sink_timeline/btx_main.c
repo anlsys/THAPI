@@ -1,0 +1,174 @@
+#include "uthash.h"
+#include <babeltrace2/babeltrace.h>
+#include <metababel/metababel.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+/* Loosely based by
+ * https://babeltrace.org/docs/v2.0/libbabeltrace2/example-simple-sink-cmp-cls.html
+ */
+
+/*
+ * Consume Message
+ */
+
+static bt_component_class_sink_consume_method_status
+sink_consume(bt_self_component_sink *self_component_sink) {
+  bt_component_class_sink_consume_method_status status =
+      BT_COMPONENT_CLASS_SINK_CONSUME_METHOD_STATUS_OK;
+
+  /* Retrieve our private data from the component's user data */
+  /* This contain user data and the message iterator */
+  common_data_t *common_data = (common_data_t *)bt_self_component_get_data(
+      bt_self_component_sink_as_self_component(self_component_sink));
+
+  /* Consume a batch of messages from the upstream message iterator */
+  bt_message_array_const messages;
+  uint64_t message_count;
+  bt_message_iterator_next_status next_status = bt_message_iterator_next(
+      common_data->message_iterator, &messages, &message_count);
+
+  switch (next_status) {
+  case BT_MESSAGE_ITERATOR_NEXT_STATUS_END:
+    /* End of iteration: put the message iterator's reference */
+    bt_message_iterator_put_ref(common_data->message_iterator);
+    status = BT_COMPONENT_CLASS_SINK_CONSUME_METHOD_STATUS_END;
+    goto end;
+  case BT_MESSAGE_ITERATOR_NEXT_STATUS_AGAIN:
+    status = BT_COMPONENT_CLASS_SINK_CONSUME_METHOD_STATUS_AGAIN;
+    goto end;
+  case BT_MESSAGE_ITERATOR_NEXT_STATUS_MEMORY_ERROR:
+    status = BT_COMPONENT_CLASS_SINK_CONSUME_METHOD_STATUS_MEMORY_ERROR;
+    goto end;
+  case BT_MESSAGE_ITERATOR_NEXT_STATUS_ERROR:
+    status = BT_COMPONENT_CLASS_SINK_CONSUME_METHOD_STATUS_ERROR;
+    goto end;
+  default:
+    break;
+  }
+  /* For each consumed message */
+  for (uint64_t i = 0; i < message_count; i++) {
+    const bt_message *upstream_message = messages[i];
+    if (bt_message_get_type(upstream_message) != BT_MESSAGE_TYPE_EVENT) {
+      bt_message_put_ref(upstream_message);
+      continue;
+    }
+
+    /* Borrow the event message's event and its class */
+    const bt_event *event =
+        bt_message_event_borrow_event_const(upstream_message);
+    const bt_event_class *event_class = bt_event_borrow_class_const(event);
+
+    /* Event dispatcher */
+    const char *class_name = bt_event_class_get_name(event_class);
+    name_to_dispatcher_t *s = NULL;
+    HASH_FIND_STR(common_data->name_to_dispatcher, class_name, s);
+    if (s) {
+      (*((dispatcher_t(*))(s->dispatcher)))(s->callbacks, common_data,
+                                            upstream_message);
+    }
+
+    bt_message_put_ref(upstream_message);
+  }
+end:
+  return status;
+}
+
+/*
+ * Initializes the sink component.
+ */
+static bt_component_class_initialize_method_status
+sink_initialize(bt_self_component_sink *self_component_sink,
+                bt_self_component_sink_configuration *configuration,
+                const bt_value *params, void *initialize_method_data) {
+  /* Allocate a private data structure */
+  common_data_t *common_data =
+      (common_data_t *)calloc(1, sizeof(common_data_t));
+  common_data->static_callbacks =
+      (static_callbacks_t *)calloc(1, sizeof(static_callbacks_t));
+  common_data->btx_params = (btx_params_t *)calloc(1, sizeof(btx_params_t));
+  common_data->params = params;
+
+  /* Read parameters */
+  btx_populate_params(common_data);
+  bt_value_get_ref(common_data->params);
+
+  /* Register User Callbacks */
+  btx_register_usr_callbacks((void *)common_data);
+  /* Call initialize_processing*/
+  btx_call_callbacks_initialize_component(common_data, &common_data->usr_data);
+  /* Call read callbacks */
+  btx_call_callbacks_read_params(common_data, common_data->usr_data,
+                                 common_data->btx_params);
+
+  /* Set the component's user data to our private data structure */
+  bt_self_component_set_data(
+      bt_self_component_sink_as_self_component(self_component_sink),
+      common_data);
+
+  /*
+   * Add an input port named `in` to the sink component.
+   *
+   * This is needed so that this sink component can be connected to a
+   * filter or a source component. With a connected upstream
+   * component, this sink component can create a message iterator
+   * to consume messages.
+   */
+  bt_self_component_sink_add_input_port(self_component_sink, "in", NULL, NULL);
+  return BT_COMPONENT_CLASS_INITIALIZE_METHOD_STATUS_OK;
+}
+
+static void sink_finalize(bt_self_component_sink *self_component_sink) {
+  common_data_t *common_data = (common_data_t *)bt_self_component_get_data(
+      bt_self_component_sink_as_self_component(self_component_sink));
+
+  /* Finalize Component */
+  btx_call_callbacks_finalize_component(common_data, common_data->usr_data);
+
+  // Delete name_to_dispatcher
+  btx_unregister_callbacks(common_data);
+
+  // We allocate it, we need to free it
+  free(common_data->btx_params);
+  free(common_data->static_callbacks);
+  bt_value_put_ref(common_data->params);
+
+  /* Free the allocated structure */
+  free(common_data);
+}
+
+/*
+ * Called when the trace processing graph containing the sink component
+ * is configured.
+ *
+ * This is where we can create our upstream message iterator.
+ */
+static bt_component_class_sink_graph_is_configured_method_status
+sink_graph_is_configured(bt_self_component_sink *self_component_sink) {
+  /* Retrieve our private data from the component's user data */
+  common_data_t *common_data = (common_data_t *)bt_self_component_get_data(
+      bt_self_component_sink_as_self_component(self_component_sink));
+
+  /* Borrow our unique port */
+  bt_self_component_port_input *in_port =
+      bt_self_component_sink_borrow_input_port_by_index(self_component_sink, 0);
+
+  /* Create the upstream message iterator */
+  bt_message_iterator_create_from_sink_component(
+      self_component_sink, in_port, &common_data->message_iterator);
+
+  return BT_COMPONENT_CLASS_SINK_GRAPH_IS_CONFIGURED_METHOD_STATUS_OK;
+}
+
+/* Mandatory */
+BT_PLUGIN_MODULE();
+
+BT_PLUGIN(btx_timeline);
+BT_PLUGIN_SINK_COMPONENT_CLASS(timeline, sink_consume);
+
+BT_PLUGIN_SINK_COMPONENT_CLASS_INITIALIZE_METHOD(
+    timeline, sink_initialize);
+BT_PLUGIN_SINK_COMPONENT_CLASS_FINALIZE_METHOD(
+    timeline, sink_finalize);
+BT_PLUGIN_SINK_COMPONENT_CLASS_GRAPH_IS_CONFIGURED_METHOD(
+    timeline, sink_graph_is_configured);
